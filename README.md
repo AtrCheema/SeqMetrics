@@ -15,16 +15,15 @@ using setup file, go to folder where repo is downloaded
 ## How to Use
 
 ```python
-from TSErrors import 
+import numpy as np
+from TSErrors import FindErrors
 
 true = np.random.random((20, 1))
 pred = np.random.random((20, 1))
 
 er = FindErrors(true, pred)
 
-er_methods = [method for method in dir(er) if callable(getattr(er, method)) if
-						   not method.startswith('_')]
+er.all_methods # get names of all availabe methods
 
-for m in er_methods:
-	print('{0:15} :  {1:<12.3f}'.format(m, float(getattr(er, m)())))
+er.calculate_all()  # calculate errors using all available methods
 ```

@@ -15,6 +15,8 @@ class FindErrors(object):
     def __init__(self, actual, predicted):
 
         self.true, self.predicted = self._pre_process(actual, predicted)
+        self.all_methods = [method for method in dir(self) if callable(getattr(self, method)) if
+                               not method.startswith('_') if method != 'calculate_all']
     
 
     def _pre_process(self, true, predicted):
@@ -39,6 +41,12 @@ class FindErrors(object):
         
         return np_array
 
+
+    def calculate_all(self):
+        """ calculates errors using all available methods"""
+        for m in self.all_methods:
+            print('{0:15} :  {1:<12.3f}'.format(m, float(getattr(self, m)())))
+        return
 
 
     def rmse(self):
@@ -342,8 +350,4 @@ if __name__ == "__main__":
 
     er = FindErrors(true, pred)
 
-    er_methods = [method for method in dir(er) if callable(getattr(er, method)) if
-                               not method.startswith('_')]
-
-    for m in er_methods:
-        print('{0:15} :  {1:<12.3f}'.format(m, float(getattr(er, m)())))
+    er.calculate_all()
