@@ -23,7 +23,9 @@ pred = np.random.random((20, 1))
 
 er = FindErrors(true, pred)
 
-er.all_methods # get names of all availabe methods
+for m in er.all_methods: print("{:20}".format(m)) # get names of all availabe methods
 
-er.calculate_all()  # calculate errors using all available methods
+er.nse()   # calculate Nash Sutcliff efficiency
+
+er.calculate_all()  # or calculate errors using all available methods
 ```
