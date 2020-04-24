@@ -1,6 +1,6 @@
 from sklearn.metrics import mean_squared_error, mean_gamma_deviance, mean_poisson_deviance
 from sklearn.metrics import median_absolute_error, mean_squared_log_error, max_error
-from sklearn.metrics import explained_variance_score, mean_absolute_error
+from sklearn.metrics import explained_variance_score
 from math import sqrt
 from scipy.stats.stats import linregress
 import numpy as np
@@ -16,9 +16,13 @@ class FindErrors(object):
 
         self.true, self.predicted = self._pre_process(actual, predicted)
         self.all_methods = [method for method in dir(self) if callable(getattr(self, method)) if
-                               not method.startswith('_') if method != 'calculate_all']
-    
+                            not method.startswith('_') if method != 'calculate_all']
 
+        # if arrays contain negative values, following three errors can not be computed
+        for array in [self.true, self.predicted]:
+            if len(array[array < 0.0]) > 0:
+                self.all_methods = [m for m in self.all_methods if m not in ('mgd', 'mpd', 'msle')]
+    
     def _pre_process(self, true, predicted):
 
         predicted = self._assert_array(predicted)
@@ -27,7 +31,6 @@ class FindErrors(object):
 
         return true, predicted
     
-
     def _assert_array(self, array_like):
 
         if not isinstance(array_like, np.ndarray):
@@ -41,13 +44,11 @@ class FindErrors(object):
         
         return np_array
 
-
     def calculate_all(self):
         """ calculates errors using all available methods"""
         for m in self.all_methods:
             print('{0:15} :  {1:<12.3f}'.format(m, float(getattr(self, m)())))
         return
-
 
     def rmse(self):
         return sqrt(mean_squared_error(self.true, self.predicted))
@@ -67,14 +68,14 @@ class FindErrors(object):
         _nse = 1 - sum((self.predicted - self.true) ** 2) / sum((self.true - np.mean(self.true)) ** 2)
         return _nse
 
-    def APB(self):
+    def apb(self):
         """ absolute percent bias"""
-        APB = 100.0 * sum(abs(self.predicted - self.true)) / sum(self.true)  # Absolute percent bias
-        return APB
+        _apb = 100.0 * sum(abs(self.predicted - self.true)) / sum(self.true)  # Absolute percent bias
+        return _apb
 
     def percent_bias(self):
-        PerBias = 100.0 * sum(self.predicted - self.true) / sum(self.true)  # percent bias
-        return PerBias
+        pbias = 100.0 * sum(self.predicted - self.true) / sum(self.true)  # percent bias
+        return pbias
 
     def nrmse(self):
         """ Normalized Root Mean Squared Error """
@@ -84,12 +85,10 @@ class FindErrors(object):
         """ Mean Absolute Error """
         return np.mean(np.abs(self.true - self.predicted))
 
-    
     def mare(self):
         """ Mean Absolute Relative Error """
         mare_ = np.sum(np.abs(self.true - self.predicted), axis=0, dtype=np.float64) / np.sum(self.true)
         return mare_
-
 
     def bias(self):
         """
@@ -100,7 +99,6 @@ class FindErrors(object):
         """
         bias = np.nansum(self.true - self.predicted) / len(self.true)
         return float(bias)
-
 
     def log_nse(self, epsilon=0.0):
         """
@@ -122,16 +120,15 @@ class FindErrors(object):
         normpdf = -y**2 / 2 - np.log(np.sqrt(2 * np.pi))
         return np.mean(normpdf)
 
-
     def corr_coeff(self):
         """
         Correlation Coefficient
             .. math::
-            r = \\frac{\\sum ^n _{i=1}(e_i - \\bar{e})(s_i - \\bar{s})}{\\sqrt{\\sum ^n _{i=1}(e_i - \\bar{e})^2} \\sqrt{\\sum ^n _{i=1}(s_i - \\bar{s})^2}}
+            r = \\frac{\\sum ^n _{i=1}(e_i - \\bar{e})(s_i - \\bar{s})}{\\sqrt{\\sum ^n _{i=1}(e_i - \\bar{e})^2}
+             \\sqrt{\\sum ^n _{i=1}(s_i - \\bar{s})^2}}
         """
         correlation_coefficient = np.corrcoef(self.true, self.predicted)[0, 1]
         return correlation_coefficient
-
 
     def rrmse(self):
         """
@@ -142,17 +139,16 @@ class FindErrors(object):
         rrmse = self.rmse() / np.mean(self.true)
         return rrmse
 
-
     def agreementindex(self):
         """
         Agreement Index (d) developed by Willmott (1981)
             .. math::   
-            d = 1 - \\frac{\\sum_{i=1}^{N}(e_{i} - s_{i})^2}{\\sum_{i=1}^{N}(\\left | s_{i} - \\bar{e} \\right | + \\left | e_{i} - \\bar{e} \\right |)^2}  
+            d = 1 - \\frac{\\sum_{i=1}^{N}(e_{i} - s_{i})^2}{\\sum_{i=1}^{N}(\\left | s_{i} - \\bar{e}
+             \\right | + \\left | e_{i} - \\bar{e} \\right |)^2}
         """
-        Agreement_index = 1 - (np.sum((self.true - self.predicted)**2)) / (np.sum(
+        agreement_index = 1 - (np.sum((self.true - self.predicted)**2)) / (np.sum(
             (np.abs(self.predicted - np.mean(self.true)) + np.abs(self.true - np.mean(self.true)))**2))
-        return Agreement_index
-
+        return agreement_index
 
     def covariance(self):
         """
@@ -165,14 +161,14 @@ class FindErrors(object):
         covariance = np.mean((self.true - obs_mean)*(self.predicted - sim_mean))
         return covariance
 
-
     def decomposed_mse(self):
         """
         Decomposed MSE developed by Kobayashi and Salam (2000)
             .. math ::
             dMSE = (\\frac{1}{N}\\sum_{i=1}^{N}(e_{i}-s_{i}))^2 + SDSD + LCS
             SDSD = (\\sigma(e) - \\sigma(s))^2
-            LCS = 2 \\sigma(e) \\sigma(s) * (1 - \\frac{\\sum ^n _{i=1}(e_i - \\bar{e})(s_i - \\bar{s})}{\\sqrt{\\sum ^n _{i=1}(e_i - \\bar{e})^2} \\sqrt{\\sum ^n _{i=1}(s_i - \\bar{s})^2}})
+            LCS = 2 \\sigma(e) \\sigma(s) * (1 - \\frac{\\sum ^n _{i=1}(e_i - \\bar{e})(s_i - \\bar{s})}
+            {\\sqrt{\\sum ^n _{i=1}(e_i - \\bar{e})^2} \\sqrt{\\sum ^n _{i=1}(s_i - \\bar{s})^2}})
         """
         e_std = np.std(self.true)
         s_std = np.std(self.predicted)
@@ -185,12 +181,11 @@ class FindErrors(object):
 
         return decomposed_mse
 
-
-
     def kge(self, return_all=False):
         """
         Kling-Gupta Efficiency 
-        Gupta, Kling, Yilmaz, Martinez, 2009, Decomposition of the mean squared error and NSE performance criteria: Implications for improving hydrological modelling
+        Gupta, Kling, Yilmaz, Martinez, 2009, Decomposition of the mean squared error and NSE performance
+         criteria: Implications for improving hydrological modelling
         output:
             kge: Kling-Gupta Efficiency
             cc: correlation 
@@ -206,12 +201,12 @@ class FindErrors(object):
         else:
             return kge
 
-
     def kge_np(self, return_all=False):
         """
         Non parametric Kling-Gupta Efficiency
         Corresponding paper:
-        Pool, Vis, and Seibert, 2018 Evaluating model performance: towards a non-parametric variant of the Kling-Gupta efficiency, Hydrological Sciences Journal.
+        Pool, Vis, and Seibert, 2018 Evaluating model performance: towards a non-parametric variant of the
+         Kling-Gupta efficiency, Hydrological Sciences Journal.
         https://doi.org/10.1080/02626667.2018.1552002
         output:
             kge: Kling-Gupta Efficiency
@@ -219,7 +214,7 @@ class FindErrors(object):
             alpha: ratio of the standard deviation
             beta: ratio of the mean
         """
-        ## self-made formula 
+        # # self-made formula
         cc = _spearmann_corr(self.true, self.predicted)
 
         fdc_sim = np.sort(self.predicted / (np.nanmean(self.predicted)*len(self.predicted)))
@@ -232,7 +227,6 @@ class FindErrors(object):
             return kge, cc, alpha, beta
         else:
             return kge
-
 
     def kge_mod(self, return_all=False):
         """
@@ -257,7 +251,6 @@ class FindErrors(object):
         else:
             return kgeprime_
 
-
     def volume_error(self):
         """
         Returns the Volume Error (Ve).
@@ -275,13 +268,11 @@ class FindErrors(object):
         ve = np.sum(self.predicted - self.true) / np.sum(self.true)
         return float(ve)
 
-
     def mpd(self):
         """
         mean poisson deviance
         """
         return mean_poisson_deviance(self.true, self.predicted)
-
 
     def mgd(self):
         """
@@ -289,13 +280,11 @@ class FindErrors(object):
         """
         return mean_gamma_deviance(self.true, self.predicted)
 
-
     def med_ae(self):
         """
         median absolute error
         """
         return median_absolute_error(self.true, self.predicted)
-
 
     def msle(self):
         """
@@ -303,13 +292,11 @@ class FindErrors(object):
         """
         return mean_squared_log_error(self.true, self.predicted)
 
-
     def max_err(self):
         """
         maximum error
         """
         return max_error(self.true, self.predicted)
-
 
     def exp_var_score(self):
         """
@@ -319,35 +306,34 @@ class FindErrors(object):
         """
         return explained_variance_score(self.true, self.predicted)
 
-
     
 def _spearmann_corr(x, y):
     """Separmann correlation coefficient"""
     col = [list(a) for a in zip(x, y)]
-    xy = sorted(col, key=lambda x: x[0], reverse=False)
+    xy = sorted(col, key=lambda _x: _x[0], reverse=False)
     # rang of x-value
     for i, row in enumerate(xy):
         row.append(i+1)
 
-    a = sorted(xy, key=lambda x: x[1], reverse=False)
+    a = sorted(xy, key=lambda _x: _x[1], reverse=False)
     # rang of y-value
     for i, row in enumerate(a):
         row.append(i+1)
 
-    MW_rank_x = np.nanmean(np.array(a)[:,2])
-    MW_rank_y = np.nanmean(np.array(a)[:,3])
+    mw_rank_x = np.nanmean(np.array(a)[:, 2])
+    mw_rank_y = np.nanmean(np.array(a)[:, 3])
 
-    numerator = np.nansum([float((a[j][2]-MW_rank_x)*(a[j][3]-MW_rank_y)) for j in range(len(a))])
-    denominator1 = np.sqrt(np.nansum([(a[j][2]-MW_rank_x)**2. for j in range(len(a))]))
-    denominator2 = np.sqrt(np.nansum([(a[j][3]-MW_rank_x)**2. for j in range(len(a))]))
+    numerator = np.nansum([float((a[j][2]-mw_rank_x)*(a[j][3]-mw_rank_y)) for j in range(len(a))])
+    denominator1 = np.sqrt(np.nansum([(a[j][2]-mw_rank_x)**2. for j in range(len(a))]))
+    denominator2 = np.sqrt(np.nansum([(a[j][3]-mw_rank_x)**2. for j in range(len(a))]))
     return float(numerator/(denominator1*denominator2))
 
 
 if __name__ == "__main__":
 
-    true = np.random.random((20, 1))
-    pred = np.random.random((20, 1))
+    t = np.random.random((20, 1))
+    p = np.random.random((20, 1))
 
-    er = FindErrors(true, pred)
+    er = FindErrors(t, p)
 
     er.calculate_all()
