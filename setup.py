@@ -52,7 +52,6 @@ setup(
     packages=['TSErrors'],
 
     install_requires=[
-        'numpy',
-        'scikit-learn'
+        'numpy'
     ],
 )

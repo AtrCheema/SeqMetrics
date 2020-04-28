@@ -1,9 +1,12 @@
-from sklearn.metrics import mean_squared_error, mean_gamma_deviance, mean_poisson_deviance
-from sklearn.metrics import median_absolute_error, mean_squared_log_error, max_error
-from sklearn.metrics import explained_variance_score
 from math import sqrt
+from scipy.special import xlogy
 from scipy.stats.stats import linregress
 import numpy as np
+import warnings
+
+# TODO remove repeated calculation of mse, std, mean etc
+# TODO make weights, class attribute
+# TODO write tests
 
 
 class FindErrors(object):
@@ -21,7 +24,9 @@ class FindErrors(object):
         # if arrays contain negative values, following three errors can not be computed
         for array in [self.true, self.predicted]:
             if len(array[array < 0.0]) > 0:
-                self.all_methods = [m for m in self.all_methods if m not in ('mgd', 'mpd', 'msle')]
+                self.all_methods = [m for m in self.all_methods if m not in ('mean_gamma_deviance',
+                                                                             'mean_poisson_deviance',
+                                                                             'mean_square_log_error')]
     
     def _pre_process(self, true, predicted):
 
@@ -47,19 +52,47 @@ class FindErrors(object):
     def calculate_all(self):
         """ calculates errors using all available methods"""
         for m in self.all_methods:
-            print('{0:15} :  {1:<12.3f}'.format(m, float(getattr(self, m)())))
+            print('{0:25} :  {1:<12.3f}'.format(m, float(getattr(self, m)())))
         return
 
-    def rmse(self):
-        return sqrt(mean_squared_error(self.true, self.predicted))
+    def rmse(self, weights=None):
+        return sqrt(np.average((self.true - self.predicted) ** 2, axis=0,  weights=weights))
 
-    def mse(self):
-        return mean_squared_error(self.true, self.predicted)
+    def mse(self, weights=None):
+        return np.average((self.true - self.predicted) ** 2, axis=0,  weights=weights)
 
     def r2(self):
         """coefficient of determination"""
         slope, intercept, r_value, p_value, std_err = linregress(self.true, self.predicted)
         return r_value ** 2
+
+    def r2_mod(self, weights=None):
+        """
+        This is not a symmetric function.
+        Unlike most other scores, R^2 score may be negative (it need not actually
+        be the square of a quantity R).
+        This metric is not well-defined for single samples and will return a NaN
+        value if n_samples is less than two.
+        """
+
+        if len(self.predicted) < 2:
+            msg = "R^2 score is not well-defined with less than two samples."
+            warnings.warn(msg)
+            return float('nan')
+
+        if weights is None:
+            weight = 1.
+        else:
+            weight = weights[:, np.newaxis]
+
+        numerator = (weight * (self.true - self.predicted) ** 2).sum(axis=0,
+                                                                     dtype=np.float64)
+        denominator = (weight * (self.true - np.average(
+            self.true, axis=0, weights=weights)) ** 2).sum(axis=0, dtype=np.float64)
+
+        output_scores = _foo(denominator, numerator)
+
+        return np.average(output_scores, weights=weights)
 
     def rsr(self):
         return self.rmse() / np.std(self.true)
@@ -68,7 +101,7 @@ class FindErrors(object):
         _nse = 1 - sum((self.predicted - self.true) ** 2) / sum((self.true - np.mean(self.true)) ** 2)
         return _nse
 
-    def apb(self):
+    def abs_percent_bias(self):
         """ absolute percent bias"""
         _apb = 100.0 * sum(abs(self.predicted - self.true)) / sum(self.true)  # Absolute percent bias
         return _apb
@@ -77,15 +110,15 @@ class FindErrors(object):
         pbias = 100.0 * sum(self.predicted - self.true) / sum(self.true)  # percent bias
         return pbias
 
-    def nrmse(self):
+    def norm_rmse(self):
         """ Normalized Root Mean Squared Error """
         return self.rmse() / (self.true.max() - self.true.min())
 
-    def mae(self):
+    def mean_abs_errore(self):
         """ Mean Absolute Error """
         return np.mean(np.abs(self.true - self.predicted))
 
-    def mare(self):
+    def mean_abs_rel_error(self):
         """ Mean Absolute Relative Error """
         mare_ = np.sum(np.abs(self.true - self.predicted), axis=0, dtype=np.float64) / np.sum(self.true)
         return mare_
@@ -109,7 +142,7 @@ class FindErrors(object):
         s, o = self.predicted + epsilon, self.true + epsilon
         return float(1 - sum((np.log(o) - np.log(o))**2) / sum((np.log(o) - np.mean(np.log(o)))**2))
 
-    def log_p(self):
+    def log_prob(self):
         """
         Logarithmic probability distribution
         """
@@ -130,7 +163,7 @@ class FindErrors(object):
         correlation_coefficient = np.corrcoef(self.true, self.predicted)[0, 1]
         return correlation_coefficient
 
-    def rrmse(self):
+    def relative_rmse(self):
         """
         Relative Root Mean Squared Error
             .. math::   
@@ -268,45 +301,67 @@ class FindErrors(object):
         ve = np.sum(self.predicted - self.true) / np.sum(self.true)
         return float(ve)
 
-    def mpd(self):
+    def mean_poisson_deviance(self, weights=None):
         """
         mean poisson deviance
         """
-        return mean_poisson_deviance(self.true, self.predicted)
+        return _mean_tweedie_deviance(self.true, self.predicted, weights=weights, power=1)
 
-    def mgd(self):
+    def mean_gamma_deviance(self, weights=None):
         """
         mean gamma deviance
         """
-        return mean_gamma_deviance(self.true, self.predicted)
+        return _mean_tweedie_deviance(self.true, self.predicted, weights=weights, power=2)
 
-    def med_ae(self):
+    def median_abs_error(self):
         """
         median absolute error
         """
-        return median_absolute_error(self.true, self.predicted)
+        return np.median(np.abs(self.predicted - self.true), axis=0)
 
-    def msle(self):
+    def mean_square_log_error(self, weights=None):
         """
         mean square logrithmic error
         """
-        return mean_squared_log_error(self.true, self.predicted)
+        return np.average((np.log1p(self.true) - np.log1p(self.predicted)) ** 2, axis=0,  weights=weights)
 
-    def max_err(self):
+    def max_error(self):
         """
         maximum error
         """
-        return max_error(self.true, self.predicted)
+        return np.max(np.abs(self.true - self.predicted))
 
-    def exp_var_score(self):
+    def exp_var_score(self, weights=None):
         """
         Explained variance score
         https://stackoverflow.com/questions/24378176/python-sci-kit-learn-metrics-difference-between-r2-score-and-explained-varian
         best value is 1, lower values are less accurate.
         """
-        return explained_variance_score(self.true, self.predicted)
+        y_diff_avg = np.average(self.true - self.predicted, weights=weights, axis=0)
+        numerator = np.average((self.true - self.predicted - y_diff_avg) ** 2,
+                               weights=weights, axis=0)
 
-    
+        y_true_avg = np.average(self.true, weights=weights, axis=0)
+        denominator = np.average((self.true - y_true_avg) ** 2,
+                                 weights=weights, axis=0)
+
+        output_scores = _foo(denominator, numerator)
+
+        return np.average(output_scores, weights=weights)
+
+
+def _foo(denominator, numerator):
+    nonzero_numerator = numerator != 0
+    nonzero_denominator = denominator != 0
+    valid_score = nonzero_numerator & nonzero_denominator
+    output_scores = np.ones(1)
+
+    output_scores[valid_score] = 1 - (numerator[valid_score] /
+                                      denominator[valid_score])
+    output_scores[nonzero_numerator & ~nonzero_denominator] = 0.
+    return output_scores
+
+
 def _spearmann_corr(x, y):
     """Separmann correlation coefficient"""
     col = [list(a) for a in zip(x, y)]
@@ -327,6 +382,54 @@ def _spearmann_corr(x, y):
     denominator1 = np.sqrt(np.nansum([(a[j][2]-mw_rank_x)**2. for j in range(len(a))]))
     denominator2 = np.sqrt(np.nansum([(a[j][3]-mw_rank_x)**2. for j in range(len(a))]))
     return float(numerator/(denominator1*denominator2))
+
+
+def _mean_tweedie_deviance(y_true, y_pred, power=0, weights=None):
+    # copying from https://github.com/scikit-learn/scikit-learn/blob/95d4f0841d57e8b5f6b2a570312e9d832e69debc/sklearn/metrics/_regression.py#L659
+
+    message = ("Mean Tweedie deviance error with power={} can only be used on "
+               .format(power))
+    if power < 0:
+        # 'Extreme stable', y_true any real number, y_pred > 0
+        if (y_pred <= 0).any():
+            raise ValueError(message + "strictly positive y_pred.")
+        dev = 2 * (np.power(np.maximum(y_true, 0), 2 - power)
+                   / ((1 - power) * (2 - power))
+                   - y_true * np.power(y_pred, 1 - power)/(1 - power)
+                   + np.power(y_pred, 2 - power)/(2 - power))
+    elif power == 0:
+        # Normal distribution, y_true and y_pred any real number
+        dev = (y_true - y_pred)**2
+    elif power < 1:
+        raise ValueError("Tweedie deviance is only defined for power<=0 and "
+                         "power>=1.")
+    elif power == 1:
+        # Poisson distribution, y_true >= 0, y_pred > 0
+        if (y_true < 0).any() or (y_pred <= 0).any():
+            raise ValueError(message + "non-negative y_true and strictly "
+                             "positive y_pred.")
+        dev = 2 * (xlogy(y_true, y_true/y_pred) - y_true + y_pred)
+    elif power == 2:
+        # Gamma distribution, y_true and y_pred > 0
+        if (y_true <= 0).any() or (y_pred <= 0).any():
+            raise ValueError(message + "strictly positive y_true and y_pred.")
+        dev = 2 * (np.log(y_pred/y_true) + y_true/y_pred - 1)
+    else:
+        if power < 2:
+            # 1 < p < 2 is Compound Poisson, y_true >= 0, y_pred > 0
+            if (y_true < 0).any() or (y_pred <= 0).any():
+                raise ValueError(message + "non-negative y_true and strictly "
+                                           "positive y_pred.")
+        else:
+            if (y_true <= 0).any() or (y_pred <= 0).any():
+                raise ValueError(message + "strictly positive y_true and "
+                                           "y_pred.")
+
+        dev = 2 * (np.power(y_true, 2 - power)/((1 - power) * (2 - power))
+                   - y_true * np.power(y_pred, 1 - power)/(1 - power)
+                   + np.power(y_pred, 2 - power)/(2 - power))
+
+    return np.average(dev, weights=weights)
 
 
 if __name__ == "__main__":
