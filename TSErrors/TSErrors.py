@@ -32,7 +32,8 @@ class FindErrors(object):
 
         predicted = self._assert_array(predicted)
         true = self._assert_array(true)
-        assert len(predicted) == len(true)
+        assert len(predicted) == len(true), "lengths mismatch, predicted: {}, true: {}"\
+            .format(len(predicted), len(true))
 
         return true, predicted
     
