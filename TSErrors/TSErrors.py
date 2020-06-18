@@ -27,6 +27,9 @@ class FindErrors(object):
                 self.all_methods = [m for m in self.all_methods if m not in ('mean_gamma_deviance',
                                                                              'mean_poisson_deviance',
                                                                              'mean_square_log_error')]
+            if (array <= 0).any():  # mean tweedie error is not computable
+                self.all_methods = [m for m in self.all_methods if m not in ('mean_gamma_deviance',
+                                                                             'mean_poisson_deviance')]
     
     def _pre_process(self, true, predicted):
 
@@ -37,7 +40,7 @@ class FindErrors(object):
 
         return true, predicted
     
-    def _assert_array(self, array_like):
+    def _assert_array(self, array_like) -> np.ndarray:
 
         if not isinstance(array_like, np.ndarray):
             if not isinstance(array_like, list):
@@ -52,22 +55,25 @@ class FindErrors(object):
 
     def calculate_all(self):
         """ calculates errors using all available methods"""
+        errors = {}
         for m in self.all_methods:
-            print('{0:25} :  {1:<12.3f}'.format(m, float(getattr(self, m)())))
-        return
+            error = float(getattr(self, m)())
+            errors[m] = error
+            print('{0:25} :  {1:<12.3f}'.format(m, error))
+        return errors
 
-    def rmse(self, weights=None):
+    def rmse(self, weights=None) -> float:
         return sqrt(np.average((self.true - self.predicted) ** 2, axis=0,  weights=weights))
 
-    def mse(self, weights=None):
+    def mse(self, weights=None) -> float:
         return np.average((self.true - self.predicted) ** 2, axis=0,  weights=weights)
 
-    def r2(self):
+    def r2(self) -> float:
         """coefficient of determination"""
         slope, intercept, r_value, p_value, std_err = linregress(self.true, self.predicted)
         return r_value ** 2
 
-    def r2_mod(self, weights=None):
+    def r2_mod(self, weights=None) -> float:
         """
         This is not a symmetric function.
         Unlike most other scores, R^2 score may be negative (it need not actually
@@ -95,23 +101,23 @@ class FindErrors(object):
 
         return np.average(output_scores, weights=weights)
 
-    def rsr(self):
+    def rsr(self) -> float:
         return self.rmse() / np.std(self.true)
 
-    def nse(self):
+    def nse(self) -> float:
         _nse = 1 - sum((self.predicted - self.true) ** 2) / sum((self.true - np.mean(self.true)) ** 2)
         return _nse
 
-    def abs_percent_bias(self):
+    def abs_percent_bias(self) -> float:
         """ absolute percent bias"""
         _apb = 100.0 * sum(abs(self.predicted - self.true)) / sum(self.true)  # Absolute percent bias
         return _apb
 
-    def percent_bias(self):
+    def percent_bias(self) -> float:
         pbias = 100.0 * sum(self.predicted - self.true) / sum(self.true)  # percent bias
         return pbias
 
-    def norm_rmse(self):
+    def norm_rmse(self) -> float:
         """ Normalized Root Mean Squared Error """
         return self.rmse() / (self.true.max() - self.true.min())
 
@@ -119,12 +125,12 @@ class FindErrors(object):
         """ Mean Absolute Error """
         return np.mean(np.abs(self.true - self.predicted))
 
-    def mean_abs_rel_error(self):
+    def mean_abs_rel_error(self) -> float:
         """ Mean Absolute Relative Error """
         mare_ = np.sum(np.abs(self.true - self.predicted), axis=0, dtype=np.float64) / np.sum(self.true)
         return mare_
 
-    def bias(self):
+    def bias(self) -> float:
         """
         Bias as shown in Gupta in Sorooshian (1998), Toward improved calibration of hydrologic models: 
         Multiple  and noncommensurable measures of information, Water Resources Research
@@ -134,7 +140,7 @@ class FindErrors(object):
         bias = np.nansum(self.true - self.predicted) / len(self.true)
         return float(bias)
 
-    def log_nse(self, epsilon=0.0):
+    def log_nse(self, epsilon=0.0) -> float:
         """
         log Nash-Sutcliffe model efficiency
             .. math::
@@ -143,7 +149,7 @@ class FindErrors(object):
         s, o = self.predicted + epsilon, self.true + epsilon
         return float(1 - sum((np.log(o) - np.log(o))**2) / sum((np.log(o) - np.mean(np.log(o)))**2))
 
-    def log_prob(self):
+    def log_prob(self) -> float:
         """
         Logarithmic probability distribution
         """
@@ -152,9 +158,9 @@ class FindErrors(object):
             scale = .01
         y = (self.true - self.predicted) / scale
         normpdf = -y**2 / 2 - np.log(np.sqrt(2 * np.pi))
-        return np.mean(normpdf)
+        return float(np.mean(normpdf))
 
-    def corr_coeff(self):
+    def corr_coeff(self) -> float:
         """
         Correlation Coefficient
             .. math::
@@ -164,7 +170,7 @@ class FindErrors(object):
         correlation_coefficient = np.corrcoef(self.true, self.predicted)[0, 1]
         return correlation_coefficient
 
-    def relative_rmse(self):
+    def relative_rmse(self) -> float:
         """
         Relative Root Mean Squared Error
             .. math::   
@@ -173,7 +179,7 @@ class FindErrors(object):
         rrmse = self.rmse() / np.mean(self.true)
         return rrmse
 
-    def agreementindex(self):
+    def agreementindex(self) -> float:
         """
         Agreement Index (d) developed by Willmott (1981)
             .. math::   
@@ -184,7 +190,7 @@ class FindErrors(object):
             (np.abs(self.predicted - np.mean(self.true)) + np.abs(self.true - np.mean(self.true)))**2))
         return agreement_index
 
-    def covariance(self):
+    def covariance(self) -> float:
         """
         Covariance
             .. math::
@@ -193,9 +199,9 @@ class FindErrors(object):
         obs_mean = np.mean(self.true)
         sim_mean = np.mean(self.predicted)
         covariance = np.mean((self.true - obs_mean)*(self.predicted - sim_mean))
-        return covariance
+        return float(covariance)
 
-    def decomposed_mse(self):
+    def decomposed_mse(self) -> float:
         """
         Decomposed MSE developed by Kobayashi and Salam (2000)
             .. math ::
@@ -285,7 +291,7 @@ class FindErrors(object):
         else:
             return kgeprime_
 
-    def volume_error(self):
+    def volume_error(self) -> float:
         """
         Returns the Volume Error (Ve).
         It is an indicator of the agreement between the averages of the simulated
@@ -302,7 +308,7 @@ class FindErrors(object):
         ve = np.sum(self.predicted - self.true) / np.sum(self.true)
         return float(ve)
 
-    def mean_poisson_deviance(self, weights=None):
+    def mean_poisson_deviance(self, weights=None) -> float:
         """
         mean poisson deviance
         """
@@ -314,25 +320,25 @@ class FindErrors(object):
         """
         return _mean_tweedie_deviance(self.true, self.predicted, weights=weights, power=2)
 
-    def median_abs_error(self):
+    def median_abs_error(self) -> float:
         """
         median absolute error
         """
-        return np.median(np.abs(self.predicted - self.true), axis=0)
+        return float(np.median(np.abs(self.predicted - self.true), axis=0))
 
-    def mean_square_log_error(self, weights=None):
+    def mean_square_log_error(self, weights=None) -> float:
         """
         mean square logrithmic error
         """
         return np.average((np.log1p(self.true) - np.log1p(self.predicted)) ** 2, axis=0,  weights=weights)
 
-    def max_error(self):
+    def max_error(self) -> float:
         """
         maximum error
         """
         return np.max(np.abs(self.true - self.predicted))
 
-    def exp_var_score(self, weights=None):
+    def exp_var_score(self, weights=None) -> float:
         """
         Explained variance score
         https://stackoverflow.com/questions/24378176/python-sci-kit-learn-metrics-difference-between-r2-score-and-explained-varian
@@ -354,7 +360,7 @@ class FindErrors(object):
         """
         modified after: https://github.com/kratzert/ealstm_regional_modeling/blob/64a446e9012ecd601e0a9680246d3bbf3f002f6d/papercode/metrics.py#L190
         Peak flow bias of the flow duration curve (Yilmaz 2018).
-
+        used in kratzert et al., 2018
         Returns
         -------
         float
@@ -382,8 +388,9 @@ class FindErrors(object):
         return fhv * 100
 
     def nse_alpha(self) -> float:
-        """Alpha decomposition of the NSE, see Gupta et al. 2009
-
+        """
+        Alpha decomposition of the NSE, see Gupta et al. 2009
+        used in kratzert et al., 2018
         Returns
         -------
         float
@@ -393,7 +400,9 @@ class FindErrors(object):
         return np.std(self.predicted) / np.std(self.true)
 
     def nse_beta(self) -> float:
-        """Beta decomposition of NSE. See Gupta et. al 2009
+        """
+        Beta decomposition of NSE. See Gupta et. al 2009
+        used in kratzert et al., 2018
         Returns
         -------
         float
@@ -405,6 +414,7 @@ class FindErrors(object):
         """
         bias of the bottom 30 % low flows
         modified after: https://github.com/kratzert/ealstm_regional_modeling/blob/64a446e9012ecd601e0a9680246d3bbf3f002f6d/papercode/metrics.py#L237
+        used in kratzert et al., 2018
         Parameters
         ----------
         l : float, optional
@@ -542,4 +552,4 @@ if __name__ == "__main__":
 
     er = FindErrors(t, p)
 
-    er.calculate_all()
+    all_errors = er.calculate_all()
