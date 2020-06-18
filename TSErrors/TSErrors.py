@@ -349,6 +349,108 @@ class FindErrors(object):
 
         return np.average(output_scores, weights=weights)
 
+    def fdc_fhv(self, h: float = 0.02) -> float:
+        """
+        modified after: https://github.com/kratzert/ealstm_regional_modeling/blob/64a446e9012ecd601e0a9680246d3bbf3f002f6d/papercode/metrics.py#L190
+        Peak flow bias of the flow duration curve (Yilmaz 2018).
+
+        Returns
+        -------
+        float
+            Bias of the peak flows
+
+        Raises
+        ------
+
+        RuntimeError
+            If `h` is not in range(0,1)
+        """
+        if (h <= 0) or (h >= 1):
+            raise RuntimeError("h has to be in the range (0,1)")
+
+        # sort both in descending order
+        obs = -np.sort(-self.true)
+        sim = -np.sort(-self.predicted)
+
+        # subset data to only top h flow values
+        obs = obs[:np.round(h * len(obs)).astype(int)]
+        sim = sim[:np.round(h * len(sim)).astype(int)]
+
+        fhv = np.sum(sim - obs) / (np.sum(obs) + 1e-6)
+
+        return fhv * 100
+
+    def nse_alpha(self) -> float:
+        """Alpha decomposition of the NSE, see Gupta et al. 2009
+
+        Returns
+        -------
+        float
+            Alpha decomposition of the NSE
+
+        """
+        return np.std(self.predicted) / np.std(self.true)
+
+    def nse_beta(self) -> float:
+        """Beta decomposition of NSE. See Gupta et. al 2009
+        Returns
+        -------
+        float
+            Beta decomposition of the NSE
+        """
+        return (np.mean(self.predicted) - np.mean(self.true)) / np.std(self.true)
+
+    def fdc_flv(self, l: float = 0.7) -> float:
+        """
+        bias of the bottom 30 % low flows
+        modified after: https://github.com/kratzert/ealstm_regional_modeling/blob/64a446e9012ecd601e0a9680246d3bbf3f002f6d/papercode/metrics.py#L237
+        Parameters
+        ----------
+        l : float, optional
+            Upper limit of the flow duration curve. E.g. 0.7 means the bottom 30% of the flows are
+            considered as low flows, by default 0.7
+
+        Returns
+        -------
+        float
+            Bias of the low flows.
+
+        Raises
+        ------
+        RuntimeError
+            If `l` is not in the range(0,1)
+        """
+        # make sure that metric is calculated over the same dimension
+        obs = self.true.flatten()
+        sim = self.predicted.flatten()
+
+        if (l <= 0) or (l >= 1):
+            raise RuntimeError("l has to be in the range (0,1)")
+
+        # for numerical reasons change 0s to 1e-6
+        sim[sim == 0] = 1e-6
+        obs[obs == 0] = 1e-6
+
+        # sort both in descending order
+        obs = -np.sort(-obs)
+        sim = -np.sort(-sim)
+
+        # subset data to only top h flow values
+        obs = obs[np.round(l * len(obs)).astype(int):]
+        sim = sim[np.round(l * len(sim)).astype(int):]
+
+        # transform values to log scale
+        obs = np.log(obs + 1e-6)
+        sim = np.log(sim + 1e-6)
+
+        # calculate flv part by part
+        qsl = np.sum(sim - sim.min())
+        qol = np.sum(obs - obs.min())
+
+        flv = -1 * (qsl - qol) / (qol + 1e-6)
+
+        return flv * 100
+
 
 def _foo(denominator, numerator):
     nonzero_numerator = numerator != 0
