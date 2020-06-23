@@ -39,14 +39,16 @@ class FindErrors(object):
             .format(len(predicted), len(true))
 
         return true, predicted
-    
+
     def _assert_array(self, array_like) -> np.ndarray:
 
         if not isinstance(array_like, np.ndarray):
             if not isinstance(array_like, list):
+                # it can be pandas series or datafrmae
                 if array_like.__class__.__name__ in ['Series', 'DataFrame']:
-                    if array_like.shape[1] > 1:
-                        raise TypeError("only 1d pandas Series or dataframe are allowed")
+                    if len(array_like.shape) > 1:  # 1d series has shape (x,) while 1d dataframe has shape (x,1)
+                        if array_like.shape[1] > 1:  # it is a 2d datafrmae
+                            raise TypeError("only 1d pandas Series or dataframe are allowed")
                     np_array = np.array(array_like)
                 else:
                     raise TypeError(" all inputs must be numpy array or list")
@@ -54,8 +56,8 @@ class FindErrors(object):
                 np_array = np.array(array_like)
         else:
             # maybe the dimension is >1 so make sure it is more
-            np_array = array_like.reshape(-1,)
-        
+            np_array = array_like.reshape(-1, )
+
         return np_array
 
     def calculate_all(self):

@@ -12,6 +12,41 @@ using setup file, go to folder where repo is downloaded
 
     python setup.py install
 
+## Errors
+
+Currently following errors are being calculated.
+
+* Mean Absolute Error
+* Mean Square Error
+* Root Mean Square Error
+* Coefficient of Determination
+* RSR
+* Nash Sutcliff Efficiency
+* Absolute Percent Bias
+* Normalized Root Mean Square Error
+* Mean Absolute Relative Error
+* Bias
+* Logrithmic Nash Sutcliff Efficiency
+* Logarithmic probability distribution
+* Correlation Coefficient
+* Relative Root Mean Squared Error
+* Agreement Index
+* Covariance
+* Decomposed Mean Square Error
+* Kling-Gupta Efficiency 
+* Non parametric Kling-Gupta Efficiency
+* Modified Kling-Gupta Efficiency
+* Volume Error
+* Mean Poisson Deviance
+* Mean Gamma Deviance
+* Median Absolute Error
+* Mean Square Logrithmic Error
+* maximum error
+* Explained variance score
+* Peak flow bias of the flow duration curve
+*  Alpha decomposition of the NSE
+* Beta decomposition of NSE
+
 ## How to Use
 
 ```python
