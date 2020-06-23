@@ -44,7 +44,12 @@ class FindErrors(object):
 
         if not isinstance(array_like, np.ndarray):
             if not isinstance(array_like, list):
-                raise TypeError(" all inputs must be numpy array or list")
+                if array_like.__class__.__name__ in ['Series', 'DataFrame']:
+                    if array_like.shape[1] > 1:
+                        raise TypeError("only 1d pandas Series or dataframe are allowed")
+                    np_array = np.array(array_like)
+                else:
+                    raise TypeError(" all inputs must be numpy array or list")
             else:
                 np_array = np.array(array_like)
         else:
@@ -63,9 +68,11 @@ class FindErrors(object):
         return errors
 
     def rmse(self, weights=None) -> float:
+        """ root mean square error"""
         return sqrt(np.average((self.true - self.predicted) ** 2, axis=0,  weights=weights))
 
     def mse(self, weights=None) -> float:
+        """ mean square error """
         return np.average((self.true - self.predicted) ** 2, axis=0,  weights=weights)
 
     def r2(self) -> float:
