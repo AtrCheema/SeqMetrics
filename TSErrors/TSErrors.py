@@ -79,8 +79,10 @@ class FindErrors(object):
 
     def r2(self) -> float:
         """coefficient of determination"""
-        slope, intercept, r_value, p_value, std_err = linregress(self.true, self.predicted)
-        return r_value ** 2
+        zx = (self.true - np.mean(self.true)) / np.std(self.true, ddof=1)
+        zy = (self.predicted - np.mean(self.predicted)) / np.std(self.predicted, ddof=1)
+        r = np.sum(zx * zy) / (len(self.true) - 1)
+        return r ** 2
 
     def r2_mod(self, weights=None) -> float:
         """
@@ -419,16 +421,16 @@ class FindErrors(object):
         """
         return (np.mean(self.predicted) - np.mean(self.true)) / np.std(self.true)
 
-    def fdc_flv(self, l: float = 0.7) -> float:
+    def fdc_flv(self, low_flow: float = 0.3) -> float:
         """
         bias of the bottom 30 % low flows
         modified after: https://github.com/kratzert/ealstm_regional_modeling/blob/64a446e9012ecd601e0a9680246d3bbf3f002f6d/papercode/metrics.py#L237
         used in kratzert et al., 2018
         Parameters
         ----------
-        l : float, optional
-            Upper limit of the flow duration curve. E.g. 0.7 means the bottom 30% of the flows are
-            considered as low flows, by default 0.7
+        low_flow : float, optional
+            Upper limit of the flow duration curve. E.g. 0.3 means the bottom 30% of the flows are
+            considered as low flows, by default 0.3
 
         Returns
         -------
@@ -438,13 +440,15 @@ class FindErrors(object):
         Raises
         ------
         RuntimeError
-            If `l` is not in the range(0,1)
+            If `low_flow` is not in the range(0,1)
         """
+
+        low_flow = 1.0 - low_flow
         # make sure that metric is calculated over the same dimension
         obs = self.true.flatten()
         sim = self.predicted.flatten()
 
-        if (l <= 0) or (l >= 1):
+        if (low_flow <= 0) or (low_flow >= 1):
             raise RuntimeError("l has to be in the range (0,1)")
 
         # for numerical reasons change 0s to 1e-6
@@ -456,8 +460,8 @@ class FindErrors(object):
         sim = -np.sort(-sim)
 
         # subset data to only top h flow values
-        obs = obs[np.round(l * len(obs)).astype(int):]
-        sim = sim[np.round(l * len(sim)).astype(int):]
+        obs = obs[np.round(low_flow * len(obs)).astype(int):]
+        sim = sim[np.round(low_flow * len(sim)).astype(int):]
 
         # transform values to log scale
         obs = np.log(obs + 1e-6)
