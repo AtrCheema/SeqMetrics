@@ -1,6 +1,5 @@
 from math import sqrt
 from scipy.special import xlogy
-from scipy.stats.stats import linregress
 import numpy as np
 import warnings
 
@@ -140,6 +139,18 @@ class FindErrors(object):
         """ Mean Absolute Relative Error """
         mare_ = np.sum(np.abs(self.true - self.predicted), axis=0, dtype=np.float64) / np.sum(self.true)
         return mare_
+
+    def mean_bias_error(self) -> float:
+        """
+        It represents overall bias error or systematic error. It shows average interpolation bias; i.e. average over-
+        or underestimation. [1][2]
+
+    [2] Willmott, C. J., & Matsuura, K. (2006). On the use of dimensioned measures of error to evaluate the performance
+        of spatial interpolators. International Journal of Geographical Information Science, 20(1), 89-102.
+    [1] Valipour, M. (2015). Retracted: Comparative Evaluation of Radiation-Based Methods for Estimation of Potential
+        Evapotranspiration. Journal of Hydrologic Engineering, 20(5), 04014068.
+         """
+        return np.sum(self.true - self.predicted) / len(self.true)
 
     def bias(self) -> float:
         """

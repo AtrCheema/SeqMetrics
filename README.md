@@ -18,6 +18,7 @@ Currently following errors are being calculated.
 
 * Mean Absolute Error
 * Mean Square Error
+* Mean Bias Error
 * Root Mean Square Error
 * Coefficient of Determination
 * RSR
