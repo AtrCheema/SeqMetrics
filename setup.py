@@ -12,7 +12,7 @@ with open('version.py') as fv:
 setup(
     name='TSErrors',
 
-    version=__version__,
+    version=0.1,
 
     description='TSErrors: Various errors for time-series data',
     long_description=long_desc,
@@ -41,8 +41,6 @@ setup(
 
         'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
 
-        'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.7',
