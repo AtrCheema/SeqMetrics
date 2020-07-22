@@ -138,6 +138,10 @@ class FindErrors(object):
         """ Mean Absolute Error """
         return np.mean(np.abs(self.true - self.predicted))
 
+    def mape(self) -> float:
+        """ Mean Absolute Percentage Error"""
+        return np.mean(np.abs((self.true - self.predicted) / self.true)) * 100
+
     def mean_abs_rel_error(self) -> float:
         """ Mean Absolute Relative Error """
         mare_ = np.sum(np.abs(self.true - self.predicted), axis=0, dtype=np.float64) / np.sum(self.true)

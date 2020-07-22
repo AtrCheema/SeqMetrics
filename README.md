@@ -17,6 +17,7 @@ using setup file, go to folder where repo is downloaded
 Currently following errors are being calculated.
 
 * Mean Absolute Error
+* Mean Absolute Percentage Error
 * Mean Square Error
 * Mean Bias Error
 * Root Mean Square Error
