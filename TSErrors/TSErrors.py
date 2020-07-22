@@ -22,6 +22,9 @@ class FindErrors(object):
 
         # if arrays contain negative values, following three errors can not be computed
         for array in [self.true, self.predicted]:
+
+            assert len(array) > 0, "Input arrays should not be empty"
+
             if len(array[array < 0.0]) > 0:
                 self.all_methods = [m for m in self.all_methods if m not in ('mean_gamma_deviance',
                                                                              'mean_poisson_deviance',
@@ -131,7 +134,7 @@ class FindErrors(object):
         """ Normalized Root Mean Squared Error """
         return self.rmse() / (self.true.max() - self.true.min())
 
-    def mean_abs_errore(self):
+    def mean_abs_error(self):
         """ Mean Absolute Error """
         return np.mean(np.abs(self.true - self.predicted))
 
@@ -147,8 +150,10 @@ class FindErrors(object):
 
     [2] Willmott, C. J., & Matsuura, K. (2006). On the use of dimensioned measures of error to evaluate the performance
         of spatial interpolators. International Journal of Geographical Information Science, 20(1), 89-102.
+         https://doi.org/10.1080/1365881050028697
     [1] Valipour, M. (2015). Retracted: Comparative Evaluation of Radiation-Based Methods for Estimation of Potential
         Evapotranspiration. Journal of Hydrologic Engineering, 20(5), 04014068.
+         http://dx.doi.org/10.1061/(ASCE)HE.1943-5584.0001066
          """
         return np.sum(self.true - self.predicted) / len(self.true)
 
