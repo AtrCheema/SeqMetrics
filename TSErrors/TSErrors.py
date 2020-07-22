@@ -142,6 +142,40 @@ class FindErrors(object):
         """ Mean Absolute Percentage Error"""
         return np.mean(np.abs((self.true - self.predicted) / self.true)) * 100
 
+    def smape(self) -> float:
+        """
+         Symmetric Mean Absolute Percentage Error
+         https://en.wikipedia.org/wiki/Symmetric_mean_absolute_percentage_error
+         https://stackoverflow.com/a/51440114/5982232
+        """
+        _temp = np.sum(2 * np.abs(self.predicted - self.true) / (np.abs(self.true) + np.abs(self.predicted)))
+        return 100 / len(self.true) * _temp
+
+    def wmape(self):
+        """
+         Weighted MAPE
+         https://stackoverflow.com/a/54833202/5982232
+        """
+        # Take a series (actual) and a dataframe (forecast) and calculate wmape
+        # for each forecast. Output shape is (1, num_forecasts)
+
+        # Make an array of mape (same shape as forecast)
+        se_mape = abs(self.true - self.predicted) / self.true
+
+        # Calculate sum of actual values
+        ft_actual_sum = self.true.sum(axis=0)
+
+        # Multiply the actual values by the mape
+        se_actual_prod_mape = self.true * se_mape
+
+        # Take the sum of the product of actual values and mape
+        # Make sure to sum down the rows (1 for each column)
+        ft_actual_prod_mape_sum = se_actual_prod_mape.sum(axis=0)
+
+        # Calculate the wmape for each forecast and return as a dictionary
+        ft_wmape_forecast = ft_actual_prod_mape_sum / ft_actual_sum
+        return ft_wmape_forecast
+
     def mean_abs_rel_error(self) -> float:
         """ Mean Absolute Relative Error """
         mare_ = np.sum(np.abs(self.true - self.predicted), axis=0, dtype=np.float64) / np.sum(self.true)
@@ -209,6 +243,13 @@ class FindErrors(object):
         """ 
         rrmse = self.rmse() / np.mean(self.true)
         return rrmse
+
+    def rmspe(self) -> float:
+        """
+        Root Mean Square Percentage Error
+        https://stackoverflow.com/a/53166790/5982232
+        """
+        return np.sqrt(np.mean(np.square(((self.true - self.predicted) / self.true)), axis=0))
 
     def agreementindex(self) -> float:
         """

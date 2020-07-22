@@ -18,9 +18,11 @@ Currently following errors are being calculated.
 
 * Mean Absolute Error
 * Mean Absolute Percentage Error
+* Symmetric Mean Absolute Percentage Error
 * Mean Square Error
 * Mean Bias Error
 * Root Mean Square Error
+* Root Mean Square Percentage Error
 * Coefficient of Determination
 * RSR
 * Nash Sutcliff Efficiency
