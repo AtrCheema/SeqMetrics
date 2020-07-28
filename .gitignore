@@ -1,1 +1,6 @@
 *__pycache__/
+
+# build related
+*dist/
+*build/
+*TSErrors.egg-info/

@@ -32,7 +32,6 @@ setup(
 
         'Intended Audience :: Science/Research',
         'Intended Audience :: Developers',
-        'Topic :: Scientific/Engineering :: Environment',
 
         'Operating System :: MacOS',
         'Operating System :: Microsoft :: Windows',

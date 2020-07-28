@@ -6,6 +6,10 @@ calculated for time-series data, at one place. Currently only 1d data is support
 
 ## How to Install
 
+using `pip`
+
+    pip install TSErrors
+
 using github link
 
 	python -m pip install git+https://github.com/AtrCheema/TSErrors.git
