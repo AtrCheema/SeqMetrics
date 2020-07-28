@@ -7,6 +7,8 @@ import warnings
 # TODO make weights, class attribute
 # TODO write tests
 
+EPS = 1e-10  # epsilon
+
 
 class FindErrors(object):
     """
@@ -71,6 +73,156 @@ class FindErrors(object):
             print('{0:25} :  {1:<12.3f}'.format(m, error))
         return errors
 
+    def _error(self, true=None, predicted=None):
+        """ simple difference """
+        if true is None:
+            true = self.true
+        if predicted is None:
+            predicted = self.predicted
+        return true - predicted
+
+    def _percentage_error(self):
+        """
+        Percentage error
+        """
+        return self._error() / (self.true + EPS) * 100
+
+    def _naive_prognose(self, seasonality: int = 1):
+        """ Naive forecasting method which just repeats previous samples """
+        return self.true[:-seasonality]
+
+    def _relative_error(self, benchmark: np.ndarray = None):
+        """ Relative Error """
+        if benchmark is None or isinstance(benchmark, int):
+            # If no benchmark prediction provided - use naive forecasting
+            if not isinstance(benchmark, int):
+                seasonality = 1
+            else:
+                seasonality = benchmark
+            return self._error(self.true[seasonality:], self.predicted[seasonality:]) / \
+                   (self._error(self.true[seasonality:], self._naive_prognose(seasonality)) + EPS)
+
+        return self._error() / (self._error(self.true, benchmark) + EPS)
+
+    def _bounded_relative_error(self, benchmark: np.ndarray = None):
+        """ Bounded Relative Error """
+        if benchmark is None or isinstance(benchmark, int):
+            # If no benchmark prediction provided - use naive forecasting
+            if not isinstance(benchmark, int):
+                seasonality = 1
+            else:
+                seasonality = benchmark
+
+            abs_err = np.abs(self._error(self.true[seasonality:], self.predicted[seasonality:]))
+            abs_err_bench = np.abs(self._error(self.true[seasonality:], self._naive_prognose(seasonality)))
+        else:
+            abs_err = np.abs(self._error())
+            abs_err_bench = np.abs(self._error())
+
+        return abs_err / (abs_err + abs_err_bench + EPS)
+
+    def _ae(self):
+        """ Absolute error """
+        return np.abs(self.true - self.predicted)
+
+    def me(self):
+        """ mean error """
+        return np.mean(self._error())
+
+    def mase(self, seasonality: int = 1):
+        """
+        Mean Absolute Scaled Error
+        Baseline (benchmark) is computed with naive forecasting (shifted by @seasonality)
+        modified after https://gist.github.com/bshishov/5dc237f59f019b26145648e2124ca1c9
+        """
+        return self.mae() / self.mae(self.true[seasonality:], self._naive_prognose(seasonality))
+
+    def rmsse(self, seasonality: int = 1):
+        """ Root Mean Squared Scaled Error """
+        q = np.abs(self._error()) / self.mae(self.true[seasonality:], self._naive_prognose(seasonality))
+        return np.sqrt(np.mean(np.square(q)))
+
+    def rmdspe(self):
+        """
+        Root Median Squared Percentage Error
+        """
+        return np.sqrt(np.median(np.square(self._percentage_error()))) * 100.0
+
+    def inrse(self):
+        """ Integral Normalized Root Squared Error """
+        return np.sqrt(np.sum(np.square(self._error())) / np.sum(np.square(self.true - np.mean(self.true))))
+
+    def rrse(self):
+        """ Root Relative Squared Error """
+        return np.sqrt(np.sum(np.square(self.true - self.predicted)) / np.sum(np.square(self.true-np.mean(self.true))))
+
+    def mda(self):
+        """ Mean Directional Accuracy
+         modified after https://gist.github.com/bshishov/5dc237f59f019b26145648e2124ca1c9
+         """
+        dict_acc = np.sign(self.true[1:] - self.true[:-1]) == np.sign(self.predicted[1:] - self.predicted[:-1])
+        return np.mean(dict_acc)
+
+    def gmae(self):
+        """ Geometric Mean Absolute Error """
+        return _geometric_mean(np.abs(self._error()))
+
+    def mpe(self):
+        """ Mean Percentage Error """
+        return np.mean(self._percentage_error())
+
+    def mdape(self):
+        """
+        Median Absolute Percentage Error
+        """
+        return np.median(np.abs(self._percentage_error())) * 100
+
+    def smdape(self):
+        """
+        Symmetric Median Absolute Percentage Error
+        Note: result is NOT multiplied by 100
+        """
+        return np.median(2.0 * self._ae() / ((np.abs(self.true) + np.abs(self.predicted)) + EPS))
+
+    def maape(self):
+        """
+        Mean Arctangent Absolute Percentage Error
+        Note: result is NOT multiplied by 100
+        """
+        return np.mean(np.arctan(np.abs((self.true - self.predicted) / (self.true + EPS))))
+
+    def norm_ae(self):
+        """ Normalized Absolute Error """
+        return np.sqrt(np.sum(np.square(self._error() - self.mae())) / (len(self.true) - 1))
+
+    def norm_ape(self):
+        """ Normalized Absolute Percentage Error """
+        return np.sqrt(np.sum(np.square(self._percentage_error() - self.mape())) / (len(self.true) - 1))
+
+    def rae(self):
+        """ Relative Absolute Error (aka Approximation Error) """
+        return np.sum(self._ae()) / (np.sum(np.abs(self.true - np.mean(self.true))) + EPS)
+
+    def mrae(self, benchmark: np.ndarray = None):
+        """ Mean Relative Absolute Error """
+        return np.mean(np.abs(self._relative_error(benchmark)))
+
+    def mdrae(self, benchmark: np.ndarray = None):
+        """ Median Relative Absolute Error """
+        return np.median(np.abs(self._relative_error(benchmark)))
+
+    def gmrae(self, benchmark: np.ndarray = None):
+        """ Geometric Mean Relative Absolute Error """
+        return _geometric_mean(np.abs(self._relative_error(benchmark)))
+
+    def mbrae(self, benchmark: np.ndarray = None):
+        """ Mean Bounded Relative Absolute Error """
+        return np.mean(self._bounded_relative_error(benchmark))
+
+    def umbrae(self, benchmark: np.ndarray = None):
+        """ Unscaled Mean Bounded Relative Absolute Error """
+        return self.mbrae(benchmark) / (1 - self.mbrae(benchmark))
+
     def rmse(self, weights=None) -> float:
         """ root mean square error"""
         return sqrt(np.average((self.true - self.predicted) ** 2, axis=0,  weights=weights))
@@ -130,13 +282,17 @@ class FindErrors(object):
         pbias = 100.0 * sum(self.predicted - self.true) / sum(self.true)  # percent bias
         return pbias
 
-    def norm_rmse(self) -> float:
+    def nrmse(self) -> float:
         """ Normalized Root Mean Squared Error """
         return self.rmse() / (self.true.max() - self.true.min())
 
-    def mean_abs_error(self):
+    def mae(self, true=None, predicted=None):
         """ Mean Absolute Error """
-        return np.mean(np.abs(self.true - self.predicted))
+        if true is None:
+            true = self.true
+        if predicted is None:
+            predicted = self.predicted
+        return np.mean(np.abs(true - predicted))
 
     def mape(self) -> float:
         """ Mean Absolute Percentage Error"""
@@ -178,8 +334,7 @@ class FindErrors(object):
 
     def mean_abs_rel_error(self) -> float:
         """ Mean Absolute Relative Error """
-        mare_ = np.sum(np.abs(self.true - self.predicted), axis=0, dtype=np.float64) / np.sum(self.true)
-        return mare_
+        return np.sum(self._ae(), axis=0, dtype=np.float64) / np.sum(self.true)
 
     def mean_bias_error(self) -> float:
         """
@@ -309,7 +464,7 @@ class FindErrors(object):
         beta = np.sum(self.predicted) / np.sum(self.true)
         kge = 1 - np.sqrt((cc - 1)**2 + (alpha - 1)**2 + (beta - 1)**2)
         if return_all:
-            return kge, cc, alpha, beta
+            return np.vstack((kge, cc, alpha, beta))
         else:
             return kge
 
@@ -336,7 +491,7 @@ class FindErrors(object):
         beta = np.mean(self.predicted) / np.mean(self.true)
         kge = 1 - np.sqrt((cc - 1)**2 + (alpha - 1)**2 + (beta - 1)**2)
         if return_all:
-            return kge, cc, alpha, beta
+            return np.vstack((kge, cc, alpha, beta))
         else:
             return kge
 
@@ -359,7 +514,7 @@ class FindErrors(object):
         kgeprime_ = 1 - np.sqrt((r - 1) ** 2 + (gamma - 1) ** 2 + (beta - 1) ** 2)
         
         if return_all:
-            return kgeprime_, r, gamma, beta
+            return np.vstack((kgeprime_, r, gamma, beta))
         else:
             return kgeprime_
 
@@ -408,7 +563,7 @@ class FindErrors(object):
         """
         maximum error
         """
-        return np.max(np.abs(self.true - self.predicted))
+        return np.max(self._ae())
 
     def exp_var_score(self, weights=None) -> float:
         """
@@ -536,6 +691,45 @@ class FindErrors(object):
 
         return flv * 100
 
+    def nse_c2m(self):
+        """
+        Bounded Version of the Nash-Sutcliffe Efficiency
+        https://iahs.info/uploads/dms/13614.21--211-219-41-MATHEVET.pdf
+        """
+        nse_ = self.nse()
+        nse_c2m_ = nse_ / (2 - nse_)
+
+        return nse_c2m_
+
+    def kge_c2m(self):
+        """
+        Bounded Version of the Original Kling-Gupta Efficiency
+        https://iahs.info/uploads/dms/13614.21--211-219-41-MATHEVET.pdf
+        """
+        kge_ = self.kge(return_all=True)[0, :]
+        kge_c2m_ = kge_ / (2 - kge_)
+
+        return kge_c2m_
+
+    def kgeprime_c2m(self):
+        """
+        https://iahs.info/uploads/dms/13614.21--211-219-41-MATHEVET.pdf
+         Bounded Version of the Modified Kling-Gupta Efficiency
+        """
+        kgeprime_ = self.kge_mod(return_all=True)[0, :]
+        kgeprime_c2m_ = kgeprime_ / (2 - kgeprime_)
+
+        return kgeprime_c2m_
+
+    def kgenp_c2m(self):
+        """
+        Bounded Version of the Non-Parametric Kling-Gupta Efficiency
+        """
+        kgenp_ = self.kge_np(return_all=True)[0, :]
+        kgenp_c2m_ = kgenp_ / (2 - kgenp_)
+
+        return kgenp_c2m_
+
 
 def _foo(denominator, numerator):
     nonzero_numerator = numerator != 0
@@ -617,6 +811,20 @@ def _mean_tweedie_deviance(y_true, y_pred, power=0, weights=None):
                    + np.power(y_pred, 2 - power)/(2 - power))
 
     return np.average(dev, weights=weights)
+
+
+def _geometric_mean(a, axis=0, dtype=None):
+    """ Geometric mean """
+    if not isinstance(a, np.ndarray):  # if not an ndarray object attempt to convert it
+        log_a = np.log(np.array(a, dtype=dtype))
+    elif dtype:  # Must change the default dtype allowing array type
+        if isinstance(a, np.ma.MaskedArray):
+            log_a = np.log(np.ma.asarray(a, dtype=dtype))
+        else:
+            log_a = np.log(np.asarray(a, dtype=dtype))
+    else:
+        log_a = np.log(a)
+    return np.exp(log_a.mean(axis=axis))
 
 
 if __name__ == "__main__":
