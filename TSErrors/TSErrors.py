@@ -39,7 +39,7 @@ class FindErrors(object):
 
         predicted = self._assert_array(predicted)
         true = self._assert_array(true)
-        assert len(predicted) == len(true), "lengths mismatch, predicted: {}, true: {}"\
+        assert len(predicted) == len(true), "lengths of provided arrays mismatch, predicted array: {}, true array: {}"\
             .format(len(predicted), len(true))
 
         return true, predicted
@@ -331,6 +331,13 @@ class FindErrors(object):
         # Calculate the wmape for each forecast and return as a dictionary
         ft_wmape_forecast = ft_actual_prod_mape_sum / ft_actual_sum
         return ft_wmape_forecast
+
+    def wape(self) -> float:
+        """
+        weighted absolute percentage error
+        https://mattdyor.wordpress.com/2018/05/23/calculating-wape/
+        """
+        return float(np.sum(self._ae() / np.sum(self.true)))
 
     def mean_abs_rel_error(self) -> float:
         """ Mean Absolute Relative Error """
