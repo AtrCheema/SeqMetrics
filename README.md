@@ -1,5 +1,6 @@
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+[![HitCount](http://hits.dwyl.com/AtrCheema/TSErrors.svg)](http://hits.dwyl.com/AtrCheema/TSErrors)
 
 The purpose of this repository to collect all performance metrics or errors which can be
 calculated for time-series data, at one place. Currently only 1d data is supported.
@@ -10,7 +11,7 @@ using `pip`
 
     pip install TSErrors
 
-using github link
+using github link for the latest code
 
 	python -m pip install git+https://github.com/AtrCheema/TSErrors.git
 
@@ -80,6 +81,7 @@ Currently following errors are being calculated.
 * Volume Error
 * Unscaled Mean Bounded Relative Absolute Error
 * Weighted Mean Absolute Percent Error
+* Weighted Absolute Percentage Error
 
 ## How to Use
 
