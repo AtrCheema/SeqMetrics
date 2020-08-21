@@ -273,14 +273,14 @@ class FindErrors(object):
         _nse = 1 - sum((self.predicted - self.true) ** 2) / sum((self.true - np.mean(self.true)) ** 2)
         return _nse
 
-    def abs_percent_bias(self) -> float:
-        """ absolute percent bias"""
+    def abs_pbias(self) -> float:
+        """ Absolute Percent bias"""
         _apb = 100.0 * sum(abs(self.predicted - self.true)) / sum(self.true)  # Absolute percent bias
         return _apb
 
-    def percent_bias(self) -> float:
-        pbias = 100.0 * sum(self.predicted - self.true) / sum(self.true)  # percent bias
-        return pbias
+    def pbias(self) -> float:
+        """ Percent Bias"""
+        return 100.0 * sum(self.predicted - self.true) / sum(self.true)  # percent bias
 
     def nrmse(self) -> float:
         """ Normalized Root Mean Squared Error """
@@ -309,7 +309,7 @@ class FindErrors(object):
 
     def wmape(self):
         """
-         Weighted MAPE
+         Weighted Mean Absolute Percent Error
          https://stackoverflow.com/a/54833202/5982232
         """
         # Take a series (actual) and a dataframe (forecast) and calculate wmape
@@ -413,7 +413,7 @@ class FindErrors(object):
         """
         return np.sqrt(np.mean(np.square(((self.true - self.predicted) / self.true)), axis=0))
 
-    def agreementindex(self) -> float:
+    def agreement_index(self) -> float:
         """
         Agreement Index (d) developed by Willmott (1981)
             .. math::   
@@ -698,7 +698,7 @@ class FindErrors(object):
 
         return flv * 100
 
-    def nse_c2m(self):
+    def nse_bound(self):
         """
         Bounded Version of the Nash-Sutcliffe Efficiency
         https://iahs.info/uploads/dms/13614.21--211-219-41-MATHEVET.pdf
@@ -708,7 +708,7 @@ class FindErrors(object):
 
         return nse_c2m_
 
-    def kge_c2m(self):
+    def kge_bound(self):
         """
         Bounded Version of the Original Kling-Gupta Efficiency
         https://iahs.info/uploads/dms/13614.21--211-219-41-MATHEVET.pdf
@@ -728,7 +728,7 @@ class FindErrors(object):
 
         return kgeprime_c2m_
 
-    def kgenp_c2m(self):
+    def kgenp_bound(self):
         """
         Bounded Version of the Non-Parametric Kling-Gupta Efficiency
         """

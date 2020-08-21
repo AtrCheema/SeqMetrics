@@ -23,65 +23,67 @@ using setup file, go to folder where repo is downloaded
 
 Currently following errors are being calculated.
 
-* Absolute Percent Bias
-* Agreement Index
-* Alpha decomposition of the NSE
-* Bias
-* Beta decomposition of NSE
-* Bounded NSE
-* Bounded KGE
-* Correlation Coefficient
-* Coefficient of Determination
-* Covariance
-* Decomposed Mean Square Error
-* Explained variance score
-* Geometric Mean Absolute Error
-* Geometric Mean Relative Absolute Error
-* Integral Normalized Root Squared Error
-* Kling-Gupta Efficiency
-* Logrithmic Nash Sutcliff Efficiency
-* Logrithmic probability distribution
-* maximum error
-* Mean Absolute Error
-* Mean Absolute Percentage Error
-* Mean Absolute Relative Error
-* Mean Absolute Scaled Error
-* Mean Arctangle Absolute Percentage Error
-* Mean Bias Error
-* Mean Bounded relative Absolute Error
-* Mean Error
-* Mean Gamma Deviance
-* Mean Percentage Error
-* Mean Poisson Deviance
-* Mean Relative Absolute Error
-* Mean Square Error
-* Mean Square Logrithmic Error
-* Median Absolute Error
-* Median Absoltue Percentage Error
-* Median Dictionary Accuracy
-* Median Relative Absolute Error
-* Modified Kling-Gupta Efficiency
-* Nash Sutcliff Efficiency
-* Non parametric Kling-Gupta Efficiency
-* Normalized Absolute Error
-* Normalized Absolute Percentage Error
-* Normalized Root Mean Square Error
-* Peak flow bias of the flow duration curve
-* Percent Bias
-* Relative Absolute Error
-* Relative Root Mean Squared Error
-* Root Mean Square Error
-* Root Mean Square Percentage Error
-* Root Mean Squared Scaled Error
-* Root Median Squared Scaled Error
-* Root Relative Squared Error
-* RSR
-* Symmetric Mean Absolute Percentage Error
-* Symmetric Median Absolute Percentage Error
-* Volume Error
-* Unscaled Mean Bounded Relative Absolute Error
-* Weighted Mean Absolute Percent Error
-* Weighted Absolute Percentage Error
+| Name                          | Name in this repository  |
+| -------------------------- | ------------- |
+| Absolute Percent Bias | `abs_pbias` |
+| Agreement Index | `agreement_index` |
+| Alpha decomposition of the NSE | `nse_alpha` |
+| Bias | `bias` |
+| Beta decomposition of NSE | `nse_beta` |
+| Bounded NSE | `nse_bound` |
+| Bounded KGE | `kge_bound` |
+| Correlation Coefficient | `corr_coeff` |
+| Coefficient of Determination | `r2` |
+| Covariances | `covariance` |
+| Decomposed Mean Square Error | `decomposed_mse` |
+| Explained variance score | `exp_var_score` |
+| Geometric Mean Absolute Error | `gmae` |
+| Geometric Mean Relative Absolute Error | `gmrae` |
+| Integral Normalized Root Squared Error | `inrse` |
+| Kling-Gupta Efficiency | `kge` |
+| Logrithmic Nash Sutcliff Efficiency | `log_nse` |
+| Logrithmic probability distribution | `log_prob` |
+| maximum error | `max_error` |
+| Mean Absolute Error | `mae` |
+| Mean Absolute Percentage Error | `mape` |
+| Mean Absolute Relative Error | `mean_abs_rel_error` |
+| Mean Absolute Scaled Error | `mase` |
+| Mean Arctangle Absolute Percentage Error | `maape` |
+| Mean Bias Error | `mean_bias_error` |
+| Mean Bounded relative Absolute Error | `mbrae` |
+| Mean Errors | `me` |
+| Mean Gamma Deviances | `mean_gamma_deviance` |
+| Mean Percentage Error | `mpe` |
+| Mean Poisson Deviance | `mean_poisson_deviance` |
+| Mean Relative Absolute Error | `mrae` |
+| Mean Square Error | `mse` |
+| Mean Square Logrithmic Errors | `mean_square_log_error` |
+| Median Absolute Error | `median_abs_error` |
+| Median Absolute Percentage Error | `mdape` |
+| Median Dictionary Accuracy | |
+| Median Relative Absolute Error | `mdrae` |
+| Modified Kling-Gupta Efficienc | `kge_mod` |
+| Nash-Sutcliff Efficiency | `nse` |
+| Non parametric Kling-Gupta Efficiency | `kge_np` |
+| Normalized Absolute Error | `norm_ae` |
+| Normalized Absolute Percentage Error | `norm_ape` |
+| Normalized Root Mean Square Error | `nrmse` |
+| Peak flow bias of the flow duration curve | `fdc_fhv` |
+| Percent Bias | `pbias` |
+| Relative Absolute Error | `rae` |
+| Relative Root Mean Squared Error | `relative_rmse` |
+| Root Mean Square Errors | `rmse` |
+| Root Mean Square Percentage Error | `rmspe` |
+| Root Mean Squared Scaled Error | `rmsse` |
+| Root Median Squared Scaled Error | `rmsse` |
+| Root Relative Squared Error | `rrse` |
+| RSR | `rsr` |
+| Symmetric Mean Absolute Percentage Error | `smape` |
+| Symmetric Median Absolute Percentage Error | `smdape` |
+| Volume Errors | `volume_error` |
+| Unscaled Mean Bounded Relative Absolute Error | `umbrae` |
+| Weighted Mean Absolute Percent Errors | `wmape` |
+| Weighted Absolute Percentage Error | `wape` |
 
 ## How to Use
 
