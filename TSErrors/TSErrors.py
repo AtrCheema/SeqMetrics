@@ -64,13 +64,14 @@ class FindErrors(object):
 
         return np_array
 
-    def calculate_all(self):
+    def calculate_all(self, verbose=False):
         """ calculates errors using all available methods"""
         errors = {}
         for m in self.all_methods:
             error = float(getattr(self, m)())
             errors[m] = error
-            print('{0:25} :  {1:<12.3f}'.format(m, error))
+            if verbose:
+                print('{0:25} :  {1:<12.3f}'.format(m, error))
         return errors
 
     def _error(self, true=None, predicted=None):
