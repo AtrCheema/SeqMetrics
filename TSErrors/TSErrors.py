@@ -757,6 +757,10 @@ class FindErrors(object):
         _stats['max'] = {'true': np.nanmax(self.true), 'pred': np.nanmax(self.predicted)}
         _stats['-ve vals'] = {'true': float(np.sum(self.true < 0.0)), 'pred': float(np.sum(self.predicted < 0.0))}
 
+        for k, v in _stats.items():
+            for sk, sv in v.items():
+                v[sk] = float(sv)
+
         if verbose:
             print("\nName            True         Predicted  ")
             print("----------------------------------------")
@@ -869,4 +873,4 @@ if __name__ == "__main__":
     er = FindErrors(t, p)
 
     all_errors = er.calculate_all(True)
-    er.stats(True)
+    stats = er.stats(True)
