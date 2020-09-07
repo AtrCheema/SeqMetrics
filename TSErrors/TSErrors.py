@@ -1,5 +1,6 @@
 from math import sqrt
 from scipy.special import xlogy
+from scipy.stats import skew, kurtosis
 import numpy as np
 import warnings
 
@@ -20,7 +21,7 @@ class FindErrors(object):
 
         self.true, self.predicted = self._pre_process(actual, predicted)
         self.all_methods = [method for method in dir(self) if callable(getattr(self, method)) if
-                            not method.startswith('_') if method != 'calculate_all']
+                            not method.startswith('_') if method not in ['calculate_all', 'stats']]
 
         # if arrays contain negative values, following three errors can not be computed
         for array in [self.true, self.predicted]:
@@ -738,6 +739,31 @@ class FindErrors(object):
 
         return kgenp_c2m_
 
+    def stats(self, verbose: bool = False) -> dict:
+        """ returs some important stats about true and predicted values."""
+        _stats = dict()
+        _stats['skew'] = {'true': skew(self.true), 'pred': skew(self.predicted)}
+        _stats['kurtosis'] = {'true': kurtosis(self.true), 'pred': kurtosis(self.predicted)}
+        _stats['mean'] = {'true': np.nanmean(self.true), 'pred': np.nanmean(self.predicted)}
+        _stats['var'] = {'true': np.nanvar(self.true), 'pred': np.nanvar(self.predicted)}
+        _stats['std'] = {'true': np.nanstd(self.true), 'pred': np.nanstd(self.predicted)}
+        _stats['10 quant'] = {'true': np.nanquantile(self.true, 0.1), 'pred': np.nanquantile(self.predicted, 0.1)}
+        _stats['50 quant'] = {'true': np.nanquantile(self.true, 0.5), 'pred': np.nanquantile(self.predicted, 0.5)}
+        _stats['90 quant'] = {'true': np.nanquantile(self.true, 0.9), 'pred': np.nanquantile(self.predicted, 0.9)}
+        _stats['25 %ile'] = {'true': np.nanpercentile(self.true, 25), 'pred': np.nanpercentile(self.predicted, 25)}
+        _stats['50 %ile'] = {'true': np.nanpercentile(self.true, 50), 'pred': np.nanpercentile(self.predicted, 50)}
+        _stats['75 %ile'] = {'true': np.nanpercentile(self.true, 75), 'pred': np.nanpercentile(self.predicted, 75)}
+        _stats['min'] = {'true': np.nanmin(self.true), 'pred': np.nanmin(self.predicted)}
+        _stats['max'] = {'true': np.nanmax(self.true), 'pred': np.nanmax(self.predicted)}
+        _stats['-ve vals'] = {'true': float(np.sum(self.true < 0.0)), 'pred': float(np.sum(self.predicted < 0.0))}
+
+        if verbose:
+            print("\nName            True         Predicted  ")
+            print("----------------------------------------")
+            for key, val in _stats.items():
+                print("{:<15} {:<10.4}  {:<10.4}".format(key, val['true'], val['pred']))
+        return _stats
+
 
 def _foo(denominator, numerator):
     nonzero_numerator = numerator != 0
@@ -842,4 +868,5 @@ if __name__ == "__main__":
 
     er = FindErrors(t, p)
 
-    all_errors = er.calculate_all()
+    all_errors = er.calculate_all(True)
+    er.stats(True)

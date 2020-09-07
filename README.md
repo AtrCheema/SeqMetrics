@@ -100,7 +100,8 @@ for m in er.all_methods: print("{:20}".format(m)) # get names of all availabe me
 
 er.nse()   # calculate Nash Sutcliff efficiency
 
-er.calculate_all()  # or calculate errors using all available methods
+er.calculate_all(verbose=True)  # or calculate errors using all available methods
+er.stats(verbose=True)  # get some important stats
 ```
 
 ## Related
