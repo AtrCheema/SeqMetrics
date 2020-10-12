@@ -38,15 +38,15 @@ class FindErrors(object):
     
     def _pre_process(self, true, predicted):
 
-        predicted = self._assert_array(predicted)
-        true = self._assert_array(true)
+        predicted = self._assert_1darray(predicted)
+        true = self._assert_1darray(true)
         assert len(predicted) == len(true), "lengths of provided arrays mismatch, predicted array: {}, true array: {}"\
             .format(len(predicted), len(true))
 
         return true, predicted
 
-    def _assert_array(self, array_like) -> np.ndarray:
-
+    def _assert_1darray(self, array_like) -> np.ndarray:
+        """ makes sure that the provided `array_like` is 1D numpy array"""
         if not isinstance(array_like, np.ndarray):
             if not isinstance(array_like, list):
                 # it can be pandas series or datafrmae
@@ -54,15 +54,16 @@ class FindErrors(object):
                     if len(array_like.shape) > 1:  # 1d series has shape (x,) while 1d dataframe has shape (x,1)
                         if array_like.shape[1] > 1:  # it is a 2d datafrmae
                             raise TypeError("only 1d pandas Series or dataframe are allowed")
-                    np_array = np.array(array_like)
+                    np_array = np.array(array_like).reshape(-1,)
                 else:
                     raise TypeError(" all inputs must be numpy array or list")
             else:
-                np_array = np.array(array_like)
+                np_array = np.array(array_like).reshape(-1, )
         else:
             # maybe the dimension is >1 so make sure it is more
             np_array = array_like.reshape(-1, )
 
+        assert len(np_array.shape) == 1
         return np_array
 
     def calculate_all(self, verbose=False):
