@@ -7,7 +7,7 @@ import warnings
 # TODO remove repeated calculation of mse, std, mean etc
 # TODO make weights, class attribute
 # TODO write tests
-
+# TODO standardized residual sum of squares
 EPS = 1e-10  # epsilon
 
 
@@ -56,7 +56,7 @@ class FindErrors(object):
                             raise TypeError("only 1d pandas Series or dataframe are allowed")
                     np_array = np.array(array_like).reshape(-1,)
                 else:
-                    raise TypeError(" all inputs must be numpy array or list")
+                    raise TypeError(f"all inputs must be numpy array or list but one is of type {type(array_like)}")
             else:
                 np_array = np.array(array_like).reshape(-1, )
         else:
@@ -131,6 +131,17 @@ class FindErrors(object):
     def me(self):
         """ mean error """
         return np.mean(self._error())
+
+    def sse(self):
+        """sum of squared errors (model vs actual).
+        measure of how far off our model’s predictions are from the observed values. A value of 0 indicates that all
+         predications are spot on. A non-zero value indicates errors.
+        https://dziganto.github.io/data%20science/linear%20regression/machine%20learning/python/Linear-Regression-101-Metrics/
+        This is also called residual sum of squares (RSS) or sum of squared residuals as per
+        https://www.tutorialspoint.com/statistics/residual_sum_of_squares.htm
+        """
+        squared_errors = (self.true - self.predicted) ** 2
+        return np.sum(squared_errors)
 
     def mase(self, seasonality: int = 1):
         """
@@ -492,7 +503,7 @@ class FindErrors(object):
             beta: ratio of the mean
         """
         # # self-made formula
-        cc = _spearmann_corr(self.true, self.predicted)
+        cc = self.spearmann_corr()
 
         fdc_sim = np.sort(self.predicted / (np.nanmean(self.predicted)*len(self.predicted)))
         fdc_obs = np.sort(self.true / (np.nanmean(self.true)*len(self.true)))
@@ -769,6 +780,65 @@ class FindErrors(object):
                 print("{:<15} {:<10.4}  {:<10.4}".format(key, val['true'], val['pred']))
         return _stats
 
+    def spearmann_corr(self):
+        """Separmann correlation coefficient
+        https://hess.copernicus.org/articles/24/2505/2020/hess-24-2505-2020.pdf
+        """
+        col = [list(a) for a in zip(self.true, self.predicted)]
+        xy = sorted(col, key=lambda _x: _x[0], reverse=False)
+        # rang of x-value
+        for i, row in enumerate(xy):
+            row.append(i+1)
+
+        a = sorted(xy, key=lambda _x: _x[1], reverse=False)
+        # rang of y-value
+        for i, row in enumerate(a):
+            row.append(i+1)
+
+        mw_rank_x = np.nanmean(np.array(a)[:, 2])
+        mw_rank_y = np.nanmean(np.array(a)[:, 3])
+
+        numerator = np.nansum([float((a[j][2]-mw_rank_x)*(a[j][3]-mw_rank_y)) for j in range(len(a))])
+        denominator1 = np.sqrt(np.nansum([(a[j][2]-mw_rank_x)**2. for j in range(len(a))]))
+        denominator2 = np.sqrt(np.nansum([(a[j][3]-mw_rank_x)**2. for j in range(len(a))]))
+        return float(numerator/(denominator1*denominator2))
+
+    def KLsym(self):
+        """Symmetric kullback-leibler divergence"""
+        if not all((self.true == 0) == (self.predicted == 0)):
+            return None  # ('KL divergence not defined when only one distribution is 0.')
+        x,y = self.true, self.predicted
+        x[x == 0] = 1  # set values where both distributions are 0 to the same (positive) value. This will not contribute to the final distance.
+        y[y == 0] = 1
+        d = 0.5 * np.sum((x - y) * (np.log2(x) - np.log2(y)))
+        return d
+
+    def aitchison(self, center = 'mean'):
+        """ Aitchison distance. used in https://hess.copernicus.org/articles/24/2505/2020/hess-24-2505-2020.pdf"""
+        lx = np.log(self.true)
+        ly = np.log(self.predicted)
+        if center.upper() == 'MEAN':
+            m = np.mean
+        elif center.upper() == 'MEDIAN':
+            m = np.median
+        else:
+            raise ValueError
+
+        clr_x = lx - m(lx)
+        clr_y = ly - m(ly)
+        d = ( sum((clr_x-clr_y)**2) )**0.5
+        return float(d)
+
+    def JS(self):
+        """Jensen-shannon divergence"""
+        warnings.filterwarnings("ignore", category = RuntimeWarning)
+        d1 = self.true * np.log2(2 * self.true / (self.true + self.predicted))
+        d2 = self.predicted * np.log2(2 * self.predicted / (self.true + self.predicted))
+        d1[np.isnan(d1)] = 0
+        d2[np.isnan(d2)] = 0
+        d = 0.5*sum(d1+d2)
+        return d
+
 
 def _foo(denominator, numerator):
     nonzero_numerator = numerator != 0
@@ -780,28 +850,6 @@ def _foo(denominator, numerator):
                                       denominator[valid_score])
     output_scores[nonzero_numerator & ~nonzero_denominator] = 0.
     return output_scores
-
-
-def _spearmann_corr(x, y):
-    """Separmann correlation coefficient"""
-    col = [list(a) for a in zip(x, y)]
-    xy = sorted(col, key=lambda _x: _x[0], reverse=False)
-    # rang of x-value
-    for i, row in enumerate(xy):
-        row.append(i+1)
-
-    a = sorted(xy, key=lambda _x: _x[1], reverse=False)
-    # rang of y-value
-    for i, row in enumerate(a):
-        row.append(i+1)
-
-    mw_rank_x = np.nanmean(np.array(a)[:, 2])
-    mw_rank_y = np.nanmean(np.array(a)[:, 3])
-
-    numerator = np.nansum([float((a[j][2]-mw_rank_x)*(a[j][3]-mw_rank_y)) for j in range(len(a))])
-    denominator1 = np.sqrt(np.nansum([(a[j][2]-mw_rank_x)**2. for j in range(len(a))]))
-    denominator2 = np.sqrt(np.nansum([(a[j][3]-mw_rank_x)**2. for j in range(len(a))]))
-    return float(numerator/(denominator1*denominator2))
 
 
 def _mean_tweedie_deviance(y_true, y_pred, power=0, weights=None):

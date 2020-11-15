@@ -2,8 +2,8 @@
 [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![HitCount](http://hits.dwyl.com/AtrCheema/TSErrors.svg)](http://hits.dwyl.com/AtrCheema/TSErrors)
 
-The purpose of this repository to collect all performance metrics or errors which can be
-calculated for time-series data, at one place. Currently only 1d data is supported.
+The purpose of this repository to collect various performance metrics or errors which can be
+calculated for time-series/sequential data, at one place. Currently only 1d data is supported.
 
 ## How to Install
 
@@ -27,6 +27,7 @@ Currently following errors are being calculated.
 | -------------------------- | ------------- |
 | Absolute Percent Bias | `abs_pbias` |
 | Agreement Index | `agreement_index` |
+| Aitchison Distance | `aitchison` |
 | Alpha decomposition of the NSE | `nse_alpha` |
 | Bias | `bias` |
 | Beta decomposition of NSE | `nse_beta` |
@@ -40,6 +41,7 @@ Currently following errors are being calculated.
 | Geometric Mean Absolute Error | `gmae` |
 | Geometric Mean Relative Absolute Error | `gmrae` |
 | Integral Normalized Root Squared Error | `inrse` |
+| Jensen-shannon divergence | `JS` |
 | Kling-Gupta Efficiency | `kge` |
 | Logrithmic Nash Sutcliff Efficiency | `log_nse` |
 | Logrithmic probability distribution | `log_prob` |
@@ -78,8 +80,11 @@ Currently following errors are being calculated.
 | Root Median Squared Scaled Error | `rmsse` |
 | Root Relative Squared Error | `rrse` |
 | RSR | `rsr` |
+| Separmann correlation coefficient | `spearmann_corr` |
+| Symmetric kullback-leibler divergence | `KLsym` |
 | Symmetric Mean Absolute Percentage Error | `smape` |
 | Symmetric Median Absolute Percentage Error | `smdape` |
+| sum of squared errors | `sse` | 
 | Volume Errors | `volume_error` |
 | Unscaled Mean Bounded Relative Absolute Error | `umbrae` |
 | Weighted Mean Absolute Percent Errors | `wmape` |
