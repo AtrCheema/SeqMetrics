@@ -3,6 +3,8 @@ from scipy.special import xlogy
 from scipy.stats import skew, kurtosis
 import numpy as np
 import warnings
+import datetime
+import json
 
 # TODO remove repeated calculation of mse, std, mean etc
 # TODO make weights, class attribute
@@ -17,11 +19,13 @@ class FindErrors(object):
      predicted: simulated values, 1D array or list
     """
 
-    def __init__(self, actual, predicted):
+    def __init__(self, actual, predicted, warn="default"):
 
         self.true, self.predicted = self._pre_process(actual, predicted)
         self.all_methods = [method for method in dir(self) if callable(getattr(self, method)) if
                             not method.startswith('_') if method not in ['calculate_all', 'stats']]
+        assert warn in ["default", "ignore"]
+        self.warn = warn
 
         # if arrays contain negative values, following three errors can not be computed
         for array in [self.true, self.predicted]:
@@ -66,14 +70,30 @@ class FindErrors(object):
         assert len(np_array.shape) == 1
         return np_array
 
-    def calculate_all(self, verbose=False):
-        """ calculates errors using all available methods"""
+    def calculate_all(self, statistics=False, verbose=False, write=True, name=None):
+        """ calculates errors using all available methods.
+        write: bool, if True, will write the calculated errors in file.
+        name: str, if not None, then must be path of the file in which to write."""
         errors = {}
         for m in self.all_methods:
             error = float(getattr(self, m)())
             errors[m] = error
             if verbose:
                 print('{0:25} :  {1:<12.3f}'.format(m, error))
+
+        if statistics:
+            errors['stats'] = self.stats(verbose=verbose)
+
+        if write:
+            if name is not None:
+                assert isinstance(name, str)
+                fname = name
+            else:
+                fname = str(dateandtime_now())
+
+            with open(fname + ".json", 'w') as fp:
+                json.dump(errors, fp, sort_keys=True, indent=4)
+
         return errors
 
     def _error(self, true=None, predicted=None):
@@ -310,6 +330,7 @@ class FindErrors(object):
 
     def mape(self) -> float:
         """ Mean Absolute Percentage Error"""
+        warnings.filterwarnings(self.warn, category=RuntimeWarning)
         return np.mean(np.abs((self.true - self.predicted) / self.true)) * 100
 
     def smape(self) -> float:
@@ -318,6 +339,7 @@ class FindErrors(object):
          https://en.wikipedia.org/wiki/Symmetric_mean_absolute_percentage_error
          https://stackoverflow.com/a/51440114/5982232
         """
+        warnings.filterwarnings(self.warn, category=RuntimeWarning)
         _temp = np.sum(2 * np.abs(self.predicted - self.true) / (np.abs(self.true) + np.abs(self.predicted)))
         return 100 / len(self.true) * _temp
 
@@ -387,6 +409,7 @@ class FindErrors(object):
             .. math::
             NSE = 1-\\frac{\\sum_{i=1}^{N}(log(e_{i})-log(s_{i}))^2}{\\sum_{i=1}^{N}(log(e_{i})-log(\\bar{e})^2}-1)*-1
         """
+        warnings.filterwarnings(self.warn, category=RuntimeWarning)
         s, o = self.predicted + epsilon, self.true + epsilon
         return float(1 - sum((np.log(o) - np.log(o))**2) / sum((np.log(o) - np.mean(np.log(o)))**2))
 
@@ -425,6 +448,7 @@ class FindErrors(object):
         Root Mean Square Percentage Error
         https://stackoverflow.com/a/53166790/5982232
         """
+        warnings.filterwarnings(self.warn, category=RuntimeWarning)
         return np.sqrt(np.mean(np.square(((self.true - self.predicted) / self.true)), axis=0))
 
     def agreement_index(self) -> float:
@@ -778,6 +802,9 @@ class FindErrors(object):
             print("----------------------------------------")
             for key, val in _stats.items():
                 print("{:<15} {:<10.4}  {:<10.4}".format(key, val['true'], val['pred']))
+
+        _stats['shape'] = {'true': self.true.shape, 'pred': self.predicted.shape}
+
         return _stats
 
     def spearmann_corr(self):
@@ -913,6 +940,20 @@ def _geometric_mean(a, axis=0, dtype=None):
         log_a = np.log(a)
     return np.exp(log_a.mean(axis=axis))
 
+def dateandtime_now():
+    """ returns the datetime in following format
+    YYYYMMDD_HHMMSS
+    """
+    jetzt = datetime.datetime.now()
+    dt = str(jetzt.year)
+    for time in ['month', 'day', 'hour', 'minute', 'second']:
+        _time = str(getattr(jetzt, time))
+        if len(_time) < 2:
+            _time = '0' + _time
+        if time == 'hour':
+            _time = '_' + _time
+        dt += _time
+    return dt
 
 if __name__ == "__main__":
 
@@ -921,5 +962,4 @@ if __name__ == "__main__":
 
     er = FindErrors(t, p)
 
-    all_errors = er.calculate_all(True)
-    stats = er.stats(True)
+    all_errors = er.calculate_all(True, True, True)
