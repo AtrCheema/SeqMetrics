@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2019  Thibault Hallouin
+# Copyright (C) 2020  Ather Abbas
 from setuptools import setup
 
 
@@ -12,7 +12,7 @@ with open('version.py') as fv:
 setup(
     name='TSErrors',
 
-    version=1.0,
+    version=1.1,
 
     description='TSErrors: Various errors for time-series data',
     long_description=long_desc,

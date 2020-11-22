@@ -70,13 +70,16 @@ class FindErrors(object):
         assert len(np_array.shape) == 1
         return np_array
 
-    def calculate_all(self, statistics=False, verbose=False, write=True, name=None):
+    def calculate_all(self, statistics=False, verbose=False, write=False, name=None):
         """ calculates errors using all available methods.
         write: bool, if True, will write the calculated errors in file.
         name: str, if not None, then must be path of the file in which to write."""
         errors = {}
         for m in self.all_methods:
-            error = float(getattr(self, m)())
+            try:
+                error = float(getattr(self, m)())
+            except TypeError:  # some errors might not have been computed and returned a non float-convertible value e.g. None
+                error = getattr(self, m)()
             errors[m] = error
             if verbose:
                 print('{0:25} :  {1:<12.3f}'.format(m, error))
