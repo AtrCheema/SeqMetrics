@@ -1,4 +1,5 @@
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/72cbd07c421b42ffa4ecddeec71d103f)](https://app.codacy.com/gh/AtrCheema/TSErrors?utm_source=github.com&utm_medium=referral&utm_content=AtrCheema/TSErrors&utm_campaign=Badge_Grade)
 [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![HitCount](http://hits.dwyl.com/AtrCheema/TSErrors.svg)](http://hits.dwyl.com/AtrCheema/TSErrors)
 
