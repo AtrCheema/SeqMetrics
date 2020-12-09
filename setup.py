@@ -2,7 +2,6 @@
 # Copyright (C) 2020  Ather Abbas
 from setuptools import setup
 
-
 with open("README.md", "r") as fd:
     long_desc = fd.read()
 
@@ -12,7 +11,7 @@ with open('version.py') as fv:
 setup(
     name='TSErrors',
 
-    version=1.1,
+    version=1.2,
 
     description='TSErrors: Various errors for time-series data',
     long_description=long_desc,
