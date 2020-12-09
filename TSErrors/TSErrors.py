@@ -6,6 +6,8 @@ import warnings
 import datetime
 import json
 
+import matplotlib.pyplot as plt
+
 # TODO remove repeated calculation of mse, std, mean etc
 # TODO make weights, class attribute
 # TODO write tests
@@ -17,15 +19,23 @@ class FindErrors(object):
     """
      actual: ture/observed values, 1D array or list
      predicted: simulated values, 1D array or list
+     warn: str, if `ignore`, the warnings will be ignored. Default behaviour is as implemented by underlying libraries
+           such as numpy
+     raise_errors: bool, if False, then the errors will not be raised when there is a structural problem in input arrays.
+                   For example, brier_score can not be calculated for values not between 1 and 0. By default an error
+                   will be raised in such a case by if this is set to True, this error will not be raised and instead None
+                   will be returned. This can handy if this module is being used in some simulation where we want to
+                   calculate all the errors and don't want the error to be raised in the middle of the simulation.
     """
 
-    def __init__(self, actual, predicted, warn="default"):
+    def __init__(self, actual, predicted, warn="default", raise_errors=True):
 
         self.true, self.predicted = self._pre_process(actual, predicted)
         self.all_methods = [method for method in dir(self) if callable(getattr(self, method)) if
                             not method.startswith('_') if method not in ['calculate_all', 'stats']]
         assert warn in ["default", "ignore"]
         self.warn = warn
+        self.raise_errors = raise_errors
 
         # if arrays contain negative values, following three errors can not be computed
         for array in [self.true, self.predicted]:
@@ -50,7 +60,7 @@ class FindErrors(object):
         return true, predicted
 
     def _assert_1darray(self, array_like) -> np.ndarray:
-        """ makes sure that the provided `array_like` is 1D numpy array"""
+        """Makes sure that the provided `array_like` is 1D numpy array"""
         if not isinstance(array_like, np.ndarray):
             if not isinstance(array_like, list):
                 # it can be pandas series or datafrmae
@@ -82,7 +92,10 @@ class FindErrors(object):
                 error = getattr(self, m)()
             errors[m] = error
             if verbose:
-                print('{0:25} :  {1:<12.3f}'.format(m, error))
+                if error is None:
+                    print('{0:25} :  {1}'.format(m, error))
+                else:
+                    print('{0:25} :  {1:<12.3f}'.format(m, error))
 
         if statistics:
             errors['stats'] = self.stats(verbose=verbose)
@@ -786,6 +799,7 @@ class FindErrors(object):
         _stats['mean'] = {'true': np.nanmean(self.true), 'pred': np.nanmean(self.predicted)}
         _stats['var'] = {'true': np.nanvar(self.true), 'pred': np.nanvar(self.predicted)}
         _stats['std'] = {'true': np.nanstd(self.true), 'pred': np.nanstd(self.predicted)}
+        _stats['non_zeros'] = {'true': np.count_nonzero(self.true), 'pred': np.count_nonzero(self.predicted)}
         _stats['10 quant'] = {'true': np.nanquantile(self.true, 0.1), 'pred': np.nanquantile(self.predicted, 0.1)}
         _stats['50 quant'] = {'true': np.nanquantile(self.true, 0.5), 'pred': np.nanquantile(self.predicted, 0.5)}
         _stats['90 quant'] = {'true': np.nanquantile(self.true, 0.9), 'pred': np.nanquantile(self.predicted, 0.9)}
@@ -869,6 +883,127 @@ class FindErrors(object):
         d = 0.5*sum(d1+d2)
         return d
 
+    def centered_rms_dev(self):
+        """
+        Modified after https://github.com/PeterRochford/SkillMetrics/blob/master/skill_metrics/centered_rms_dev.py
+        Calculates the centered root-mean-square (RMS) difference between true and predicted
+        using the formula:
+        (E')^2 = sum_(n=1)^N [(p_n - mean(p))(r_n - mean(r))]^2/N
+        where p is the predicted values, r is the true values, and
+        N is the total number of values in p & r.
+
+        Output:
+        CRMSDIFF : centered root-mean-square (RMS) difference (E')^2
+        """
+        # Calculate means
+        pmean = np.mean(self.predicted)
+        rmean = np.mean(self.true)
+
+        # Calculate (E')^2
+        crmsd = np.square((self.predicted - pmean) - (self.true - rmean))
+        crmsd = np.sum(crmsd)/self.predicted.size
+        crmsd = np.sqrt(crmsd)
+
+        return crmsd
+
+
+    def skill_score_murphy(self):
+        """
+        Adopted from https://github.com/PeterRochford/SkillMetrics/blob/278b2f58c7d73566f25f10c9c16a15dc204f5869/skill_metrics/skill_score_murphy.py
+        Calculate non-dimensional skill score (SS) between two variables using
+        definition of Murphy (1988) using the formula:
+
+        SS = 1 - RMSE^2/SDEV^2
+
+        SDEV is the standard deviation of the true values
+
+        SDEV^2 = sum_(n=1)^N [r_n - mean(r)]^2/(N-1)
+
+        where p is the predicted values, r is the reference values, and
+        N is the total number of values in p & r. Note that p & r must
+        have the same number of values.
+
+        Output:
+        SS : skill score
+        Reference:
+        Allan H. Murphy, 1988: Skill Scores Based on the Mean Square Error
+        and Their Relationships to the Correlation Coefficient. Mon. Wea.
+        Rev., 116, 2417-2424.
+        doi: http//dx.doi.org/10.1175/1520-0493(1988)<2417:SSBOTM>2.0.CO;2
+        """
+        # Calculate RMSE
+        rmse2 = self.rmse() ** 2
+
+        # Calculate standard deviation
+        sdev2 = np.std(self.true, ddof=1) ** 2
+
+        # % Calculate skill score
+        ss = 1 - rmse2 / sdev2
+
+        return ss
+
+    def brier_score(self):
+        """
+        Adopted from https://github.com/PeterRochford/SkillMetrics/blob/master/skill_metrics/brier_score.py
+        Calculates the Brier score (BS), a measure of the mean-square error of
+        probability forecasts for a dichotomous (two-category) event, such as
+        the occurrence/non-occurrence of precipitation. The score is calculated
+        using the formula:
+        BS = sum_(n=1)^N (f_n - o_n)^2/N
+
+        where f is the forecast probabilities, o is the observed probabilities
+        (0 or 1), and N is the total number of values in f & o. Note that f & o
+        must have the same number of values, and those values must be in the
+        range [0,1].
+
+        Output:
+        BS : Brier score
+
+        Reference:
+        Glenn W. Brier, 1950: Verification of forecasts expressed in terms
+        of probabilities. Mon. We. Rev., 78, 1-23.
+        D. S. Wilks, 1995: Statistical Methods in the Atmospheric Sciences.
+        Cambridge Press. 547 pp.
+
+        """
+        # Check for valid values
+        index = np.where(np.logical_or(self.predicted < 0, self.predicted > 1))
+        if np.sum(index) > 0:
+            msg = 'Forecast has values outside interval [0,1].'
+            if self.raise_errors:
+                raise ValueError(msg)
+            else:
+                warnings.warn(msg)
+                return None
+        index = np.where(np.logical_and(self.true != 0, self.true != 1))
+        if np.sum(index) > 0:
+            msg = 'Observed has values not equal to 0 or 1.'
+            if self.raise_errors:
+                raise ValueError(msg)
+            else:
+                warnings.warn(msg)
+                return None
+
+        # Calculate score
+        bs = np.sum(np.square(self.predicted - self.true)) / len(self.predicted)
+
+        return bs
+
+    def plot(self, save=True, name="plot", show=False):
+        fig, axis = plt.subplots()
+
+        axis.plot(np.arange(len(self.true)), self.true, label="True")
+        axis.plot(np.arange(len(self.predicted)), self.predicted, label="Predicted")
+        axis.legend(loc="best")
+
+        if save:
+            plt.savefig(name, dpi=300, bbox_inches='tight')
+        if show:
+            plt.show()
+
+        plt.close('all')
+        return
+
 
 def _foo(denominator, numerator):
     nonzero_numerator = numerator != 0
@@ -944,7 +1079,7 @@ def _geometric_mean(a, axis=0, dtype=None):
     return np.exp(log_a.mean(axis=axis))
 
 def dateandtime_now():
-    """ returns the datetime in following format
+    """Returns the datetime in following format
     YYYYMMDD_HHMMSS
     """
     jetzt = datetime.datetime.now()
@@ -963,6 +1098,10 @@ if __name__ == "__main__":
     t = np.random.random((20, 1))
     p = np.random.random((20, 1))
 
-    er = FindErrors(t, p)
+    er = FindErrors(t, p, raise_errors=False)
 
     all_errors = er.calculate_all(True, True, True)
+    er.plot(show=True)
+    t = np.random.randint(0, 2, 20).reshape(20,1)
+    er = FindErrors(t, p)
+    print("brier score: ", er.brier_score())

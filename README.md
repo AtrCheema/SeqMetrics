@@ -2,6 +2,7 @@
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/72cbd07c421b42ffa4ecddeec71d103f)](https://app.codacy.com/gh/AtrCheema/TSErrors?utm_source=github.com&utm_medium=referral&utm_content=AtrCheema/TSErrors&utm_campaign=Badge_Grade)
 [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![HitCount](http://hits.dwyl.com/AtrCheema/TSErrors.svg)](http://hits.dwyl.com/AtrCheema/TSErrors)
+[![Downloads](https://pepy.tech/badge/tserrors)](https://pepy.tech/project/tserrors)
 
 The purpose of this repository to collect various performance metrics or errors which can be
 calculated for time-series/sequential data, at one place. Currently only 1d data is supported.
@@ -34,8 +35,10 @@ Currently following errors are being calculated.
 | Beta decomposition of NSE | `nse_beta` |
 | Bounded NSE | `nse_bound` |
 | Bounded KGE | `kge_bound` |
+| Brier Score | `brier_score` |
 | Correlation Coefficient | `corr_coeff` |
 | Coefficient of Determination | `r2` |
+| Centered Root Mean Square Deviation | `centered_rms_dev` |
 | Covariances | `covariance` |
 | Decomposed Mean Square Error | `decomposed_mse` |
 | Explained variance score | `exp_var_score` |
@@ -82,6 +85,7 @@ Currently following errors are being calculated.
 | Root Relative Squared Error | `rrse` |
 | RSR | `rsr` |
 | Separmann correlation coefficient | `spearmann_corr` |
+| Skill Score of Murphy | `skill_score_murphy` |
 | Symmetric kullback-leibler divergence | `KLsym` |
 | Symmetric Mean Absolute Percentage Error | `smape` |
 | Symmetric Median Absolute Percentage Error | `smdape` |
@@ -107,7 +111,7 @@ for m in er.all_methods: print("{:20}".format(m)) # get names of all availabe me
 er.nse()   # calculate Nash Sutcliff efficiency
 
 er.calculate_all(verbose=True)  # or calculate errors using all available methods
-er.stats(verbose=True)  # get some important stats
+er.stats(verbose=True)  # get some important stats about true and predicted arrays
 ```
 
 ## Related
@@ -115,3 +119,5 @@ er.stats(verbose=True)  # get some important stats
 [forecasting_metrics](https://gist.github.com/bshishov/5dc237f59f019b26145648e2124ca1c9)
 
 [hydroeval](https://github.com/ThibHlln/hydroeval)
+
+[SkillMetrics](https://github.com/PeterRochford/SkillMetrics)
