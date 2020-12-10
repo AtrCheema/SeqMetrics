@@ -11,7 +11,7 @@ with open('version.py') as fv:
 setup(
     name='TSErrors',
 
-    version=1.2,
+    version=1.3,
 
     description='TSErrors: Various errors for time-series data',
     long_description=long_desc,

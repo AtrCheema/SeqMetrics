@@ -1,12 +1,13 @@
 from math import sqrt
 from scipy.special import xlogy
-from scipy.stats import skew, kurtosis
+from scipy.stats import gmean
 import numpy as np
 import warnings
-import datetime
 import json
 
 import matplotlib.pyplot as plt
+
+from .utils import stats, dateandtime_now
 
 # TODO remove repeated calculation of mse, std, mean etc
 # TODO make weights, class attribute
@@ -17,25 +18,41 @@ EPS = 1e-10  # epsilon
 
 class FindErrors(object):
     """
+    Presents about 100 performance metrics related to sequence data at one place.
+
      actual: ture/observed values, 1D array or list
      predicted: simulated values, 1D array or list
-     warn: str, if `ignore`, the warnings will be ignored. Default behaviour is as implemented by underlying libraries
-           such as numpy
-     raise_errors: bool, if False, then the errors will not be raised when there is a structural problem in input arrays.
-                   For example, brier_score can not be calculated for values not between 1 and 0. By default an error
-                   will be raised in such a case by if this is set to True, this error will not be raised and instead None
-                   will be returned. This can handy if this module is being used in some simulation where we want to
-                   calculate all the errors and don't want the error to be raised in the middle of the simulation.
+
+     The following attributes are dynamic i.e. they can be changed from outside the class. This means the user can
+     change their value after creating the class. This will be useful if we want to calculate an error once by ignoring
+     NaN and then by not ignoring the NaNs. However, the user has to run the method `treat_arrays` in order to have the
+     changed values impact on true and predicted arrays.
+
+     replace_nan: float/int, default None, if not None, then NaNs in true and predicted will be replaced by this value.
+     replace_inf: float/int, default None, if not None, then inf vlaues in true and predicted will be replaced by this
+                  value.
+     remove_zero: bool, default False, if True, the zero values in true or predicted arrays will be removed. If a zero
+                  is found in one array, the corresponding value in the other array will also be removed.
+     remove_neg: bool, default False, if True, the negative values in true or predicted arrays will be removed.
     """
 
-    def __init__(self, actual, predicted, warn="default", raise_errors=True):
+    def __init__(self, actual,
+                 predicted,
+                 replace_nan=None,
+                 replace_inf=None,
+                 remove_zero=False,
+                 remove_neg=False):
 
         self.true, self.predicted = self._pre_process(actual, predicted)
+        self.replace_nan = replace_nan
+        self.replace_inf = replace_inf
+        self.remove_zero = remove_zero
+        self.remove_neg = remove_neg
         self.all_methods = [method for method in dir(self) if callable(getattr(self, method)) if
-                            not method.startswith('_') if method not in ['calculate_all', 'stats']]
-        assert warn in ["default", "ignore"]
-        self.warn = warn
-        self.raise_errors = raise_errors
+                            not method.startswith('_') if method not in ['calculate_all',
+                                                                         'stats',
+                                                                         "plot1d",
+                                                                         "treat_arrays"]]
 
         # if arrays contain negative values, following three errors can not be computed
         for array in [self.true, self.predicted]:
@@ -49,7 +66,39 @@ class FindErrors(object):
             if (array <= 0).any():  # mean tweedie error is not computable
                 self.all_methods = [m for m in self.all_methods if m not in ('mean_gamma_deviance',
                                                                              'mean_poisson_deviance')]
-    
+
+    @property
+    def replace_nan(self):
+        return self._replace_nan
+
+    @replace_nan.setter
+    def replace_nan(self, x):
+        self._replace_nan = x
+
+    @property
+    def replace_inf(self):
+        return self._replace_inf
+
+    @replace_inf.setter
+    def replace_inf(self, x):
+        self._replace_inf = x
+
+    @property
+    def remove_zero(self):
+        return self._remove_zero
+
+    @remove_zero.setter
+    def remove_zero(self, x):
+        self._remove_zero = x
+
+    @property
+    def remove_neg(self):
+        return self._remove_neg
+
+    @remove_neg.setter
+    def remove_neg(self, x):
+        self._remove_neg = x
+
     def _pre_process(self, true, predicted):
 
         predicted = self._assert_1darray(predicted)
@@ -81,21 +130,22 @@ class FindErrors(object):
         return np_array
 
     def calculate_all(self, statistics=False, verbose=False, write=False, name=None):
-        """ calculates errors using all available methods.
+        """ calculates errors using all available methods except brier_score..
         write: bool, if True, will write the calculated errors in file.
         name: str, if not None, then must be path of the file in which to write."""
         errors = {}
         for m in self.all_methods:
-            try:
-                error = float(getattr(self, m)())
-            except TypeError:  # some errors might not have been computed and returned a non float-convertible value e.g. None
-                error = getattr(self, m)()
-            errors[m] = error
-            if verbose:
-                if error is None:
-                    print('{0:25} :  {1}'.format(m, error))
-                else:
-                    print('{0:25} :  {1:<12.3f}'.format(m, error))
+            if m not in ["brier_score"]:
+                try:
+                    error = float(getattr(self, m)())
+                except TypeError:  # some errors might not have been computed and returned a non float-convertible value e.g. None
+                    error = getattr(self, m)()
+                errors[m] = error
+                if verbose:
+                    if error is None:
+                        print('{0:25} :  {1}'.format(m, error))
+                    else:
+                        print('{0:25} :  {1:<12.3f}'.format(m, error))
 
         if statistics:
             errors['stats'] = self.stats(verbose=verbose)
@@ -161,15 +211,33 @@ class FindErrors(object):
         return abs_err / (abs_err + abs_err_bench + EPS)
 
     def _ae(self):
-        """ Absolute error """
+        """Absolute error """
         return np.abs(self.true - self.predicted)
 
+    def acc(self):
+        """Anomaly correction coefficient.
+        Reference: Langland et al., 2012. Miyakoda et al., 1972. Murphy et al., 1989."""
+        a = self.predicted - np.mean(self.predicted)
+        b = self.true - np.mean(self.true)
+        c = np.std(self.true, ddof=1) * np.std(self.predicted, ddof=1) * self.predicted.size
+        return np.dot(a, b / c)
+
+    def mapd(self):
+        """Mean absolute percentage deviation."""
+        a = np.sum(np.abs(self.predicted - self.true))
+        b = np.sum(np.abs(self.true))
+        return a / b
+
     def me(self):
-        """ mean error """
+        """Mean error """
         return np.mean(self._error())
 
+    def mle(self):
+        """Mean log error"""
+        return np.mean(np.log1p(self.predicted) - np.log1p(self.true))
+
     def sse(self):
-        """sum of squared errors (model vs actual).
+        """Sum of squared errors (model vs actual).
         measure of how far off our model’s predictions are from the observed values. A value of 0 indicates that all
          predications are spot on. A non-zero value indicates errors.
         https://dziganto.github.io/data%20science/linear%20regression/machine%20learning/python/Linear-Regression-101-Metrics/
@@ -191,6 +259,78 @@ class FindErrors(object):
         """ Root Mean Squared Scaled Error """
         q = np.abs(self._error()) / self.mae(self.true[seasonality:], self._naive_prognose(seasonality))
         return np.sqrt(np.mean(np.square(q)))
+
+    def mde(self):
+        """Median Error"""
+        return np.median(self.predicted - self.true)
+
+    def med_seq_error(self):
+        """Median Squared Error
+        Same as mse but it takes median which reduces the impact of outliers.
+        """
+        return np.median((self.predicted - self.true) ** 2)
+
+    def euclid_distance(self):
+        """Euclidian distance
+
+        Referneces: Kennard et al., 2010
+        """
+        return np.linalg.norm(self.true - self.predicted)
+
+    def norm_euclid_distance(self):
+        """Normalized Euclidian distance"""
+
+        a = self.true / np.mean(self.true)
+        b = self.predicted / np.mean(self.predicted)
+        return np.linalg.norm(a - b)
+
+    def rmsle(self):
+        """Root mean square log error"""
+        return np.sqrt(np.mean(np.power(np.log1p(self.predicted) - np.log1p(self.true), 2)))
+
+    def nrmse_range(self):
+        """Range Normalized Root Mean Squared Error.
+        RMSE normalized by true values. This allows comparison between data sets with different scales. It is more
+        sensitive to outliers.
+
+        Reference: Pontius et al., 2008
+        """
+
+        return self.rmse() / (np.max(self.true) - np.min(self.true))
+
+    def nrmse_ipercentile(self, q1=25, q2=75):
+        """
+        RMSE normalized by inter percentile range of true. This is least sensitive to outliers.
+        q1: any interger between 1 and 99
+        q2: any integer between 2 and 100. Should be greater than q1.
+        Reference: Pontius et al., 2008.
+        """
+
+        q1 = np.percentile(self.true, q1)
+        q3 = np.percentile(self.true, q2)
+        iqr = q3 - q1
+
+        return self.rmse() / iqr
+
+    def nrmse_mean(self):
+        """Mean Normalized RMSE
+        RMSE normalized by mean of true values.This allows comparison between datasets with different scales.
+
+        Reference: Pontius et al., 2008
+        """
+        return self.rmse() / np.mean(self.true)
+
+    def irmse(self):
+        """Inertial RMSE. RMSE divided by standard deviation of the gradient of true."""
+        # Getting the gradient of the observed data
+        obs_len = self.true.size
+        obs_grad = self.true[1:obs_len] - self.true[0:obs_len - 1]
+
+        # Standard deviation of the gradient
+        obs_grad_std = np.std(obs_grad, ddof=1)
+
+        # Divide RMSE by the standard deviation of the gradient of the observed data
+        return self.rmse() / obs_grad_std
 
     def rmdspe(self):
         """
@@ -282,7 +422,8 @@ class FindErrors(object):
         return np.average((self.true - self.predicted) ** 2, axis=0,  weights=weights)
 
     def r2(self) -> float:
-        """coefficient of determination"""
+        """coefficient of determination. Square of pearson correlation coefficient. More heavily affected by outliers
+        than pearson correlatin r. """
         zx = (self.true - np.mean(self.true)) / np.std(self.true, ddof=1)
         zy = (self.predicted - np.mean(self.predicted)) / np.std(self.predicted, ddof=1)
         r = np.sum(zx * zy) / (len(self.true) - 1)
@@ -346,7 +487,6 @@ class FindErrors(object):
 
     def mape(self) -> float:
         """ Mean Absolute Percentage Error"""
-        warnings.filterwarnings(self.warn, category=RuntimeWarning)
         return np.mean(np.abs((self.true - self.predicted) / self.true)) * 100
 
     def smape(self) -> float:
@@ -355,7 +495,6 @@ class FindErrors(object):
          https://en.wikipedia.org/wiki/Symmetric_mean_absolute_percentage_error
          https://stackoverflow.com/a/51440114/5982232
         """
-        warnings.filterwarnings(self.warn, category=RuntimeWarning)
         _temp = np.sum(2 * np.abs(self.predicted - self.true) / (np.abs(self.true) + np.abs(self.predicted)))
         return 100 / len(self.true) * _temp
 
@@ -425,7 +564,6 @@ class FindErrors(object):
             .. math::
             NSE = 1-\\frac{\\sum_{i=1}^{N}(log(e_{i})-log(s_{i}))^2}{\\sum_{i=1}^{N}(log(e_{i})-log(\\bar{e})^2}-1)*-1
         """
-        warnings.filterwarnings(self.warn, category=RuntimeWarning)
         s, o = self.predicted + epsilon, self.true + epsilon
         return float(1 - sum((np.log(o) - np.log(o))**2) / sum((np.log(o) - np.mean(np.log(o)))**2))
 
@@ -464,7 +602,6 @@ class FindErrors(object):
         Root Mean Square Percentage Error
         https://stackoverflow.com/a/53166790/5982232
         """
-        warnings.filterwarnings(self.warn, category=RuntimeWarning)
         return np.sqrt(np.mean(np.square(((self.true - self.predicted) / self.true)), axis=0))
 
     def agreement_index(self) -> float:
@@ -477,6 +614,33 @@ class FindErrors(object):
         agreement_index = 1 - (np.sum((self.true - self.predicted)**2)) / (np.sum(
             (np.abs(self.predicted - np.mean(self.true)) + np.abs(self.true - np.mean(self.true)))**2))
         return agreement_index
+
+    def ref_agreement_index(self):
+        """Refined Index of Agreement. From -1 to 1. Larger the better.
+        Refrence: Willmott et al., 2012"""
+        a = np.sum(np.abs(self.predicted - self.true))
+        b = 2 * np.sum(np.abs(self.true - self.true.mean()))
+        if a <= b:
+            return 1 - (a / b)
+        else:
+            return (b / a) - 1
+
+    def rel_agreement_index(self):
+        """Relative index of agreement. from 0 to 1. larger the better."""
+        a = ((self.predicted - self.true) / self.true) ** 2
+        b = np.abs(self.predicted - np.mean(self.true))
+        c = np.abs(self.true - np.mean(self.true))
+        e = ((b + c) / np.mean(self.true)) ** 2
+        return 1 - (np.sum(a) / np.sum(e))
+
+    def mod_agreement_index(self, j=1):
+        """Modified agreement of index.
+        j: int, when j==1, this is same as agreement_index. Higher j means more impact of outliers."""
+        a = (np.abs(self.predicted - self.true)) ** j
+        b = np.abs(self.predicted - np.mean(self.true))
+        c = np.abs(self.true - np.mean(self.true))
+        e = (b + c) ** j
+        return 1 - (np.sum(a) / np.sum(e))
 
     def covariance(self) -> float:
         """
@@ -555,6 +719,20 @@ class FindErrors(object):
             return np.vstack((kge, cc, alpha, beta))
         else:
             return kge
+
+    def pearson_r(self):
+        """Pearson correlation coefficient.
+        Measures linear correlatin. Sensitive to outliers.
+        Reference: Pearson, K 1895.
+        """
+        sim_mean = np.mean(self.predicted)
+        obs_mean = np.mean(self.true)
+
+        top = np.sum((self.true - obs_mean) * (self.predicted - sim_mean))
+        bot1 = np.sqrt(np.sum((self.true - obs_mean) ** 2))
+        bot2 = np.sqrt(np.sum((self.predicted - sim_mean) ** 2))
+
+        return top / (bot1 * bot2)
 
     def kge_mod(self, return_all=False):
         """
@@ -698,6 +876,24 @@ class FindErrors(object):
         """
         return (np.mean(self.predicted) - np.mean(self.true)) / np.std(self.true)
 
+    def nse_mod(self, j=1):
+        """
+        Gives less weightage of outliers if j=1 and if j>1, gives more weightage to outliers.
+        Reference: Krause et al., 2005
+        """
+        a = (np.abs(self.predicted - self.true)) ** j
+        b = (np.abs(self.true - np.mean(self.true))) ** j
+        return 1 - (np.sum(a) / np.sum(b))
+
+    def nse_rel(self):
+        """
+        Relative NSE.
+        """
+
+        a = (np.abs((self.predicted - self.true) / self.true)) ** 2
+        b = (np.abs((self.true - np.mean(self.true)) / np.mean(self.true))) ** 2
+        return 1 - (np.sum(a) / np.sum(b))
+
     def fdc_flv(self, low_flow: float = 0.3) -> float:
         """
         bias of the bottom 30 % low flows
@@ -791,36 +987,58 @@ class FindErrors(object):
 
         return kgenp_c2m_
 
+    def mb_r(self):
+        """Mielke-Berry R value.
+        Mielke and Berry., 2007.
+        Berry and Mielke, 1988.
+        """
+        # Calculate metric
+        n = self.predicted.size
+        tot = 0.0
+        for i in range(n):
+            tot = tot + np.sum(np.abs(self.predicted - self.true[i]))
+        mae_val = np.sum(np.abs(self.predicted - self.true)) / n
+        mb = 1 - ((n ** 2) * mae_val / tot)
+
+        return mb
+
+    def lm_index(self, obs_bar_p=None):
+        """Legate-McCabe Efficiency Index.
+
+        obs_bar_p: float, Seasonal or other selected average. If None, the mean of the observed array will be used.
+        """
+        mean_obs = np.mean(self.true)
+
+        if obs_bar_p is not None:
+            a = np.abs(self.predicted - self.true)
+            b = np.abs(self.true - obs_bar_p)
+            return 1 - (np.sum(a) / np.sum(b))
+        else:
+            a = np.abs(self.predicted - self.true)
+            b = np.abs(self.true - mean_obs)
+            return 1 - (np.sum(a) / np.sum(b))
+
+    def watt_m(self):
+        """Watterson's M.
+        Refrence: Watterson., 1996"""
+        a = 2 / np.pi
+        c = np.std(self.true, ddof=1) ** 2 + np.std(self.predicted, ddof=1) ** 2
+        e = (np.mean(self.predicted) - np.mean(self.true)) ** 2
+        f = c + e
+        return a * np.arcsin(1 - (self.mse() / f))
+
     def stats(self, verbose: bool = False) -> dict:
         """ returs some important stats about true and predicted values."""
         _stats = dict()
-        _stats['skew'] = {'true': skew(self.true), 'pred': skew(self.predicted)}
-        _stats['kurtosis'] = {'true': kurtosis(self.true), 'pred': kurtosis(self.predicted)}
-        _stats['mean'] = {'true': np.nanmean(self.true), 'pred': np.nanmean(self.predicted)}
-        _stats['var'] = {'true': np.nanvar(self.true), 'pred': np.nanvar(self.predicted)}
-        _stats['std'] = {'true': np.nanstd(self.true), 'pred': np.nanstd(self.predicted)}
-        _stats['non_zeros'] = {'true': np.count_nonzero(self.true), 'pred': np.count_nonzero(self.predicted)}
-        _stats['10 quant'] = {'true': np.nanquantile(self.true, 0.1), 'pred': np.nanquantile(self.predicted, 0.1)}
-        _stats['50 quant'] = {'true': np.nanquantile(self.true, 0.5), 'pred': np.nanquantile(self.predicted, 0.5)}
-        _stats['90 quant'] = {'true': np.nanquantile(self.true, 0.9), 'pred': np.nanquantile(self.predicted, 0.9)}
-        _stats['25 %ile'] = {'true': np.nanpercentile(self.true, 25), 'pred': np.nanpercentile(self.predicted, 25)}
-        _stats['50 %ile'] = {'true': np.nanpercentile(self.true, 50), 'pred': np.nanpercentile(self.predicted, 50)}
-        _stats['75 %ile'] = {'true': np.nanpercentile(self.true, 75), 'pred': np.nanpercentile(self.predicted, 75)}
-        _stats['min'] = {'true': np.nanmin(self.true), 'pred': np.nanmin(self.predicted)}
-        _stats['max'] = {'true': np.nanmax(self.true), 'pred': np.nanmax(self.predicted)}
-        _stats['-ve vals'] = {'true': float(np.sum(self.true < 0.0)), 'pred': float(np.sum(self.predicted < 0.0))}
-
-        for k, v in _stats.items():
-            for sk, sv in v.items():
-                v[sk] = float(sv)
+        _stats['true'] = stats(self.true)
+        _stats['predicted'] = stats(self.predicted)
 
         if verbose:
             print("\nName            True         Predicted  ")
             print("----------------------------------------")
-            for key, val in _stats.items():
-                print("{:<15} {:<10.4}  {:<10.4}".format(key, val['true'], val['pred']))
-
-        _stats['shape'] = {'true': self.true.shape, 'pred': self.predicted.shape}
+            for k in _stats['true'].keys():
+                print("{:<25},  {:<10},  {:<10}"
+                      .format(k, round(_stats['true'][k], 4), round(_stats['predicted'][k])))
 
         return _stats
 
@@ -847,17 +1065,73 @@ class FindErrors(object):
         denominator2 = np.sqrt(np.nansum([(a[j][3]-mw_rank_x)**2. for j in range(len(a))]))
         return float(numerator/(denominator1*denominator2))
 
+    def ve(self):
+        """
+        Volumetric efficiency. from 0 to 1. Smaller the better.
+        Reference: Criss and Winston 2008.
+        """
+        a = np.sum(np.abs(self.predicted - self.true))
+        b = np.sum(self.true)
+        return 1 - (a / b)
+
+    def sa(self):
+        """Spectral angle. From -pi/2 to pi/2. Closer to 0 is better.
+        It measures angle between two vectors in hyperspace indicating how well the shape of two arrays match instead
+        of their magnitude.
+        Reference: Robila and Gershman, 2005."""
+        a = np.dot(self.predicted, self.true)
+        b = np.linalg.norm(self.predicted) * np.linalg.norm(self.true)
+        return np.arccos(a / b)
+
+    def sc(self):
+        """Spectral correlation.
+         From -pi/2 to pi/2. Closer to 0 is better.
+        """
+        a = np.dot(self.true - np.mean(self.true), self.predicted - np.mean(self.predicted))
+        b = np.linalg.norm(self.true - np.mean(self.true))
+        c = np.linalg.norm(self.predicted - np.mean(self.predicted))
+        e = b * c
+        return np.arccos(a / e)
+
+    def sid(self):
+        """Spectral Information Divergence.
+        From -pi/2 to pi/2. Closer to 0 is better. """
+        first = (self.true / np.mean(self.true)) - (
+                self.predicted / np.mean(self.predicted))
+        second1 = np.log10(self.true) - np.log10(np.mean(self.true))
+        second2 = np.log10(self.predicted) - np.log10(np.mean(self.predicted))
+        return np.dot(first, second1 - second2)
+
+    def sga(self):
+        """Spectral gradient angle.
+        From -pi/2 to pi/2. Closer to 0 is better.
+        """
+        sgx = self.true[1:] - self.true[:self.true.size - 1]
+        sgy = self.predicted[1:] - self.predicted[:self.predicted.size - 1]
+        a = np.dot(sgx, sgy)
+        b = np.linalg.norm(sgx) * np.linalg.norm(sgy)
+        return np.arccos(a / b)
+
+    def gmean_diff(self):
+        """Geometric mean difference. First geometric mean is calculated for each of two samples and their difference
+        is calculated."""
+        sim_log = np.log1p(self.predicted)
+        obs_log = np.log1p(self.true)
+        return np.exp(gmean(sim_log) - gmean(obs_log))
+
     def KLsym(self):
         """Symmetric kullback-leibler divergence"""
         if not all((self.true == 0) == (self.predicted == 0)):
             return None  # ('KL divergence not defined when only one distribution is 0.')
-        x,y = self.true, self.predicted
-        x[x == 0] = 1  # set values where both distributions are 0 to the same (positive) value. This will not contribute to the final distance.
+        x, y = self.true, self.predicted
+        # set values where both distributions are 0 to the same (positive) value.
+        # This will not contribute to the final distance.
+        x[x == 0] = 1
         y[y == 0] = 1
         d = 0.5 * np.sum((x - y) * (np.log2(x) - np.log2(y)))
         return d
 
-    def aitchison(self, center = 'mean'):
+    def aitchison(self, center='mean'):
         """ Aitchison distance. used in https://hess.copernicus.org/articles/24/2505/2020/hess-24-2505-2020.pdf"""
         lx = np.log(self.true)
         ly = np.log(self.predicted)
@@ -870,7 +1144,7 @@ class FindErrors(object):
 
         clr_x = lx - m(lx)
         clr_y = ly - m(ly)
-        d = ( sum((clr_x-clr_y)**2) )**0.5
+        d = (sum((clr_x-clr_y)**2))**0.5
         return float(d)
 
     def JS(self):
@@ -905,7 +1179,6 @@ class FindErrors(object):
         crmsd = np.sqrt(crmsd)
 
         return crmsd
-
 
     def skill_score_murphy(self):
         """
@@ -970,19 +1243,12 @@ class FindErrors(object):
         index = np.where(np.logical_or(self.predicted < 0, self.predicted > 1))
         if np.sum(index) > 0:
             msg = 'Forecast has values outside interval [0,1].'
-            if self.raise_errors:
-                raise ValueError(msg)
-            else:
-                warnings.warn(msg)
-                return None
+            raise ValueError(msg)
+
         index = np.where(np.logical_and(self.true != 0, self.true != 1))
         if np.sum(index) > 0:
             msg = 'Observed has values not equal to 0 or 1.'
-            if self.raise_errors:
-                raise ValueError(msg)
-            else:
-                warnings.warn(msg)
-                return None
+            raise ValueError(msg)
 
         # Calculate score
         bs = np.sum(np.square(self.predicted - self.true)) / len(self.predicted)
@@ -1002,6 +1268,114 @@ class FindErrors(object):
             plt.show()
 
         plt.close('all')
+        return
+
+    def mean_var(self):
+        """Mean variance"""
+        return np.var(np.log1p(self.true) - np.log1p(self.predicted))
+
+    def treat_values(self):
+        """
+        This function is applied by default at the start/at the time of initiating the class. However, it can used any
+        time after that. This can be handy if we want to calculate error first by ignoring nan and then by no ignoring
+        nan.
+        Adopting from https://github.com/BYU-Hydroinformatics/HydroErr/blob/master/HydroErr/HydroErr.py#L6210
+        Removes the nan, negative, and inf values in two numpy arrays"""
+        sim_copy = np.copy(self.predicted)
+        obs_copy = np.copy(self.true)
+
+        # Treat missing data in observed_array and simulated_array, rows in simulated_array or
+        # observed_array that contain nan values
+        all_treatment_array = np.ones(obs_copy.size, dtype=bool)
+
+        if np.any(np.isnan(obs_copy)) or np.any(np.isnan(sim_copy)):
+            if self.replace_nan is not None:
+                # Finding the NaNs
+                sim_nan = np.isnan(sim_copy)
+                obs_nan = np.isnan(obs_copy)
+                # Replacing the NaNs with the input
+                sim_copy[sim_nan] = self.replace_nan
+                obs_copy[obs_nan] = self.replace_nan
+
+                warnings.warn("Elements(s) {} contained NaN values in the simulated array and "
+                              "elements(s) {} contained NaN values in the observed array and have been "
+                              "replaced (Elements are zero indexed).".format(np.where(sim_nan)[0],
+                                                                             np.where(obs_nan)[0]),
+                              UserWarning)
+            else:
+                # Getting the indices of the nan values, combining them, and informing user.
+                nan_indices_fcst = ~np.isnan(sim_copy)
+                nan_indices_obs = ~np.isnan(obs_copy)
+                all_nan_indices = np.logical_and(nan_indices_fcst, nan_indices_obs)
+                all_treatment_array = np.logical_and(all_treatment_array, all_nan_indices)
+
+                warnings.warn("Row(s) {} contained NaN values and the row(s) have been "
+                              "removed (Rows are zero indexed).".format(np.where(~all_nan_indices)[0]),
+                              UserWarning)
+
+        if np.any(np.isinf(obs_copy)) or np.any(np.isinf(sim_copy)):
+            if self.replace_nan is not None:
+                # Finding the NaNs
+                sim_inf = np.isinf(sim_copy)
+                obs_inf = np.isinf(obs_copy)
+                # Replacing the NaNs with the input
+                sim_copy[sim_inf] = self.replace_inf
+                obs_copy[obs_inf] = self.replace_inf
+
+                warnings.warn("Elements(s) {} contained Inf values in the simulated array and "
+                              "elements(s) {} contained Inf values in the observed array and have been "
+                              "replaced (Elements are zero indexed).".format(np.where(sim_inf)[0],
+                                                                             np.where(obs_inf)[0]),
+                              UserWarning)
+            else:
+                inf_indices_fcst = ~(np.isinf(sim_copy))
+                inf_indices_obs = ~np.isinf(obs_copy)
+                all_inf_indices = np.logical_and(inf_indices_fcst, inf_indices_obs)
+                all_treatment_array = np.logical_and(all_treatment_array, all_inf_indices)
+
+                warnings.warn(
+                    "Row(s) {} contained Inf or -Inf values and the row(s) have been removed (Rows "
+                    "are zero indexed).".format(np.where(~all_inf_indices)[0]),
+                    UserWarning
+                )
+
+        # Treat zero data in observed_array and simulated_array, rows in simulated_array or
+        # observed_array that contain zero values
+        if self.remove_zero:
+            if (obs_copy == 0).any() or (sim_copy == 0).any():
+                zero_indices_fcst = ~(sim_copy == 0)
+                zero_indices_obs = ~(obs_copy == 0)
+                all_zero_indices = np.logical_and(zero_indices_fcst, zero_indices_obs)
+                all_treatment_array = np.logical_and(all_treatment_array, all_zero_indices)
+
+                warnings.warn(
+                    "Row(s) {} contained zero values and the row(s) have been removed (Rows are "
+                    "zero indexed).".format(np.where(~all_zero_indices)[0]),
+                    UserWarning
+                )
+
+        # Treat negative data in observed_array and simulated_array, rows in simulated_array or
+        # observed_array that contain negative values
+
+        # Ignore runtime warnings from comparing
+        if self.remove_neg:
+            with np.errstate(invalid='ignore'):
+                obs_copy_bool = obs_copy < 0
+                sim_copy_bool = sim_copy < 0
+
+            if obs_copy_bool.any() or sim_copy_bool.any():
+                neg_indices_fcst = ~sim_copy_bool
+                neg_indices_obs = ~obs_copy_bool
+                all_neg_indices = np.logical_and(neg_indices_fcst, neg_indices_obs)
+                all_treatment_array = np.logical_and(all_treatment_array, all_neg_indices)
+
+                warnings.warn("Row(s) {} contained negative values and the row(s) have been "
+                              "removed (Rows are zero indexed).".format(np.where(~all_neg_indices)[0]),
+                              UserWarning)
+
+        self.true = obs_copy[all_treatment_array]
+        self.predicted = sim_copy[all_treatment_array]
+
         return
 
 
@@ -1078,30 +1452,17 @@ def _geometric_mean(a, axis=0, dtype=None):
         log_a = np.log(a)
     return np.exp(log_a.mean(axis=axis))
 
-def dateandtime_now():
-    """Returns the datetime in following format
-    YYYYMMDD_HHMMSS
-    """
-    jetzt = datetime.datetime.now()
-    dt = str(jetzt.year)
-    for time in ['month', 'day', 'hour', 'minute', 'second']:
-        _time = str(getattr(jetzt, time))
-        if len(_time) < 2:
-            _time = '0' + _time
-        if time == 'hour':
-            _time = '_' + _time
-        dt += _time
-    return dt
 
 if __name__ == "__main__":
-
     t = np.random.random((20, 1))
     p = np.random.random((20, 1))
 
-    er = FindErrors(t, p, raise_errors=False)
+    er = FindErrors(t, p)
 
     all_errors = er.calculate_all(True, True, True)
+
     er.plot(show=True)
-    t = np.random.randint(0, 2, 20).reshape(20,1)
+    t = np.random.randint(0, 2, 20).reshape(20, 1)
     er = FindErrors(t, p)
     print("brier score: ", er.brier_score())
+    s = er.stats()
