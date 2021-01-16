@@ -59,7 +59,7 @@ Currently following errors are being calculated.
 | Mean Absolute Error | `mae` |
 | Mean Absolute Percentage Deviation | `mapd` |
 | Mean Absolute Percentage Error | `mape` |
-| Mean Absolute Relative Error | `mean_abs_rel_error` |
+| Mean Absolute Relative Error | `mare` |
 | Mean Absolute Scaled Error | `mase` |
 | Mean Arctangle Absolute Percentage Error | `maape` |
 | Mean Bias Error | `mean_bias_error` |

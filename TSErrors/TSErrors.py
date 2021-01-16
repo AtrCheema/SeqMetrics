@@ -5,14 +5,16 @@ import numpy as np
 import warnings
 import json
 
-import matplotlib.pyplot as plt
-
-from .utils import stats, dateandtime_now
+from TSErrors.utils import stats, dateandtime_now
 
 # TODO remove repeated calculation of mse, std, mean etc
 # TODO make weights, class attribute
 # TODO write tests
 # TODO standardized residual sum of squares
+# http://documentation.sas.com/?cdcId=fscdc&cdcVersion=15.1&docsetId=fsug&docsetTarget=n1sm8nk3229ttun187529xtkbtpu.htm&locale=en
+# https://arxiv.org/ftp/arxiv/papers/1809/1809.03006.pdf
+# maximum absolute error
+# Legates׳s coefficient of efficiency
 EPS = 1e-10  # epsilon
 
 
@@ -51,7 +53,6 @@ class FindErrors(object):
         self.all_methods = [method for method in dir(self) if callable(getattr(self, method)) if
                             not method.startswith('_') if method not in ['calculate_all',
                                                                          'stats',
-                                                                         "plot1d",
                                                                          "treat_arrays"]]
 
         # if arrays contain negative values, following three errors can not be computed
@@ -285,7 +286,13 @@ class FindErrors(object):
         return np.linalg.norm(a - b)
 
     def rmsle(self):
-        """Root mean square log error"""
+        """Root mean square log error. Compared to RMSE, RMSLE only considers the relative error between predicted and
+         actual values, and the scale of the error is nullified by the log-transformation. Furthermore, RMSLE penalizes
+         underestimation more than overestimation. This is especially useful in our studies where the underestimation
+         of the target variable is not acceptable but overestimation can be tolerated. [1]
+
+         [1] https://doi.org/10.1016/j.scitotenv.2020.137894
+         """
         return np.sqrt(np.mean(np.power(np.log1p(self.predicted) - np.log1p(self.true), 2)))
 
     def nrmse_range(self):
@@ -458,11 +465,24 @@ class FindErrors(object):
         return np.average(output_scores, weights=weights)
 
     def rsr(self) -> float:
+        """It incorporates the benefits of error index statistics andincludes a scaling/normalization factor,
+        so that the resultingstatistic  and  reported  values  can  apply  to  various  constitu-ents."""
         return self.rmse() / np.std(self.true)
 
     def nse(self) -> float:
         _nse = 1 - sum((self.predicted - self.true) ** 2) / sum((self.true - np.mean(self.true)) ** 2)
         return _nse
+
+    def mbe(self) -> float:
+        """Mean bias error. This indicator expresses a tendency of model to underestimate (negative value)
+        or overestimate (positive value) global radiation, while the MBE values closest to zero are desirable.
+        The drawback of this test is that it does not show the correct performance when the model presents
+        overestimated and underestimated values at the same time, since overestimation and underestimation
+        values cancel each other. [1]
+
+        [1] https://doi.org/10.1016/j.rser.2015.08.035
+        """
+        return float(np.mean(self._error(self.true, self.predicted)))
 
     def abs_pbias(self) -> float:
         """ Absolute Percent bias"""
@@ -530,14 +550,21 @@ class FindErrors(object):
         """
         return float(np.sum(self._ae() / np.sum(self.true)))
 
-    def mean_abs_rel_error(self) -> float:
-        """ Mean Absolute Relative Error """
-        return np.sum(self._ae(), axis=0, dtype=np.float64) / np.sum(self.true)
+    def mare(self) -> float:
+        """ Mean Absolute Relative Error. When expressed in %age, it is also known as mape. [1]
+        https://doi.org/10.1016/j.rser.2015.08.035
+        """
+        return float(np.mean(np.abs(self._error(self.true, self.predicted)/self.true)))
 
     def mean_bias_error(self) -> float:
         """
+        Mean Bias Error
         It represents overall bias error or systematic error. It shows average interpolation bias; i.e. average over-
-        or underestimation. [1][2]
+        or underestimation. [1][2].This indicator expresses a tendency of model to underestimate (negative value)
+        or overestimate (positive value) global radiation, while the MBE values closest to zero are desirable.
+        The drawback of this test is that it does not show the correct performance when the model presents
+        overestimated and underestimated values at the same time, since overestimation and underestimation
+        values cancel each other.
 
     [2] Willmott, C. J., & Matsuura, K. (2006). On the use of dimensioned measures of error to evaluate the performance
         of spatial interpolators. International Journal of Geographical Information Science, 20(1), 89-102.
@@ -545,6 +572,7 @@ class FindErrors(object):
     [1] Valipour, M. (2015). Retracted: Comparative Evaluation of Radiation-Based Methods for Estimation of Potential
         Evapotranspiration. Journal of Hydrologic Engineering, 20(5), 04014068.
          http://dx.doi.org/10.1061/(ASCE)HE.1943-5584.0001066
+    [3]  https://doi.org/10.1016/j.rser.2015.08.035
          """
         return np.sum(self.true - self.predicted) / len(self.true)
 
@@ -1004,7 +1032,7 @@ class FindErrors(object):
 
     def lm_index(self, obs_bar_p=None):
         """Legate-McCabe Efficiency Index.
-
+        Less sensitive to outliers in the data.
         obs_bar_p: float, Seasonal or other selected average. If None, the mean of the observed array will be used.
         """
         mean_obs = np.mean(self.true)
@@ -1255,24 +1283,20 @@ class FindErrors(object):
 
         return bs
 
-    def plot(self, save=True, name="plot", show=False):
-        fig, axis = plt.subplots()
-
-        axis.plot(np.arange(len(self.true)), self.true, label="True")
-        axis.plot(np.arange(len(self.predicted)), self.predicted, label="Predicted")
-        axis.legend(loc="best")
-
-        if save:
-            plt.savefig(name, dpi=300, bbox_inches='tight')
-        if show:
-            plt.show()
-
-        plt.close('all')
-        return
-
     def mean_var(self):
         """Mean variance"""
         return np.var(np.log1p(self.true) - np.log1p(self.predicted))
+
+    def expanded_uncertainty(self, cov_fact=1.96) -> float:
+        """By default it calculates uncertainty with 95% confidence interval. 1.96 is the coverage factor
+         corresponding 95% confidence level [2]. This indicator is used in order to show more information about the
+         model deviation [2].
+        Using formula from by [1] and [2].
+        [1] https://doi.org/10.1016/j.enconman.2015.03.067
+        [2] https://doi.org/10.1016/j.rser.2014.07.117
+        """
+        sd = np.std(self._error(self.true, self.predicted))
+        return cov_fact * np.sqrt(sd**2 + self.rmse()**2)
 
     def treat_values(self):
         """
@@ -1379,6 +1403,9 @@ class FindErrors(object):
         return
 
 
+
+
+
 def _foo(denominator, numerator):
     nonzero_numerator = numerator != 0
     nonzero_denominator = denominator != 0
@@ -1451,18 +1478,3 @@ def _geometric_mean(a, axis=0, dtype=None):
     else:
         log_a = np.log(a)
     return np.exp(log_a.mean(axis=axis))
-
-
-if __name__ == "__main__":
-    t = np.random.random((20, 1))
-    p = np.random.random((20, 1))
-
-    er = FindErrors(t, p)
-
-    all_errors = er.calculate_all(True, True, True)
-
-    er.plot(show=True)
-    t = np.random.randint(0, 2, 20).reshape(20, 1)
-    er = FindErrors(t, p)
-    print("brier score: ", er.brier_score())
-    s = er.stats()
