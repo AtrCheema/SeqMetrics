@@ -1,4 +1,20 @@
-*__pycache__/
+*.csv
+*.xlsx
+*.png
+*.npz
+*.mat
+*.h5
+*.nc
+*.feather
+*.parquet
+*.npy
+
+*.qgz
+
+.ipynb_checkpoints/
+__pycache__/
+.idea/
+.vscode/ 
 
 # build related
 *dist/
