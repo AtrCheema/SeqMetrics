@@ -7,3 +7,5 @@ from ._main import Metrics
 from ._rgr import RegressionMetrics
 from ._cls import ClassificationMetrics
 from .utils import plot_metrics
+
+__version__ = '1.3.1'

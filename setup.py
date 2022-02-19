@@ -2,27 +2,25 @@
 # Copyright (C) 2020  Ather Abbas
 from setuptools import setup
 
-with open("README.md", "r") as fd:
-    long_desc = fd.read()
-
-with open('version.py') as fv:
-    exec(fv.read())
+import os
+fpath = os.path.join(os.getcwd(), "README.md")
+if os.path.exists(fpath):
+    with open(fpath, "r") as fd:
+        long_desc = fd.read()
 
 setup(
-    name='TSErrors',
+    name='SeqMetrics',
 
-    version=1.3,
+    version="1.3.1",
 
-    description='TSErrors: Various errors for time-series data',
+    description='SeqMetrics: Various errors for sequential data',
     long_description=long_desc,
     long_description_content_type="text/markdown",
 
-    url='https://github.com/AtrCheema/TSErrors',
+    url='https://github.com/AtrCheema/SeqMetrics',
 
     author='Ather Abbas',
     author_email='ather_abbas786@yahoo.com',
-
-    license='GPLv3',
 
     classifiers=[
         'Development Status :: 4 - Beta',
@@ -37,17 +35,21 @@ setup(
         'Operating System :: POSIX :: Linux',
 
 
-        'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
 
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: Implementation :: CPython'
+        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9', 
     ],
 
-    packages=['TSErrors'],
+    packages=['SeqMetrics'],
 
     install_requires=[
-        'numpy'
+        'numpy',
+        'scipy',
     ],
+    extras_require={
+        'all': ["numpy", "scipy", "easy_mpl"], 
+    }
 )

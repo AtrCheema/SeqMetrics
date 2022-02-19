@@ -1,3 +1,4 @@
 numpy
 scikit-learn==0.22.2.post1
 easy_mpl
+scipy

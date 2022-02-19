@@ -20,3 +20,4 @@ __pycache__/
 *dist/
 *build/
 *TSErrors.egg-info/
+*SeqMetrics.egg-info/
