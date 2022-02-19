@@ -3,7 +3,7 @@ Metrics
 
 The ``Metrics`` class does some preprocessing of arrays if required.
 
-SeqMetrics
+Metrics
 ==========
 .. autoclass:: SeqMetrics.Metrics
    :members:

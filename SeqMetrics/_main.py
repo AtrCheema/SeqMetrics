@@ -3,7 +3,7 @@ import warnings
 import numpy as np
 from typing import Union
 
-from .utils import features
+from .utils import features, to_oneD_array, maybe_to_oneD_array
 
 # TODO remove repeated calculation of mse, std, mean etc
 # TODO make weights, class attribute
@@ -158,31 +158,10 @@ class Metrics(object):
 
     def _assert_1darray(self, array_like) -> np.ndarray:
         """Makes sure that the provided `array_like` is 1D numpy array"""
-        if not isinstance(array_like, np.ndarray):
-            if not isinstance(array_like, list):
-                # it can be pandas series or datafrmae
-                if array_like.__class__.__name__ in ['Series', 'DataFrame']:
-                    if len(array_like.shape) > 1:  # 1d series has shape (x,) while 1d dataframe has shape (x,1)
-                        if array_like.shape[1] > 1:  # it is a 2d datafrmae
-                            raise TypeError("only 1d pandas Series or dataframe are allowed")
-                    np_array = np.array(array_like).reshape(-1, )
-                else:
-                    raise TypeError(f"all inputs must be numpy array or list but one is of type {type(array_like)}")
-            else:
-                np_array = np.array(array_like).reshape(-1, )
-        else:
-            if np.ndim(array_like) > 1:
-                sec_dim = array_like.shape[1]
-                if self.metric_type != 'classification' and sec_dim > 1:
-                    raise ValueError(f"Array must not be 2d but it has shape {array_like.shape}")
-                np_array = np.array(array_like).reshape(-1, ) if self.metric_type != 'classification' else array_like
-            else:
-                # maybe the dimension is >1 so make sure it is more
-                np_array = array_like.reshape(-1, ) if self.metric_type != 'classification' else array_like
-
-        if self.metric_type != 'classification':
-            assert len(np_array.shape) == 1
-        return np_array
+        if self.metric_type == "regression":
+            return to_oneD_array(array_like)
+            
+        return maybe_to_oneD_array(array_like)
 
     def calculate_all(self, statistics=False, verbose=False, write=False, name=None) -> dict:
         """ calculates errors using all available methods except brier_score..

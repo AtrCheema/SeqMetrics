@@ -60,13 +60,17 @@ class ClassificationMetrics(Metrics):
     """
     # todo add very major erro and major error
 
-    def __init__(self, *args,
+    def __init__(
+        self,
+        true,
+        predicted,
         multiclass=False, 
+        *args,
         **kwargs):
-        
+
         self.multiclass = multiclass
 
-        super().__init__(*args, metric_type='classification', **kwargs)
+        super().__init__(true, predicted, metric_type='classification', *args, **kwargs)
 
         self.true_labels = self._true_labels()
         self.true_logits = self._true_logits()

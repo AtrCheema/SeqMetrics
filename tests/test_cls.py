@@ -42,9 +42,14 @@ class TestBinaryNumericalLabels(unittest.TestCase):
     pred = np.array([1, 1, 1, 1])
     metrics = ClassificationMetrics(true, pred)
 
+    # ClassificationMetrics class should handle 2d arrays when their size == their length
+    metrics_nd = ClassificationMetrics(true.reshape(-1,1), pred.reshape(-1,1))
+
     def test_accuracy(self):
         val_score = self.metrics.accuracy()
         self.assertAlmostEqual(val_score, 0.25)
+
+        self.assertAlmostEqual(self.metrics_nd.accuracy(), 0.25)
         return
 
     def test_confusion_matrix(self):
@@ -52,6 +57,9 @@ class TestBinaryNumericalLabels(unittest.TestCase):
         for normalize in [None, "all", "true", "pred"]:
             act_cm = confusion_matrix(self.true, self.pred, normalize=normalize)
             cm = self.metrics.confusion_matrix(normalize=normalize)
+            np.testing.assert_array_equal(cm, act_cm)
+
+            cm = self.metrics_nd.confusion_matrix(normalize=normalize)
             np.testing.assert_array_equal(cm, act_cm)
 
         return
@@ -64,6 +72,9 @@ class TestBinaryNumericalLabels(unittest.TestCase):
             calc_precision = self.metrics.precision(average=average)
             np.testing.assert_almost_equal(act_precision, calc_precision)
 
+            calc_precision = self.metrics_nd.precision(average=average)
+            np.testing.assert_almost_equal(act_precision, calc_precision)
+
         return
 
     def test_recall(self):
@@ -73,12 +84,18 @@ class TestBinaryNumericalLabels(unittest.TestCase):
             calc_recall = self.metrics.recall(average=average)
             np.testing.assert_almost_equal(act_recall, calc_recall)
 
+            calc_recall = self.metrics_nd.recall(average=average)
+            np.testing.assert_almost_equal(act_recall, calc_recall)
+
         return
 
     def test_f1_score(self):
         for average in ['macro', 'weighted', None]:
             act_f1_score = f1_score(self.true, self.pred, average=average)
             calc_f1_score = self.metrics.f1_score(average=average)
+            np.testing.assert_almost_equal(act_f1_score, calc_f1_score)
+
+            calc_f1_score = self.metrics_nd.f1_score(average=average)
             np.testing.assert_almost_equal(act_f1_score, calc_f1_score)
         return
 
