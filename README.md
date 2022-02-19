@@ -4,26 +4,74 @@
 [![HitCount](http://hits.dwyl.com/AtrCheema/TSErrors.svg)](http://hits.dwyl.com/AtrCheema/TSErrors)
 [![Downloads](https://pepy.tech/badge/tserrors)](https://pepy.tech/project/tserrors)
 
-The purpose of this repository to collect various performance metrics or errors which can be
-calculated for time-series/sequential/1D data, at one place. Currently only 1d data is supported.
+The purpose of this repository to collect various classification and regression 
+performance metrics or errors which can be calculated for time-series/sequential/tabular data, 
+at one place. Currently only 1d data is supported.
 
 ## How to Install
 
 using `pip`
 
-    pip install TSErrors
+    pip install SeqMetrics
 
 using github link for the latest code
 
-	python -m pip install git+https://github.com/AtrCheema/TSErrors.git
+	python -m pip install git+https://github.com/AtrCheema/SeqMetrics.git
 
 using setup file, go to folder where repo is downloaded
 
     python setup.py install
 
-## Errors
 
-Currently following errors are being calculated.
+## How to Use
+
+```python
+import numpy as np
+from SeqMetrics import RegressionMetrics
+
+true = np.random.random((20, 1))
+pred = np.random.random((20, 1))
+
+er = RegressionMetrics(true, pred)
+
+for m in er.all_methods: print("{:20}".format(m)) # get names of all availabe methods
+
+er.nse()   # calculate Nash Sutcliff efficiency
+
+er.calculate_all(verbose=True)  # or calculate errors using all available methods 
+```
+
+The API is same for classification performance metrics.
+```python
+import numpy as np
+from SeqMetrics import ClassificationMetrics
+
+# boolean array
+
+t = np.array([True, False, False, False])
+p = np.array([True, True, True, True])
+metrics = ClassificationMetrics(t, p)
+accuracy = metrics.accuracy()
+
+# binary classification with numerical labels
+
+true = np.array([1, 0, 0, 0])
+pred = np.array([1, 1, 1, 1])
+metrics = ClassificationMetrics(true, pred)
+accuracy = metrics.accuracy()
+
+# multiclass classification with numerical labels
+
+true = np.random.randint(1, 4, 100)
+pred = np.random.randint(1, 4, 100)
+metrics = ClassificationMetrics(true, pred)
+accuracy = metrics.accuracy()
+```
+
+
+## RegressionMetrics
+
+Currently following regression performance metrics are being calculated.
 
 | Name                          | Name in this repository  |
 | -------------------------- | ------------- |
@@ -122,25 +170,6 @@ Currently following errors are being calculated.
 | Watterson's M | `watt_m` |
 | Weighted Mean Absolute Percent Errors | `wmape` |
 | Weighted Absolute Percentage Error | `wape` |
-
-## How to Use
-
-```python
-import numpy as np
-from TSErrors import FindErrors
-
-true = np.random.random((20, 1))
-pred = np.random.random((20, 1))
-
-er = FindErrors(true, pred)
-
-for m in er.all_methods: print("{:20}".format(m)) # get names of all availabe methods
-
-er.nse()   # calculate Nash Sutcliff efficiency
-
-er.calculate_all(verbose=True)  # or calculate errors using all available methods
-er.stats(verbose=True)  # get some important stats about true and predicted arrays
-```
 
 ## Related
 

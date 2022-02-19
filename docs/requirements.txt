@@ -1,0 +1,8 @@
+numpy
+scipy
+sphinx
+sphinx-prompt
+sphinx_copybutton
+sphinx_toggleprompt
+sphinx_rtd_theme
+sphinx_issues
