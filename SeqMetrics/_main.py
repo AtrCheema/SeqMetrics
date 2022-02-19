@@ -51,7 +51,7 @@ class Metrics(object):
     predicted arrays. For ducussion about impact of performance metric see German
     climate computing website_.
 
-    .. German climate computing website:
+    .. _website:
         https://www-miklip.dkrz.de/about/murcss/
 
     """

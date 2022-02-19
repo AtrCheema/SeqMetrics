@@ -29,23 +29,33 @@ ClassificationMetrics
     >>> import numpy as np
     >>> from SeqMetrics import ClassificationMetrics
 
-    # boolean array
+    using boolean array
 
     >>> t = np.array([True, False, False, False])
     >>> p = np.array([True, True, True, True])
     >>> metrics = ClassificationMetrics(t, p)
     >>> accuracy = metrics.accuracy()
 
-    # binary classification with numerical labels
+    binary classification with numerical labels
 
     >>> true = np.array([1, 0, 0, 0])
     >>> pred = np.array([1, 1, 1, 1])
     >>> metrics = ClassificationMetrics(true, pred)
     >>> accuracy = metrics.accuracy()
 
-    # multiclass classification with numerical labels
+    multiclass classification with numerical labels
 
     >>> true = np.random.randint(1, 4, 100)
     >>> pred = np.random.randint(1, 4, 100)
     >>> metrics = ClassificationMetrics(true, pred)
     >>> accuracy = metrics.accuracy()
+
+    You can also provide logits instead of labels.
+
+    >>> predictions = np.array([[0.25, 0.25, 0.25, 0.25],
+    >>>                        [0.01, 0.01, 0.01, 0.96]])
+    >>> targets = np.array([[0, 0, 0, 1],
+    >>>                     [0, 0, 0, 1]])
+    >>> metrics = ClassificationMetrics(targets, predictions, multiclass=True)
+    >>> metrics.cross_entropy()
+    ...  0.71355817782

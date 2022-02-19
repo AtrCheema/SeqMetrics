@@ -16,18 +16,11 @@ Welcome to SeqMetrics's documentation!
    :maxdepth: 2
    :caption: API:
 
+   main
    rgr
    cls
    utils
 
-SeqMetrics
-==========
-.. autoclass:: SeqMetrics.Metrics
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-   .. automethod:: __init__
 
 Indices and tables
 ==================

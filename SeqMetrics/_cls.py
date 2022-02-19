@@ -140,13 +140,15 @@ class ClassificationMetrics(Metrics):
         # we can't do it
         return None
 
-    def cross_entropy(self, epsilon=1e-12):
+    def cross_entropy(self, epsilon=1e-12)->float:
         """
         Computes cross entropy between targets (encoded as one-hot vectors)
         and predictions.
-        Input: predictions (N, k) ndarray
-               targets (N, k) ndarray
-        Returns: scalar
+
+        Returns
+        -------
+        scalar
+        
         """
         predictions = np.clip(self.predicted, epsilon, 1. - epsilon)
         n = predictions.shape[0]

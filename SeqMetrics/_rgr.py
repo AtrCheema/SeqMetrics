@@ -412,22 +412,21 @@ class RegressionMetrics(Metrics):
 
     def fdc_fhv(self, h: float = 0.02) -> float:
         """
-        modified after_ .Peak flow bias of the flow duration curve (Yilmaz 2008).
+        modified Kratzert2018_ code. Peak flow bias of the flow duration curve (Yilmaz 2008).
         used in kratzert et al., 2018
+
+        Parameters
+        ----------
+        h : float
+            Must be between 0 and 1.
 
         Returns
         -------
-        float
             Bias of the peak flows
 
-        Raises
-        ------
-
-        RuntimeError
-            If ``h`` is not in range(0,1)
-        
-        .. _after:
+        .. _Kratzert2018:
             https://github.com/kratzert/ealstm_regional_modeling/blob/64a446e9012ecd601e0a9680246d3bbf3f002f6d/papercode/metrics.py#L190
+
         """
         if (h <= 0) or (h >= 1):
             raise RuntimeError("h has to be in the range (0,1)")
@@ -446,8 +445,7 @@ class RegressionMetrics(Metrics):
 
     def fdc_flv(self, low_flow: float = 0.3) -> float:
         """
-        bias of the bottom 30 % low flows
-        modified after_: 
+        bias of the bottom 30 % low flows. modified Kratzert_ code
         used in kratzert et al., 2018
 
         Parameters
@@ -458,15 +456,9 @@ class RegressionMetrics(Metrics):
 
         Returns
         -------
-        float
-            Bias of the low flows.
-
-        Raises
-        ------
-        RuntimeError
-            If `low_flow` is not in the range(0,1)
+            float
         
-        .. _after:
+        .. _Kratzert:
             https://github.com/kratzert/ealstm_regional_modeling/blob/64a446e9012ecd601e0a9680246d3bbf3f002f6d/papercode/metrics.py#L237
         """
 
