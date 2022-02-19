@@ -8,7 +8,13 @@ Welcome to SeqMetrics's documentation!
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
+
+   installation
+   quick_start
+
+.. toctree::
+   :maxdepth: 2
+   :caption: API:
 
    rgr
    cls

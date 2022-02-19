@@ -11,10 +11,14 @@ class ClassificationMetrics(Metrics):
 
     Parameters
     ----------
-    true : array-like of shape = [n_samples]
+    true : array-like of shape = [n_samples] or [n_samples, n_classes]
         True class labels.
-    predicted : array-like of shape = [n_samples]
+    predicted : array-like of shape = [n_samples] or [n_samples, n_classes]
         Predicted class labels.
+    multiclass : boolean, optional
+        If true, it is assumed that the true labels are multiclass.
+    **kwargs : optional
+        Additional arguments to be passed to the :py:class:`Metrics` class.
     
 
     Examples
@@ -43,19 +47,31 @@ class ClassificationMetrics(Metrics):
     >>> metrics = ClassificationMetrics(true, pred)
     >>> accuracy = metrics.accuracy()
 
+    You can also provide logits instead of labels.
+
+    >>> predictions = np.array([[0.25, 0.25, 0.25, 0.25],
+    >>>                        [0.01, 0.01, 0.01, 0.96]])
+    >>> targets = np.array([[0, 0, 0, 1],
+    >>>                     [0, 0, 0, 1]])
+    >>> metrics = ClassificationMetrics(targets, predictions, multiclass=True)
+    >>> metrics.cross_entropy()
+    ...  0.71355817782
+
     """
     # todo add very major erro and major error
 
-    def __init__(self, *args, multiclass=False, **kwargs):
+    def __init__(self, *args,
+        multiclass=False, 
+        **kwargs):
         
         self.multiclass = multiclass
 
         super().__init__(*args, metric_type='classification', **kwargs)
 
         self.true_labels = self._true_labels()
-        #self.true_logits = self._true_logits()
+        self.true_logits = self._true_logits()
         self.pred_labels = self._pred_labels()
-        #self.pred_logits = self._pred_logits()
+        self.pred_logits = self._pred_logits()
 
         self.all_methods = list_subclass_methods(ClassificationMetrics, True)
         
@@ -84,10 +100,15 @@ class ClassificationMetrics(Metrics):
 
     def _true_labels(self):
         """retuned array is 1d"""
+    
         if self.multiclass:
+
             if self.true.size == len(self.true):
                 return self.true.reshape(-1,1)
-            return np.argmax(self.true.reshape(-1,1), axis=1)
+            
+            # supposing this to be logits
+            return np.argmax(self.true, axis=1)
+
         # it should be 1 dimensional
         assert self.true.size == len(self.true)
         return self.true.reshape(-1,)
@@ -101,10 +122,14 @@ class ClassificationMetrics(Metrics):
 
     def _pred_labels(self):
         """returns 1d"""
+
         if self.multiclass:
+
             if self.predicted.size == len(self.predicted):
                 return self.predicted.reshape(-1,1)
-            return np.argmax(self.predicted.reshape(-1,1), axis=1)
+            
+            # supposing this to be logits
+            return np.argmax(self.predicted, axis=1)
 
         return np.array(self.predicted, dtype=int)
 

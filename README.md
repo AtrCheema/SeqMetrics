@@ -3,6 +3,7 @@
 [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![HitCount](http://hits.dwyl.com/AtrCheema/TSErrors.svg)](http://hits.dwyl.com/AtrCheema/TSErrors)
 [![Downloads](https://pepy.tech/badge/tserrors)](https://pepy.tech/project/tserrors)
+[![Documentation Status](https://readthedocs.org/projects/seqmetrics/badge/?version=latest)](https://seqmetrics.readthedocs.io/en/latest/?badge=latest)
 
 The purpose of this repository to collect various classification and regression 
 performance metrics or errors which can be calculated for time-series/sequential/tabular data, 

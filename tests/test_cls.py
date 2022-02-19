@@ -157,18 +157,20 @@ class TestMulticlassNumericLabels(unittest.TestCase):
 #         return
 
 
-# class TestMulticlassLogits(unittest.TestCase):
-#     """Arrays are given as probabilities(logits"""
-#     pred_logits = np.array([[0.25, 0.25, 0.25, 0.25],
-#                             [0.01, 0.01, 0.01, 0.96]])
-#     targ_logits = np.array([[0, 0, 0, 1],
-#                         [0, 0, 0, 1]])
+class TestMulticlassLogits(unittest.TestCase):
+    """Arrays are given as probabilities(logits"""
+    predictions = np.array([[0.25, 0.25, 0.25, 0.25],
+                            [0.01, 0.01, 0.01, 0.96]])
+    targets = np.array([[0, 0, 0, 1],
+                        [0, 0, 0, 1]])
 
-#     def test_ce(self):
-#         class_metrics = ClassificationMetrics(self.targets, self.predictions, multiclass=True)
-#         # https://stackoverflow.com/a/47398312/5982232
-#         self.assertAlmostEqual(class_metrics.cross_entropy(), 0.71355817782)
-#         return
+    metrics = ClassificationMetrics(targets, predictions, multiclass=True)
+
+    def test_ce(self):
+        
+        # https://stackoverflow.com/a/47398312/5982232
+        self.assertAlmostEqual(self.metrics.cross_entropy(), 0.71355817782)
+        return
 
 #     def test_class_all(self):
 #         class_metrics = ClassificationMetrics(self.targets, self.predictions, multiclass=True)
@@ -176,17 +178,24 @@ class TestMulticlassNumericLabels(unittest.TestCase):
 #         assert len(all_metrics) > 1
 #         return
 
-#     def test_all(self):
-#         self.metrics.calculate_all()
-#         return
+    def test_all(self):
+        self.metrics.calculate_all()
+        return
 
-#     def test_accuracy(self):
-#         self.metrics.accuracy()
-#         return
+    def test_accuracy(self):
+        calc_acc = self.metrics.accuracy()
+        t = np.argmax(self.targets, axis=1)
+        p = np.argmax(self.predictions, axis=1)
+        act_acc = accuracy_score(t, p)
+        self.assertAlmostEqual(calc_acc, act_acc)
+        return
 
-#     def test_f1_score(self):
-#         self.metrics.f1_score()
-#         return
+    def test_f1_score(self):
+        t = np.argmax(self.targets, axis=1)
+        p = np.argmax(self.predictions, axis=1)
+        act_f1_score = f1_score(t, p, average='macro')
+        calc_f1_score = self.metrics.f1_score(average="macro")
+        return
 
 
 if __name__ == "__main__":
