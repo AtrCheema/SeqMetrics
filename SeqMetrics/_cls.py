@@ -5,6 +5,7 @@ from scipy.sparse import csr_matrix, coo_matrix
 from .utils import list_subclass_methods
 from ._main import Metrics
 
+# confusion index
 
 class ClassificationMetrics(Metrics):
     """Calculates classification metrics.
@@ -313,7 +314,11 @@ class ClassificationMetrics(Metrics):
         return _recall
 
     def specificity(self, average=None):
-        
+        """
+        It is also called true negative rate. It is the probability that
+        the predictions are negative when the true labels are also negative.
+
+        """
         TN = self._tn()
         _spcificity =  TN / (TN + self._fp())
 

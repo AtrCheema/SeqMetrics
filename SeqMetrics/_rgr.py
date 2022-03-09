@@ -776,7 +776,7 @@ class RegressionMetrics(Metrics):
 
     def max_error(self) -> float:
         """
-        maximum error
+        maximum absolute error
         """
         return float(np.max(self._ae()))
 
@@ -978,16 +978,13 @@ class RegressionMetrics(Metrics):
 
     def nse_alpha(self) -> float:
         """
-        Alpha decomposition of the NSE, see Gupta_ et al. 2009
+        Alpha decomposition of the NSE, see `Gupta_ et al. 2009 <https://doi.org/10.1029/97WR03495>`_
         used in kratzert et al., 2018
 
         Returns
         -------
         float
-            Alpha decomposition of the NSE
-
-        .. _Gupta:
-            https://doi.org/10.1029/97WR03495
+            Alpha decomposition of the NSE           
 
         """
         return float(np.std(self.predicted) / np.std(self.true))
@@ -1082,18 +1079,14 @@ class RegressionMetrics(Metrics):
     def rmsle(self) -> float:
         """Root mean square log error.
 
-        This error is less sensitive to [outliers_ .
+        This error is less sensitive to `outliers <https://stats.stackexchange.com/q/56658/314919>`_ .
         Compared to RMSE, RMSLE only considers the relative error between predicted
         and actual values, and the scale of the error is nullified by the log-transformation.
         Furthermore, RMSLE penalizes underestimation more than overestimation.
         This is especially useful in those studies where the underestimation
-        of the target variable is not acceptable but overestimation can be tolerated_ .
-
-        .. _outliers:
-            https://stats.stackexchange.com/q/56658/314919
-
-        .. _tolerated:
-            https://doi.org/10.1016/j.scitotenv.2020.137894
+        of the target variable is not acceptable but overestimation can be 
+        `tolerated <https://doi.org/10.1016/j.scitotenv.2020.137894>`_ .
+            
          """
         return float(np.sqrt(np.mean(np.power(np.log1p(self.predicted) - np.log1p(self.true), 2))))
 

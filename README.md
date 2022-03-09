@@ -1,13 +1,13 @@
 
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/72cbd07c421b42ffa4ecddeec71d103f)](https://app.codacy.com/gh/AtrCheema/TSErrors?utm_source=github.com&utm_medium=referral&utm_content=AtrCheema/TSErrors&utm_campaign=Badge_Grade)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/d11c4520bf514a3094dc2c13659d0bc5)](https://www.codacy.com/gh/AtrCheema/SeqMetrics/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=AtrCheema/SeqMetrics&amp;utm_campaign=Badge_Grade)
 [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
-[![HitCount](http://hits.dwyl.com/AtrCheema/TSErrors.svg)](http://hits.dwyl.com/AtrCheema/TSErrors)
-[![Downloads](https://pepy.tech/badge/tserrors)](https://pepy.tech/project/tserrors)
+[![HitCount](http://hits.dwyl.com/AtrCheema/SeqMetrics.svg)](http://hits.dwyl.com/AtrCheema/SeqMetrics)
+[![Downloads](https://pepy.tech/badge/SeqMetrics)](https://pepy.tech/project/SeqMetrics)
 [![Documentation Status](https://readthedocs.org/projects/seqmetrics/badge/?version=latest)](https://seqmetrics.readthedocs.io/en/latest/?badge=latest)
 
 The purpose of this repository to collect various classification and regression 
 performance metrics or errors which can be calculated for time-series/sequential/tabular data, 
-at one place. Currently only 1d data is supported.
+at one place. Currently only 1-dimensional data is supported.
 
 ## How to Install
 
@@ -15,11 +15,11 @@ using `pip`
 
     pip install SeqMetrics
 
-using github link for the latest code
+or using github link for the latest code
 
 	python -m pip install git+https://github.com/AtrCheema/SeqMetrics.git
 
-using setup file, go to folder where repo is downloaded
+or using setup file, go to folder where repo is downloaded
 
     python setup.py install
 
