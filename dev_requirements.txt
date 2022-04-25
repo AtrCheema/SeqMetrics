@@ -1,4 +1,4 @@
 numpy
-scikit-learn==0.22.2.post1
-easy_mpl
+scikit-learn
+easy_mpl>=0.20.4
 scipy

@@ -104,6 +104,12 @@ def plot_metrics_between(
         show=True,
         save_path=None,
         **kwargs):
+
+    import matplotlib.pyplot as plt
+
+    if plot_type == "bar":
+        from easy_mpl import circular_bar_plot
+
     zero_to_one = {}
     for k, v in errors.items():
         if v is not None:
@@ -121,7 +127,12 @@ def plot_metrics_between(
             if plot_type == 'radial':
                 plot_radial(d, lower, upper, save=save, show=show, save_path=save_path, **kwargs)
             else:
-                plot_circular_bar(d, save=save, show=show, save_path=save_path, **kwargs)
+                plt.close('all')
+                ax = circular_bar_plot(d, show=False, **kwargs)
+                if save:
+                    plt.savefig(save_path, bbox_inches="tight")
+                if show:
+                    plt.show()
             st = i
     return
 
@@ -173,114 +184,114 @@ def plot_radial(errors: dict, low: int, up: int, save=True, save_path=None, **kw
         fig.write_image(fname)
     return
 
-
-def plot_circular_bar(
-        metrics: dict,
-        show=False,
-        save: bool = True,
-        save_path: str = '',
-        **kwargs):
-    """
-    modified after https://www.python-graph-gallery.com/circular-barplot-basic
-    :param metrics:
-    :param show:
-    :param save:
-    :param save_path:
-    :param kwargs:
-        figsize:
-        linewidth:
-        edgecolor:
-        color:
-    :return:
-    """
-    import matplotlib.pyplot as plt
-
-    # initialize the figure
-    plt.close('all')
-    plt.figure(figsize=kwargs.get('figsize', (8, 12)))
-    ax = plt.subplot(111, polar=True)
-    plt.axis('off')
-
-    # Set the coordinates limits
-    # upperLimit = 100
-    lower_limit = 30
-    value = np.array(list(metrics.values()))
-
-    lower = round(np.min(list(metrics.values())), 4)
-    upper = round(np.max(list(metrics.values())), 4)
-
-    # Compute max and min in the dataset
-    _max = max(value)  # df['Value'].max()
-
-    # Let's compute heights: they are a conversion of each item value in those new coordinates
-    # In our example, 0 in the dataset will be converted to the lowerLimit (10)
-    # The maximum will be converted to the upperLimit (100)
-    slope = (_max - lower_limit) / _max
-    heights = slope * value + lower_limit
-
-    # Compute the width of each bar. In total we have 2*Pi = 360°
-    width = 2 * np.pi / len(metrics)
-
-    # Compute the angle each bar is centered on:
-    indexes = list(range(1, len(metrics) + 1))
-    angles = [element * width for element in indexes]
-
-    # Draw bars
-    bars = ax.bar(
-        x=angles,
-        height=heights,
-        width=width,
-        bottom=lower_limit,
-        linewidth=kwargs.get('linewidth', 2),
-        edgecolor=kwargs.get('edgecolor', "white"),
-        color=kwargs.get('color', "#61a4b2"),
-    )
-
-    # little space between the bar and the label
-    label_padding = 4
-
-    metric_names = {
-        'r2': "$R^2$",
-        'r2_mod': "$R^2$ mod",
-        'adjusted_r2': 'adjusted $R^2$',
-        # 'nse': "NSE"
-    }
-
-    # Add labels
-    for bar, angle, label1, label2 in zip(bars, angles, metrics.keys(), metrics.values()):
-
-        label1 = metric_names.get(label1, label1)
-        label = f'{label1} {round(label2, 4)}'
-
-        # Labels are rotated. Rotation must be specified in degrees :(
-        rotation = np.rad2deg(angle)
-
-        # Flip some labels upside down
-        if angle >= np.pi / 2 and angle < 3 * np.pi / 2:
-            alignment = "right"
-            rotation = rotation + 180
-        else:
-            alignment = "left"
-
-        # Finally add the labels
-        ax.text(
-            x=angle,
-            y=lower_limit + bar.get_height() + label_padding,
-            s=label,
-            ha=alignment,
-            va='center',
-            rotation=rotation,
-            rotation_mode="anchor")
-
-    if save:
-        fname = f"{len(metrics)}_bar_errors_from_{lower}_to_{upper}.png"
-        if save_path is not None:
-            fname = os.path.join(save_path, fname)
-        plt.savefig(fname, dpi=400, bbox_inches='tight')
-    if show:
-        plt.show()
-
-    return
+#
+# def plot_circular_bar(
+#         metrics: dict,
+#         show=False,
+#         save: bool = True,
+#         save_path: str = '',
+#         **kwargs):
+#     """
+#     modified after https://www.python-graph-gallery.com/circular-barplot-basic
+#     :param metrics:
+#     :param show:
+#     :param save:
+#     :param save_path:
+#     :param kwargs:
+#         figsize:
+#         linewidth:
+#         edgecolor:
+#         color:
+#     :return:
+#     """
+#     import matplotlib.pyplot as plt
+#
+#     # initialize the figure
+#     plt.close('all')
+#     plt.figure(figsize=kwargs.get('figsize', (8, 12)))
+#     ax = plt.subplot(111, polar=True)
+#     plt.axis('off')
+#
+#     # Set the coordinates limits
+#     # upperLimit = 100
+#     lower_limit = 30
+#     value = np.array(list(metrics.values()))
+#
+#     lower = round(np.min(list(metrics.values())), 4)
+#     upper = round(np.max(list(metrics.values())), 4)
+#
+#     # Compute max and min in the dataset
+#     _max = max(value)  # df['Value'].max()
+#
+#     # Let's compute heights: they are a conversion of each item value in those new coordinates
+#     # In our example, 0 in the dataset will be converted to the lowerLimit (10)
+#     # The maximum will be converted to the upperLimit (100)
+#     slope = (_max - lower_limit) / _max
+#     heights = slope * value + lower_limit
+#
+#     # Compute the width of each bar. In total we have 2*Pi = 360°
+#     width = 2 * np.pi / len(metrics)
+#
+#     # Compute the angle each bar is centered on:
+#     indexes = list(range(1, len(metrics) + 1))
+#     angles = [element * width for element in indexes]
+#
+#     # Draw bars
+#     bars = ax.bar(
+#         x=angles,
+#         height=heights,
+#         width=width,
+#         bottom=lower_limit,
+#         linewidth=kwargs.get('linewidth', 2),
+#         edgecolor=kwargs.get('edgecolor', "white"),
+#         color=kwargs.get('color', "#61a4b2"),
+#     )
+#
+#     # little space between the bar and the label
+#     label_padding = 4
+#
+#     metric_names = {
+#         'r2': "$R^2$",
+#         'r2_mod': "$R^2$ mod",
+#         'adjusted_r2': 'adjusted $R^2$',
+#         # 'nse': "NSE"
+#     }
+#
+#     # Add labels
+#     for bar, angle, label1, label2 in zip(bars, angles, metrics.keys(), metrics.values()):
+#
+#         label1 = metric_names.get(label1, label1)
+#         label = f'{label1} {round(label2, 4)}'
+#
+#         # Labels are rotated. Rotation must be specified in degrees :(
+#         rotation = np.rad2deg(angle)
+#
+#         # Flip some labels upside down
+#         if angle >= np.pi / 2 and angle < 3 * np.pi / 2:
+#             alignment = "right"
+#             rotation = rotation + 180
+#         else:
+#             alignment = "left"
+#
+#         # Finally add the labels
+#         ax.text(
+#             x=angle,
+#             y=lower_limit + bar.get_height() + label_padding,
+#             s=label,
+#             ha=alignment,
+#             va='center',
+#             rotation=rotation,
+#             rotation_mode="anchor")
+#
+#     if save:
+#         fname = f"{len(metrics)}_bar_errors_from_{lower}_to_{upper}.png"
+#         if save_path is not None:
+#             fname = os.path.join(save_path, fname)
+#         plt.savefig(fname, dpi=400, bbox_inches='tight')
+#     if show:
+#         plt.show()
+#
+#     return
 
 
 def plot1d(true, predicted, save=True, name="plot", show=False):

@@ -17,7 +17,7 @@ class RegressionMetrics(Metrics):
     Example
     -------
         >>> import numpy as np
-        >>> from ai4water.postprocessing.SeqMetrics import RegressionMetrics
+        >>> from SeqMetrics import RegressionMetrics
         >>> t = np.random.random(10)
         >>> p = np.random.random(10)
         >>> errors = RegressionMetrics(t,p)
@@ -677,7 +677,7 @@ class RegressionMetrics(Metrics):
 
     def lm_index(self, obs_bar_p=None) -> float:
         """Legate-McCabe Efficiency Index.
-        Less sensitive to outliers in the data. 
+        Less sensitive to outliers in the data. The larger, the better
         
         Parameters
         ----------
