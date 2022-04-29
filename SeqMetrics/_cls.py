@@ -114,16 +114,22 @@ class ClassificationMetrics(Metrics):
             # supposing this to be logits
             return np.argmax(self.true, axis=1)
 
+        true = self.true
         # it should be 1 dimensional
-        assert self.true.size == len(self.true)
-        return self.true.reshape(-1,)
+        if true.size != len(true):
+            true = np.argmax(true, 1)
+        return true.reshape(-1,)
 
     def _true_logits(self):
         """returned array is 2d"""
         if self.multiclass:
             return self.true
 
-        return binarize(self.true)
+        # for binary if the array is 2-d, consider it to be logits
+        if len(self.true) == self.true.size:
+            return binarize(self.true)
+
+        return self.true
 
     def _pred_labels(self):
         """returns 1d"""
@@ -136,6 +142,9 @@ class ClassificationMetrics(Metrics):
             # supposing this to be logits
             return np.argmax(self.predicted, axis=1)
 
+        # for binary if the array is 2-d, consider it to be logits
+        if len(self.predicted) != self.predicted.size:
+            return np.argmax(self.predicted, 1)
         return np.array(self.predicted, dtype=int)
 
     def _pred_logits(self):

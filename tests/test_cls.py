@@ -20,19 +20,20 @@ class TestBinaryBooleanLabels(unittest.TestCase):
 
     metrics = ClassificationMetrics(t, p)
 
-#     def test_f1_score(self):
-#         self.assertEqual(self.metrics.f1_score(), f1_score(self.t, self.p))
-#         return
+    def test_f1_score(self):
+        self.assertEqual(self.metrics.f1_score(average="weighted"),
+                         f1_score(self.t, self.p, average="weighted"))
+        return
 
     def test_accuracy(self):
         val_score = self.metrics.accuracy()
         self.assertAlmostEqual(val_score, 0.25)
         return
 
-#     def test_confusion_metrics(self):
-#         cm = self.metrics.confusion_matrix()
-#         np.testing.assert_array_equal(cm, confusion_matrix(self.t, self.p))
-#         return
+    def test_confusion_metrics(self):
+        cm = self.metrics.confusion_matrix()
+        np.testing.assert_array_equal(cm, confusion_matrix(self.t, self.p))
+        return
 
 
 class TestBinaryNumericalLabels(unittest.TestCase):
@@ -106,7 +107,45 @@ class TestBinaryCategoricalLabels(unittest.TestCase):
 
 class TestBinaryLogits(unittest.TestCase):
     """binary classification when the arrays are logits"""
+    predictions = np.array([[0.12, 0.88],
+                            [0.44, 0.66],
+                            [0.59, 0.41]
+                            ])
+    targets = np.array([[0, 1],
+                        [1, 0],
+                        [1, 0]
+                        ])
 
+    metrics = ClassificationMetrics(targets, predictions)
+
+    def test_ce(self):
+        ce = self.metrics.cross_entropy()
+        return
+
+    #     def test_class_all(self):
+    #         class_metrics = ClassificationMetrics(self.targets, self.predictions, multiclass=True)
+    #         all_metrics = class_metrics.calculate_all()
+    #         assert len(all_metrics) > 1
+    #         return
+
+    def test_all(self):
+        self.metrics.calculate_all()
+        return
+
+    def test_accuracy(self):
+        calc_acc = self.metrics.accuracy()
+        t = np.argmax(self.targets, axis=1)
+        p = np.argmax(self.predictions, axis=1)
+        act_acc = accuracy_score(t, p)
+        self.assertAlmostEqual(calc_acc, act_acc)
+        return
+
+    def test_f1_score(self):
+        t = np.argmax(self.targets, axis=1)
+        p = np.argmax(self.predictions, axis=1)
+        act_f1_score = f1_score(t, p, average='macro')
+        calc_f1_score = self.metrics.f1_score(average="macro")
+        return
 
 class TestMulticlassNumericLabels(unittest.TestCase):
     true = np.random.randint(1, 4, 100)
@@ -184,7 +223,7 @@ class TestMulticlassLogits(unittest.TestCase):
     metrics = ClassificationMetrics(targets, predictions, multiclass=True)
 
     def test_ce(self):
-        
+
         # https://stackoverflow.com/a/47398312/5982232
         self.assertAlmostEqual(self.metrics.cross_entropy(), 0.71355817782)
         return
