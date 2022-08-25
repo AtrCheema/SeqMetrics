@@ -704,7 +704,9 @@ class RegressionMetrics(Metrics):
         return float(np.mean(np.arctan(np.abs((self.true - self.predicted) / (self.true + EPS)))))
 
     def mae(self, true=None, predicted=None) -> float:
-        """ Mean Absolute Error """
+        """ Mean Absolute Error.
+        It is less sensitive to outliers as compared to mse/rmse.
+        """
         if true is None:
             true = self.true
         if predicted is None:
@@ -755,12 +757,14 @@ class RegressionMetrics(Metrics):
 
     def mase(self, seasonality: int = 1):
         """
-        Mean Absolute Scaled Error
-        Baseline (benchmark) is computed with naive forecasting (shifted by @seasonality)
-        modified after https://gist.github.com/bshishov/5dc237f59f019b26145648e2124ca1c9
+        Mean Absolute Scaled Error. Baseline (benchmark) is computed with naive
+        forecasting (shifted by @seasonality) modified after [11]_. It is the
+        ratio of MAE of used model and MAE of naive forecast.
 
         References
         ----------
+        .. [11] https://gist.github.com/bshishov/5dc237f59f019b26145648e2124ca1c9
+
         Hyndman, R. J. (2006). Another look at forecast-accuracy metrics for intermittent demand.
         Foresight: The International Journal of Applied Forecasting, 4(4), 43-46.
         """
