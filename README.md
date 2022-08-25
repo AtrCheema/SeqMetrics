@@ -4,6 +4,7 @@
 [![HitCount](http://hits.dwyl.com/AtrCheema/SeqMetrics.svg)](http://hits.dwyl.com/AtrCheema/SeqMetrics)
 [![Downloads](https://pepy.tech/badge/SeqMetrics)](https://pepy.tech/project/SeqMetrics)
 [![Documentation Status](https://readthedocs.org/projects/seqmetrics/badge/?version=latest)](https://seqmetrics.readthedocs.io/en/latest/?badge=latest)
+[![PyPI version](https://badge.fury.io/py/SeqMetrics.svg)](https://badge.fury.io/py/SeqMetrics)
 
 The purpose of this repository to collect various classification and regression 
 performance metrics or errors which can be calculated for time-series/sequential/tabular data, 
