@@ -1,4 +1,6 @@
 
+from typing import Union
+
 import numpy as np
 from scipy.sparse import csr_matrix, coo_matrix
 
@@ -341,13 +343,27 @@ class ClassificationMetrics(Metrics):
         
         return _spcificity
 
-    def f1_score(self, average=None):
+    def f1_score(self, average=None)->Union[np.ndarray, float]:
         """calculates f1 score
 
         Parameters
         ----------
         average : str, optional
             It can be 'macro' or 'weighted'.
+
+        Returns
+        -------
+        array or float
+
+        Examples
+        --------
+        >>> true = np.array([1, 0, 0, 0])
+        >>> pred = np.array([1, 1, 1, 1])
+        >>> metrics = ClassificationMetrics(true, pred)
+        >>> calc_f1_score = metrics.f1_score()
+        ...
+        >>> print(metrics.f1_score(average="macro"))
+        >>> print(metrics.f1_score(average="weighted"))
 
         """
         precision = self.precision()
