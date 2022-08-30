@@ -1,4 +1,5 @@
 
+import warnings
 from typing import Union
 
 import numpy as np
@@ -177,10 +178,26 @@ class ClassificationMetrics(Metrics):
     #         return hinge_loss(self.true_labels, self.pred_logits)
     #     return None
 
-    # def balanced_accuracy_score(self):
-    #     return balanced_accuracy_score(self.true_labels, self.pred_labels)
+    def accuracy(self, normalize:bool=True)->float:
+        """
 
-    def accuracy(self, normalize=True):
+        Parameters
+        ----------
+        normalize
+
+        Returns
+        -------
+        float
+
+        Examples
+        --------
+        >>> import numpy as np
+        >>> from SeqMetrics import ClassificationMetrics
+        >>> true = np.array([1, 0, 0, 0])
+        >>> pred = np.array([1, 1, 1, 1])
+        >>> metrics = ClassificationMetrics(true, pred)
+        >>> print(metrics.accuracy())
+        """
         if normalize:
             return np.average(self.true_labels==self.pred_labels)
         return (self.true_labels==self.pred_labels).sum()
@@ -281,7 +298,19 @@ class ClassificationMetrics(Metrics):
 
         Parameters
         ----------
-        average : string, [None, 'macro', 'weighted']
+        average : string, [None, ``macro``, ``weighted``]
+
+        Examples
+        --------
+        >>> import numpy as np
+        >>> from SeqMetrics import ClassificationMetrics
+        >>> true = np.array([1, 0, 0, 0])
+        >>> pred = np.array([1, 1, 1, 1])
+        >>> metrics = ClassificationMetrics(true, pred)
+        >>> print(metrics.precision())
+        ...
+        >>> print(metrics.precision(average="macro"))
+        >>> print(metrics.precision(average="weighted"))
         """
         TP = self._tp()
         FP = self._fp()
@@ -306,7 +335,7 @@ class ClassificationMetrics(Metrics):
 
         Parameters
         ----------
-        average : string, [None, 'macro', 'weighted']
+        average : string, [None, ``macro``, ``weighted``]
 
         """
         TP = self._tp()
@@ -329,6 +358,17 @@ class ClassificationMetrics(Metrics):
         It is also called true negative rate. It is the probability that
         the predictions are negative when the true labels are also negative.
 
+        Examples
+        --------
+        >>> import numpy as np
+        >>> from SeqMetrics import ClassificationMetrics
+        >>> true = np.array([1, 0, 0, 0])
+        >>> pred = np.array([1, 1, 1, 1])
+        >>> metrics = ClassificationMetrics(true, pred)
+        >>> print(metrics.specificity())
+        ...
+        >>> print(metrics.specificity(average="macro"))
+        >>> print(metrics.specificity(average="weighted"))
         """
         TN = self._tn()
         _spcificity =  TN / (TN + self._fp())
@@ -343,13 +383,35 @@ class ClassificationMetrics(Metrics):
         
         return _spcificity
 
+    def sensitivity(self, average=None):
+        """
+        It is also called true positive rate.
+
+        """
+        TP = self._tp()
+        _sensitivity = TP / (TP + self._fp())
+
+        return _sensitivity
+
+    def balanced_accuracy(self, average=None)->float:
+        """
+        balanced accuracy.
+        It performs better on imbalanced datasets.
+        """
+        TP = self._tp()
+        score = TP / self.cm.sum(axis=1)
+        if np.any(np.isnan(score)):
+            warnings.warn('y_pred contains classes not in y_true')
+        score = np.nanmean(score).item()
+        return score
+
     def f1_score(self, average=None)->Union[np.ndarray, float]:
         """calculates f1 score
 
         Parameters
         ----------
         average : str, optional
-            It can be 'macro' or 'weighted'.
+            It can be ``macro`` or ``weighted``.
 
         Returns
         -------
@@ -357,6 +419,8 @@ class ClassificationMetrics(Metrics):
 
         Examples
         --------
+        >>> import numpy as np
+        >>> from SeqMetrics import ClassificationMetrics
         >>> true = np.array([1, 0, 0, 0])
         >>> pred = np.array([1, 1, 1, 1])
         >>> metrics = ClassificationMetrics(true, pred)

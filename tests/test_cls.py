@@ -9,7 +9,7 @@ import numpy as np
 
 from SeqMetrics import ClassificationMetrics
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
-from sklearn.metrics import confusion_matrix
+from sklearn.metrics import confusion_matrix, balanced_accuracy_score
 from sklearn.preprocessing import LabelBinarizer
 
 
@@ -68,7 +68,6 @@ class TestBinaryNumericalLabels(unittest.TestCase):
     def test_precision(self):
         for average in [#'macro',
             'weighted', None]:
-            print(average, 'here')
             act_precision = precision_score(self.true, self.pred, average=average)
             calc_precision = self.metrics.precision(average=average)
             np.testing.assert_almost_equal(act_precision, calc_precision)
@@ -100,6 +99,15 @@ class TestBinaryNumericalLabels(unittest.TestCase):
             np.testing.assert_almost_equal(act_f1_score, calc_f1_score)
         return
 
+    def test_balanced_accuracy(self):
+        act_balance_acc = balanced_accuracy_score(self.true, self.pred)
+        calc_balance_acc = self.metrics.balanced_accuracy()
+        np.testing.assert_almost_equal(act_balance_acc, calc_balance_acc)
+
+        calc_balance_acc = self.metrics_nd.balanced_accuracy()
+        np.testing.assert_almost_equal(act_balance_acc, calc_balance_acc)
+        return
+
 
 class TestBinaryCategoricalLabels(unittest.TestCase):
     """binary classification when the arrays are nuerical values"""
@@ -115,6 +123,9 @@ class TestBinaryLogits(unittest.TestCase):
                         [1, 0],
                         [1, 0]
                         ])
+
+    t = np.argmax(targets, axis=1)
+    p = np.argmax(predictions, axis=1)
 
     metrics = ClassificationMetrics(targets, predictions)
 
@@ -145,7 +156,15 @@ class TestBinaryLogits(unittest.TestCase):
         p = np.argmax(self.predictions, axis=1)
         act_f1_score = f1_score(t, p, average='macro')
         calc_f1_score = self.metrics.f1_score(average="macro")
+        self.assertAlmostEqual(act_f1_score, calc_f1_score)
         return
+
+    def test_balance_accuracy(self):
+        act_balance_accuracy = balanced_accuracy_score(self.t, self.p)
+        calc_balance_accuracy = self.metrics.balanced_accuracy()
+        self.assertAlmostEqual(act_balance_accuracy, calc_balance_accuracy)
+        return
+
 
 class TestMulticlassNumericLabels(unittest.TestCase):
     true = np.random.randint(1, 4, 100)
@@ -196,6 +215,12 @@ class TestMulticlassNumericLabels(unittest.TestCase):
             np.testing.assert_almost_equal(act_f1_score, calc_f1_score)
         return
 
+    def test_balanced_accuracy(self):
+        act_balance_acc = balanced_accuracy_score(self.true, self.pred)
+        calc_balance_acc = self.metrics.balanced_accuracy()
+        np.testing.assert_almost_equal(act_balance_acc, calc_balance_acc)
+
+        return
 
 # class TestMulticlassCategoricalLabels(unittest.TestCase):
 #     true = np.random.randint(1, 4, 100)
@@ -220,6 +245,8 @@ class TestMulticlassLogits(unittest.TestCase):
     targets = np.array([[0, 0, 0, 1],
                         [0, 0, 0, 1]])
 
+    t = np.argmax(targets, axis=1)
+    p = np.argmax(predictions, axis=1)
     metrics = ClassificationMetrics(targets, predictions, multiclass=True)
 
     def test_ce(self):
@@ -240,17 +267,21 @@ class TestMulticlassLogits(unittest.TestCase):
 
     def test_accuracy(self):
         calc_acc = self.metrics.accuracy()
-        t = np.argmax(self.targets, axis=1)
-        p = np.argmax(self.predictions, axis=1)
-        act_acc = accuracy_score(t, p)
+        act_acc = accuracy_score(self.t, self.p)
         self.assertAlmostEqual(calc_acc, act_acc)
         return
 
     def test_f1_score(self):
-        t = np.argmax(self.targets, axis=1)
-        p = np.argmax(self.predictions, axis=1)
-        act_f1_score = f1_score(t, p, average='macro')
+        act_f1_score = f1_score(self.t, self.p, average='macro')
         calc_f1_score = self.metrics.f1_score(average="macro")
+        self.assertAlmostEqual(act_f1_score, calc_f1_score)
+        return
+
+    def test_balance_accuracy(self):
+
+        act_balance_accuracy = balanced_accuracy_score(self.t, self.p)
+        calc_balance_accuracy = self.metrics.balanced_accuracy()
+        self.assertAlmostEqual(act_balance_accuracy, calc_balance_accuracy)
         return
 
 
