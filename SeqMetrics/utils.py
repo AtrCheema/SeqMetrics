@@ -543,3 +543,40 @@ def to_oneD_array(array_like):
         return np.array([array_like])
     else:
         raise ValueError(f'cannot convert object {array_like.__class__.__name__}  to 1d ')
+
+
+METRIC_TYPES = {
+    "r2": "max",
+    "nse": "max",
+    "nse_alpha": "max",
+    "nse_beta": "max",
+    "nse_mod": "max",
+    "nse_rel": "max",
+    "nse_bound": "max",
+    "r2_score": "max",
+    "adjusted_r2": "max",
+    "kge": "max",
+    "kge_bound": "max",
+    "kge_mod": "max",
+    "kge_np": "max",
+    'log_nse': 'max',
+    "corr_coeff": "max",
+    'accuracy': "max",
+    'f1_score': 'max',
+    "mse": "min",
+    "rmse": "min",
+    "rmsle": "min",
+    "mape": "min",
+    "nrmse": "min",
+    "pbias": "min",
+    "bias": "min",
+    "med_seq_error": "min",
+    "mae": "min",
+    "abs_pbias": "min",
+    "gmae": "min",
+    "inrse": "min",
+    "irmse": "min",
+    "mase": "min",
+    "mare": "min",
+    "msle": "min",
+}
