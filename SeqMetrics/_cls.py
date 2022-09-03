@@ -76,6 +76,11 @@ class ClassificationMetrics(Metrics):
 
         super().__init__(true, predicted, metric_type='classification', *args, **kwargs)
 
+        self.is_categorical = False
+        if self.true.dtype.kind in ['S', 'U']:
+            self.is_categorical = True
+            assert self.predicted.dtype.kind in ['S', 'U']
+
         self.true_labels = self._true_labels()
         self.true_logits = self._true_logits()
         self.pred_labels = self._pred_labels()
@@ -148,6 +153,10 @@ class ClassificationMetrics(Metrics):
         # for binary if the array is 2-d, consider it to be logits
         if len(self.predicted) != self.predicted.size:
             return np.argmax(self.predicted, 1)
+
+        if self.is_categorical:
+            return np.array(self.predicted)
+
         return np.array(self.predicted, dtype=int)
 
     def _pred_logits(self):

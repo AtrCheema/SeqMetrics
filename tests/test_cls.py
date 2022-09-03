@@ -121,6 +121,27 @@ class TestBinaryNumericalLabels(unittest.TestCase):
 class TestBinaryCategoricalLabels(unittest.TestCase):
     """binary classification when the arrays are nuerical values"""
 
+    t = np.array(['a', 'b', 'b', 'b'])
+    p = np.array(['a', 'a', 'a', 'a'])
+    metrics = ClassificationMetrics(t, p)
+
+    def test_f1_score(self):
+        self.assertEqual(self.metrics.f1_score(average="weighted"),
+                         f1_score(self.t, self.p, average="weighted"))
+        return
+
+    def test_accuracy(self):
+        val_score = self.metrics.accuracy()
+        self.assertAlmostEqual(val_score, 0.25)
+        return
+
+    def test_confusion_metrics(self):
+        cm = self.metrics.confusion_matrix()
+        np.testing.assert_array_equal(cm, confusion_matrix(self.t, self.p))
+        return
+
+
+
 
 class TestBinaryLogits(unittest.TestCase):
     """binary classification when the arrays are logits"""
