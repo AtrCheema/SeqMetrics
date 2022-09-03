@@ -10,7 +10,6 @@ import numpy as np
 from SeqMetrics import ClassificationMetrics
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 from sklearn.metrics import confusion_matrix, balanced_accuracy_score
-from sklearn.preprocessing import LabelBinarizer
 
 
 
@@ -21,13 +20,31 @@ class TestBinaryBooleanLabels(unittest.TestCase):
     metrics = ClassificationMetrics(t, p)
 
     def test_f1_score(self):
-        self.assertEqual(self.metrics.f1_score(average="weighted"),
-                         f1_score(self.t, self.p, average="weighted"))
+        for avg in [None, "macro", "weighted", "micro"]:
+            np.testing.assert_almost_equal(self.metrics.f1_score(average=avg),
+                         f1_score(self.t, self.p, average=avg))
+        return
+
+    def test_precision(self):
+        for avg in [None, "macro", "weighted", "micro"]:
+            np.testing.assert_almost_equal(self.metrics.precision(average=avg),
+                             precision_score(self.t, self.p, average=avg))
+        return
+
+    def test_recall(self):
+        for avg in [None, "macro", "weighted", "micro"]:
+            np.testing.assert_almost_equal(self.metrics.recall(average=avg),
+                             recall_score(self.t, self.p, average=avg))
         return
 
     def test_accuracy(self):
         val_score = self.metrics.accuracy()
         self.assertAlmostEqual(val_score, 0.25)
+        return
+
+    def test_balance_accuracy(self):
+        val_score = self.metrics.balanced_accuracy()
+        self.assertAlmostEqual(val_score, balanced_accuracy_score(self.t, self.p))
         return
 
     def test_confusion_metrics(self):
@@ -39,6 +56,7 @@ class TestBinaryBooleanLabels(unittest.TestCase):
         all_metrics = self.metrics.calculate_all()
         assert len(all_metrics) == 13
         return
+
 
 class TestBinaryNumericalLabels(unittest.TestCase):
     """binary classification when the arrays are nuerical values"""
@@ -126,8 +144,21 @@ class TestBinaryCategoricalLabels(unittest.TestCase):
     metrics = ClassificationMetrics(t, p)
 
     def test_f1_score(self):
-        self.assertEqual(self.metrics.f1_score(average="weighted"),
-                         f1_score(self.t, self.p, average="weighted"))
+        for avg in [None, "macro", "weighted", "micro"]:
+            np.testing.assert_almost_equal(self.metrics.f1_score(average=avg),
+                             f1_score(self.t, self.p, average=avg))
+        return
+
+    def test_precision(self):
+        for avg in [None, "macro", "weighted", "micro"]:
+            np.testing.assert_almost_equal(self.metrics.precision(average=avg),
+                             precision_score(self.t, self.p, average=avg))
+        return
+
+    def test_recall(self):
+        for avg in [None, "macro", "weighted", "micro"]:
+            np.testing.assert_almost_equal(self.metrics.recall(average=avg),
+                             recall_score(self.t, self.p, average=avg))
         return
 
     def test_accuracy(self):
@@ -140,7 +171,15 @@ class TestBinaryCategoricalLabels(unittest.TestCase):
         np.testing.assert_array_equal(cm, confusion_matrix(self.t, self.p))
         return
 
+    def test_balance_accuracy(self):
+        val_score = self.metrics.balanced_accuracy()
+        self.assertAlmostEqual(val_score, balanced_accuracy_score(self.t, self.p))
+        return
 
+    def test_class_all(self):
+        all_metrics = self.metrics.calculate_all()
+        assert len(all_metrics) == len(self.metrics.all_methods)
+        return
 
 
 class TestBinaryLogits(unittest.TestCase):
@@ -221,7 +260,7 @@ class TestMulticlassNumericLabels(unittest.TestCase):
         return
 
     def test_precision(self):
-        for average in ['macro', 'weighted', None]:
+        for average in ['macro', 'weighted', 'micro', None]:
 
             act_precision = precision_score(self.true, self.pred, average=average)
             calc_precision = self.metrics.precision(average=average)
@@ -230,7 +269,7 @@ class TestMulticlassNumericLabels(unittest.TestCase):
         return
 
     def test_recall(self):
-        for average in ['macro', 'weighted', None]:
+        for average in ['macro', 'weighted', 'micro', None]:
 
             act_recall = recall_score(self.true, self.pred, average=average)
             calc_recall = self.metrics.recall(average=average)
@@ -239,7 +278,7 @@ class TestMulticlassNumericLabels(unittest.TestCase):
         return
 
     def test_f1_score(self):
-        for average in ['macro', 'weighted', None]:
+        for average in ['macro', 'weighted', 'micro', None]:
             act_f1_score = f1_score(self.true, self.pred, average=average)
             calc_f1_score = self.metrics.f1_score(average=average)
             np.testing.assert_almost_equal(act_f1_score, calc_f1_score)
@@ -252,20 +291,57 @@ class TestMulticlassNumericLabels(unittest.TestCase):
 
         return
 
-# class TestMulticlassCategoricalLabels(unittest.TestCase):
-#     true = np.random.randint(1, 4, 100)
-#     pred = np.random.randint(1, 4, 100)
-#     metrics = ClassificationMetrics(true, pred, multiclass=True)
+class TestMulticlassCategoricalLabels(unittest.TestCase):
+    t = np.array(['car', 'truck', 'truck', 'car', 'bike', 'truck'])
+    p = np.array(['car', 'car',   'bike',  'car', 'bike', 'truck'])
+    metrics = ClassificationMetrics(t, p, multiclass=True)
 
-#     def test_all(self):
-#         self.metrics.calculate_all()
-#         return
+    def test_all(self):
+        self.metrics.calculate_all()
+        return
 
-#     def test_accuracy(self):
-#         acc = self.metrics.accuracy()
-#         acc2 = accuracy_score(self.true, self.pred)
-#         self.assertAlmostEqual(acc, acc2)
-#         return
+    def test_f1_score(self):
+        for avg in [None, "macro", "weighted", "micro"]:
+            np.testing.assert_almost_equal(self.metrics.f1_score(average=avg),
+                                           f1_score(self.t, self.p, average=avg))
+        return
+
+    def test_precision(self):
+        for avg in [None, "macro", "weighted", "micro"]:
+            np.testing.assert_almost_equal(self.metrics.precision(average=avg),
+                                           precision_score(self.t, self.p, average=avg))
+        return
+
+
+    def test_recall(self):
+        for avg in [None, "macro", "weighted", "micro"]:
+            np.testing.assert_almost_equal(self.metrics.recall(average=avg),
+                                           recall_score(self.t, self.p, average=avg))
+        return
+
+
+    def test_accuracy(self):
+        val_score = self.metrics.accuracy()
+        self.assertAlmostEqual(val_score, accuracy_score(self.t, self.p))
+        return
+
+
+    def test_confusion_metrics(self):
+        cm = self.metrics.confusion_matrix()
+        np.testing.assert_array_equal(cm, confusion_matrix(self.t, self.p))
+        return
+
+
+    def test_balance_accuracy(self):
+        val_score = self.metrics.balanced_accuracy()
+        self.assertAlmostEqual(val_score, balanced_accuracy_score(self.t, self.p))
+        return
+
+
+    def test_class_all(self):
+        all_metrics = self.metrics.calculate_all()
+        assert len(all_metrics) == len(self.metrics.all_methods)
+        return
 
 
 class TestMulticlassLogits(unittest.TestCase):

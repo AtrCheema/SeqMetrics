@@ -1,4 +1,5 @@
 
+import numbers
 import warnings
 from typing import Union
 
@@ -61,6 +62,18 @@ class ClassificationMetrics(Metrics):
     >>> metrics.cross_entropy()
     ...  0.71355817782
 
+    Working with categorical values is seamless
+    >>> true = np.array(['a', 'b', 'b', 'b'])
+    >>> pred = np.array(['a', 'a', 'a', 'a'])
+    >>> metrics = ClassificationMetrics(true, pred)
+    >>> accuracy = metrics.accuracy()
+
+    same goes for multiclass categorical labels
+
+    >>> t = np.array(['car', 'truck', 'truck', 'car', 'bike', 'truck'])
+    >>> p = np.array(['car', 'car',   'bike',  'car', 'bike', 'truck'])
+    >>> metrics = ClassificationMetrics(targets, predictions, multiclass=True)
+    >>> print(metrics.calculate_all())
     """
     # todo add very major erro and major error
 
@@ -68,9 +81,10 @@ class ClassificationMetrics(Metrics):
         self,
         true,
         predicted,
-        multiclass=False, 
+        multiclass:bool=False,
         *args,
-        **kwargs):
+        **kwargs
+    ):
 
         self.multiclass = multiclass
 
@@ -80,6 +94,9 @@ class ClassificationMetrics(Metrics):
         if self.true.dtype.kind in ['S', 'U']:
             self.is_categorical = True
             assert self.predicted.dtype.kind in ['S', 'U']
+
+            self.true_cls , self.true_encoded = self._encode(self.true)
+            self.pred_cls, self.pred_encoded = self._encode(self.predicted)
 
         self.true_labels = self._true_labels()
         self.true_logits = self._true_logits()
@@ -176,9 +193,14 @@ class ClassificationMetrics(Metrics):
         scalar
         
         """
-        predictions = np.clip(self.predicted, epsilon, 1. - epsilon)
-        n = predictions.shape[0]
-        ce = -np.sum(self.true * np.log(predictions + 1e-9)) / n
+        if self.is_categorical:
+            predictions = np.clip(self.pred_encoded, epsilon, 1. - epsilon)
+            n = predictions.shape[0]
+            ce = -np.sum(self.true_encoded * np.log(predictions + 1e-9)) / n
+        else:
+            predictions = np.clip(self.predicted, epsilon, 1. - epsilon)
+            n = predictions.shape[0]
+            ce = -np.sum(self.true * np.log(predictions + 1e-9)) / n
         return ce
 
     # def hinge_loss(self):
@@ -189,10 +211,11 @@ class ClassificationMetrics(Metrics):
 
     def accuracy(self, normalize:bool=True)->float:
         """
+        calculates accuracy
 
         Parameters
         ----------
-        normalize
+        normalize : bool
 
         Returns
         -------
@@ -281,7 +304,6 @@ class ClassificationMetrics(Metrics):
 
         return np.nan_to_num(cm)
 
-
     def _tp(self):
         return np.diag(self.cm)
 
@@ -300,6 +322,32 @@ class ClassificationMetrics(Metrics):
             TN.append(sum(sum(temp)))
 
         return TN
+
+    @staticmethod
+    def _is_scalar_nan(x):
+        # same as sklearn function
+        return bool(isinstance(x, numbers.Real) and np.isnan(x))
+
+    def _encode(self, x:np.ndarray)->tuple:
+        """encodes a categorical array into numerical values"""
+        classes, encoded = np.unique(x, return_inverse=True)
+
+        # following lines are taken from sklearn
+        # np.unique will have duplicate missing values at the end of `uniques`
+        # here we clip the nans and remove it from uniques
+        if classes.size and self._is_scalar_nan(classes[-1]):
+            nan_idx = np.searchsorted(classes, np.nan)
+            classes = classes[:nan_idx + 1]
+
+            encoded[encoded > nan_idx] = nan_idx
+
+        return classes, encoded
+
+    def _decode_true(self):
+        raise NotImplementedError
+
+    def _decode_prediction(self):
+        raise NotImplementedError
 
     def precision(self, average=None):
         """
@@ -407,7 +455,7 @@ class ClassificationMetrics(Metrics):
                 return _spcificity.mean()
             
             else:
-                return np.average(_spcificity, weights= self._tn() + self._fp())
+                return np.average(_spcificity, weights= TN + FP)
         
         return _spcificity
 
@@ -447,7 +495,8 @@ class ClassificationMetrics(Metrics):
         return score
 
     def f1_score(self, average=None)->Union[np.ndarray, float]:
-        """calculates f1 score
+        """calculates f1 score according to following formula
+        f1_score = 2 * (precision * recall)  / (precision + recall)
 
         Parameters
         ----------
@@ -501,6 +550,8 @@ class ClassificationMetrics(Metrics):
         TP = self._tp()
         fpr = TP / (TP + self._tn())
 
+        fpr = np.nan_to_num(fpr)
+
         return fpr
 
     def false_discovery_rate(self):
@@ -511,6 +562,9 @@ class ClassificationMetrics(Metrics):
         FP = self._fp()
 
         fdr = FP / (self._tp() + FP)
+
+        fdr = np.nan_to_num(fdr)
+
         return fdr
 
     def false_negative_rate(self):
@@ -520,6 +574,9 @@ class ClassificationMetrics(Metrics):
         """
         FN = self._fn()
         fnr = FN / (FN + self._tp())
+
+        fnr = np.nan_to_num(fnr)
+
         return fnr
 
     def negative_predictive_value(self):
@@ -529,6 +586,8 @@ class ClassificationMetrics(Metrics):
         """
         TN = self._tn()
         npv = TN / (TN + self._fn())
+
+        npv = np.nan_to_num(npv)
         return npv
 
 
