@@ -294,11 +294,12 @@ class ClassificationMetrics(Metrics):
 
     def precision(self, average=None):
         """
-        Returns precision score
+        Returns precision score, also called positive predictive value.
+        TP/(TP+FP)
 
         Parameters
         ----------
-        average : string, [None, ``macro``, ``weighted``]
+        average : string, [None, ``macro``, ``weighted``, ``micro``]
 
         Examples
         --------
@@ -314,6 +315,10 @@ class ClassificationMetrics(Metrics):
         """
         TP = self._tp()
         FP = self._fp()
+
+        if average == "micro":
+            return sum(TP) / (sum(TP) + sum(FP))
+
         _precision =  TP / (TP + FP)
         _precision = np.nan_to_num(_precision)
 
@@ -335,11 +340,17 @@ class ClassificationMetrics(Metrics):
 
         Parameters
         ----------
-        average : string, [None, ``macro``, ``weighted``]
+        average : string, [None, ``macro``, ``weighted``, ``micro``]
 
         """
+
         TP = self._tp()
-        _recall = TP /( TP+ self._fn())
+        FP = self._fn()
+
+        if average == "micro":
+            return sum(TP) / (sum(TP) + sum(FP))
+
+        _recall = TP /( TP+ FP)
 
         _recall = np.nan_to_num(_recall)
 
@@ -358,6 +369,9 @@ class ClassificationMetrics(Metrics):
         It is also called true negative rate. It is the probability that
         the predictions are negative when the true labels are also negative.
 
+        It's formula is following
+        TN / TN+FP
+
         Examples
         --------
         >>> import numpy as np
@@ -371,25 +385,43 @@ class ClassificationMetrics(Metrics):
         >>> print(metrics.specificity(average="weighted"))
         """
         TN = self._tn()
-        _spcificity =  TN / (TN + self._fp())
+        FP = self._fp()
+
+        if average == "micro":
+            return sum(TN) / (sum(TN) + sum(FP))
+
+        _spcificity =  TN / (TN + FP)
 
         if average:
             assert average in ['macro', 'weighted']
             if average == 'macro':
                 return _spcificity.mean()
             
-            elif average == 'weighted':
-                return np.average(_spcificity, weights= self._tn() + self._fn())
+            else:
+                return np.average(_spcificity, weights= self._tn() + self._fp())
         
         return _spcificity
 
     def sensitivity(self, average=None):
         """
         It is also called true positive rate.
-
+         True Posivitive / True Positive + False Negative
         """
         TP = self._tp()
-        _sensitivity = TP / (TP + self._fp())
+        FN = self._fn()
+
+        if average == "micro":
+            return sum(TP) / (sum(TP) + sum(FN))
+
+        _sensitivity = TP / (TP + FN)
+
+        if average:
+            assert average in ['macro', 'weighted']
+            if average == 'macro':
+                return _sensitivity.mean()
+
+            else:
+                return np.average(_sensitivity, weights=TP + FN)
 
         return _sensitivity
 
@@ -411,7 +443,7 @@ class ClassificationMetrics(Metrics):
         Parameters
         ----------
         average : str, optional
-            It can be ``macro`` or ``weighted``.
+            It can be ``macro`` or ``weighted``. or ``micro``
 
         Returns
         -------
@@ -433,6 +465,9 @@ class ClassificationMetrics(Metrics):
         precision = self.precision()
         recall = self.recall()
 
+        if average == "micro":
+            return  2 * (self.precision("micro") * self.recall("micro"))  / (self.precision("micro") + self.recall("micro"))
+
         _f1_score = 2 * (precision * recall)  / (precision + recall)
 
         _f1_score = np.nan_to_num(_f1_score)
@@ -447,6 +482,47 @@ class ClassificationMetrics(Metrics):
                 return np.average(_f1_score, weights = self._tp() + self._fn())
         
         return _f1_score
+
+    def false_positive_rate(self):
+        """
+        False Positive Rate
+         TP / (TP + TN)
+
+        """
+        TP = self._tp()
+        fpr = TP / (TP + self._tn())
+
+        return fpr
+
+    def false_discovery_rate(self):
+        """
+        False discovery rate
+         FP / (TP + FP)
+        """
+        FP = self._fp()
+
+        fdr = FP / (self._tp() + FP)
+        return fdr
+
+    def false_negative_rate(self):
+        """
+        False Negative Rate
+        FN / (FN + TP)
+        """
+        FN = self._fn()
+        fnr = FN / (FN + self._tp())
+        return fnr
+
+    def negative_predictive_value(self):
+        """
+        Negative Predictive Value
+        TN/(TN+FN)
+        """
+        TN = self._tn()
+        npv = TN / (TN + self._fn())
+        return npv
+
+
 
 
 def one_hot_encode(array):

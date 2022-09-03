@@ -35,6 +35,10 @@ class TestBinaryBooleanLabels(unittest.TestCase):
         np.testing.assert_array_equal(cm, confusion_matrix(self.t, self.p))
         return
 
+    def test_class_all(self):
+        all_metrics = self.metrics.calculate_all()
+        assert len(all_metrics) == 13
+        return
 
 class TestBinaryNumericalLabels(unittest.TestCase):
     """binary classification when the arrays are nuerical values"""
@@ -45,6 +49,11 @@ class TestBinaryNumericalLabels(unittest.TestCase):
 
     # ClassificationMetrics class should handle 2d arrays when their size == their length
     metrics_nd = ClassificationMetrics(true.reshape(-1,1), pred.reshape(-1,1))
+
+    def test_class_all(self):
+        all_metrics = self.metrics.calculate_all()
+        assert len(all_metrics) == 13
+        return
 
     def test_accuracy(self):
         val_score = self.metrics.accuracy()
@@ -133,11 +142,10 @@ class TestBinaryLogits(unittest.TestCase):
         ce = self.metrics.cross_entropy()
         return
 
-    #     def test_class_all(self):
-    #         class_metrics = ClassificationMetrics(self.targets, self.predictions, multiclass=True)
-    #         all_metrics = class_metrics.calculate_all()
-    #         assert len(all_metrics) > 1
-    #         return
+    def test_class_all(self):
+        all_metrics = self.metrics.calculate_all()
+        assert len(all_metrics) == 13
+        return
 
     def test_all(self):
         self.metrics.calculate_all()
@@ -172,7 +180,8 @@ class TestMulticlassNumericLabels(unittest.TestCase):
     metrics = ClassificationMetrics(true, pred, multiclass=True)
 
     def test_all(self):
-        self.metrics.calculate_all()
+        all_metrics = self.metrics.calculate_all()
+        assert len(all_metrics) == 13
         return
 
     def test_accuracy(self):
@@ -255,11 +264,10 @@ class TestMulticlassLogits(unittest.TestCase):
         self.assertAlmostEqual(self.metrics.cross_entropy(), 0.71355817782)
         return
 
-#     def test_class_all(self):
-#         class_metrics = ClassificationMetrics(self.targets, self.predictions, multiclass=True)
-#         all_metrics = class_metrics.calculate_all()
-#         assert len(all_metrics) > 1
-#         return
+    def test_class_all(self):
+        all_metrics = self.metrics.calculate_all()
+        assert len(all_metrics) == 13
+        return
 
     def test_all(self):
         self.metrics.calculate_all()

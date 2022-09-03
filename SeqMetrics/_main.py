@@ -23,8 +23,6 @@ from .utils import features, to_oneD_array, maybe_to_oneD_array
 
 EPS = 1e-10  # epsilon
 
-# TODO classification metrics
-# cross entropy
 
 # TODO probability losses
 # log normal loss
