@@ -29,6 +29,9 @@ or using setup file, go to folder where repo is downloaded
 
 
 ## How to Use
+SeqMetrics provides a uniform API for calculation of both regression and classification metrics.
+
+### RegressionMetrics
 
 ```python
 import numpy as np
@@ -45,36 +48,6 @@ er.nse()   # calculate Nash Sutcliff efficiency
 
 er.calculate_all(verbose=True)  # or calculate errors using all available methods 
 ```
-
-The API is same for classification performance metrics.
-```python
-import numpy as np
-from SeqMetrics import ClassificationMetrics
-
-# boolean array
-
-t = np.array([True, False, False, False])
-p = np.array([True, True, True, True])
-metrics = ClassificationMetrics(t, p)
-accuracy = metrics.accuracy()
-
-# binary classification with numerical labels
-
-true = np.array([1, 0, 0, 0])
-pred = np.array([1, 1, 1, 1])
-metrics = ClassificationMetrics(true, pred)
-accuracy = metrics.accuracy()
-
-# multiclass classification with numerical labels
-
-true = np.random.randint(1, 4, 100)
-pred = np.random.randint(1, 4, 100)
-metrics = ClassificationMetrics(true, pred)
-accuracy = metrics.accuracy()
-```
-
-
-## RegressionMetrics
 
 Currently following regression performance metrics are being calculated.
 
@@ -175,6 +148,87 @@ Currently following regression performance metrics are being calculated.
 | Watterson's M | `watt_m` |
 | Weighted Mean Absolute Percent Errors | `wmape` |
 | Weighted Absolute Percentage Error | `wape` |
+
+
+### ClassificationMetrics
+
+The API is same for classification performance metrics.
+
+```python
+import numpy as np
+from SeqMetrics import ClassificationMetrics
+
+# boolean array
+
+t = np.array([True, False, False, False])
+p = np.array([True, True, True, True])
+metrics = ClassificationMetrics(t, p)
+print(metrics.calculate_all())
+
+# binary classification with numerical labels
+
+true = np.array([1, 0, 0, 0])
+pred = np.array([1, 1, 1, 1])
+metrics = ClassificationMetrics(true, pred)
+print(metrics.calculate_all())
+
+# multiclass classification with numerical labels
+
+true = np.random.randint(1, 4, 100)
+pred = np.random.randint(1, 4, 100)
+metrics = ClassificationMetrics(true, pred)
+print(metrics.calculate_all())
+
+# You can also provide logits instead of labels.
+
+predictions = np.array([[0.25, 0.25, 0.25, 0.25],
+                       [0.01, 0.01, 0.01, 0.96]])
+targets = np.array([[0, 0, 0, 1],
+                    [0, 0, 0, 1]])
+metrics = ClassificationMetrics(targets, predictions, multiclass=True)
+print(metrics.calculate_all())
+
+# Working with categorical values is seamless
+
+true = np.array(['a', 'b', 'b', 'b']) 
+pred = np.array(['a', 'a', 'a', 'a'])
+metrics = ClassificationMetrics(true, pred)
+print(metrics.calculate_all())
+
+# same goes for multiclass categorical labels
+
+t = np.array(['car', 'truck', 'truck', 'car', 'bike', 'truck'])
+p = np.array(['car', 'car',   'bike',  'car', 'bike', 'truck'])
+metrics = ClassificationMetrics(targets, predictions, multiclass=True)
+print(metrics.calculate_all())
+```
+
+Currently following classification performance metrics are being calculated.
+
+| Name                          | Name in this repository  |
+| -------------------------- | ------------- |
+| Accuracy | `accuracy` |
+| Balanced Accuracy | `balanced_accuracy` |
+| Error Rate | `error_rate` |
+| Recall | `recall` |
+| Precision | `precision` |
+| F1 score | `f1_score` |
+| F2 score | `f2_score` |
+| Specificity | `specificity` |
+| Cross Entropy | `cross_entropy` |
+| False Positive Rate | `false_positive_rate` |
+| False Negative Rate | `false_negative_rate` |
+| False Discovery Rate | `false_discovery_rate` |
+| False Omission Rate | `false_omission_rate` |
+| Negative Predictive Value | `negative_predictive_value` |
+| Positive Likelihood Ratio | `positive_likelihood_ratio` |
+| Negative Likelihood Ratio | `negative_likelihood_ratio` |
+| Prevalence Threshold | `prevalence_threshold` |
+| Youden Index | `youden_index` |
+| Confusion Matrix | `confusion_matrix` |
+| Fowlkes Mallows Index | `fowlkes_mallows_index` |
+| Mathews correlation Coefficient | `mathews_corr_coeff` |
+
 
 ## Related
 
