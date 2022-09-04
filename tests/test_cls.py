@@ -54,7 +54,7 @@ class TestBinaryBooleanLabels(unittest.TestCase):
 
     def test_class_all(self):
         all_metrics = self.metrics.calculate_all()
-        assert len(all_metrics) == 13
+        assert len(all_metrics) == len(self.metrics.all_methods)
         return
 
 
@@ -70,7 +70,7 @@ class TestBinaryNumericalLabels(unittest.TestCase):
 
     def test_class_all(self):
         all_metrics = self.metrics.calculate_all()
-        assert len(all_metrics) == 13
+        assert len(all_metrics) == len(self.metrics.all_methods)
         return
 
     def test_accuracy(self):
@@ -204,7 +204,7 @@ class TestBinaryLogits(unittest.TestCase):
 
     def test_class_all(self):
         all_metrics = self.metrics.calculate_all()
-        assert len(all_metrics) == 13
+        assert len(all_metrics) == len(self.metrics.all_methods)
         return
 
     def test_all(self):
@@ -241,7 +241,7 @@ class TestMulticlassNumericLabels(unittest.TestCase):
 
     def test_all(self):
         all_metrics = self.metrics.calculate_all()
-        assert len(all_metrics) == 13
+        assert len(all_metrics) == len(self.metrics.all_methods)
         return
 
     def test_accuracy(self):
@@ -363,7 +363,7 @@ class TestMulticlassLogits(unittest.TestCase):
 
     def test_class_all(self):
         all_metrics = self.metrics.calculate_all()
-        assert len(all_metrics) == 13
+        assert len(all_metrics) == len(self.metrics.all_methods)
         return
 
     def test_all(self):

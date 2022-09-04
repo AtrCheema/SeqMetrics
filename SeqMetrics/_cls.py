@@ -63,6 +63,7 @@ class ClassificationMetrics(Metrics):
     ...  0.71355817782
 
     Working with categorical values is seamless
+
     >>> true = np.array(['a', 'b', 'b', 'b'])
     >>> pred = np.array(['a', 'a', 'a', 'a'])
     >>> metrics = ClassificationMetrics(true, pred)
@@ -352,6 +353,8 @@ class ClassificationMetrics(Metrics):
     def precision(self, average=None):
         """
         Returns precision score, also called positive predictive value.
+        It is number of correct positive predictions divided by the total
+        number of positive predictions.
         TP/(TP+FP)
 
         Parameters
@@ -393,21 +396,25 @@ class ClassificationMetrics(Metrics):
 
     def recall(self, average=None):
         """
-        compute recall.
+        It is also called sensitivity or true positive rate. It is
+        number of correct positive predictions divided by the total number of positives
+        Formula :
+            True Posivitive / True Positive + False Negative
 
         Parameters
         ----------
-        average : string, [None, ``macro``, ``weighted``, ``micro``]
+            average : str (default=None)
+                one of None, ``macro``, ``weighted``, or ``micro``
 
         """
 
         TP = self._tp()
-        FP = self._fn()
+        FN = self._fn()
 
         if average == "micro":
-            return sum(TP) / (sum(TP) + sum(FP))
+            return sum(TP) / (sum(TP) + sum(FN))
 
-        _recall = TP /( TP+ FP)
+        _recall = TP /( TP+ FN)
 
         _recall = np.nan_to_num(_recall)
 
@@ -417,14 +424,15 @@ class ClassificationMetrics(Metrics):
                 return _recall.mean()
             
             elif average == 'weighted':
-                return np.average(_recall, weights= self._tp() + self._fn())
+                return np.average(_recall, weights= TP + FN)
         
         return _recall
 
     def specificity(self, average=None):
         """
-        It is also called true negative rate. It is the probability that
+        It is also called true negative rate or selectivity. It is the probability that
         the predictions are negative when the true labels are also negative.
+        It is number of correct negative predictions divided by the total number of negatives.
 
         It's formula is following
         TN / TN+FP
@@ -459,29 +467,6 @@ class ClassificationMetrics(Metrics):
         
         return _spcificity
 
-    def sensitivity(self, average=None):
-        """
-        It is also called true positive rate.
-         True Posivitive / True Positive + False Negative
-        """
-        TP = self._tp()
-        FN = self._fn()
-
-        if average == "micro":
-            return sum(TP) / (sum(TP) + sum(FN))
-
-        _sensitivity = TP / (TP + FN)
-
-        if average:
-            assert average in ['macro', 'weighted']
-            if average == 'macro':
-                return _sensitivity.mean()
-
-            else:
-                return np.average(_sensitivity, weights=TP + FN)
-
-        return _sensitivity
-
     def balanced_accuracy(self, average=None)->float:
         """
         balanced accuracy.
@@ -492,7 +477,32 @@ class ClassificationMetrics(Metrics):
         if np.any(np.isnan(score)):
             warnings.warn('y_pred contains classes not in y_true')
         score = np.nanmean(score).item()
+
         return score
+
+    def _f_score(self, average=None, beta=1.0):
+        """calculates baseic f score"""
+
+        precision = self.precision()
+        recall = self.recall()
+
+        if average == "micro":
+            return ((1 + beta**2) * (self.precision("micro") * self.recall("micro"))) / (beta**2 * (self.precision("micro") + self.recall("micro")))
+
+        _f_score = ((1 + beta**2) * (precision * recall))  / (beta**2 * (precision + recall))
+
+        _f_score = np.nan_to_num(_f_score)
+
+        if average:
+            assert average in ['macro', 'weighted']
+
+            if average == 'macro':
+                return _f_score.mean()
+
+            if average == 'weighted':
+                return np.average(_f_score, weights = self._tp() + self._fn())
+
+        return _f_score
 
     def f1_score(self, average=None)->Union[np.ndarray, float]:
         """calculates f1 score according to following formula
@@ -520,30 +530,21 @@ class ClassificationMetrics(Metrics):
         >>> print(metrics.f1_score(average="weighted"))
 
         """
-        precision = self.precision()
-        recall = self.recall()
 
-        if average == "micro":
-            return  2 * (self.precision("micro") * self.recall("micro"))  / (self.precision("micro") + self.recall("micro"))
+        return self._f_score(average, 1.0)
 
-        _f1_score = 2 * (precision * recall)  / (precision + recall)
-
-        _f1_score = np.nan_to_num(_f1_score)
-
-        if average:
-            assert average in ['macro', 'weighted']
-
-            if average == 'macro':
-                return _f1_score.mean()
-
-            if average == 'weighted':
-                return np.average(_f1_score, weights = self._tp() + self._fn())
-        
-        return _f1_score
+    def f2_score(self, average=None):
+        """
+        f2 score
+        """
+        return self._f_score(average, 2.0)
 
     def false_positive_rate(self):
         """
-        False Positive Rate
+        False positive rate is the number of incorrect positive predictions divided
+        by the total number of negatives. Its best value is 0.0 and worst value is 1.0.
+        It is also called probability of false alarm or fall-out.
+
          TP / (TP + TN)
 
         """
@@ -569,7 +570,8 @@ class ClassificationMetrics(Metrics):
 
     def false_negative_rate(self):
         """
-        False Negative Rate
+        False Negative Rate or miss rate.
+
         FN / (FN + TP)
         """
         FN = self._fn()
@@ -590,7 +592,87 @@ class ClassificationMetrics(Metrics):
         npv = np.nan_to_num(npv)
         return npv
 
+    def error_rate(self):
+        """
+        Error rate is the number of all incorrect predictions divided by the total
+        number of samples in data.
+        """
 
+        return (self._fp() + self._fn()) / self.n_samples
+
+    def mathews_corr_coeff(self):
+        """
+        Methew's correlation coefficient
+
+        """
+        TP, TN, FP, FN = self._tp(), self._tn(), self._fp(), self._fn()
+
+        top = TP * TN - FP * FN
+        bottom = np.sqrt(((TP + FP) * (FP + FN) * (TN + FP) * (TN + FN)))
+        return top/bottom
+
+    def positive_likelihood_ratio(self, average=None):
+        """
+        Positive likelihood ratio
+        sensitivity / 1-specificity
+
+        """
+        return self.recall(average=average) / (1 - self.specificity(average=average))
+
+    def negative_likelihood_ratio(self, average=None):
+        """
+        Negative likelihood ratio
+
+        1 - sensitivity / specificity
+
+        https://en.wikipedia.org/wiki/Likelihood_ratios_in_diagnostic_testing#positive_likelihood_ratio
+        """
+
+        return 1 - self.recall(average) / self.specificity(average)
+
+    def youden_index(self, average=None):
+        """
+        Youden index, also known as informedness
+
+        j = TPR + TNR − 1 =   sensitivity +  specificity - 1
+
+        https://en.wikipedia.org/wiki/Youden%27s_J_statistic
+        """
+        return  self.recall(average) + self.specificity(average) - 1
+
+    def fowlkes_mallows_index(self, average=None):
+        """
+        Fowlkes–Mallows index
+
+        sqrt(PPV * TPR)
+
+        PPV is positive predictive value or precision.
+        TPR is true positive rate or recall or sensitivity
+
+        https://en.wikipedia.org/wiki/Fowlkes%E2%80%93Mallows_index
+        """
+        return np.sqrt(self.precision(average) * self.recall(average))
+
+    def prevalence_threshold(self, average=None):
+        """
+        Prevalence threshold
+
+        sqrt(FPR) / (sqrt(TPR) + sqrt(FPR))
+
+        TPR is true positive rate or recall
+        """
+        FPR = self.false_positive_rate()
+
+        return np.sqrt(FPR) / (np.sqrt(self.recall(average)) + np.sqrt(FPR))
+
+    def false_omission_rate(self, average=None):
+        """
+        False omission rate
+
+        FN / (FN + TN)
+        """
+        FN = self._fn()
+        return FN / (FN + self._tn())
 
 
 def one_hot_encode(array):
