@@ -41,6 +41,15 @@ class TestPlot(unittest.TestCase):
                      show=False)
         return
 
+    def test_circular_bar(self):
+        np.random.seed(313)
+        true = np.random.random((20, 1))
+        pred = np.random.random((20, 1))
+
+        plot_metrics(RegressionMetrics(true, pred).calculate_all(),
+                     show=False, save=False, color="Blues")
+        return
+
     def test_list_subclass_methods(self):
         class DP:
             def _pa(self): pass

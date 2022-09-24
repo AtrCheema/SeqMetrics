@@ -82,7 +82,7 @@ class ClassificationMetrics(Metrics):
         self,
         true,
         predicted,
-        multiclass:bool=False,
+        multiclass:bool = False,
         *args,
         **kwargs
     ):
@@ -505,7 +505,8 @@ class ClassificationMetrics(Metrics):
         return _f_score
 
     def f1_score(self, average=None)->Union[np.ndarray, float]:
-        """calculates f1 score according to following formula
+        """
+        Calculates f1 score according to following formula
         f1_score = 2 * (precision * recall)  / (precision + recall)
 
         Parameters
@@ -672,7 +673,11 @@ class ClassificationMetrics(Metrics):
         FN / (FN + TN)
         """
         FN = self._fn()
-        return FN / (FN + self._tn())
+        FOR = FN / (FN + self._tn())
+
+        FOR = np.nan_to_num(FOR)
+
+        return FOR
 
 
 def one_hot_encode(array):

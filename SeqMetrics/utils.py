@@ -9,7 +9,7 @@ from collections import OrderedDict
 import scipy
 import numpy as np
 from scipy.special import xlogy
-from scipy.stats import skew, kurtosis, variation, gmean, hmean
+from scipy.stats import skew, kurtosis, variation, gmean
 
 try:
     import plotly.graph_objects as go
@@ -32,7 +32,7 @@ def plot_metrics(
         max_metrics_per_fig: int = 15,
         show: bool = True,
         save: bool = False,
-        save_path: str = None,
+        save_path: str = '',
         **kwargs):
     """
     Plots the metrics given as dictionary as radial or bar plot between specified ranges.
@@ -47,7 +47,7 @@ def plot_metrics(
         max_metrics_per_fig:
             maximum number of metrics to show in one figure.
         plot_type:
-            either of `radial` or `bar`.
+            either of ``radial`` or ``bar``.
         show : If, then figure will be shown/drawn
         save:
             if True, the figure will be saved.
@@ -103,7 +103,7 @@ def plot_metrics_between(
         max_metrics_per_fig: int = 15,
         save=False,
         show=True,
-        save_path=None,
+        save_path='',
         **kwargs):
 
     import matplotlib.pyplot as plt
@@ -111,27 +111,30 @@ def plot_metrics_between(
     if plot_type == "bar":
         from easy_mpl import circular_bar_plot
 
-    zero_to_one = {}
+    selected_metrics = {}
     for k, v in errors.items():
         if v is not None:
             if lower < v < upper:
-                zero_to_one[k] = v
+                selected_metrics[k] = v
     st = 0
-    n = len(zero_to_one)
-    for i in np.array(np.linspace(0, n, int(n/max_metrics_per_fig)+1),
-                      dtype=np.int32):
+    n = len(selected_metrics)
+    sequence = np.linspace(0, n, int(n/max_metrics_per_fig)+1)
+    if len(sequence) == 1 and n > 0:
+        sequence = np.array([0, len(selected_metrics)])
+    for i in np.array(sequence, dtype=np.int32):
         if i == 0:
             pass
         else:
             en = i
-            d = take(st, en, zero_to_one)
+            d = take(st, en, selected_metrics)
             if plot_type == 'radial':
                 plot_radial(d, lower, upper, save=save, show=show, save_path=save_path, **kwargs)
             else:
                 plt.close('all')
                 ax = circular_bar_plot(d, show=False, **kwargs)
                 if save:
-                    plt.savefig(save_path, bbox_inches="tight")
+                    plt.savefig(os.path.join(save_path, f"errors_{lower}_{upper}_{st}_{en}.png"),
+                                bbox_inches="tight")
                 if show:
                     plt.show()
             st = i

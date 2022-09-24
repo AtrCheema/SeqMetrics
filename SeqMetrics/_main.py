@@ -46,6 +46,10 @@ class Metrics(object):
 
     .. _website:
         https://www-miklip.dkrz.de/about/murcss/
+    .. _[1]:
+        https://doi.org/10.1007/s44150-021-00015-8
+    .. _[2]:
+        https://doi.org/10.28945/4184
 
     """
 
@@ -130,8 +134,7 @@ class Metrics(object):
     def remove_neg(self, x):
         self._remove_neg = x
 
-    @property
-    def assert_greater_than_one(self):
+    def _assert_greater_than_one(self):
         # assert that both true and predicted arrays are greater than one.
         if len(self.true) <= 1 or len(self.predicted) <= 1:
             raise ValueError(f"""

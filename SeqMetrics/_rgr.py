@@ -142,7 +142,7 @@ class RegressionMetrics(Metrics):
             https://github.com/UBC-MDS/RegscorePy/blob/master/RegscorePy/aic.py
         """
         assert p > 0
-        self.assert_greater_than_one  # noac
+        self._assert_greater_than_one()  # noac
 
         n = len(self.true)
         resid = np.subtract(self.predicted, self.true)
@@ -850,7 +850,7 @@ class RegressionMetrics(Metrics):
 
         - Valipour, M. (2015). Retracted: Comparative Evaluation of Radiation-Based Methods for Estimation of Potential
             Evapotranspiration. Journal of Hydrologic Engineering, 20(5), 04014068.
-            http://dx.doi.org/10.1061/(ASCE)HE.1943-5584.0001066
+            https://dx.doi.org/10.1061/(ASCE)HE.1943-5584.0001066
         -  https://doi.org/10.1016/j.rser.2015.08.035
          """
         return float(np.sum(self.true - self.predicted) / len(self.true))
@@ -975,7 +975,7 @@ class RegressionMetrics(Metrics):
         - Moriasi, D. N., Gitau, M. W., Pai, N., & Daggupati, P. (2015). Hydrologic and water quality models:
             Performance measures and evaluation criteria. Transactions of the ASABE, 58(6), 1763-1785.
         - Krause, P., Boyle, D., & Bäse, F. (2005). Comparison of different efficiency criteria for hydrological
-            model assessment. Adv. Geosci., 5, 89-97. http://dx.doi.org/10.5194/adgeo-5-89-2005.
+            model assessment. Adv. Geosci., 5, 89-97. https://dx.doi.org/10.5194/adgeo-5-89-2005.
         """
         _nse = 1 - sum((self.predicted - self.true) ** 2) / sum((self.true - np.mean(self.true)) ** 2)
         return float(_nse)

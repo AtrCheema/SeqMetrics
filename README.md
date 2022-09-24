@@ -49,6 +49,24 @@ er.nse()   # calculate Nash Sutcliff efficiency
 er.calculate_all(verbose=True)  # or calculate errors using all available methods 
 ```
 
+We can visualize the calcuated performance metrics if we have [easy_mpl]() package installed.
+```python
+import numpy as np
+from SeqMetrics import RegressionMetrics, plot_metrics
+
+np.random.seed(313)
+true = np.random.random((20, 1))
+pred = np.random.random((20, 1))
+
+er = RegressionMetrics(true, pred)
+
+plot_metrics(er.calculate_all(),  color="Blues")
+```
+# ![MLP based model](docs/source/imgs/reg1.png "Title")
+# ![MLP based model](docs/source/imgs/reg2.png "Title")
+# ![MLP based model](docs/source/imgs/reg3.png "Title")
+# ![MLP based model](docs/source/imgs/reg4.png "Title")
+
 Currently following regression performance metrics are being calculated.
 
 | Name                          | Name in this repository  |
@@ -149,10 +167,9 @@ Currently following regression performance metrics are being calculated.
 | Weighted Mean Absolute Percent Errors | `wmape` |
 | Weighted Absolute Percentage Error | `wape` |
 
-
 ### ClassificationMetrics
 
-The API is same for classification performance metrics.
+The API is same for performance metrics of classification problem.
 
 ```python
 import numpy as np
@@ -203,7 +220,8 @@ metrics = ClassificationMetrics(targets, predictions, multiclass=True)
 print(metrics.calculate_all())
 ```
 
-Currently following classification performance metrics are being calculated.
+SeqMetrics library currently calculates following performance metrics
+of classification.
 
 | Name                          | Name in this repository  |
 | -------------------------- | ------------- |
