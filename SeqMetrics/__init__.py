@@ -8,4 +8,4 @@ from ._rgr import RegressionMetrics
 from ._cls import ClassificationMetrics
 from .utils import plot_metrics
 
-__version__ = '1.3.3'
+__version__ = '1.3.4'
