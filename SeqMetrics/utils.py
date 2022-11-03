@@ -33,18 +33,19 @@ def plot_metrics(
         show: bool = True,
         save: bool = False,
         save_path: str = '',
-        **kwargs):
+        **kwargs
+)->None:
     """
     Plots the metrics given as dictionary as radial or bar plot between specified ranges.
 
     Arguments:
-        metrics:
+        metrics : dict
             dictionary whose keys are names are erros and values are error values.
-        ranges:
+        ranges :
             tuple of tuples defining range of errors to plot in one plot
-        exclude:
+        exclude : list
             List of metrics to be excluded from plotting.
-        max_metrics_per_fig:
+        max_metrics_per_fig : int
             maximum number of metrics to show in one figure.
         plot_type:
             either of ``radial`` or ``bar``.
@@ -55,6 +56,9 @@ def plot_metrics(
             if given, the figure will the saved at this location.
         kwargs:
             keyword arguments for plotting
+
+    Retuns:
+    None
 
     Examples:
         >>> import numpy as np
@@ -67,7 +71,7 @@ def plot_metrics(
         >>> plot_metrics(all_errors, plot_type='bar', max_metrics_per_fig=50)
         >>> # or draw the radial plot
         >>> plot_metrics(all_errors, plot_type='radial', max_metrics_per_fig=50)
-    ```
+
     """
     for idx, rng in enumerate(ranges):
         assert rng[1] > rng[0], f'For range {idx}, second value: {rng[1]} is not greater than first value: {rng[0]}. '

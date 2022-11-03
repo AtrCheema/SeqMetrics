@@ -57,6 +57,12 @@ templates_path = ['_templates']
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = []
 
+# intersphinx configuration
+intersphinx_mapping = {
+    'python': ('https://docs.python.org/{.major}'.format(
+        sys.version_info), None),
+    'numpy': ('https://docs.scipy.org/doc/numpy/', None),
+}
 
 # -- Options for HTML output -------------------------------------------------
 

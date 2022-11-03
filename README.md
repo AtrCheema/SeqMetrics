@@ -15,11 +15,11 @@ at one place. Currently only 1-dimensional data is supported.
 
 ## How to Install
 
-using `pip`
+You can install SeqMetrics using `pip`
 
     pip install SeqMetrics
 
-or using github link for the latest code
+or using GitHub link for the latest code
 
 	python -m pip install git+https://github.com/AtrCheema/SeqMetrics.git
 
@@ -49,7 +49,7 @@ er.nse()   # calculate Nash Sutcliff efficiency
 er.calculate_all(verbose=True)  # or calculate errors using all available methods 
 ```
 
-We can visualize the calcuated performance metrics if we have [easy_mpl]() package installed.
+We can visualize the calcuated performance metrics if we have [easy_mpl](https://easy-mpl.readthedocs.io) package installed.
 ```python
 import numpy as np
 from SeqMetrics import RegressionMetrics, plot_metrics
@@ -62,12 +62,19 @@ er = RegressionMetrics(true, pred)
 
 plot_metrics(er.calculate_all(),  color="Blues")
 ```
-# ![MLP based model](docs/source/imgs/reg1.png "Title")
-# ![MLP based model](docs/source/imgs/reg2.png "Title")
-# ![MLP based model](docs/source/imgs/reg3.png "Title")
-# ![MLP based model](docs/source/imgs/reg4.png "Title")
 
-Currently following regression performance metrics are being calculated.
+<p float="left">
+  <img src="/docs/source/imgs/reg1.png" width="500" />
+  <img src="/docs/source/imgs/reg2.png" width="500" />
+</p>
+
+<p float="left">
+  <img src="/docs/source/imgs/reg3.png" width="500" />
+  <img src="/docs/source/imgs/reg4.png" width="500" />
+</p>
+
+
+`RegressionMetrics` currently, calculates following performane metrics for regression.
 
 | Name                          | Name in this repository  |
 | -------------------------- | ------------- |
