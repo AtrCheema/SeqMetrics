@@ -54,18 +54,20 @@ class Metrics(object):
     """
 
     def __init__(
-        self,
-        true: Union[np.ndarray, list],
-        predicted: Union[np.ndarray, list],
-        replace_nan: Union[int, float, None] = None,
-        replace_inf: Union[int, float, None] = None,
-        remove_zero: bool = False,
-        remove_neg: bool = False,
-        metric_type: str = 'regression'
+            self,
+            true: Union[np.ndarray, list],
+            predicted: Union[np.ndarray, list],
+            replace_nan: Union[int, float, None] = None,
+            replace_inf: Union[int, float, None] = None,
+            remove_zero: bool = False,
+            remove_neg: bool = False,
+            metric_type: str = 'regression',
+            np_errstate:dict = None,
         ):
 
         """
-        Arguments:
+        Parameters
+        -----------
             true : array like, 
                 ture/observed/actual/target values
             predicted : array like, 
@@ -81,6 +83,8 @@ class Metrics(object):
             remove_neg : default False, if True, the negative values in true
                 or predicted arrays will be removed.
             metric_type : type of metric.
+            np_errstate : dict
+                any keyword options for np.errstate() to calculate np.log1p
 
         """
         self.metric_type = metric_type
@@ -89,6 +93,30 @@ class Metrics(object):
         self.replace_inf = replace_inf
         self.remove_zero = remove_zero
         self.remove_neg = remove_neg
+        if np_errstate is None:
+            np_errstate = {}
+        self.err_state = np_errstate
+
+    @property
+    def log1p_p(self):
+        with np.errstate(**self.err_state):
+            return np.log1p(self.predicted)
+
+
+    @property
+    def log1p_t(self):
+        with np.errstate(**self.err_state):
+            return np.log1p(self.true)
+
+    @property
+    def log_t(self):
+        with np.errstate(**self.err_state):
+            return np.log(self.true)
+
+    @property
+    def log_p(self):
+        with np.errstate(**self.err_state):
+            return np.log(self.predicted)
 
     @staticmethod
     def _minimal() -> list:
@@ -417,7 +445,7 @@ class Metrics(object):
                               UserWarning)
 
         if np.any(np.isinf(obs_copy)) or np.any(np.isinf(sim_copy)):
-            if self.replace_nan is not None:
+            if self.replace_inf is not None:
                 # Finding the NaNs
                 sim_inf = np.isinf(sim_copy)
                 obs_inf = np.isinf(obs_copy)

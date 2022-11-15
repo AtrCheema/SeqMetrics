@@ -155,8 +155,8 @@ class RegressionMetrics(Metrics):
         .. _Zhang:
             https://doi.org/10.5194/hess-24-2505-2020
         """
-        lx = np.log(self.true)
-        ly = np.log(self.predicted)
+        lx = self.log_t
+        ly = self.log_p
         if center.upper() == 'MEAN':
             m = np.mean
         elif center.upper() == 'MEDIAN':
@@ -501,9 +501,7 @@ class RegressionMetrics(Metrics):
     def gmean_diff(self) -> float:
         """Geometric mean difference. First geometric mean is calculated for each 
         of two samples and their difference is calculated."""
-        sim_log = np.log1p(self.predicted)
-        obs_log = np.log1p(self.true)
-        return float(np.exp(gmean(sim_log) - gmean(obs_log)))
+        return float(np.exp(gmean(self.log1p_p) - gmean(self.log1p_t)))
 
     def gmrae(self, benchmark: np.ndarray = None) -> float:
         """ Geometric Mean Relative Absolute Error """
@@ -857,7 +855,7 @@ class RegressionMetrics(Metrics):
 
     def mean_var(self) -> float:
         """Mean variance"""
-        return float(np.var(np.log1p(self.true) - np.log1p(self.predicted)))
+        return float(np.var(self.log1p_t - self.log1p_p))
 
     def mean_poisson_deviance(self, weights=None) -> float:
         """
@@ -885,7 +883,7 @@ class RegressionMetrics(Metrics):
 
     def mle(self) -> float:
         """Mean log error"""
-        return float(np.mean(np.log1p(self.predicted) - np.log1p(self.true)))
+        return float(np.mean(self.log1p_p - self.log1p_t))
 
     def mod_agreement_index(self, j=1) -> float:
         """Modified agreement of index.
@@ -908,7 +906,7 @@ class RegressionMetrics(Metrics):
         """
         mean square logrithmic error
         """
-        return float(np.average((np.log1p(self.true) - np.log1p(self.predicted)) ** 2, axis=0, weights=weights))
+        return float(np.average((self.log1p_t - self.log1p_p) ** 2, axis=0, weights=weights))
 
     def norm_euclid_distance(self) -> float:
         """Normalized Euclidian distance"""
@@ -1092,7 +1090,7 @@ class RegressionMetrics(Metrics):
         `tolerated <https://doi.org/10.1016/j.scitotenv.2020.137894>`_ .
             
          """
-        return float(np.sqrt(np.mean(np.power(np.log1p(self.predicted) - np.log1p(self.true), 2))))
+        return float(np.sqrt(np.mean(np.power(self.log1p_p - self.log1p_t, 2))))
 
     def rmdspe(self) -> float:
         """
