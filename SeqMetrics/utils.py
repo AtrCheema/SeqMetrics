@@ -1,4 +1,3 @@
-
 import os
 import warnings
 import itertools
@@ -33,19 +32,18 @@ def plot_metrics(
         show: bool = True,
         save: bool = False,
         save_path: str = '',
-        **kwargs
-)->None:
+        **kwargs):
     """
     Plots the metrics given as dictionary as radial or bar plot between specified ranges.
 
     Arguments:
-        metrics : dict
+        metrics:
             dictionary whose keys are names are erros and values are error values.
-        ranges :
+        ranges:
             tuple of tuples defining range of errors to plot in one plot
-        exclude : list
+        exclude:
             List of metrics to be excluded from plotting.
-        max_metrics_per_fig : int
+        max_metrics_per_fig:
             maximum number of metrics to show in one figure.
         plot_type:
             either of ``radial`` or ``bar``.
@@ -56,9 +54,6 @@ def plot_metrics(
             if given, the figure will the saved at this location.
         kwargs:
             keyword arguments for plotting
-
-    Retuns:
-    None
 
     Examples:
         >>> import numpy as np
@@ -71,7 +66,7 @@ def plot_metrics(
         >>> plot_metrics(all_errors, plot_type='bar', max_metrics_per_fig=50)
         >>> # or draw the radial plot
         >>> plot_metrics(all_errors, plot_type='radial', max_metrics_per_fig=50)
-
+    ```
     """
     for idx, rng in enumerate(ranges):
         assert rng[1] > rng[0], f'For range {idx}, second value: {rng[1]} is not greater than first value: {rng[0]}. '
@@ -109,7 +104,6 @@ def plot_metrics_between(
         show=True,
         save_path='',
         **kwargs):
-
     import matplotlib.pyplot as plt
 
     if plot_type == "bar":
@@ -122,7 +116,7 @@ def plot_metrics_between(
                 selected_metrics[k] = v
     st = 0
     n = len(selected_metrics)
-    sequence = np.linspace(0, n, int(n/max_metrics_per_fig)+1)
+    sequence = np.linspace(0, n, int(n / max_metrics_per_fig) + 1)
     if len(sequence) == 1 and n > 0:
         sequence = np.array([0, len(selected_metrics)])
     for i in np.array(sequence, dtype=np.int32):
@@ -132,13 +126,22 @@ def plot_metrics_between(
             en = i
             d = take(st, en, selected_metrics)
             if plot_type == 'radial':
-                plot_radial(d, lower, upper, save=save, show=show, save_path=save_path, **kwargs)
+                plot_radial(d,
+                            lower,
+                            upper,
+                            save=save,
+                            show=show,
+                            save_path=save_path,
+                            **kwargs)
+            elif len(d) < 10:
+                pass
             else:
                 plt.close('all')
-                ax = circular_bar_plot(d, show=False, **kwargs)
+                _ = circular_bar_plot(d, show=False, **kwargs)
                 if save:
-                    plt.savefig(os.path.join(save_path, f"errors_{lower}_{upper}_{st}_{en}.png"),
-                                bbox_inches="tight")
+                    plt.savefig(
+                        os.path.join(save_path, f"errors_{lower}_{upper}_{st}_{en}.png"),
+                        bbox_inches="tight")
                 if show:
                     plt.show()
             st = i
@@ -192,118 +195,8 @@ def plot_radial(errors: dict, low: int, up: int, save=True, save_path=None, **kw
         fig.write_image(fname)
     return
 
-#
-# def plot_circular_bar(
-#         metrics: dict,
-#         show=False,
-#         save: bool = True,
-#         save_path: str = '',
-#         **kwargs):
-#     """
-#     modified after https://www.python-graph-gallery.com/circular-barplot-basic
-#     :param metrics:
-#     :param show:
-#     :param save:
-#     :param save_path:
-#     :param kwargs:
-#         figsize:
-#         linewidth:
-#         edgecolor:
-#         color:
-#     :return:
-#     """
-#     import matplotlib.pyplot as plt
-#
-#     # initialize the figure
-#     plt.close('all')
-#     plt.figure(figsize=kwargs.get('figsize', (8, 12)))
-#     ax = plt.subplot(111, polar=True)
-#     plt.axis('off')
-#
-#     # Set the coordinates limits
-#     # upperLimit = 100
-#     lower_limit = 30
-#     value = np.array(list(metrics.values()))
-#
-#     lower = round(np.min(list(metrics.values())), 4)
-#     upper = round(np.max(list(metrics.values())), 4)
-#
-#     # Compute max and min in the dataset
-#     _max = max(value)  # df['Value'].max()
-#
-#     # Let's compute heights: they are a conversion of each item value in those new coordinates
-#     # In our example, 0 in the dataset will be converted to the lowerLimit (10)
-#     # The maximum will be converted to the upperLimit (100)
-#     slope = (_max - lower_limit) / _max
-#     heights = slope * value + lower_limit
-#
-#     # Compute the width of each bar. In total we have 2*Pi = 360°
-#     width = 2 * np.pi / len(metrics)
-#
-#     # Compute the angle each bar is centered on:
-#     indexes = list(range(1, len(metrics) + 1))
-#     angles = [element * width for element in indexes]
-#
-#     # Draw bars
-#     bars = ax.bar(
-#         x=angles,
-#         height=heights,
-#         width=width,
-#         bottom=lower_limit,
-#         linewidth=kwargs.get('linewidth', 2),
-#         edgecolor=kwargs.get('edgecolor', "white"),
-#         color=kwargs.get('color', "#61a4b2"),
-#     )
-#
-#     # little space between the bar and the label
-#     label_padding = 4
-#
-#     metric_names = {
-#         'r2': "$R^2$",
-#         'r2_mod': "$R^2$ mod",
-#         'adjusted_r2': 'adjusted $R^2$',
-#         # 'nse': "NSE"
-#     }
-#
-#     # Add labels
-#     for bar, angle, label1, label2 in zip(bars, angles, metrics.keys(), metrics.values()):
-#
-#         label1 = metric_names.get(label1, label1)
-#         label = f'{label1} {round(label2, 4)}'
-#
-#         # Labels are rotated. Rotation must be specified in degrees :(
-#         rotation = np.rad2deg(angle)
-#
-#         # Flip some labels upside down
-#         if angle >= np.pi / 2 and angle < 3 * np.pi / 2:
-#             alignment = "right"
-#             rotation = rotation + 180
-#         else:
-#             alignment = "left"
-#
-#         # Finally add the labels
-#         ax.text(
-#             x=angle,
-#             y=lower_limit + bar.get_height() + label_padding,
-#             s=label,
-#             ha=alignment,
-#             va='center',
-#             rotation=rotation,
-#             rotation_mode="anchor")
-#
-#     if save:
-#         fname = f"{len(metrics)}_bar_errors_from_{lower}_to_{upper}.png"
-#         if save_path is not None:
-#             fname = os.path.join(save_path, fname)
-#         plt.savefig(fname, dpi=400, bbox_inches='tight')
-#     if show:
-#         plt.show()
-#
-#     return
-
 
 def plot1d(true, predicted, save=True, name="plot", show=False):
-    
     import matplotlib.pyplot as plt
 
     _, axis = plt.subplots()
@@ -413,7 +306,7 @@ def list_subclass_methods(cls, is_narrow, ignore_underscore=True, additional_ign
     if is_narrow:
         parent_methods = listParentMethods(cls)
         methods = set(cls for cls in methods if not (cls in parent_methods))
-    
+
     if additional_ignores is not None:
         methods = methods - set(additional_ignores)
 
@@ -424,12 +317,12 @@ def list_subclass_methods(cls, is_narrow, ignore_underscore=True, additional_ign
 
 
 def features(data: Union[np.ndarray, list],
-                precision: int = 3,
-                name: str = '',
-                st: int = 0,
-                en: int = None,
-                features: Union[list, str] = None
-                ) -> dict:
+             precision: int = 3,
+             name: str = '',
+             st: int = 0,
+             en: int = None,
+             features: Union[list, str] = None
+             ) -> dict:
     """
     Extracts features from 1d time series data. Features can be
         * point, one integer or float point value for example mean
@@ -505,8 +398,8 @@ data must be 1 dimensional array but it has shape {np.shape(data)}
             stats[feat] = np.round(point_features[feat](data), precision)
         elif feat in point_features_lambda:
             stats[feat] = point_features_lambda[feat](data)
-    
-    for k,v in stats.items():
+
+    for k, v in stats.items():
         if 'int' in v.__class__.__name__:
             stats[k] = int(v)
         else:
@@ -520,11 +413,11 @@ def maybe_to_oneD_array(array_like):
     """
     if array_like.__class__.__name__ in ['list', 'tuple', 'Series', 'int', 'float']:
         return np.array(array_like)
-    
+
     if isinstance(array_like, np.ndarray):
         if len(array_like) == array_like.size:
-            return array_like.reshape(-1,)
-    
+            return array_like.reshape(-1, )
+
     return array_like
 
 
@@ -541,12 +434,14 @@ def to_oneD_array(array_like):
         else:
             if array_like.size != len(array_like):
                 raise ValueError(f'cannot convert multidim array of shape {array_like.shape} to 1d')
-        
+
             return array_like.reshape(-1, )
 
     elif array_like.__class__.__name__ == 'DataFrame' and array_like.ndim == 2:
         assert len(array_like) == array_like.size
-        return array_like.values.reshape(-1,)
+        return array_like.values.reshape(-1, )
+    elif array_like.__class__.__name__ == "Series":
+        return array_like.values.reshape(-1, )
     elif isinstance(array_like, float) or isinstance(array_like, int):
         return np.array([array_like])
     else:
