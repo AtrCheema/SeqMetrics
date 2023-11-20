@@ -185,24 +185,7 @@ class ClassificationMetrics(Metrics):
         return None
 
     def cross_entropy(self, epsilon=1e-12)->float:
-        """
-        Computes cross entropy between targets (encoded as one-hot vectors)
-        and predictions.
-
-        Returns
-        -------
-        scalar
-        
-        """
-        if self.is_categorical:
-            predictions = np.clip(self.pred_encoded, epsilon, 1. - epsilon)
-            n = predictions.shape[0]
-            ce = -np.sum(self.true_encoded * np.log(predictions + 1e-9)) / n
-        else:
-            predictions = np.clip(self.predicted, epsilon, 1. - epsilon)
-            n = predictions.shape[0]
-            ce = -np.sum(self.true * np.log(predictions + 1e-9)) / n
-        return ce
+        return cross_entropy(true= self.true, predicted=self.predicted, epsilon= epsilon)
 
     # def hinge_loss(self):
     #     """hinge loss using sklearn"""
@@ -211,63 +194,9 @@ class ClassificationMetrics(Metrics):
     #     return None
 
     def accuracy(self, normalize:bool=True)->float:
-        """
-        calculates accuracy
-
-        Parameters
-        ----------
-        normalize : bool
-
-        Returns
-        -------
-        float
-
-        Examples
-        --------
-        >>> import numpy as np
-        >>> from SeqMetrics import ClassificationMetrics
-        >>> true = np.array([1, 0, 0, 0])
-        >>> pred = np.array([1, 1, 1, 1])
-        >>> metrics = ClassificationMetrics(true, pred)
-        >>> print(metrics.accuracy())
-        """
-        if normalize:
-            return np.average(self.true_labels==self.pred_labels)
-        return (self.true_labels==self.pred_labels).sum()
-
+        return accuracy(true = self.true, predicted= self.predicted, normalize= normalize)
     def confusion_matrix(self, normalize=False):
-        """
-        calculates confusion matrix
-        
-        Parameters
-        ----------
-        normalize : str, [None, 'true', 'pred', 'all] 
-            If None, no normalization is done.
-
-        Returns
-        -------
-        ndarray 
-            confusion matrix
-        
-        Examples
-        --------
-        >>> import numpy as np
-        >>> from SeqMetrics import ClassificationMetrics
-        >>> true = np.array([1, 0, 0, 0])
-        >>> pred = np.array([1, 1, 1, 1])
-        >>> metrics = ClassificationMetrics(true, pred)
-        >>> metrics.confusion_matrix()
-
-        multiclass classification
-
-        >>> true = np.random.randint(1, 4, 100)
-        >>> pred = np.random.randint(1, 4, 100)
-        >>> metrics = ClassificationMetrics(true, pred)
-        >>> metrics.confusion_matrix()
-
-        """
-        return self._confusion_matrix(normalize=normalize)
-
+        return confusion_matrix(true= self.true, predicted= self.predicted, normalize= normalize)
     def _confusion_matrix(self, normalize=None):
 
         pred = self.pred_labels.reshape(-1,)
@@ -351,134 +280,15 @@ class ClassificationMetrics(Metrics):
         raise NotImplementedError
 
     def precision(self, average=None):
-        """
-        Returns precision score, also called positive predictive value.
-        It is number of correct positive predictions divided by the total
-        number of positive predictions.
-        TP/(TP+FP)
-
-        Parameters
-        ----------
-        average : string, [None, ``macro``, ``weighted``, ``micro``]
-
-        Examples
-        --------
-        >>> import numpy as np
-        >>> from SeqMetrics import ClassificationMetrics
-        >>> true = np.array([1, 0, 0, 0])
-        >>> pred = np.array([1, 1, 1, 1])
-        >>> metrics = ClassificationMetrics(true, pred)
-        >>> print(metrics.precision())
-        ...
-        >>> print(metrics.precision(average="macro"))
-        >>> print(metrics.precision(average="weighted"))
-        """
-        TP = self._tp()
-        FP = self._fp()
-
-        if average == "micro":
-            return sum(TP) / (sum(TP) + sum(FP))
-
-        _precision =  TP / (TP + FP)
-        _precision = np.nan_to_num(_precision)
-
-        if average:
-            assert average in ['macro', 'weighted']
-            if average == 'macro':
-                return np.mean(_precision)
-                #return np.nanmean(_precision)
-            
-            elif average == 'weighted':
-                
-                return np.average(_precision, weights= TP + self._fn())
-
-        return _precision
-
+       return precision(true= self.true, predicted= self.predicted, average= average)
     def recall(self, average=None):
-        """
-        It is also called sensitivity or true positive rate. It is
-        number of correct positive predictions divided by the total number of positives
-        Formula :
-            True Posivitive / True Positive + False Negative
-
-        Parameters
-        ----------
-            average : str (default=None)
-                one of None, ``macro``, ``weighted``, or ``micro``
-
-        """
-
-        TP = self._tp()
-        FN = self._fn()
-
-        if average == "micro":
-            return sum(TP) / (sum(TP) + sum(FN))
-
-        _recall = TP /( TP+ FN)
-
-        _recall = np.nan_to_num(_recall)
-
-        if average:
-            assert average in ['macro', 'weighted']
-            if average == 'macro':
-                return _recall.mean()
-            
-            elif average == 'weighted':
-                return np.average(_recall, weights= TP + FN)
-        
-        return _recall
+        return recall(true= self.true, predicted= self.predicted, average= average)
 
     def specificity(self, average=None):
-        """
-        It is also called true negative rate or selectivity. It is the probability that
-        the predictions are negative when the true labels are also negative.
-        It is number of correct negative predictions divided by the total number of negatives.
-
-        It's formula is following
-        TN / TN+FP
-
-        Examples
-        --------
-        >>> import numpy as np
-        >>> from SeqMetrics import ClassificationMetrics
-        >>> true = np.array([1, 0, 0, 0])
-        >>> pred = np.array([1, 1, 1, 1])
-        >>> metrics = ClassificationMetrics(true, pred)
-        >>> print(metrics.specificity())
-        ...
-        >>> print(metrics.specificity(average="macro"))
-        >>> print(metrics.specificity(average="weighted"))
-        """
-        TN = self._tn()
-        FP = self._fp()
-
-        if average == "micro":
-            return sum(TN) / (sum(TN) + sum(FP))
-
-        _spcificity =  TN / (TN + FP)
-
-        if average:
-            assert average in ['macro', 'weighted']
-            if average == 'macro':
-                return _spcificity.mean()
-            
-            else:
-                return np.average(_spcificity, weights= TN + FP)
-        
-        return _spcificity
+        return specificity(true= self.true, predicted= self.predicted, average= average)
 
     def balanced_accuracy(self, average=None)->float:
-        """
-        balanced accuracy.
-        It performs better on imbalanced datasets.
-        """
-        TP = self._tp()
-        score = TP / self.cm.sum(axis=1)
-        if np.any(np.isnan(score)):
-            warnings.warn('y_pred contains classes not in y_true')
-        score = np.nanmean(score).item()
-
-        return score
+        return balanced_accuracy(true= self.true, predicted= self.predicted, average= average)
 
     def _f_score(self, average=None, beta=1.0):
         """calculates baseic f score"""
@@ -487,9 +297,10 @@ class ClassificationMetrics(Metrics):
         recall = self.recall()
 
         if average == "micro":
-            return ((1 + beta**2) * (self.precision("micro") * self.recall("micro"))) / (beta**2 * (self.precision("micro") + self.recall("micro")))
+            return ((1 + beta ** 2) * (self.precision("micro") * self.recall("micro"))) / (
+                        beta ** 2 * (self.precision("micro") + self.recall("micro")))
 
-        _f_score = ((1 + beta**2) * (precision * recall))  / (beta**2 * (precision + recall))
+        _f_score = ((1 + beta ** 2) * (precision * recall)) / (beta ** 2 * (precision + recall))
 
         _f_score = np.nan_to_num(_f_score)
 
@@ -500,185 +311,70 @@ class ClassificationMetrics(Metrics):
                 return _f_score.mean()
 
             if average == 'weighted':
-                return np.average(_f_score, weights = self._tp() + self._fn())
+                return np.average(_f_score, weights=self._tp() + self._fn())
 
         return _f_score
-
     def f1_score(self, average=None)->Union[np.ndarray, float]:
-        """
-        Calculates f1 score according to following formula
-        f1_score = 2 * (precision * recall)  / (precision + recall)
-
-        Parameters
-        ----------
-        average : str, optional
-            It can be ``macro`` or ``weighted``. or ``micro``
-
-        Returns
-        -------
-        array or float
-
-        Examples
-        --------
-        >>> import numpy as np
-        >>> from SeqMetrics import ClassificationMetrics
-        >>> true = np.array([1, 0, 0, 0])
-        >>> pred = np.array([1, 1, 1, 1])
-        >>> metrics = ClassificationMetrics(true, pred)
-        >>> calc_f1_score = metrics.f1_score()
-        ...
-        >>> print(metrics.f1_score(average="macro"))
-        >>> print(metrics.f1_score(average="weighted"))
-
-        """
-
-        return self._f_score(average, 1.0)
+        return f1_score(true= self.true, predicted= self.predicted, average= average)
 
     def f2_score(self, average=None):
-        """
-        f2 score
-        """
-        return self._f_score(average, 2.0)
+        return f2_score(true= self.true, predicted= self.predicted, average= average)
 
     def false_positive_rate(self):
-        """
-        False positive rate is the number of incorrect positive predictions divided
-        by the total number of negatives. Its best value is 0.0 and worst value is 1.0.
-        It is also called probability of false alarm or fall-out.
-
-         TP / (TP + TN)
-
-        """
-        TP = self._tp()
-        fpr = TP / (TP + self._tn())
-
-        fpr = np.nan_to_num(fpr)
-
-        return fpr
+        return false_positive_rate(true= self.true, predicted= self.predicted)
 
     def false_discovery_rate(self):
-        """
-        False discovery rate
-         FP / (TP + FP)
-        """
-        FP = self._fp()
-
-        fdr = FP / (self._tp() + FP)
-
-        fdr = np.nan_to_num(fdr)
-
-        return fdr
+        return false_positive_rate(true= self.true, predicted= self.predicted)
 
     def false_negative_rate(self):
-        """
-        False Negative Rate or miss rate.
-
-        FN / (FN + TP)
-        """
-        FN = self._fn()
-        fnr = FN / (FN + self._tp())
-
-        fnr = np.nan_to_num(fnr)
-
-        return fnr
+        return false_negative_rate(true= self.true, predicted= self.predicted)
 
     def negative_predictive_value(self):
-        """
-        Negative Predictive Value
-        TN/(TN+FN)
-        """
-        TN = self._tn()
-        npv = TN / (TN + self._fn())
-
-        npv = np.nan_to_num(npv)
-        return npv
-
+        return negative_predictive_value(true= self.true, predicted= self.predicted)
     def error_rate(self):
-        """
-        Error rate is the number of all incorrect predictions divided by the total
-        number of samples in data.
-        """
-
-        return (self._fp() + self._fn()) / self.n_samples
+        return error_rate(true= self.true, predicted= self.predicted)
 
     def mathews_corr_coeff(self):
-        """
-        Methew's correlation coefficient
-
-        """
-        TP, TN, FP, FN = self._tp(), self._tn(), self._fp(), self._fn()
-
-        top = TP * TN - FP * FN
-        bottom = np.sqrt(((TP + FP) * (FP + FN) * (TN + FP) * (TN + FN)))
-        return top/bottom
+        return mathews_corr_coeff(true= self.true, predicted= self.predicted)
 
     def positive_likelihood_ratio(self, average=None):
-        """
-        Positive likelihood ratio
-        sensitivity / 1-specificity
-
-        """
-        return self.recall(average=average) / (1 - self.specificity(average=average))
+        return positive_likelihood_ratio(true= self.true, predicted= self.predicted, average= average)
 
     def negative_likelihood_ratio(self, average=None):
-        """
-        Negative likelihood ratio
-
-        1 - sensitivity / specificity
-
-        https://en.wikipedia.org/wiki/Likelihood_ratios_in_diagnostic_testing#positive_likelihood_ratio
-        """
-
-        return 1 - self.recall(average) / self.specificity(average)
+        return negative_likelihood_ratio(true= self.true, predicted= self.predicted, average= average)
 
     def youden_index(self, average=None):
-        """
-        Youden index, also known as informedness
-
-        j = TPR + TNR − 1 =   sensitivity +  specificity - 1
-
-        https://en.wikipedia.org/wiki/Youden%27s_J_statistic
-        """
-        return  self.recall(average) + self.specificity(average) - 1
+        return youden_index(true= self.true, predicted= self.predicted, average= average)
 
     def fowlkes_mallows_index(self, average=None):
-        """
-        Fowlkes–Mallows index
-
-        sqrt(PPV * TPR)
-
-        PPV is positive predictive value or precision.
-        TPR is true positive rate or recall or sensitivity
-
-        https://en.wikipedia.org/wiki/Fowlkes%E2%80%93Mallows_index
-        """
-        return np.sqrt(self.precision(average) * self.recall(average))
+        return fowlkes_mallows_index(true= self.true, predicted= self.predicted, average= average)
 
     def prevalence_threshold(self, average=None):
-        """
-        Prevalence threshold
-
-        sqrt(FPR) / (sqrt(TPR) + sqrt(FPR))
-
-        TPR is true positive rate or recall
-        """
-        FPR = self.false_positive_rate()
-
-        return np.sqrt(FPR) / (np.sqrt(self.recall(average)) + np.sqrt(FPR))
+        return prevalence_threshold(true= self.true, predicted= self.predicted, average= average)
 
     def false_omission_rate(self, average=None):
-        """
-        False omission rate
+        return false_omission_rate(true= self.true, predicted= self.predicted)
 
-        FN / (FN + TN)
-        """
-        FN = self._fn()
-        FOR = FN / (FN + self._tn())
+def cross_entropy(true, predicted, epsilon=1e-12) -> float:
+    """
+    Computes cross entropy between targets (encoded as one-hot vectors)
+    and predictions.
 
-        FOR = np.nan_to_num(FOR)
+    Returns
+    -------
+    scalar
 
-        return FOR
-
+    """
+    cls= ClassificationMetrics(true, predicted)
+    if cls.is_categorical:
+        predictions = np.clip(cls.pred_encoded, epsilon, 1. - epsilon)
+        n = predictions.shape[0]
+        ce = -np.sum(cls.true_encoded * np.log(predictions + 1e-9)) / n
+    else:
+        predictions = np.clip(predicted, epsilon, 1. - epsilon)
+        n = predictions.shape[0]
+        ce = -np.sum(true * np.log(predictions + 1e-9)) / n
+    return ce
 
 def one_hot_encode(array):
     """one hot encoding of an array like"""
@@ -707,4 +403,402 @@ def binarize(array):
     """must be used only for binary classification"""
     y = one_hot_encode(array)
     return y[:, -1].reshape((-1, 1))
+def accuracy(true, predicted, normalize:bool=True)->float:
+    """
+    calculates accuracy
+
+    Parameters
+    ----------
+    normalize : bool
+    true:  ture/observed/actual/target values. It must be a numpy array, or pandas series/DataFrame or a list.
+    predicted: simulated values
+
+    Returns
+    -------
+    float
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> from SeqMetrics import ClassificationMetrics
+    >>> true = np.array([1, 0, 0, 0])
+    >>> pred = np.array([1, 1, 1, 1])
+    >>> metrics = ClassificationMetrics(true, pred)
+    >>> print(metrics.accuracy())
+    """
+
+    cls = ClassificationMetrics(true, predicted)
+
+    if normalize:
+        return np.average(cls.true_labels==cls.pred_labels)
+    return (cls.true_labels == cls.pred_labels).sum()
+
+def confusion_matrix(true, predicted, normalize=False):
+    """
+    calculates confusion matrix
+
+    Parameters
+    ----------
+    normalize : str, [None, 'true', 'pred', 'all]
+        If None, no normalization is done.
+    true : ture/observed/actual/target values. It must be a numpy array,
+         or pandas series/DataFrame or a list.
+    predicted : simulated values
+
+    Returns
+    -------
+    ndarray
+        confusion matrix
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> from SeqMetrics import ClassificationMetrics
+    >>> true = np.array([1, 0, 0, 0])
+    >>> pred = np.array([1, 1, 1, 1])
+    >>> metrics = ClassificationMetrics(true, pred)
+    >>> metrics.confusion_matrix()
+
+    multiclass classification
+
+    >>> true = np.random.randint(1, 4, 100)
+    >>> pred = np.random.randint(1, 4, 100)
+    >>> metrics = ClassificationMetrics(true, pred)
+    >>> metrics.confusion_matrix()
+
+    """
+    cls= ClassificationMetrics (true, predicted)
+    return cls._confusion_matrix(normalize=normalize)
+
+def precision(true, predicted, average=None):
+    """
+    Returns precision score, also called positive predictive value.
+    It is number of correct positive predictions divided by the total
+    number of positive predictions.
+    TP/(TP+FP)
+
+    Parameters
+    ----------
+    average : string, [None, ``macro``, ``weighted``, ``micro``]
+    true : ture/observed/actual/target values. It must be a numpy array,
+         or pandas series/DataFrame or a list.
+    predicted : simulated values
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> from SeqMetrics import ClassificationMetrics
+    >>> true = np.array([1, 0, 0, 0])
+    >>> pred = np.array([1, 1, 1, 1])
+    >>> metrics = ClassificationMetrics(true, pred)
+    >>> print(metrics.precision())
+    ...
+    >>> print(metrics.precision(average="macro"))
+    >>> print(metrics.precision(average="weighted"))
+    """
+
+    cls= ClassificationMetrics(true, predicted)
+    TP = cls._tp()
+    FP = cls._fp()
+
+
+    if average == "micro":
+        return sum(TP) / (sum(TP) + sum(FP))
+
+    _precision = TP / (TP + FP)
+    _precision = np.nan_to_num(_precision)
+
+    if average:
+        assert average in ['macro', 'weighted']
+        if average == 'macro':
+            return np.mean(_precision)
+            # return np.nanmean(_precision)
+
+        elif average == 'weighted':
+
+            return np.average(_precision, weights=TP + cls._fn())
+
+    return _precision
+
+def recall(true, predicted, average=None):
+    """
+    It is also called sensitivity or true positive rate. It is
+    number of correct positive predictions divided by the total number of positives
+    Formula :
+        True Posivitive / True Positive + False Negative
+
+    Parameters
+    ----------
+        average : str (default=None)
+            one of None, ``macro``, ``weighted``, or ``micro``
+        true : ture/observed/actual/target values. It must be a numpy array,
+         or pandas series/DataFrame or a list.
+        predicted : simulated values
+
+
+    """
+
+    cls= ClassificationMetrics(true, predicted)
+    TP = cls._tp()
+    FN = cls._fn()
+
+    if average == "micro":
+        return sum(TP) / (sum(TP) + sum(FN))
+
+    _recall = TP / (TP + FN)
+
+    _recall = np.nan_to_num(_recall)
+
+    if average:
+        assert average in ['macro', 'weighted']
+        if average == 'macro':
+            return _recall.mean()
+
+        elif average == 'weighted':
+            return np.average(_recall, weights=TP + FN)
+
+    return _recall
+
+def specificity(true, predicted, average=None):
+    """
+    It is also called true negative rate or selectivity. It is the probability that
+    the predictions are negative when the true labels are also negative.
+    It is number of correct negative predictions divided by the total number of negatives.
+
+    It's formula is following
+    TN / TN+FP
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> from SeqMetrics import ClassificationMetrics
+    >>> true = np.array([1, 0, 0, 0])
+    >>> pred = np.array([1, 1, 1, 1])
+    >>> metrics = ClassificationMetrics(true, pred)
+    >>> print(metrics.specificity())
+    ...
+    >>> print(metrics.specificity(average="macro"))
+    >>> print(metrics.specificity(average="weighted"))
+    """
+    cls= ClassificationMetrics(true, predicted)
+    TN = cls._tn()
+    FP = cls._fp()
+
+    if average == "micro":
+        return sum(TN) / (sum(TN) + sum(FP))
+
+    _spcificity = np.array(TN) / (TN + FP)
+
+    if average:
+        assert average in ['macro', 'weighted']
+        if average == 'macro':
+            return _spcificity.mean()
+
+        else:
+            return np.average(_spcificity, weights=TN + FP)
+
+    return _spcificity
+def balanced_accuracy(true, predicted, average=None)->float:
+    """
+    balanced accuracy.
+    It performs better on imbalanced datasets.
+    """
+    cls= ClassificationMetrics(true, predicted)
+    TP = cls._tp()
+    score = TP / cls.cm.sum(axis=1)
+    if np.any(np.isnan(score)):
+        warnings.warn('y_pred contains classes not in y_true')
+    score = np.nanmean(score).item()
+
+    return score
+def f1_score(true, predicted, average=None)->Union[np.ndarray, float]:
+    """
+           Calculates f1 score according to following formula
+           f1_score = 2 * (precision * recall)  / (precision + recall)
+
+           Parameters
+           ----------
+           average : str, optional
+               It can be ``macro`` or ``weighted``. or ``micro``
+           true : ture/observed/actual/target values. It must be a numpy array, or pandas series/DataFrame or a list.
+           predicted : simulated values
+
+           Returns
+           -------
+           array or float
+
+           Examples
+           --------
+           >>> import numpy as np
+           >>> from SeqMetrics import ClassificationMetrics
+           >>> true = np.array([1, 0, 0, 0])
+           >>> pred = np.array([1, 1, 1, 1])
+           >>> metrics = ClassificationMetrics(true, pred)
+           >>> calc_f1_score = metrics.f1_score()
+           ...
+           >>> print(metrics.f1_score(average="macro"))
+           >>> print(metrics.f1_score(average="weighted"))
+
+           """
+    cls= ClassificationMetrics(true, predicted)
+
+    return cls._f_score(average, 1.0)
+def f2_score(true, predicted, average=None):
+    """
+    f2 score
+    """
+    cls= ClassificationMetrics(true, predicted)
+    return cls._f_score(average, 2.0)
+def false_positive_rate(true, predicted):
+    """
+    False positive rate is the number of incorrect positive predictions divided
+    by the total number of negatives. Its best value is 0.0 and worst value is 1.0.
+    It is also called probability of false alarm or fall-out.
+
+     TP / (TP + TN)
+
+    """
+    cls= ClassificationMetrics(true, predicted)
+    TP = cls._tp()
+    fpr = TP / (TP + cls._tn())
+
+    fpr = np.nan_to_num(fpr)
+
+    return fpr
+def false_discovery_rate(true, predicted):
+    """
+    False discovery rate
+     FP / (TP + FP)
+    """
+    cls= ClassificationMetrics(true, predicted)
+    FP = cls._fp()
+
+    fdr = FP / (cls._tp() + FP)
+
+    fdr = np.nan_to_num(fdr)
+
+    return fdr
+def false_negative_rate(true, predicted):
+    """
+    False Negative Rate or miss rate.
+
+    FN / (FN + TP)
+    """
+    cls= ClassificationMetrics(true, predicted)
+    FN = cls._fn()
+    fnr = FN / (FN + cls._tp())
+
+    fnr = np.nan_to_num(fnr)
+
+    return fnr
+def negative_predictive_value(true, predicted):
+    """
+    Negative Predictive Value
+    TN/(TN+FN)
+    """
+    cls= ClassificationMetrics(true, predicted)
+    TN = cls._tn()
+    npv = TN / (TN + cls._fn())
+
+    npv = np.nan_to_num(npv)
+    return npv
+
+def error_rate(true, predicted):
+    """
+    Error rate is the number of all incorrect predictions divided by the total
+    number of samples in data.
+    """
+    cls= ClassificationMetrics(true, predicted)
+
+    return (cls._fp() + cls._fn()) / cls.n_samples
+
+def mathews_corr_coeff(true, predicted):
+    """
+    Methew's correlation coefficient
+
+    """
+    cls= ClassificationMetrics(true, predicted)
+    TP, TN, FP, FN = cls._tp(), cls._tn(), cls._fp(), cls._fn()
+
+    top = TP * TN - FP * FN
+    bottom = np.sqrt(((TP + FP) * (FP + FN) * (TN + FP) * (TN + FN)))
+    return top/bottom
+
+
+def positive_likelihood_ratio(true, predicted, average=None):
+    """
+    Positive likelihood ratio
+    sensitivity / 1-specificity
+
+    """
+    cls= ClassificationMetrics(true, predicted)
+    return cls.recall(average=average) / (1 - cls.specificity(average=average))
+
+def negative_likelihood_ratio(true, predicted, average=None):
+    """
+    Negative likelihood ratio
+
+    1 - sensitivity / specificity
+
+    https://en.wikipedia.org/wiki/Likelihood_ratios_in_diagnostic_testing#positive_likelihood_ratio
+    """
+    cls= ClassificationMetrics(true, predicted)
+
+    return 1 - cls.recall(average) / cls.specificity(average)
+
+def youden_index(true, predicted, average=None):
+    """
+    Youden index, also known as informedness
+
+    j = TPR + TNR − 1 =   sensitivity +  specificity - 1
+
+    https://en.wikipedia.org/wiki/Youden%27s_J_statistic
+    """
+    cls= ClassificationMetrics(true, predicted)
+    return  cls.recall(average) + cls.specificity(average) - 1
+
+def fowlkes_mallows_index(true, predicted, average=None):
+    """
+    Fowlkes–Mallows index
+
+    sqrt(PPV * TPR)
+
+    PPV is positive predictive value or precision.
+    TPR is true positive rate or recall or sensitivity
+
+    https://en.wikipedia.org/wiki/Fowlkes%E2%80%93Mallows_index
+    """
+    cls= ClassificationMetrics(true, predicted)
+    return np.sqrt(cls.precision(average) * cls.recall(average))
+
+def prevalence_threshold(true, predicted, average=None):
+    """
+    Prevalence threshold
+
+    sqrt(FPR) / (sqrt(TPR) + sqrt(FPR))
+
+    TPR is true positive rate or recall
+    """
+    cls= ClassificationMetrics(true, predicted)
+    FPR = cls.false_positive_rate()
+
+    return np.sqrt(FPR) / (np.sqrt(cls.recall(average)) + np.sqrt(FPR))
+
+def false_omission_rate(true, predicted):
+    """
+    False omission rate
+
+    FN / (FN + TN)
+    """
+    cls= ClassificationMetrics(true, predicted)
+    FN = cls._fn()
+    FOR = FN / (FN + cls._tn())
+
+    FOR = np.nan_to_num(FOR)
+
+    return FOR
+
+
+
+
 

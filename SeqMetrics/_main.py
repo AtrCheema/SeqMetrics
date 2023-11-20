@@ -3,6 +3,7 @@ import warnings
 import numpy as np
 from typing import Union
 
+from .utils import maybe_preprocess
 from .utils import features, to_oneD_array, maybe_to_oneD_array
 
 # TODO remove repeated calculation of mse, std, mean etc
@@ -22,6 +23,8 @@ from .utils import features, to_oneD_array, maybe_to_oneD_array
 # Friedman test: https://doi.org/10.1016/j.solener.2014.10.016
 
 EPS = 1e-10  # epsilon
+
+ERR_STATE = {}
 
 
 # TODO probability losses
@@ -87,8 +90,11 @@ class Metrics(object):
                 any keyword options for np.errstate() to calculate np.log1p
 
         """
+
+        global ERR_STATE
+
         self.metric_type = metric_type
-        self.true, self.predicted = self._pre_process(true, predicted)
+        self.true, self.predicted = maybe_preprocess(True, true, predicted, metric_type)
         self.replace_nan = replace_nan
         self.replace_inf = replace_inf
         self.remove_zero = remove_zero
@@ -96,6 +102,7 @@ class Metrics(object):
         if np_errstate is None:
             np_errstate = {}
         self.err_state = np_errstate
+        ERR_STATE = np_errstate
 
     @property
     def log1p_p(self):
@@ -170,22 +177,7 @@ class Metrics(object):
             they are {len(self.true)} and {len(self.predicted)}""")
         return
 
-    def _pre_process(self, true, predicted):
 
-        predicted = self._assert_1darray(predicted)
-        true = self._assert_1darray(true)
-        assert len(predicted) == len(true), """
-        lengths of provided arrays mismatch, predicted array: {}, true array: {}
-        """.format(len(predicted), len(true))
-
-        return true, predicted
-
-    def _assert_1darray(self, array_like) -> np.ndarray:
-        """Makes sure that the provided `array_like` is 1D numpy array"""
-        if self.metric_type == "regression":
-            return to_oneD_array(array_like)
-            
-        return maybe_to_oneD_array(array_like)
 
     def calculate_all(self, statistics=False, verbose=False, write=False, name=None) -> dict:
         """ calculates errors using all available methods except brier_score..
@@ -404,7 +396,7 @@ class Metrics(object):
     def treat_values(self):
         """
         This function is applied by default at the start/at the time of initiating
-        the class. However, it can used any time after that. This can be handy
+        the class. However, it can be used any time after that. This can be handy
         if we want to calculate error first by ignoring nan and then by no ignoring
         nan. Adopting from HydroErr_ . Removes the nan, negative, and inf values 
         in two numpy arrays
@@ -512,3 +504,4 @@ class Metrics(object):
     def mse(self, weights=None) -> float:
         """ mean square error """
         return float(np.average((self.true - self.predicted) ** 2, axis=0, weights=weights))
+

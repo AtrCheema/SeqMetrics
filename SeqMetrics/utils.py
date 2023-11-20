@@ -482,4 +482,116 @@ METRIC_TYPES = {
     "mase": "min",
     "mare": "min",
     "msle": "min",
+    "decomposed_mse": "min",
+    "euclid_distance": "min",
+    'exp_var_score': 'max',
+    'expanded_uncertainty': 'min',
+    'fdc_fhv': 'min',
+    'fdc_flv': 'min',
+    'gmean_diff': 'min',
+    'gmrae': 'min',
+    'JS': 'min',
+    'kendaull_tau': 'max',
+    'kgeprime_c2m': 'max',
+    'kgenp_bound': 'max',
+    'kl_sym': 'min',
+    'lm_index': 'max',
+    'maape': 'min',
+    'mbe': 'min',
+    'mbrae': 'min',
+    'mapd': 'min',
+    'max_error': 'min',
+    'rse': 'min',
+    'rrse': 'min',
+    'rae': 'min',
+    'ref_agreement_index': 'max',
+    'rel_agreement_index': 'max',
+    'relative_rmse': 'min',
+    'rmspe': 'min',
+    'rsr': 'min',
+    'rmsse': 'min',
+    'sa': 'min',
+    'sc': 'min',
+    'sga': 'min',
+    'smape': 'min',
+    'smdape': 'min',
+    'sid': 'min',
+    'skill_score_murphy': 'max',
+    'std_ratio': 'min',
+    'umbrae': 'min',
+    've': 'min',
+    'volume_error': 'min',
+    'wape': 'min',
+    'watt_m': 'min',
+    'wmape': 'min',
+    'norm_ape': 'min',
+    'post_process_kge': 'min',
+    'spearmann_corr': 'min',
+    'log1p': 'min',
+    'covariance': 'min',
+    'brier_score': 'min',
+    'bic': 'min',
+    'sse': 'min',
+    'amemiya_pred_criterion': 'min',
+    'amemiya_adj_r2': 'min',
+    'aitchison': 'min',
+    'log_t': 'min',
+    'log_p': 'min',
+    '_assert_greater_than_one': 'min',
+    'acc': 'min',
+    'agreement_index': 'min',
+    'aic': 'min',
+    'cronbach_alpha': 'min',
+    'centered_rms_dev': 'min',
+    'cosine_similarity': 'min',
+    '_error': 'min',
+    '_relative_error': 'min',
+    '_naive_prognose': 'min',
+    '_minimal': 'min',
+    '_hydro_metrics': 'min',
+    'calculate_hydro_metrics': 'min',
+    '_bounded_relative_error': 'min',
+    '_ae': 'min',
+    'mb_r': 'min',
+    'mda': 'min',
+    'mde': 'min',
+    'mdape': 'min',
+    'mdrae': 'min',
+    'me': 'min',
+    'mean_bias_error': 'min',
+    'mean_var': 'min',
+    'mean_poisson_deviance': 'min',
+    'mean_gamma_deviance': 'min',
+    'median_abs_error': 'min',
+    'mle': 'min',
+    'mod_agreement_index': 'min',
+    'mpe': 'min',
+    'mrae': 'min',
+    'norm_euclid_distance': 'min',
+    'nrmse_range': 'min',
+    'nrmse_ipercentile': 'min',
+    'nrmse_mean': 'min',
+    'norm_ae': 'min',
+    'log_prob': 'min',
+    'rmdspe': 'min'
+
 }
+
+
+def _assert_1darray(array_like, metric_type:str) -> np.ndarray:
+    """Makes sure that the provided `array_like` is 1D numpy array"""
+    if metric_type == "regression":
+        return to_oneD_array(array_like)
+
+    return maybe_to_oneD_array(array_like)
+
+def maybe_preprocess(preprocess:bool= None, true= None, predicted= None, metric_type= None):
+
+    if preprocess:
+        predicted = _assert_1darray(predicted, metric_type)
+        true = _assert_1darray(true, metric_type)
+        assert len(predicted) == len(true), """
+        lengths of provided arrays mismatch, predicted array: {}, true array: {}
+        """.format(len(predicted), len(true))
+
+    return true, predicted
