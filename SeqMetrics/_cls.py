@@ -324,7 +324,7 @@ class ClassificationMetrics(Metrics):
         return false_positive_rate(true= self.true, predicted= self.predicted)
 
     def false_discovery_rate(self):
-        return false_positive_rate(true= self.true, predicted= self.predicted)
+        return false_discovery_rate(true= self.true, predicted= self.predicted)
 
     def false_negative_rate(self):
         return false_negative_rate(true= self.true, predicted= self.predicted)
@@ -363,6 +363,14 @@ def cross_entropy(true, predicted, epsilon=1e-12) -> float:
     Returns
     -------
     scalar
+
+    Parameters
+    ----------
+    true :
+         ture/observed/actual/target values. It must be a numpy array,
+         or pandas series/DataFrame or a list.
+    predicted :
+         simulated values
 
     """
     cls= ClassificationMetrics(true, predicted)
@@ -568,6 +576,12 @@ def specificity(true, predicted, average=None):
     It's formula is following
     TN / TN+FP
 
+    Parameters
+    ----------
+    true : ture/observed/actual/target values. It must be a numpy array,
+         or pandas series/DataFrame or a list.
+    predicted : simulated values
+
     Examples
     --------
     >>> import numpy as np
@@ -602,6 +616,12 @@ def balanced_accuracy(true, predicted, average=None)->float:
     """
     balanced accuracy.
     It performs better on imbalanced datasets.
+
+    Parameters
+    ----------
+    true : ture/observed/actual/target values. It must be a numpy array,
+         or pandas series/DataFrame or a list.
+    predicted : simulated values
     """
     cls= ClassificationMetrics(true, predicted)
     TP = cls._tp()
@@ -646,6 +666,14 @@ def f1_score(true, predicted, average=None)->Union[np.ndarray, float]:
 def f2_score(true, predicted, average=None):
     """
     f2 score
+
+    Parameters
+    ----------
+    average : str (default=None)
+            one of None, ``macro``, ``weighted``, or ``micro``
+    true : ture/observed/actual/target values. It must be a numpy array,
+         or pandas series/DataFrame or a list.
+    predicted : simulated values
     """
     cls= ClassificationMetrics(true, predicted)
     return cls._f_score(average, 2.0)
@@ -656,6 +684,12 @@ def false_positive_rate(true, predicted):
     It is also called probability of false alarm or fall-out.
 
      TP / (TP + TN)
+
+    Parameters
+    ----------
+    true : ture/observed/actual/target values. It must be a numpy array,
+         or pandas series/DataFrame or a list.
+    predicted : simulated values
 
     """
     cls= ClassificationMetrics(true, predicted)
@@ -669,6 +703,12 @@ def false_discovery_rate(true, predicted):
     """
     False discovery rate
      FP / (TP + FP)
+
+    Parameters
+    ----------
+    true : ture/observed/actual/target values. It must be a numpy array,
+         or pandas series/DataFrame or a list.
+    predicted : simulated values
     """
     cls= ClassificationMetrics(true, predicted)
     FP = cls._fp()
@@ -683,6 +723,12 @@ def false_negative_rate(true, predicted):
     False Negative Rate or miss rate.
 
     FN / (FN + TP)
+
+    Parameters
+    ----------
+    true : ture/observed/actual/target values. It must be a numpy array,
+         or pandas series/DataFrame or a list.
+    predicted : simulated values
     """
     cls= ClassificationMetrics(true, predicted)
     FN = cls._fn()
@@ -695,6 +741,12 @@ def negative_predictive_value(true, predicted):
     """
     Negative Predictive Value
     TN/(TN+FN)
+
+    Parameters
+    ----------
+    true : ture/observed/actual/target values. It must be a numpy array,
+         or pandas series/DataFrame or a list.
+    predicted : simulated values
     """
     cls= ClassificationMetrics(true, predicted)
     TN = cls._tn()
@@ -707,6 +759,12 @@ def error_rate(true, predicted):
     """
     Error rate is the number of all incorrect predictions divided by the total
     number of samples in data.
+
+    Parameters
+    ----------
+    true : ture/observed/actual/target values. It must be a numpy array,
+         or pandas series/DataFrame or a list.
+    predicted : simulated values
     """
     cls= ClassificationMetrics(true, predicted)
 
@@ -715,6 +773,12 @@ def error_rate(true, predicted):
 def mathews_corr_coeff(true, predicted):
     """
     Methew's correlation coefficient
+
+    Parameters
+    ----------
+    true : ture/observed/actual/target values. It must be a numpy array,
+         or pandas series/DataFrame or a list.
+    predicted : simulated values
 
     """
     cls= ClassificationMetrics(true, predicted)
@@ -730,6 +794,13 @@ def positive_likelihood_ratio(true, predicted, average=None):
     Positive likelihood ratio
     sensitivity / 1-specificity
 
+    Parameters
+    ----------
+    average : str (default=None)
+            one of None, ``macro``, ``weighted``, or ``micro``
+    true : ture/observed/actual/target values. It must be a numpy array,
+         or pandas series/DataFrame or a list.
+    predicted : simulated values
     """
     cls= ClassificationMetrics(true, predicted)
     return cls.recall(average=average) / (1 - cls.specificity(average=average))
@@ -741,6 +812,14 @@ def negative_likelihood_ratio(true, predicted, average=None):
     1 - sensitivity / specificity
 
     https://en.wikipedia.org/wiki/Likelihood_ratios_in_diagnostic_testing#positive_likelihood_ratio
+
+    Parameters
+    ----------
+    average : str (default=None)
+            one of None, ``macro``, ``weighted``, or ``micro``
+    true : ture/observed/actual/target values. It must be a numpy array,
+         or pandas series/DataFrame or a list.
+    predicted : simulated values
     """
     cls= ClassificationMetrics(true, predicted)
 
@@ -753,6 +832,14 @@ def youden_index(true, predicted, average=None):
     j = TPR + TNR − 1 =   sensitivity +  specificity - 1
 
     https://en.wikipedia.org/wiki/Youden%27s_J_statistic
+
+    Parameters
+    ----------
+    average : str (default=None)
+            one of None, ``macro``, ``weighted``, or ``micro``
+    true : ture/observed/actual/target values. It must be a numpy array,
+         or pandas series/DataFrame or a list.
+    predicted : simulated values
     """
     cls= ClassificationMetrics(true, predicted)
     return  cls.recall(average) + cls.specificity(average) - 1
@@ -767,6 +854,14 @@ def fowlkes_mallows_index(true, predicted, average=None):
     TPR is true positive rate or recall or sensitivity
 
     https://en.wikipedia.org/wiki/Fowlkes%E2%80%93Mallows_index
+
+    Parameters
+    ----------
+    average : str (default=None)
+            one of None, ``macro``, ``weighted``, or ``micro``
+    true : ture/observed/actual/target values. It must be a numpy array,
+         or pandas series/DataFrame or a list.
+    predicted : simulated values
     """
     cls= ClassificationMetrics(true, predicted)
     return np.sqrt(cls.precision(average) * cls.recall(average))
@@ -778,6 +873,14 @@ def prevalence_threshold(true, predicted, average=None):
     sqrt(FPR) / (sqrt(TPR) + sqrt(FPR))
 
     TPR is true positive rate or recall
+
+    Parameters
+    ----------
+    average : str (default=None)
+            one of None, ``macro``, ``weighted``, or ``micro``
+    true : ture/observed/actual/target values. It must be a numpy array,
+         or pandas series/DataFrame or a list.
+    predicted : simulated values
     """
     cls= ClassificationMetrics(true, predicted)
     FPR = cls.false_positive_rate()
@@ -789,6 +892,12 @@ def false_omission_rate(true, predicted):
     False omission rate
 
     FN / (FN + TN)
+
+    Parameters
+    ----------
+    true : ture/observed/actual/target values. It must be a numpy array,
+         or pandas series/DataFrame or a list.
+    predicted : simulated values
     """
     cls= ClassificationMetrics(true, predicted)
     FN = cls._fn()
@@ -797,8 +906,6 @@ def false_omission_rate(true, predicted):
     FOR = np.nan_to_num(FOR)
 
     return FOR
-
-
 
 
 

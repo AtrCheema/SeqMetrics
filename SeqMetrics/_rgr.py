@@ -412,6 +412,7 @@ def post_process_kge(cc, alpha, beta, return_all=False):
 
 def r2(true, predicted, preprocess:bool = True) -> float:
     """
+    R2 is a statistical measure of how well the regression line approximates the actual data.
     Quantifies the percent of variation in the response that the 'model'
     explains_. The 'model' here is anything from which we obtained predicted
     array. It is also called coefficient of determination or square of pearson
@@ -448,6 +449,7 @@ def r2(true, predicted, preprocess:bool = True) -> float:
 def nse(true, predicted, preprocess:bool = True) -> float:
     """Nash-Sutcliff Efficiency.
 
+    The Nash-Sutcliffe efficiency (NSE) is a normalized statistic that determines the relative magnitude of the residual variance compared to the measured data variance
     It determine how well the model simulates trends for the output response of concern. But cannot help identify
     model bias and cannot be used to identify differences in timing and magnitude of peak flows and shape of
     recession curves; in other words, it cannot be used for single-event simulations. It is sensitive to extreme
@@ -3704,7 +3706,17 @@ def std_ratio(true, predicted, preprocess:bool = True, **kwargs) -> float:
     true, predicted = maybe_preprocess(preprocess, true, predicted, METRIC_TYPES['std_ratio'])
     return float(np.std(predicted, **kwargs) / np.std(true, **kwargs))
 def umbrae(true, predicted, preprocess:bool = True, benchmark: np.ndarray = None):
-    """ Unscaled Mean Bounded Relative Absolute Error 
+    """ Unscaled Mean Bounded Relative Absolute Error
+
+    Parameters
+    ----------
+    true :
+         ture/observed/actual/target values. It must be a numpy array,
+         or pandas series/DataFrame or a list.
+    predicted :
+         simulated values
+    preprocess :
+        process the true and predicted array
     Examples
     ---------
     >>> import numpy as np
@@ -3919,6 +3931,17 @@ def norm_ape(true, predicted, preprocess:bool = True) -> float:
 
 def mse(true, predicted, preprocess=False, weights=None):
     """
+    Mean Square Error
+
+    Parameters
+    ----------
+    true :
+         ture/observed/actual/target values. It must be a numpy array,
+         or pandas series/DataFrame or a list.
+    predicted :
+         simulated values
+    preprocess :
+        process the true and predicted array
     Examples
     ---------
     >>> import numpy as np
@@ -3929,5 +3952,3 @@ def mse(true, predicted, preprocess=False, weights=None):
     """
     true, predicted = maybe_preprocess(preprocess, true, predicted, METRIC_TYPES['mse'])
     return  float(np.average((true - predicted) ** 2, axis=0, weights=weights))
-
-

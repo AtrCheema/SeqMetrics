@@ -116,6 +116,7 @@ from ._rgr import agreement_index
 from ._rgr import centered_rms_dev
 from ._rgr import mapd
 from ._rgr import sga
+from ._rgr import mse
 from ._rgr import RegressionMetrics
 
 from ._cls import f1_score
@@ -125,6 +126,20 @@ from ._cls import recall
 from ._cls import balanced_accuracy
 from ._cls import confusion_matrix
 from ._cls import cross_entropy
+from ._cls import error_rate
+from ._cls import false_positive_rate
+from ._cls import false_negative_rate
+from ._cls import false_discovery_rate
+from ._cls import false_omission_rate
+from ._cls import f2_score
+from ._cls import fowlkes_mallows_index
+from ._cls import mathews_corr_coeff
+from ._cls import negative_likelihood_ratio
+from ._cls import negative_predictive_value
+from ._cls import positive_likelihood_ratio
+from ._cls import prevalence_threshold
+from ._cls import specificity
+from ._cls import youden_index
 from ._cls import ClassificationMetrics
 
 
