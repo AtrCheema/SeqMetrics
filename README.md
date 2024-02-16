@@ -254,6 +254,9 @@ of classification.
 | Fowlkes Mallows Index | `fowlkes_mallows_index` |
 | Mathews correlation Coefficient | `mathews_corr_coeff` |
 
+## Web App
+The SeqMetrics library is available from the webapp which is deployed
+used stream [https://seqmetrics.streamlit.app/](https://seqmetrics.streamlit.app/)
 
 ## Related
 

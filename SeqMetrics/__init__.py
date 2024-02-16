@@ -145,5 +145,5 @@ from ._cls import ClassificationMetrics
 
 from .utils import plot_metrics
 
-__version__ = '1.3.5'
+__version__ = '2.0.0'
 

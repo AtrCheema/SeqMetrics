@@ -11,7 +11,7 @@ if os.path.exists(fpath):
 setup(
     name='SeqMetrics',
 
-    version="1.3.5",
+    version="2.0.0",
 
     description='SeqMetrics: Various errors for sequential data',
     long_description=long_desc,
