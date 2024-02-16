@@ -1,4 +1,3 @@
-
 import warnings
 from math import sqrt
 from typing import Union
@@ -33,11 +32,11 @@ class RegressionMetrics(Metrics):
         args and kwargs go to parent class :py:class:`SeqMetrics.Metrics`.
         """
         super().__init__(*args, **kwargs)
-        self.all_methods:list = list_subclass_methods(RegressionMetrics, True,
-                                                 additional_ignores=['calculate_hydro_metrics',
-                                                                     # 'calculate_scale_dependent_metrics',
-                                                                     # 'calculate_scale_independent_metrics'
-                                                                     ])
+        self.all_methods: list = list_subclass_methods(RegressionMetrics, True,
+                                                       additional_ignores=['calculate_hydro_metrics',
+                                                                           # 'calculate_scale_dependent_metrics',
+                                                                           # 'calculate_scale_independent_metrics'
+                                                                           ])
 
         # if arrays contain negative values, following three errors can not be computed
         for array in [self.true, self.predicted]:
@@ -56,9 +55,9 @@ class RegressionMetrics(Metrics):
         """Names of metrics related to hydrology"""
 
         return self._minimal() + [
-                'fdc_flv', 'fdc_fhv',
-                'kge', 'kge_np', 'kge_mod', 'kge_bound', 'kgeprime_c2m', 'kgenp_bound',
-                'nse', 'nse_alpha', 'nse_beta', 'nse_mod', 'nse_bound']
+            'fdc_flv', 'fdc_fhv',
+            'kge', 'kge_np', 'kge_mod', 'kge_bound', 'kgeprime_c2m', 'kgenp_bound',
+            'nse', 'nse_alpha', 'nse_beta', 'nse_mod', 'nse_bound']
 
     @staticmethod
     def _scale_independent_metrics() -> list:
@@ -74,335 +73,358 @@ class RegressionMetrics(Metrics):
     def _minimal() -> list:
         """some minimal and basic metrics"""
 
-        return ['r2', 'mape', 'nrmse', 'corr_coeff', 'rmse', 'mae', 'mse', 'mpe', 
-            'mase', 'r2_score']
+        return ['r2', 'mape', 'nrmse', 'corr_coeff', 'rmse', 'mae', 'mse', 'mpe',
+                'mase', 'r2_score']
 
     def abs_pbias(self) -> float:
-        return abs_pbias(true= self.true, predicted= self.predicted, preprocess= False)
+        return abs_pbias(true=self.true, predicted=self.predicted, preprocess=False)
 
     def acc(self) -> float:
-        return acc(true= self.true, predicted= self.predicted, preprocess= False)
+        return acc(true=self.true, predicted=self.predicted, preprocess=False)
 
     def adjusted_r2(self) -> float:
-        return adjusted_r2(true= self.true, predicted= self.predicted, preprocess= False)
+        return adjusted_r2(true=self.true, predicted=self.predicted, preprocess=False)
 
     def agreement_index(self) -> float:
-        return agreement_index(true= self.true, predicted= self.predicted, preprocess= False)
+        return agreement_index(true=self.true, predicted=self.predicted, preprocess=False)
 
     def aic(self, p=1) -> float:
-        return aic(true= self.true, predicted= self.predicted, preprocess= False, p=p)
+        return aic(true=self.true, predicted=self.predicted, preprocess=False, p=p)
 
     def aitchison(self, center='mean') -> float:
-        return aitchison(true= self.true, predicted= self.predicted, preprocess= False,
-                         center= center)
+        return aitchison(true=self.true, predicted=self.predicted, preprocess=False,
+                         center=center)
 
     def amemiya_adj_r2(self) -> float:
-        return amemiya_adj_r2(true= self.true, predicted= self.predicted, preprocess= False)
+        return amemiya_adj_r2(true=self.true, predicted=self.predicted, preprocess=False)
 
     def amemiya_pred_criterion(self) -> float:
-        return amemiya_pred_criterion(true= self.true, predicted= self.predicted,
-                                      preprocess= False)
+        return amemiya_pred_criterion(true=self.true, predicted=self.predicted,
+                                      preprocess=False)
 
     def bias(self) -> float:
-        return bias(true= self.true, predicted= self.predicted,preprocess= False)
+        return bias(true=self.true, predicted=self.predicted, preprocess=False)
 
     def bic(self, p=1) -> float:
-        return bic(true= self.true, predicted= self.predicted,preprocess= False, p= p)
+        return bic(true=self.true, predicted=self.predicted, preprocess=False, p=p)
 
     def brier_score(self) -> float:
-        return brier_score(true= self.true, predicted= self.predicted,preprocess= False)
+        return brier_score(true=self.true, predicted=self.predicted, preprocess=False)
 
     def corr_coeff(self) -> float:
-        return corr_coeff(true=self.true, predicted=self.predicted,preprocess= False)
+        return corr_coeff(true=self.true, predicted=self.predicted, preprocess=False)
+
     def covariance(self) -> float:
-        return covariance(true= self.true, predicted= self.predicted,preprocess= False)
+        return covariance(true=self.true, predicted=self.predicted, preprocess=False)
 
     def cronbach_alpha(self) -> float:
-        return cronbach_alpha(true= self.true, predicted= self.predicted,preprocess= False)
+        return cronbach_alpha(true=self.true, predicted=self.predicted, preprocess=False)
 
     def centered_rms_dev(self) -> float:
-        return centered_rms_dev(true= self.true, predicted= self.predicted,preprocess= False)
+        return centered_rms_dev(true=self.true, predicted=self.predicted, preprocess=False)
 
     def cosine_similarity(self) -> float:
-        return cosine_similarity(true= self.true, predicted= self.predicted,preprocess= False)
+        return cosine_similarity(true=self.true, predicted=self.predicted, preprocess=False)
 
     def decomposed_mse(self) -> float:
-        return decomposed_mse(true= self.true, predicted= self.predicted,preprocess= False)
+        return decomposed_mse(true=self.true, predicted=self.predicted, preprocess=False)
 
     def euclid_distance(self) -> float:
-        return euclid_distance(true= self.true, predicted= self.predicted,preprocess= False)
+        return euclid_distance(true=self.true, predicted=self.predicted, preprocess=False)
 
     def exp_var_score(self, weights=None) -> Union[float, None]:
-        return  exp_var_score(true= self.true, predicted= self.predicted, preprocess= False,
-                              weights= weights)
+        return exp_var_score(true=self.true, predicted=self.predicted, preprocess=False,
+                             weights=weights)
+
     def expanded_uncertainty(self, cov_fact=1.96) -> float:
-        return expanded_uncertainty(true= self.true, predicted= self.predicted,
-                                    preprocess= False, cov_fact= cov_fact)
+        return expanded_uncertainty(true=self.true, predicted=self.predicted,
+                                    preprocess=False, cov_fact=cov_fact)
 
     def fdc_fhv(self, h: float = 0.02) -> float:
-        return fdc_fhv(true= self.true, predicted= self.predicted, preprocess= False, h= h)
+        return fdc_fhv(true=self.true, predicted=self.predicted, preprocess=False, h=h)
 
     def fdc_flv(self, low_flow: float = 0.3) -> float:
-        return fdc_flv(true= self.true, predicted= self.predicted, preprocess= False,
-                       low_flow= low_flow)
+        return fdc_flv(true=self.true, predicted=self.predicted, preprocess=False,
+                       low_flow=low_flow)
 
     def gmae(self) -> float:
-        return gmae(true= self.true, predicted= self.predicted, preprocess= False)
+        return gmae(true=self.true, predicted=self.predicted, preprocess=False)
 
     def gmean_diff(self) -> float:
-        return gmae(true= self.true, predicted= self.predicted, preprocess= False)
+        return gmae(true=self.true, predicted=self.predicted, preprocess=False)
 
     def gmrae(self, benchmark: np.ndarray = None) -> float:
-        return gmrae(true= self.true, predicted= self.predicted, preprocess= False,
-                     benchmark= benchmark)
+        return gmrae(true=self.true, predicted=self.predicted, preprocess=False,
+                     benchmark=benchmark)
 
     def calculate_hydro_metrics(self):
-        return calculate_hydro_metrics(true= self.true, predicted= self.predicted,
-                                       preprocess= False)
+        return calculate_hydro_metrics(true=self.true, predicted=self.predicted,
+                                       preprocess=False)
 
     def inrse(self) -> float:
-        return inrse(true=self.true, predicted= self.predicted, preprocess= False)
+        return inrse(true=self.true, predicted=self.predicted, preprocess=False)
+
     def irmse(self) -> float:
-        return irmse(true= self.true, predicted= self.predicted, preprocess= False)
+        return irmse(true=self.true, predicted=self.predicted, preprocess=False)
 
     def JS(self) -> float:
-        return JS(true= self.true, predicted= self.predicted, preprocess= False)
+        return JS(true=self.true, predicted=self.predicted, preprocess=False)
 
     def kendaull_tau(self, return_p=False) -> Union[float, tuple]:
-        return kendaull_tau(true= self.true, predicted= self.predicted, return_p= return_p,
-                            preprocess= False)
+        return kendaull_tau(true=self.true, predicted=self.predicted, return_p=return_p,
+                            preprocess=False)
+
     def kge(self):
-        return kge(true= self.true, predicted= self.predicted)
+        return kge(true=self.true, predicted=self.predicted)
 
     def kge_bound(self) -> float:
-        return kge_bound(true=self.true, predicted= self.predicted, preprocess= False)
+        return kge_bound(true=self.true, predicted=self.predicted, preprocess=False)
 
     def kge_mod(self):
-        return kge(true=self.true, predicted= self.predicted, preprocess= False)
+        return kge(true=self.true, predicted=self.predicted, preprocess=False)
 
     def kge_np(self):
-      return kge_np(true= self.true, predicted= self.predicted, preprocess= False)
+        return kge_np(true=self.true, predicted=self.predicted, preprocess=False)
 
     def kgeprime_c2m(self) -> float:
-        return kgeprime_c2m(true= self.true, predicted= self.predicted, preprocess= False)
+        return kgeprime_c2m(true=self.true, predicted=self.predicted, preprocess=False)
 
     def kgenp_bound(self):
-        return kgenp_bound(true= self.true, predicted= self.predicted, preprocess= False)
+        return kgenp_bound(true=self.true, predicted=self.predicted, preprocess=False)
 
     def kl_sym(self) -> Union[float, None]:
-        return kl_sym(true= self.true, predicted= self.predicted, preprocess= False)
+        return kl_sym(true=self.true, predicted=self.predicted, preprocess=False)
 
     def lm_index(self, obs_bar_p=None) -> float:
-        return lm_index(true= self.true, predicted= self.predicted, preprocess= False,
-                        obs_bar_p= obs_bar_p)
+        return lm_index(true=self.true, predicted=self.predicted, preprocess=False,
+                        obs_bar_p=obs_bar_p)
 
     def maape(self) -> float:
-        return maape(true= self.true, predicted= self.predicted, preprocess= False)
+        return maape(true=self.true, predicted=self.predicted, preprocess=False)
 
     def mae(self) -> float:
-        return mae(true= self.true, predicted= self.predicted, preprocess= False)
+        return mae(true=self.true, predicted=self.predicted, preprocess=False)
 
     def mape(self) -> float:
-        return mape(true= self.true, predicted= self.predicted, preprocess= False)
+        return mape(true=self.true, predicted=self.predicted, preprocess=False)
 
     def mbe(self) -> float:
-        return mbe(true= self.true, predicted= self.predicted, preprocess= False)
+        return mbe(true=self.true, predicted=self.predicted, preprocess=False)
 
     def mbrae(self, benchmark: np.ndarray = None) -> float:
-        return mbrae(true= self.true, predicted= self.predicted, benchmark= benchmark,
-                     preprocess= False)
+        return mbrae(true=self.true, predicted=self.predicted, benchmark=benchmark,
+                     preprocess=False)
 
     def mapd(self) -> float:
-        return mapd(true= self.true, predicted= self.predicted, preprocess= False)
+        return mapd(true=self.true, predicted=self.predicted, preprocess=False)
 
     def mase(self, seasonality: int = 1):
-        return mase(true= self.true, preprocess= False, predicted= self.predicted)
+        return mase(true=self.true, preprocess=False, predicted=self.predicted)
 
     def mare(self) -> float:
-        return mare(true= self.true, predicted= self.predicted,
-                    preprocess= False)
+        return mare(true=self.true, predicted=self.predicted,
+                    preprocess=False)
 
     def max_error(self) -> float:
-        return max_error(true= self.true, predicted= self.predicted, preprocess= False)
+        return max_error(true=self.true, predicted=self.predicted, preprocess=False)
 
     def mb_r(self) -> float:
-        return mb_r(true= self.true, predicted= self.predicted, preprocess= False)
+        return mb_r(true=self.true, predicted=self.predicted, preprocess=False)
 
     def mda(self) -> float:
-        return mda(true= self.true, predicted= self.predicted, preprocess= False)
+        return mda(true=self.true, predicted=self.predicted, preprocess=False)
 
     def mde(self) -> float:
-        return mde(true= self.true, predicted= self.predicted, preprocess= False)
+        return mde(true=self.true, predicted=self.predicted, preprocess=False)
 
     def mdape(self) -> float:
-        return mdape(true= self.true, predicted= self.predicted, preprocess= False)
+        return mdape(true=self.true, predicted=self.predicted, preprocess=False)
 
     def mdrae(self, benchmark: np.ndarray = None) -> float:
-        return mdrae(true= self.true, predicted= self.predicted, preprocess= False,
-                     benchmark= benchmark)
+        return mdrae(true=self.true, predicted=self.predicted, preprocess=False,
+                     benchmark=benchmark)
 
     def me(self):
-        return me(true= self.true, predicted= self.predicted, preprocess= False)
+        return me(true=self.true, predicted=self.predicted, preprocess=False)
 
     def mean_bias_error(self) -> float:
-        return mean_bias_error(true= self.true, predicted= self.predicted, preprocess= False)
+        return mean_bias_error(true=self.true, predicted=self.predicted, preprocess=False)
 
     def mean_var(self) -> float:
-        return mean_var(true= self.true, predicted= self.predicted, preprocess= False)
+        return mean_var(true=self.true, predicted=self.predicted, preprocess=False)
 
     def mean_poisson_deviance(self, weights=None) -> float:
-        return mean_poisson_deviance(true= self.true, predicted= self.predicted,
-                                     weights= weights, preprocess= False)
+        return mean_poisson_deviance(true=self.true, predicted=self.predicted,
+                                     weights=weights, preprocess=False)
 
     def mean_gamma_deviance(self, weights=None) -> float:
-        return mean_gamma_deviance(true= self.true, predicted= self.predicted, weights= weights,
-                                   preprocess= False)
+        return mean_gamma_deviance(true=self.true, predicted=self.predicted, weights=weights,
+                                   preprocess=False)
 
     def median_abs_error(self) -> float:
-        return median_abs_error(true= self.true, predicted= self.predicted, preprocess= False)
+        return median_abs_error(true=self.true, predicted=self.predicted, preprocess=False)
 
     def med_seq_error(self) -> float:
-        return med_seq_error(true= self.true, predicted= self.predicted, preprocess= False)
+        return med_seq_error(true=self.true, predicted=self.predicted, preprocess=False)
 
     def mle(self) -> float:
-        return mle(true= self.true, predicted= self.predicted, preprocess=False)
+        return mle(true=self.true, predicted=self.predicted, preprocess=False)
+
     def mod_agreement_index(self, j=1) -> float:
-        return mod_agreement_index(true= self.true, predicted= self.predicted,
-                                   preprocess=False, j= j)
+        return mod_agreement_index(true=self.true, predicted=self.predicted,
+                                   preprocess=False, j=j)
 
     def mpe(self) -> float:
-        return mpe(true= self.true, predicted= self.predicted, preprocess=False)
+        return mpe(true=self.true, predicted=self.predicted, preprocess=False)
 
     def mrae(self, benchmark: np.ndarray = None):
-        return mrae(true= self.true, predicted= self.predicted, preprocess=False,
-                    benchmark= benchmark)
+        return mrae(true=self.true, predicted=self.predicted, preprocess=False,
+                    benchmark=benchmark)
 
     def msle(self, weights=None) -> float:
-        return msle(true= self.true, predicted= self.predicted, preprocess= False,
-                    weights= weights)
+        return msle(true=self.true, predicted=self.predicted, preprocess=False,
+                    weights=weights)
 
     def norm_euclid_distance(self) -> float:
-        return norm_euclid_distance(true= self.true, predicted= self.predicted,
-                                    preprocess= False)
+        return norm_euclid_distance(true=self.true, predicted=self.predicted,
+                                    preprocess=False)
 
     def nrmse_range(self) -> float:
-        return nrmse_range(true= self.true, preprocess= False, predicted= self.predicted)
+        return nrmse_range(true=self.true, preprocess=False, predicted=self.predicted)
 
     def nrmse_ipercentile(self, q1=25, q2=75) -> float:
-        return nrmse_ipercentile(true= self.true, preprocess= False, q1= q1, q2= q2, predicted= self.predicted)
+        return nrmse_ipercentile(true=self.true, preprocess=False, q1=q1, q2=q2, predicted=self.predicted)
 
     def nrmse_mean(self) -> float:
-        return nrmse_mean(true= self.true, predicted=self.predicted, preprocess= False)
+        return nrmse_mean(true=self.true, predicted=self.predicted, preprocess=False)
 
     def norm_ae(self) -> float:
-        return norm_ae(true= self.true, predicted=self.predicted, preprocess= False)
+        return norm_ae(true=self.true, predicted=self.predicted, preprocess=False)
 
     def norm_ape(self) -> float:
-        return norm_ape(true= self.true, predicted=self.predicted, preprocess= False)
+        return norm_ape(true=self.true, predicted=self.predicted, preprocess=False)
+
     def nrmse(self) -> float:
-        return nrmse(true= self.true, predicted= self.predicted, preprocess= False)
+        return nrmse(true=self.true, predicted=self.predicted, preprocess=False)
 
     def nse(self) -> float:
-        return nse(true=self.true, predicted=self.predicted, preprocess= False)
+        return nse(true=self.true, predicted=self.predicted, preprocess=False)
 
     def nse_alpha(self) -> float:
-        return nse_alpha(true=self.true, predicted=self.predicted, preprocess= False)
+        return nse_alpha(true=self.true, predicted=self.predicted, preprocess=False)
 
     def nse_beta(self) -> float:
-        return nse_beta(true=self.true, predicted=self.predicted, preprocess= False)
+        return nse_beta(true=self.true, predicted=self.predicted, preprocess=False)
 
     def nse_mod(self, j=1) -> float:
-        return nse_mod(true=self.true, predicted=self.predicted, preprocess= False,  j=j)
+        return nse_mod(true=self.true, predicted=self.predicted, preprocess=False, j=j)
 
     def nse_rel(self) -> float:
-        return nse_rel(true=self.true, predicted=self.predicted, preprocess= False)
+        return nse_rel(true=self.true, predicted=self.predicted, preprocess=False)
 
     def nse_bound(self) -> float:
-        return nse_bound(true=self.true, predicted=self.predicted, preprocess= False)
+        return nse_bound(true=self.true, predicted=self.predicted, preprocess=False)
 
     def log_nse(self, epsilon=0.0) -> float:
-        return log_nse(true=self.true, predicted=self.predicted, epsilon= epsilon)
+        return log_nse(true=self.true, predicted=self.predicted, epsilon=epsilon)
 
     def log_prob(self) -> float:
         return log_prob(true=self.true, predicted=self.predicted)
+
     def pbias(self) -> float:
-        return pbias(true=self.true, predicted=self.predicted, preprocess= False)
+        return pbias(true=self.true, predicted=self.predicted, preprocess=False)
 
     def rmsle(self) -> float:
-        return rmsle(true=self.true, predicted=self.predicted, preprocess= False)
+        return rmsle(true=self.true, predicted=self.predicted, preprocess=False)
 
     def rmdspe(self) -> float:
-        return rmdspe(true=self.true, predicted=self.predicted, preprocess= False)
+        return rmdspe(true=self.true, predicted=self.predicted, preprocess=False)
 
     def rse(self) -> float:
-        return rse(true=self.true, predicted=self.predicted, preprocess= False)
+        return rse(true=self.true, predicted=self.predicted, preprocess=False)
+
     def rrse(self) -> float:
-        return rrse(true=self.true, predicted=self.predicted, preprocess= False)
+        return rrse(true=self.true, predicted=self.predicted, preprocess=False)
 
     def rae(self) -> float:
-        return rae(true=self.true, preprocess= False, predicted= self.predicted)
+        return rae(true=self.true, preprocess=False, predicted=self.predicted)
 
     def ref_agreement_index(self) -> float:
-        return ref_agreement_index(true=self.true, predicted=self.predicted, preprocess= False)
+        return ref_agreement_index(true=self.true, predicted=self.predicted, preprocess=False)
 
     def rel_agreement_index(self) -> float:
-        return rel_agreement_index(true=self.true, predicted=self.predicted, preprocess= False)
+        return rel_agreement_index(true=self.true, predicted=self.predicted, preprocess=False)
 
     def rmse(self, weights=None) -> float:
-        return rmse(true= self.true, predicted=self.predicted, preprocess= False, weights=weights)
+        return rmse(true=self.true, predicted=self.predicted, preprocess=False, weights=weights)
+
     def r2(self) -> float:
-        return r2(true=self.true, predicted=self.predicted, preprocess= False)
+        return r2(true=self.true, predicted=self.predicted, preprocess=False)
 
     def r2_score(self, weights=None):
-        return r2_score(true=self.true, predicted=self.predicted, preprocess= False, weights= weights)
+        return r2_score(true=self.true, predicted=self.predicted, preprocess=False, weights=weights)
 
     def relative_rmse(self) -> float:
-        return relative_rmse(true=self.true, preprocess= False, predicted= self.predicted)
+        return relative_rmse(true=self.true, preprocess=False, predicted=self.predicted)
+
     def rmspe(self) -> float:
-        return rmspe(true=self.true, predicted=self.predicted, preprocess= False)
+        return rmspe(true=self.true, predicted=self.predicted, preprocess=False)
 
     def rsr(self) -> float:
-        return rsr(true=self.true, predicted=self.predicted, preprocess= False)
+        return rsr(true=self.true, predicted=self.predicted, preprocess=False)
 
     def rmsse(self) -> float:
-        return rmsse(true=self.true, predicted= self.predicted, preprocess= False)
+        return rmsse(true=self.true, predicted=self.predicted, preprocess=False)
 
     def sa(self) -> float:
-        return sa(true=self.true, predicted= self.predicted, preprocess= False)
+        return sa(true=self.true, predicted=self.predicted, preprocess=False)
+
     def sc(self) -> float:
-        return sc(true=self.true, predicted= self.predicted, preprocess= False)
+        return sc(true=self.true, predicted=self.predicted, preprocess=False)
+
     def sga(self) -> float:
-        return sga(true=self.true, predicted= self.predicted, preprocess= False)
+        return sga(true=self.true, predicted=self.predicted, preprocess=False)
+
     def smape(self) -> float:
-        return smape(true=self.true, predicted= self.predicted, preprocess= False)
+        return smape(true=self.true, predicted=self.predicted, preprocess=False)
+
     def smdape(self) -> float:
-        return smdape(true=self.true, predicted= self.predicted, preprocess= False)
+        return smdape(true=self.true, predicted=self.predicted, preprocess=False)
+
     def sid(self) -> float:
-        return sid(true=self.true, predicted= self.predicted, preprocess= False)
+        return sid(true=self.true, predicted=self.predicted, preprocess=False)
+
     def skill_score_murphy(self) -> float:
-        return skill_score_murphy(true=self.true, predicted= self.predicted, preprocess= False)
+        return skill_score_murphy(true=self.true, predicted=self.predicted, preprocess=False)
+
     def spearmann_corr(self) -> float:
-        return spearmann_corr(true= self.true, predicted= self.predicted, preprocess= False)
+        return spearmann_corr(true=self.true, predicted=self.predicted, preprocess=False)
 
     def sse(self) -> float:
-        return sse(true= self.true, predicted= self.predicted, preprocess= False)
+        return sse(true=self.true, predicted=self.predicted, preprocess=False)
 
     def std_ratio(self, **kwargs) -> float:
-        return std_ratio(true= self.true, predicted= self.predicted, **kwargs)
+        return std_ratio(true=self.true, predicted=self.predicted, **kwargs)
 
     def umbrae(self, benchmark: np.ndarray = None):
-        return umbrae(true= self.true, predicted= self.predicted, preprocess= False,benchmark= benchmark)
+        return umbrae(true=self.true, predicted=self.predicted, preprocess=False, benchmark=benchmark)
 
     def ve(self) -> float:
-        return ve(true= self.true, predicted= self.predicted, preprocess= False)
+        return ve(true=self.true, predicted=self.predicted, preprocess=False)
+
     def volume_error(self) -> float:
-        return volume_error(true= self.true, predicted= self.predicted, preprocess= False)
+        return volume_error(true=self.true, predicted=self.predicted, preprocess=False)
+
     def wape(self) -> float:
-        return wape(true= self.true, predicted= self.predicted, preprocess= False)
+        return wape(true=self.true, predicted=self.predicted, preprocess=False)
+
     def watt_m(self) -> float:
-        return watt_m(true= self.true, predicted= self.predicted, preprocess= False)
+        return watt_m(true=self.true, predicted=self.predicted, preprocess=False)
+
     def wmape(self) -> float:
-        return wmape(true= self.true, predicted= self.predicted, preprocess= False)
+        return wmape(true=self.true, predicted=self.predicted, preprocess=False)
+
+
 def post_process_kge(cc, alpha, beta, return_all=False):
     kge_ = float(1 - np.sqrt((cc - 1) ** 2 + (alpha - 1) ** 2 + (beta - 1) ** 2))
     if return_all:
@@ -410,7 +432,8 @@ def post_process_kge(cc, alpha, beta, return_all=False):
     else:
         return kge_
 
-def r2(true, predicted, preprocess:bool = True) -> float:
+
+def r2(true, predicted, preprocess: bool = True) -> float:
     """
     R2 is a statistical measure of how well the regression line approximates the actual data.
     Quantifies the percent of variation in the response that the 'model'
@@ -446,15 +469,18 @@ def r2(true, predicted, preprocess:bool = True) -> float:
     r = np.sum(zx * zy) / (len(true) - 1)
     return float(r ** 2)
 
-def nse(true, predicted, preprocess:bool = True) -> float:
+
+def nse(true, predicted, preprocess: bool = True) -> float:
     """Nash-Sutcliff Efficiency.
 
-    The Nash-Sutcliffe efficiency (NSE) is a normalized statistic that determines the relative magnitude of the residual variance compared to the measured data variance
-    It determine how well the model simulates trends for the output response of concern. But cannot help identify
-    model bias and cannot be used to identify differences in timing and magnitude of peak flows and shape of
-    recession curves; in other words, it cannot be used for single-event simulations. It is sensitive to extreme
-    values due to the squared differ-ences [1]. To make it less sensitive to outliers, [2] proposed
-    log and relative nse.
+    The Nash-Sutcliffe efficiency (NSE) is a normalized statistic that determines
+    the relative magnitude of the residual variance compared to the measured data
+    variance It determine how well the model simulates trends for the output response
+    of concern. But cannot help identify model bias and cannot be used to identify
+    differences in timing and magnitude of peak flows and shape of recession curves;
+    in other words, it cannot be used for single-event simulations. It is sensitive
+    to extreme values due to the squared differ-ences [1]. To make it less sensitive
+    to outliers, [2] proposed log and relative nse.
 
     References
     ----------
@@ -485,7 +511,8 @@ def nse(true, predicted, preprocess:bool = True) -> float:
     _nse = 1 - sum((predicted - true) ** 2) / sum((true - np.mean(true)) ** 2)
     return float(_nse)
 
-def nse_alpha(true, predicted, preprocess:bool = True) -> float:
+
+def nse_alpha(true, predicted, preprocess: bool = True) -> float:
     """
     Alpha decomposition of the NSE, see `Gupta_ et al. 2009 <https://doi.org/10.1029/97WR03495>`_
     used in kratzert et al., 2018
@@ -515,7 +542,8 @@ def nse_alpha(true, predicted, preprocess:bool = True) -> float:
     true, predicted = maybe_preprocess(preprocess, true, predicted, METRIC_TYPES['nse_alpha'])
     return float(np.std(predicted) / np.std(true))
 
-def nse_beta(true, predicted, preprocess:bool = True) -> float:
+
+def nse_beta(true, predicted, preprocess: bool = True) -> float:
     """
     Beta decomposition of NSE. See Gupta_ et. al 2009 .
     used in kratzert et al., 2018
@@ -549,10 +577,12 @@ def nse_beta(true, predicted, preprocess:bool = True) -> float:
     true, predicted = maybe_preprocess(preprocess, true, predicted, METRIC_TYPES['nse_beta'])
     return float((np.mean(predicted) - np.mean(true)) / np.std(true))
 
-def nse_mod(true, predicted, preprocess:bool = True, j=1) -> float:
+
+def nse_mod(true, predicted, preprocess: bool = True, j=1) -> float:
     """
-    Gives less weightage of outliers if j=1 and if j>1, gives more weightage to outliers.
-    Reference: Krause et al., 2005
+    Gives less weightage to outliers if j=1 and if j>1 then it gives more
+    weightage to outliers. Reference: Krause et al., 2005
+
     Parameters
     ----------
     true :
@@ -578,9 +608,11 @@ def nse_mod(true, predicted, preprocess:bool = True, j=1) -> float:
     b = (np.abs(true - np.mean(true))) ** j
     return float(1 - (np.sum(a) / np.sum(b)))
 
-def nse_rel(true, predicted, preprocess:bool = True) -> float:
+
+def nse_rel(true, predicted, preprocess: bool = True) -> float:
     """
     Relative NSE.
+
     Parameters
     ----------
     true :
@@ -601,11 +633,12 @@ def nse_rel(true, predicted, preprocess:bool = True) -> float:
     """
     true, predicted = maybe_preprocess(preprocess, true, predicted, METRIC_TYPES['nse_rel'])
 
-    a = (np.abs((predicted -true) / true)) ** 2
+    a = (np.abs((predicted - true) / true)) ** 2
     b = (np.abs((true - np.mean(true)) / np.mean(true))) ** 2
     return float(1 - (np.sum(a) / np.sum(b)))
 
-def nse_bound(true, predicted, preprocess:bool = True) -> float:
+
+def nse_bound(true, predicted, preprocess: bool = True) -> float:
     """
     Bounded Version of the Nash-Sutcliffe Efficiency (nse_)
 
@@ -634,7 +667,8 @@ def nse_bound(true, predicted, preprocess:bool = True) -> float:
     nse_c2m_ = nse_ / (2 - nse_)
     return nse_c2m_
 
-def r2_score(true, predicted, preprocess:bool = True, weights=None):
+
+def r2_score(true, predicted, preprocess: bool = True, weights=None):
     """
     This is not a symmetric function.
     Unlike most other scores, R^2 score may be negative (it need not actually
@@ -672,7 +706,7 @@ def r2_score(true, predicted, preprocess:bool = True, weights=None):
     else:
         weight = weights[:, np.newaxis]
 
-    numerator = (weight * (true - predicted) ** 2).sum(axis=0,dtype=np.float64)
+    numerator = (weight * (true - predicted) ** 2).sum(axis=0, dtype=np.float64)
     denominator = (weight * (true - np.average(true, axis=0, weights=weights)) ** 2).sum(axis=0, dtype=np.float64)
 
     if numerator == 0.0:
@@ -680,8 +714,11 @@ def r2_score(true, predicted, preprocess:bool = True, weights=None):
     output_scores = _foo(denominator, numerator)
 
     return float(np.average(output_scores, weights=weights))
-def adjusted_r2(true, predicted, preprocess:bool = True) -> float:
+
+
+def adjusted_r2(true, predicted, preprocess: bool = True) -> float:
     """Adjusted R squared.
+
     Parameters
     ----------
     true :
@@ -705,7 +742,9 @@ def adjusted_r2(true, predicted, preprocess:bool = True) -> float:
     n = len(predicted)
     adj_r = 1 - ((1 - r2(true, predicted)) * (n - 1)) / (n - k - 1)
     return float(adj_r)
-def kge(true, predicted, preprocess:bool = True, return_all=False):
+
+
+def kge(true, predicted, preprocess: bool = True, return_all=False):
     """
     Kling-Gupta Efficiency
     Gupta, Kling, Yilmaz, Martinez, 2009, Decomposition of the mean squared error and NSE performance
@@ -741,12 +780,14 @@ def kge(true, predicted, preprocess:bool = True, return_all=False):
     beta = np.sum(predicted) / np.sum(true)
     return post_process_kge(cc, alpha, beta, return_all)
 
-def kge_bound(true,predicted, preprocess:bool = True) -> float:
+
+def kge_bound(true, predicted, preprocess: bool = True) -> float:
     """
     Bounded Version of the Original Kling-Gupta Efficiency_
 
     .. _Efficiency:
         https://iahs.info/uploads/dms/13614.21--211-219-41-MATHEVET.pdf
+
     Parameters
     ----------
     true :
@@ -770,12 +811,15 @@ def kge_bound(true,predicted, preprocess:bool = True) -> float:
     kge_c2m_ = kge_ / (2 - kge_)
 
     return float(kge_c2m_)
-def kge_mod(true,predicted, preprocess:bool = True, return_all=False):
+
+
+def kge_mod(true, predicted, preprocess: bool = True, return_all=False):
     """
     Modified Kling-Gupta Efficiency_ .
 
     .. _Efficiency:
         https://doi.org/10.1016/j.jhydrol.2012.01.011
+
     Parameters
     ----------
     true :
@@ -811,7 +855,8 @@ def kge_mod(true,predicted, preprocess:bool = True, return_all=False):
     # calculate the modified Kling-Gupta Efficiency KGE'
     return post_process_kge(r, gamma, beta, return_all)
 
-def kge_np(true, predicted, preprocess:bool = True, return_all=False):
+
+def kge_np(true, predicted, preprocess: bool = True, return_all=False):
     """
     Non parametric Kling-Gupta Efficiency
 
@@ -826,6 +871,7 @@ def kge_np(true, predicted, preprocess:bool = True, return_all=False):
     Pool, Vis, and Seibert, 2018 Evaluating model performance: towards a non-parametric variant of the
     Kling-Gupta efficiency, Hydrological Sciences Journal.
     https://doi.org/10.1080/02626667.2018.1552002
+
     Parameters
     ----------
     true :
@@ -857,7 +903,8 @@ def kge_np(true, predicted, preprocess:bool = True, return_all=False):
     beta = np.mean(predicted) / np.mean(true)
     return post_process_kge(cc, alpha, beta, return_all)
 
-def spearmann_corr(true, predicted, preprocess:bool = True) -> float:
+
+def spearmann_corr(true, predicted, preprocess: bool = True) -> float:
     """Separmann correlation coefficient_.
 
     This is a nonparametric metric and assesses how well the relationship
@@ -866,6 +913,7 @@ def spearmann_corr(true, predicted, preprocess:bool = True) -> float:
 
     .. _coefficient:
         https://hess.copernicus.org/articles/24/2505/2020/hess-24-2505-2020.pdf
+
     Parameters
     ----------
     true :
@@ -905,7 +953,8 @@ def spearmann_corr(true, predicted, preprocess:bool = True) -> float:
     denominator2 = np.sqrt(np.nansum([(a[j][3] - mw_rank_x) ** 2. for j in range(len(a))]))
     return float(numerator / (denominator1 * denominator2))
 
-def log_nse(true, predicted, preprocess:bool = True, epsilon=0.0) -> float:
+
+def log_nse(true, predicted, preprocess: bool = True, epsilon=0.0) -> float:
     """
     log Nash-Sutcliffe model efficiency
 
@@ -935,7 +984,8 @@ def log_nse(true, predicted, preprocess:bool = True, epsilon=0.0) -> float:
     s, o = predicted + epsilon, true + epsilon  # todo, check why s is here
     return float(1 - sum((np.log(o) - np.log(o)) ** 2) / sum((np.log(o) - np.mean(np.log(o))) ** 2))
 
-def corr_coeff(true, predicted, preprocess:bool = True) -> float:
+
+def corr_coeff(true, predicted, preprocess: bool = True) -> float:
     """
     Pearson correlation coefficient.
     It measures linear correlatin between true and predicted arrays.
@@ -945,6 +995,7 @@ def corr_coeff(true, predicted, preprocess:bool = True) -> float:
     .. math::
         r = \\frac{\\sum ^n _{i=1}(e_i - \\bar{e})(s_i - \\bar{s})}{\\sqrt{\\sum ^n _{i=1}(e_i - \\bar{e})^2}
          \\sqrt{\\sum ^n _{i=1}(s_i - \\bar{s})^2}}
+
     Parameters
     ----------
     true :
@@ -967,8 +1018,11 @@ def corr_coeff(true, predicted, preprocess:bool = True) -> float:
     true, predicted = maybe_preprocess(preprocess, true, predicted, METRIC_TYPES['corr_coeff'])
     correlation_coefficient = np.corrcoef(true, predicted)[0, 1]
     return float(correlation_coefficient)
-def rmse(true, predicted, preprocess:bool = True, weights=None) -> float:
-    """ root mean square error
+
+
+def rmse(true, predicted, preprocess: bool = True, weights=None) -> float:
+    """ Root mean squared error
+
     Parameters
     ----------
     true :
@@ -992,7 +1046,8 @@ def rmse(true, predicted, preprocess:bool = True, weights=None) -> float:
         true, predicted = maybe_preprocess(preprocess, true, predicted, METRIC_TYPES['rmse'])
     return sqrt(np.average((true - predicted) ** 2, axis=0, weights=weights))
 
-def rmsle(true, predicted, preprocess:bool = True) -> float:
+
+def rmsle(true, predicted, preprocess: bool = True) -> float:
     """Root mean square log error.
 
     This error is less sensitive to `outliers <https://stats.stackexchange.com/q/56658/314919>`_ .
@@ -1002,6 +1057,7 @@ def rmsle(true, predicted, preprocess:bool = True) -> float:
     This is especially useful in those studies where the underestimation
     of the target variable is not acceptable but overestimation can be
     `tolerated <https://doi.org/10.1016/j.scitotenv.2020.137894>`_ .
+
     Parameters
     ----------
     true :
@@ -1023,7 +1079,9 @@ def rmsle(true, predicted, preprocess:bool = True) -> float:
      """
     true, predicted = maybe_preprocess(preprocess, true, predicted, METRIC_TYPES['rmsle'])
     return float(np.sqrt(np.mean(np.power(log1p(predicted) - log1p(true), 2))))
-def mape(true, predicted, preprocess:bool = True) -> float:
+
+
+def mape(true, predicted, preprocess: bool = True) -> float:
     """ Mean Absolute Percentage Error.
     The MAPE is often used when the quantity to predict is known to remain
     way above zero_. It is useful when the size or size of a prediction variable
@@ -1040,6 +1098,7 @@ def mape(true, predicted, preprocess:bool = True) -> float:
 
     .. _values:
         https://doi.org/10.1016/j.ijforecast.2015.12.003
+
     Parameters
     ----------
     true :
@@ -1060,8 +1119,9 @@ def mape(true, predicted, preprocess:bool = True) -> float:
     """
     true, predicted = maybe_preprocess(preprocess, true, predicted, METRIC_TYPES['mape'])
     return float(np.mean(np.abs((true - predicted) / true)) * 100)
-def nrmse(true, predicted, preprocess:bool = True) -> float:
 
+
+def nrmse(true, predicted, preprocess: bool = True) -> float:
     """ Normalized Root Mean Squared Error
     Parameters
     ----------
@@ -1083,7 +1143,9 @@ def nrmse(true, predicted, preprocess:bool = True) -> float:
     """
     true, predicted = maybe_preprocess(preprocess, true, predicted, METRIC_TYPES['nrmse'])
     return float(rmse(true, predicted) / (np.max(true) - np.min(true)))
-def pbias(true, predicted, preprocess:bool = True) -> float:
+
+
+def pbias(true, predicted, preprocess: bool = True) -> float:
     """
     Percent Bias.
     It determine how well the model simulates the average magnitudes for the
@@ -1097,6 +1159,7 @@ def pbias(true, predicted, preprocess:bool = True) -> float:
     is poor. [1]
 
     [1] Moriasi et al., 2015
+
     Parameters
     ----------
     true :
@@ -1119,7 +1182,7 @@ def pbias(true, predicted, preprocess:bool = True) -> float:
     return float(100.0 * sum(predicted - true) / sum(true))
 
 
-def bias(true, predicted, preprocess:bool = True) -> float:
+def bias(true, predicted, preprocess: bool = True) -> float:
     """
     Bias as and given by Gupta1998_ et al., 1998
 
@@ -1128,6 +1191,7 @@ def bias(true, predicted, preprocess:bool = True) -> float:
 
     .. _Gupta1998:
         https://doi.org/10.1029/97WR03495
+
     Parameters
     ----------
     true :
@@ -1150,9 +1214,11 @@ def bias(true, predicted, preprocess:bool = True) -> float:
     bias_ = np.nansum(true - predicted) / len(true)
     return float(bias_)
 
-def mae(true, predicted, preprocess:bool = True,) -> float:
+
+def mae(true, predicted, preprocess: bool = True, ) -> float:
     """ Mean Absolute Error.
     It is less sensitive to outliers as compared to mse/rmse.
+
     Parameters
     ----------
     true :
@@ -1177,8 +1243,11 @@ def mae(true, predicted, preprocess:bool = True,) -> float:
     if predicted is None:
         predicted = predicted
     return float(np.mean(np.abs(true - predicted)))
-def abs_pbias(true, predicted, preprocess:bool = True) -> float:
+
+
+def abs_pbias(true, predicted, preprocess: bool = True) -> float:
     """Absolute Percent bias
+
     Parameters
     ----------
     true :
@@ -1189,7 +1258,7 @@ def abs_pbias(true, predicted, preprocess:bool = True) -> float:
     preprocess :
         process the true and predicted array
 
-        Examples
+    Examples
     ---------
     >>> import numpy as np
     >>> from SeqMetrics import abs_pbias
@@ -1200,8 +1269,11 @@ def abs_pbias(true, predicted, preprocess:bool = True) -> float:
     true, predicted = maybe_preprocess(preprocess, true, predicted, METRIC_TYPES['abs_pbias'])
     _apb = 100.0 * sum(abs(predicted - true)) / sum(true)
     return float(_apb)
-def gmae(true, predicted, preprocess:bool = True) -> float:
+
+
+def gmae(true, predicted, preprocess: bool = True) -> float:
     """ Geometric Mean Absolute Error
+
     Parameters
     ----------
     true :
@@ -1221,9 +1293,11 @@ def gmae(true, predicted, preprocess:bool = True) -> float:
     >>> gmae(t, p)
     """
     true, predicted = maybe_preprocess(preprocess, true, predicted, METRIC_TYPES['gmae'])
-    error= true- predicted
+    error = true - predicted
     return _geometric_mean(np.abs(error))
-def inrse(true, predicted, preprocess:bool = True) -> float:
+
+
+def inrse(true, predicted, preprocess: bool = True) -> float:
     """ Integral Normalized Root Squared Error
     Parameters
     ----------
@@ -1245,9 +1319,11 @@ def inrse(true, predicted, preprocess:bool = True) -> float:
 
     """
     true, predicted = maybe_preprocess(preprocess, true, predicted, METRIC_TYPES['inrse'])
-    error= true-predicted
+    error = true - predicted
     return float(np.sqrt(np.sum(np.square(error)) / np.sum(np.square(true - np.mean(true)))))
-def irmse(true, predicted, preprocess:bool = True) -> float:
+
+
+def irmse(true, predicted, preprocess: bool = True) -> float:
     """Inertial RMSE. RMSE divided by standard deviation of the gradient of true.
     Parameters
     ----------
@@ -1277,7 +1353,9 @@ def irmse(true, predicted, preprocess:bool = True) -> float:
 
     # Divide RMSE by the standard deviation of the gradient of the observed data
     return float(rmse(true, predicted) / obs_grad_std)
-def mase(true, predicted, preprocess:bool = True, seasonality: int = 1):
+
+
+def mase(true, predicted, preprocess: bool = True, seasonality: int = 1):
     """
     Mean Absolute Scaled Error. Baseline (benchmark) is computed with naive
     forecasting (shifted by @seasonality) modified after [11]_. It is the
@@ -1314,11 +1392,12 @@ def mase(true, predicted, preprocess:bool = True, seasonality: int = 1):
     return mae(true, predicted, False) / mae(true[seasonality:], _naive_prognose(true, seasonality))
 
 
-def mare(true, predicted, preprocess:bool = True) -> float:
+def mare(true, predicted, preprocess: bool = True) -> float:
     """ Mean Absolute Relative Error. When expressed in %age, it is also known as mape_.
 
     .. _mape:
         https://doi.org/10.1016/j.rser.2015.08.035
+
     Parameters
     ----------
     true :
@@ -1338,12 +1417,14 @@ def mare(true, predicted, preprocess:bool = True) -> float:
     >>> mare(t, p)
     """
     true, predicted = maybe_preprocess(preprocess, true, predicted, METRIC_TYPES['mare'])
-    error= true- predicted
+    error = true - predicted
     return float(np.mean(np.abs(error / true)))
+
 
 def msle(true, predicted, preprocess=True, weights=None) -> float:
     """
     mean square logrithmic error
+
     Parameters
     ----------
     true :
@@ -1366,15 +1447,19 @@ def msle(true, predicted, preprocess=True, weights=None) -> float:
 
     true, predicted = maybe_preprocess(preprocess, true, predicted, METRIC_TYPES['msle'])
     return float(np.average((log1p(true) - log1p(predicted)) ** 2, axis=0, weights=weights))
+
+
 def log1p(array):
     with np.errstate(**ERR_STATE):
         return np.log1p(array)
 
-def covariance(true, predicted, preprocess:bool = True) -> float:
+
+def covariance(true, predicted, preprocess: bool = True) -> float:
     """
     Covariance
         .. math::
         Covariance = \\frac{1}{N} \\sum_{i=1}^{N}((e_{i} - \\bar{e}) * (s_{i} - \\bar{s}))
+
     Parameters
     ----------
     true :
@@ -1399,7 +1484,8 @@ def covariance(true, predicted, preprocess:bool = True) -> float:
     covariance_ = np.mean((true - obs_mean) * (predicted - sim_mean))
     return float(covariance_)
 
-def brier_score(true, predicted, preprocess:bool = True) -> float:
+
+def brier_score(true, predicted, preprocess: bool = True) -> float:
     """
     Adopted from SkillMetrics_
     Calculates the Brier score (BS), a measure of the mean-square error of
@@ -1469,7 +1555,8 @@ def brier_score(true, predicted, preprocess:bool = True) -> float:
 
     return bs
 
-def bic(true, predicted, preprocess:bool = True, p=1) -> float:
+
+def bic(true, predicted, preprocess: bool = True, p=1) -> float:
     """
     Bayesian Information Criterion
 
@@ -1507,7 +1594,9 @@ def bic(true, predicted, preprocess:bool = True, p=1) -> float:
 
     n = len(true)
     return float(n * np.log(sse(true, predicted) / n) + p * np.log(n))
-def sse(true, predicted, preprocess:bool = True) -> float:
+
+
+def sse(true, predicted, preprocess: bool = True) -> float:
     """
     Sum of squared errors_ (model vs actual). It is measure of how far off
     our model's predictions are from the observed values. A value of 0 indicates
@@ -1542,8 +1631,11 @@ def sse(true, predicted, preprocess:bool = True) -> float:
     true, predicted = maybe_preprocess(preprocess, true, predicted, METRIC_TYPES['sse'])
     squared_errors = (true - predicted) ** 2
     return float(np.sum(squared_errors))
-def amemiya_pred_criterion(true, predicted, preprocess:bool = True) -> float:
+
+
+def amemiya_pred_criterion(true, predicted, preprocess: bool = True) -> float:
     """Amemiya's Prediction Criterion
+
     Parameters
     ----------
     true :
@@ -1566,8 +1658,11 @@ def amemiya_pred_criterion(true, predicted, preprocess:bool = True) -> float:
     k = 1
     n = len(predicted)
     return float(((n + k) / (n - k)) * (1 / n) * sse(true, predicted))
-def amemiya_adj_r2(true, predicted, preprocess:bool = True) -> float:
+
+
+def amemiya_adj_r2(true, predicted, preprocess: bool = True) -> float:
     """Amemiya's Adjusted R-squared
+
     Parameters
     ----------
     true :
@@ -1592,11 +1687,13 @@ def amemiya_adj_r2(true, predicted, preprocess:bool = True) -> float:
     adj_r = 1 - ((1 - r2(true, predicted)) * (n + k)) / (n - k - 1)
     return float(adj_r)
 
-def aitchison(true, predicted, preprocess:bool = True, center='mean') -> float:
+
+def aitchison(true, predicted, preprocess: bool = True, center='mean') -> float:
     """Aitchison distance. used in Zhang_ et al., 2020
 
     .. _Zhang:
         https://doi.org/10.5194/hess-24-2505-2020
+
     Parameters
     ----------
     true :
@@ -1641,7 +1738,8 @@ def log_p(predicted):
     with np.errstate(**ERR_STATE):
         return np.log(predicted)
 
-def _assert_greater_than_one(true, predicted, preprocess:bool = True):
+
+def _assert_greater_than_one(true, predicted, preprocess: bool = True):
     # assert that both true and predicted arrays are greater than one.
     true, predicted = maybe_preprocess(preprocess, true, predicted, METRIC_TYPES['_assert_greater_than_one'])
     if len(true) <= 1 or len(predicted) <= 1:
@@ -1650,7 +1748,8 @@ def _assert_greater_than_one(true, predicted, preprocess:bool = True):
         they are {len(true)} and {len(predicted)}""")
     return
 
-def acc(true, predicted, preprocess:bool = True) -> float:
+
+def acc(true, predicted, preprocess: bool = True) -> float:
     """Anomaly correction coefficient. See Langland_ et al., 2012; Miyakoda_ et al., 1972
     and Murphy_ et al., 1989.
 
@@ -1661,6 +1760,7 @@ def acc(true, predicted, preprocess:bool = True) -> float:
 
     .. _Murphy:
         https://doi.org/10.1080/02723646.1972.10642213
+
     Parameters
     ----------
     true :
@@ -1685,7 +1785,8 @@ def acc(true, predicted, preprocess:bool = True) -> float:
     c = np.std(true, ddof=1) * np.std(predicted, ddof=1) * predicted.size
     return float(np.dot(a, b / c))
 
-def agreement_index(true, predicted, preprocess:bool = True) -> float:
+
+def agreement_index(true, predicted, preprocess: bool = True) -> float:
     """
     Agreement Index (d) developed by Willmott_, 1981.
 
@@ -1707,6 +1808,7 @@ def agreement_index(true, predicted, preprocess:bool = True) -> float:
 
     .. _Moriasi:
         https://doi.org/10.13031/trans.58.10715
+
     Parameters
     ----------
     true :
@@ -1730,7 +1832,8 @@ def agreement_index(true, predicted, preprocess:bool = True) -> float:
         (np.abs(predicted - np.mean(true)) + np.abs(true - np.mean(true))) ** 2))
     return float(agreement_index_)
 
-def aic(true, predicted, preprocess:bool = True, p=1) -> float:
+
+def aic(true, predicted, preprocess: bool = True, p=1) -> float:
     """
     Akaike_ Information Criterion. Modifying from this source_
 
@@ -1767,7 +1870,8 @@ def aic(true, predicted, preprocess:bool = True, p=1) -> float:
     rss = np.sum(np.power(resid, 2))
     return float(n * np.log(rss / n) + 2 * p)
 
-def cronbach_alpha(true, predicted, preprocess:bool = True) -> float:
+
+def cronbach_alpha(true, predicted, preprocess: bool = True) -> float:
     """
     It is a measure of internal consitency of data. See ucla and stackoverflow_
     pages for more info.
@@ -1777,6 +1881,7 @@ def cronbach_alpha(true, predicted, preprocess:bool = True) -> float:
 
     .. _stackoverflow:
         https://stackoverflow.com/a/20799687/5982232
+
     Parameters
     ----------
     true :
@@ -1801,7 +1906,9 @@ def cronbach_alpha(true, predicted, preprocess:bool = True) -> float:
     tscores = itemscores.sum(axis=0)
     nitems = len(itemscores)
     return float(nitems / (nitems - 1.) * (1 - itemvars.sum() / tscores.var(ddof=1)))
-def centered_rms_dev(true, predicted, preprocess:bool = True) -> float:
+
+
+def centered_rms_dev(true, predicted, preprocess: bool = True) -> float:
     """
     Modified after SkillMetrics_.
     Calculates the centered root-mean-square (RMS) difference between true and predicted
@@ -1812,6 +1919,7 @@ def centered_rms_dev(true, predicted, preprocess:bool = True) -> float:
 
     Output:
     CRMSDIFF : centered root-mean-square (RMS) difference (E')^2
+
     Parameters
     ----------
     true :
@@ -1841,7 +1949,9 @@ def centered_rms_dev(true, predicted, preprocess:bool = True) -> float:
     crmsd = np.sqrt(crmsd)
 
     return float(crmsd)
-def cosine_similarity(true, predicted, preprocess:bool = True) -> float:
+
+
+def cosine_similarity(true, predicted, preprocess: bool = True) -> float:
     """
     It is a judgment of orientation and not magnitude: two vectors with
     the same orientation have a cosine similarity of 1, two vectors oriented
@@ -1850,6 +1960,7 @@ def cosine_similarity(true, predicted, preprocess:bool = True) -> float:
 
     .. _see:
         https://en.wikipedia.org/wiki/Cosine_similarity
+
     Parameters
     ----------
     true :
@@ -1869,11 +1980,12 @@ def cosine_similarity(true, predicted, preprocess:bool = True) -> float:
     >>> cosine_similarity(t, p)
     """
     true, predicted = maybe_preprocess(preprocess, true, predicted, METRIC_TYPES['cosine_similarity'])
-    return float(np.dot(true.reshape(-1,),
-                        predicted.reshape(-1,)) /
+    return float(np.dot(true.reshape(-1, ),
+                        predicted.reshape(-1, )) /
                  (np.linalg.norm(true) * np.linalg.norm(predicted)))
 
-def decomposed_mse(true, predicted, preprocess:bool = True) -> float:
+
+def decomposed_mse(true, predicted, preprocess: bool = True) -> float:
     """
     Decomposed MSE developed by Kobayashi and Salam (2000)
 
@@ -1882,6 +1994,7 @@ def decomposed_mse(true, predicted, preprocess:bool = True) -> float:
         SDSD = (\\sigma(e) - \\sigma(s))^2
         LCS = 2 \\sigma(e) \\sigma(s) * (1 - \\frac{\\sum ^n _{i=1}(e_i - \\bar{e})(s_i - \\bar{s})}
         {\\sqrt{\\sum ^n _{i=1}(e_i - \\bar{e})^2} \\sqrt{\\sum ^n _{i=1}(s_i - \\bar{s})^2}})
+
     Parameters
     ----------
     true :
@@ -1911,7 +2024,9 @@ def decomposed_mse(true, predicted, preprocess:bool = True) -> float:
     decomposed_mse_ = bias_squared + sdsd + lcs
 
     return float(decomposed_mse_)
-def euclid_distance(true, predicted, preprocess:bool = True) -> float:
+
+
+def euclid_distance(true, predicted, preprocess: bool = True) -> float:
     """Euclidian distance
 
     Referneces: Kennard et al., 2010
@@ -1935,7 +2050,9 @@ def euclid_distance(true, predicted, preprocess:bool = True) -> float:
     """
     true, predicted = maybe_preprocess(preprocess, true, predicted, METRIC_TYPES['euclid_distance'])
     return float(np.linalg.norm(true - predicted))
-def exp_var_score(true, predicted, preprocess:bool = True, weights=None) -> Union[float, None]:
+
+
+def exp_var_score(true, predicted, preprocess: bool = True, weights=None) -> Union[float, None]:
     """
     Explained variance score_ . Best value is 1, lower values are less accurate.
 
@@ -1975,7 +2092,8 @@ def exp_var_score(true, predicted, preprocess:bool = True, weights=None) -> Unio
 
     return float(np.average(output_scores, weights=weights))
 
-def expanded_uncertainty(true, predicted, preprocess:bool = True, cov_fact=1.96) -> float:
+
+def expanded_uncertainty(true, predicted, preprocess: bool = True, cov_fact=1.96) -> float:
     """By default it calculates uncertainty with 95% confidence interval.
     1.96 is the coverage factor corresponding 95% confidence level .This
     indicator is used in order to show more information about the model
@@ -2005,12 +2123,12 @@ def expanded_uncertainty(true, predicted, preprocess:bool = True, cov_fact=1.96)
     >>> expanded_uncertainty(t, p)
     """
     true, predicted = maybe_preprocess(preprocess, true, predicted, METRIC_TYPES['expanded_uncertainty'])
-    error= true- predicted
+    error = true - predicted
     sd = np.std(error)
     return float(cov_fact * np.sqrt(sd ** 2 + rmse(true, predicted) ** 2))
 
 
-def fdc_fhv(true, predicted, preprocess:bool = True, h: float = 0.02) -> float:
+def fdc_fhv(true, predicted, preprocess: bool = True, h: float = 0.02) -> float:
     """
     modified Kratzert2018_ code. Peak flow bias of the flow duration curve (Yilmaz 2008).
     used in kratzert et al., 2018
@@ -2059,7 +2177,8 @@ def fdc_fhv(true, predicted, preprocess:bool = True, h: float = 0.02) -> float:
 
     return float(fhv * 100)
 
-def fdc_flv(true, predicted, preprocess:bool = True, low_flow: float = 0.3) -> float:
+
+def fdc_flv(true, predicted, preprocess: bool = True, low_flow: float = 0.3) -> float:
     """
     bias of the bottom 30 % low flows. modified Kratzert_ code
     used in kratzert et al., 2018
@@ -2094,7 +2213,6 @@ def fdc_flv(true, predicted, preprocess:bool = True, low_flow: float = 0.3) -> f
     """
     true, predicted = maybe_preprocess(preprocess, true, predicted, METRIC_TYPES['fdc_flv'])
 
-
     low_flow = 1.0 - low_flow
     # make sure that metric is calculated over the same dimension
     obs = true.flatten()
@@ -2126,9 +2244,12 @@ def fdc_flv(true, predicted, preprocess:bool = True, low_flow: float = 0.3) -> f
     flv = -1 * (qsl - qol) / (qol + 1e-6)
 
     return float(flv * 100)
-def gmean_diff(true, predicted, preprocess:bool = True) -> float:
+
+
+def gmean_diff(true, predicted, preprocess: bool = True) -> float:
     """Geometric mean difference. First geometric mean is calculated for each
     of two samples and their difference is calculated.
+
     Parameters
     ----------
     true :
@@ -2149,8 +2270,11 @@ def gmean_diff(true, predicted, preprocess:bool = True) -> float:
     """
     true, predicted = maybe_preprocess(preprocess, true, predicted, METRIC_TYPES['gmean_diff'])
     return float(np.exp(gmean(log1p(predicted)) - gmean(log1p(true))))
-def gmrae(true, predicted, preprocess:bool = True, benchmark: np.ndarray = None) -> float:
+
+
+def gmrae(true, predicted, preprocess: bool = True, benchmark: np.ndarray = None) -> float:
     """ Geometric Mean Relative Absolute Error
+
     Parameters
     ----------
     true :
@@ -2172,8 +2296,11 @@ def gmrae(true, predicted, preprocess:bool = True, benchmark: np.ndarray = None)
     """
     true, predicted = maybe_preprocess(preprocess, true, predicted, METRIC_TYPES['gmrae'])
     return _geometric_mean(np.abs(_relative_error(true, predicted, False, benchmark)))
-def _relative_error(true, predicted, preprocess:bool = True, benchmark: np.ndarray = None):
+
+
+def _relative_error(true, predicted, preprocess: bool = True, benchmark: np.ndarray = None):
     """ Relative Error
+
     Parameters
     ----------
     true :
@@ -2184,7 +2311,7 @@ def _relative_error(true, predicted, preprocess:bool = True, benchmark: np.ndarr
     preprocess :
         process the true and predicted array"""
     true, predicted = maybe_preprocess(preprocess, true, predicted)
-    error= true- predicted
+    error = true - predicted
     if benchmark is None or isinstance(benchmark, int):
         # If no benchmark prediction provided - use naive forecasting
         if not isinstance(benchmark, int):
@@ -2192,9 +2319,11 @@ def _relative_error(true, predicted, preprocess:bool = True, benchmark: np.ndarr
         else:
             seasonality = benchmark
         return (true[seasonality:] - predicted[seasonality:]) / \
-                          (true[seasonality:]- _naive_prognose(true, seasonality) + EPS)
+            (true[seasonality:] - _naive_prognose(true, seasonality) + EPS)
 
     return error / (true - benchmark + EPS)
+
+
 def _naive_prognose(true, seasonality: int = 1):
     """ Naive forecasting method which just repeats previous samples
     Parameters
@@ -2204,26 +2333,56 @@ def _naive_prognose(true, seasonality: int = 1):
          or pandas series/DataFrame or a list.
 """
     return true[:-seasonality]
+
+
 def _minimal() -> list:
     """some minimal and basic metrics"""
 
     return ['r2', 'mape', 'nrmse', 'corr_coeff', 'rmse', 'mae', 'mse', 'mpe',
-        'mase', 'r2_score']
+            'mase', 'r2_score']
+
+
 def _hydro_metrics() -> list:
     """Names of metrics related to hydrology"""
 
     return _minimal() + [
-            'fdc_flv', 'fdc_fhv',
-            'kge', 'kge_np', 'kge_mod', 'kge_bound', 'kgeprime_c2m', 'kgenp_bound',
-            'nse', 'nse_alpha', 'nse_beta', 'nse_mod', 'nse_bound']
-def calculate_hydro_metrics(true, predicted, preprocess:bool = True)->dict:
+        'fdc_flv', 'fdc_fhv',
+        'kge', 'kge_np', 'kge_mod', 'kge_bound', 'kgeprime_c2m', 'kgenp_bound',
+        'nse', 'nse_alpha', 'nse_beta', 'nse_mod', 'nse_bound']
+
+
+def calculate_hydro_metrics(true, predicted, preprocess: bool = True) -> dict:
     """
-    Calculates all metrics for hydrological data.
+    Calculates the following performance metrics related to hydrology.
+        - fdc_flv
+        - fdc_fhv
+        - kge
+        - kge_np
+        - kge_mod
+        - kge_bound
+        - kgeprime_c2m
+        - kgenp_bound
+        - nse
+        - nse_alpha
+        - nse_beta
+        - nse_mod
+        - nse_bound
+        - r2
+        - mape
+        - nrmse
+        - corr_coeff
+        - rmse
+        - mae
+        - mse
+        - mpe
+        - mase
+        - r2_score
 
     Returns
     -------
     dict
         Dictionary with all metrics
+
     Parameters
     ----------
     true :
@@ -2243,20 +2402,20 @@ def calculate_hydro_metrics(true, predicted, preprocess:bool = True)->dict:
     >>> calculate_hydro_metrics(t, p)
     """
 
-
     metrics = {}
     true, predicted = maybe_preprocess(preprocess, true, predicted, METRIC_TYPES['JS'])
 
     for metric in [fdc_flv, fdc_fhv, kge, kge_np, kge_mod, kge_bound, kgeprime_c2m, kgenp_bound,
-                   nse,  nse_alpha, nse_beta, nse_mod, nse_bound, r2, mape, nrmse, corr_coeff, rmse, mae, mse, mpe,
-            mase, r2_score]:
+                   nse, nse_alpha, nse_beta, nse_mod, nse_bound, r2, mape, nrmse, corr_coeff, rmse, mae, mse, mpe,
+                   mase, r2_score]:
         metrics[metric.__name__] = metric(true, predicted, preprocess=False)
 
     return metrics
 
 
-def JS(true, predicted, preprocess:bool = True) -> float:
+def JS(true, predicted, preprocess: bool = True) -> float:
     """Jensen-shannon divergence
+
     Parameters
     ----------
     true :
@@ -2285,7 +2444,8 @@ def JS(true, predicted, preprocess:bool = True) -> float:
     d = 0.5 * sum(d1 + d2)
     return float(d)
 
-def kendaull_tau(true, predicted, preprocess:bool = True, return_p=False) -> Union[float, tuple]:
+
+def kendaull_tau(true, predicted, preprocess: bool = True, return_p=False) -> Union[float, tuple]:
     """Kendall's tau_ .used in Probst_ et al., 2019.
 
     .. _tau:
@@ -2293,6 +2453,7 @@ def kendaull_tau(true, predicted, preprocess:bool = True, return_p=False) -> Uni
 
     .. _Probst:
         https://www.jmlr.org/papers/volume20/18-444/18-444.pdf
+
     Parameters
     ----------
     true :
@@ -2317,7 +2478,9 @@ def kendaull_tau(true, predicted, preprocess:bool = True, return_p=False) -> Uni
     if return_p:
         return coef, p
     return float(p)
-def kgeprime_c2m(true, predicted, preprocess:bool = True) -> float:
+
+
+def kgeprime_c2m(true, predicted, preprocess: bool = True) -> float:
     """
     Bounded Version of the Modified Kling-Gupta Efficiency_
 
@@ -2347,7 +2510,9 @@ def kgeprime_c2m(true, predicted, preprocess:bool = True) -> float:
     kgeprime_c2m_ = kgeprime_ / (2 - kgeprime_)
 
     return float(kgeprime_c2m_)
-def kgenp_bound(true, predicted, preprocess:bool = True):
+
+
+def kgenp_bound(true, predicted, preprocess: bool = True):
     """
     Bounded Version of the Non-Parametric Kling-Gupta Efficiency
     Parameters
@@ -2370,11 +2535,13 @@ def kgenp_bound(true, predicted, preprocess:bool = True):
 
     """
     true, predicted = maybe_preprocess(preprocess, true, predicted, METRIC_TYPES['kgenp_bound'])
-    kgenp_ = kge_np(return_all=True, true= true, predicted= predicted)[0, :]
+    kgenp_ = kge_np(return_all=True, true=true, predicted=predicted)[0, :]
     kgenp_c2m_ = kgenp_ / (2 - kgenp_)
 
     return float(kgenp_c2m_)
-def kl_sym(true, predicted, preprocess:bool = True) -> Union[float, None]:
+
+
+def kl_sym(true, predicted, preprocess: bool = True) -> Union[float, None]:
     """Symmetric kullback-leibler divergence
     Parameters
     ----------
@@ -2407,7 +2574,7 @@ def kl_sym(true, predicted, preprocess:bool = True) -> Union[float, None]:
     return float(d)
 
 
-def lm_index(true, predicted, preprocess:bool = True, obs_bar_p=None) -> float:
+def lm_index(true, predicted, preprocess: bool = True, obs_bar_p=None) -> float:
     """Legate-McCabe Efficiency Index.
     Less sensitive to outliers in the data. The larger, the better
 
@@ -2443,7 +2610,9 @@ def lm_index(true, predicted, preprocess:bool = True, obs_bar_p=None) -> float:
         b = np.abs(true - mean_obs)
 
     return float(1 - (np.sum(a) / np.sum(b)))
-def maape(true, predicted, preprocess:bool = True) -> float:
+
+
+def maape(true, predicted, preprocess: bool = True) -> float:
     """
     Mean Arctangent Absolute Percentage Error
     Note: result is NOT multiplied by 100
@@ -2467,7 +2636,9 @@ def maape(true, predicted, preprocess:bool = True) -> float:
     """
     true, predicted = maybe_preprocess(preprocess, true, predicted, METRIC_TYPES['maape'])
     return float(np.mean(np.arctan(np.abs((true - predicted) / (true + EPS)))))
-def mbe(true, predicted, preprocess:bool = True) -> float:
+
+
+def mbe(true, predicted, preprocess: bool = True) -> float:
     """Mean bias error. This indicator expresses a tendency of model to underestimate (negative value)
     or overestimate (positive value) global radiation, while the MBE values closest to zero are desirable.
     The drawback of this test is that it does not show the correct performance when the model presents
@@ -2495,9 +2666,11 @@ def mbe(true, predicted, preprocess:bool = True) -> float:
     >>> mbe(t, p)
     """
     true, predicted = maybe_preprocess(preprocess, true, predicted, METRIC_TYPES['mbe'])
-    error= true- predicted
+    error = true - predicted
     return float(np.mean(error))
-def _bounded_relative_error(true, predicted, preprocess:bool = True, benchmark: np.ndarray = None):
+
+
+def _bounded_relative_error(true, predicted, preprocess: bool = True, benchmark: np.ndarray = None):
     """ Bounded Relative Error
     Parameters
     ----------
@@ -2509,7 +2682,7 @@ def _bounded_relative_error(true, predicted, preprocess:bool = True, benchmark: 
     preprocess :
         process the true and predicted array"""
     true, predicted = maybe_preprocess(preprocess, true, predicted)
-    error= true- predicted
+    error = true - predicted
     if benchmark is None or isinstance(benchmark, int):
         # If no benchmark prediction provided - use naive forecasting
         if not isinstance(benchmark, int):
@@ -2517,14 +2690,16 @@ def _bounded_relative_error(true, predicted, preprocess:bool = True, benchmark: 
         else:
             seasonality = benchmark
 
-        abs_err = np.abs(true[seasonality:]- predicted[seasonality:])
-        abs_err_bench = np.abs(true[seasonality:]- _naive_prognose(true, seasonality))
+        abs_err = np.abs(true[seasonality:] - predicted[seasonality:])
+        abs_err_bench = np.abs(true[seasonality:] - _naive_prognose(true, seasonality))
     else:
         abs_err = np.abs(error)
         abs_err_bench = np.abs(error)
 
     return abs_err / (abs_err + abs_err_bench + EPS)
-def mbrae(true, predicted, preprocess:bool = True, benchmark: np.ndarray = None) -> float:
+
+
+def mbrae(true, predicted, preprocess: bool = True, benchmark: np.ndarray = None) -> float:
     """ Mean Bounded Relative Absolute Error
     Parameters
     ----------
@@ -2549,7 +2724,7 @@ def mbrae(true, predicted, preprocess:bool = True, benchmark: np.ndarray = None)
     return float(np.mean(_bounded_relative_error(true, predicted, benchmark=benchmark)))
 
 
-def mapd(true, predicted, preprocess:bool = True) -> float:
+def mapd(true, predicted, preprocess: bool = True) -> float:
     """Mean absolute percentage deviation.
     Parameters
     ----------
@@ -2574,7 +2749,8 @@ def mapd(true, predicted, preprocess:bool = True) -> float:
     b = np.sum(np.abs(true))
     return float(a / b)
 
-def _ae(true, predicted, preprocess:bool = True):
+
+def _ae(true, predicted, preprocess: bool = True):
     """Absolute error
     Parameters
     ----------
@@ -2587,7 +2763,9 @@ def _ae(true, predicted, preprocess:bool = True):
         process the true and predicted array"""
     true, predicted = maybe_preprocess(preprocess, true, predicted)
     return np.abs(true - predicted)
-def max_error(true, predicted, preprocess:bool = True) -> float:
+
+
+def max_error(true, predicted, preprocess: bool = True) -> float:
     """
     maximum absolute error
     Parameters
@@ -2611,7 +2789,8 @@ def max_error(true, predicted, preprocess:bool = True) -> float:
     true, predicted = maybe_preprocess(preprocess, true, predicted, METRIC_TYPES['max_error'])
     return float(np.max(_ae(true, predicted)))
 
-def mb_r(true, predicted, preprocess:bool = True) -> float:
+
+def mb_r(true, predicted, preprocess: bool = True) -> float:
     """Mielke-Berry R value.
     Berry and Mielke, 1988.
 
@@ -2647,7 +2826,9 @@ def mb_r(true, predicted, preprocess:bool = True) -> float:
     mb = 1 - ((n ** 2) * mae_val / tot)
 
     return float(mb)
-def mda(true, predicted, preprocess:bool = True) -> float:
+
+
+def mda(true, predicted, preprocess: bool = True) -> float:
     """ Mean Directional Accuracy
     modified after_
 
@@ -2674,7 +2855,9 @@ def mda(true, predicted, preprocess:bool = True) -> float:
     true, predicted = maybe_preprocess(preprocess, true, predicted, METRIC_TYPES['mda'])
     dict_acc = np.sign(true[1:] - true[:-1]) == np.sign(predicted[1:] - predicted[:-1])
     return float(np.mean(dict_acc))
-def mde(true, predicted, preprocess:bool = True) -> float:
+
+
+def mde(true, predicted, preprocess: bool = True) -> float:
     """Median Error
     Parameters
     ----------
@@ -2696,7 +2879,9 @@ def mde(true, predicted, preprocess:bool = True) -> float:
     """
     true, predicted = maybe_preprocess(preprocess, true, predicted, METRIC_TYPES['mde'])
     return float(np.median(predicted - true))
-def _percentage_error(true, predicted, preprocess:bool = True):
+
+
+def _percentage_error(true, predicted, preprocess: bool = True):
     """
     Percentage error
     Parameters
@@ -2710,9 +2895,11 @@ def _percentage_error(true, predicted, preprocess:bool = True):
         process the true and predicted array
     """
     true, predicted = maybe_preprocess(preprocess, true, predicted)
-    error= true- predicted
+    error = true - predicted
     return error / (true + EPS) * 100
-def mdape(true, predicted, preprocess:bool = True) -> float:
+
+
+def mdape(true, predicted, preprocess: bool = True) -> float:
     """
     Median Absolute Percentage Error
     Parameters
@@ -2736,7 +2923,8 @@ def mdape(true, predicted, preprocess:bool = True) -> float:
     true, predicted = maybe_preprocess(preprocess, true, predicted, METRIC_TYPES['mdape'])
     return float(np.median(np.abs(_percentage_error(true, predicted))) * 100)
 
-def mdrae(true, predicted, preprocess:bool = True, benchmark: np.ndarray = None) -> float:
+
+def mdrae(true, predicted, preprocess: bool = True, benchmark: np.ndarray = None) -> float:
     """ Median Relative Absolute Error
     Parameters
     ----------
@@ -2760,7 +2948,8 @@ def mdrae(true, predicted, preprocess:bool = True, benchmark: np.ndarray = None)
     true, predicted = maybe_preprocess(preprocess, true, predicted, METRIC_TYPES['mean_bias_error'])
     return float(np.median(np.abs(_relative_error(true, predicted, False, benchmark))))
 
-def me(true, predicted, preprocess:bool = True):
+
+def me(true, predicted, preprocess: bool = True):
     """Mean error
     Parameters
     ----------
@@ -2781,10 +2970,11 @@ def me(true, predicted, preprocess:bool = True):
     >>> me(t, p)
     """
     true, predicted = maybe_preprocess(preprocess, true, predicted, METRIC_TYPES['me'])
-    error= true- predicted
+    error = true - predicted
     return float(np.mean(error))
 
-def mean_bias_error(true, predicted, preprocess:bool = True) -> float:
+
+def mean_bias_error(true, predicted, preprocess: bool = True) -> float:
     """
     Mean Bias Error
     It represents overall bias error or systematic error. It shows average interpolation bias; i.e. average over-
@@ -2825,7 +3015,9 @@ def mean_bias_error(true, predicted, preprocess:bool = True) -> float:
      """
     true, predicted = maybe_preprocess(preprocess, true, predicted, METRIC_TYPES['mean_bias_error'])
     return float(np.sum(true - predicted) / len(true))
-def mean_var(true, predicted, preprocess:bool = True) -> float:
+
+
+def mean_var(true, predicted, preprocess: bool = True) -> float:
     """Mean variance
     Parameters
     ----------
@@ -2847,7 +3039,9 @@ def mean_var(true, predicted, preprocess:bool = True) -> float:
     """
     true, predicted = maybe_preprocess(preprocess, true, predicted, METRIC_TYPES['mean_var'])
     return float(np.var(log1p(true) - log1p(predicted)))
-def mean_poisson_deviance(true, predicted, preprocess:bool = True, weights=None) -> float:
+
+
+def mean_poisson_deviance(true, predicted, preprocess: bool = True, weights=None) -> float:
     """
     mean poisson deviance
     Parameters
@@ -2871,7 +3065,9 @@ def mean_poisson_deviance(true, predicted, preprocess:bool = True, weights=None)
     """
     true, predicted = maybe_preprocess(preprocess, true, predicted, METRIC_TYPES['mean_poisson_deviance'])
     return _mean_tweedie_deviance(true, predicted, weights=weights, power=1)
-def mean_gamma_deviance(true, predicted, preprocess:bool = True, weights=None) -> float:
+
+
+def mean_gamma_deviance(true, predicted, preprocess: bool = True, weights=None) -> float:
     """
     mean gamma deviance
     Parameters
@@ -2895,7 +3091,9 @@ def mean_gamma_deviance(true, predicted, preprocess:bool = True, weights=None) -
     """
     true, predicted = maybe_preprocess(preprocess, true, predicted, METRIC_TYPES['mean_gamma_deviance'])
     return _mean_tweedie_deviance(true, predicted, weights=weights, power=2)
-def median_abs_error(true, predicted, preprocess:bool = True) -> float:
+
+
+def median_abs_error(true, predicted, preprocess: bool = True) -> float:
     """
     median absolute error
     Parameters
@@ -2918,7 +3116,9 @@ def median_abs_error(true, predicted, preprocess:bool = True) -> float:
     """
     true, predicted = maybe_preprocess(preprocess, true, predicted, METRIC_TYPES['median_abs_error'])
     return float(np.median(np.abs(predicted - true), axis=0))
-def med_seq_error(true, predicted, preprocess:bool = True) -> float:
+
+
+def med_seq_error(true, predicted, preprocess: bool = True) -> float:
     """Median Squared Error
     Same as mse but it takes median which reduces the impact of outliers.
     Parameters
@@ -2930,7 +3130,7 @@ def med_seq_error(true, predicted, preprocess:bool = True) -> float:
          simulated values
     preprocess :
         process the true and predicted array
-    
+
     Examples
     ---------
     >>> import numpy as np
@@ -2943,6 +3143,7 @@ def med_seq_error(true, predicted, preprocess:bool = True) -> float:
         true, predicted = maybe_preprocess(preprocess, true, predicted, METRIC_TYPES['med_seq_error'])
     return float(np.median((predicted - true) ** 2))
 
+
 def mle(true, predicted, preprocess=True) -> float:
     """Mean log error
     Parameters
@@ -2954,7 +3155,7 @@ def mle(true, predicted, preprocess=True) -> float:
          simulated values
     preprocess :
         process the true and predicted array
-    
+
         Examples
     ---------
     >>> import numpy as np
@@ -2966,7 +3167,9 @@ def mle(true, predicted, preprocess=True) -> float:
     if preprocess:
         true, predicted = maybe_preprocess(preprocess, true, predicted, METRIC_TYPES['mle'])
     return float(np.mean(log1p(predicted) - log1p(true)))
-def mod_agreement_index(true, predicted, preprocess:bool = True, j=1) -> float:
+
+
+def mod_agreement_index(true, predicted, preprocess: bool = True, j=1) -> float:
     """Modified agreement of index.
     j: int, when j==1, this is same as agreement_index. Higher j means more impact of outliers.
     Parameters
@@ -2979,7 +3182,7 @@ def mod_agreement_index(true, predicted, preprocess:bool = True, j=1) -> float:
     preprocess :
         process the true and predicted array
     j:
-    
+
     Examples
     ---------
     >>> import numpy as np
@@ -2994,7 +3197,9 @@ def mod_agreement_index(true, predicted, preprocess:bool = True, j=1) -> float:
     c = np.abs(true - np.mean(true))
     e = (b + c) ** j
     return float(1 - (np.sum(a) / np.sum(e)))
-def mpe(true, predicted, preprocess:bool = True) -> float:
+
+
+def mpe(true, predicted, preprocess: bool = True) -> float:
     """ Mean Percentage Error
     Parameters
     ----------
@@ -3005,7 +3210,7 @@ def mpe(true, predicted, preprocess:bool = True) -> float:
          simulated values
     preprocess :
         process the true and predicted array
-        
+
         Examples
     ---------
     >>> import numpy as np
@@ -3016,7 +3221,9 @@ def mpe(true, predicted, preprocess:bool = True) -> float:
     """
     true, predicted = maybe_preprocess(preprocess, true, predicted, METRIC_TYPES['mpe'])
     return float(np.mean(_percentage_error(true, predicted)))
-def mrae(true, predicted, preprocess:bool = True, benchmark: np.ndarray = None):
+
+
+def mrae(true, predicted, preprocess: bool = True, benchmark: np.ndarray = None):
     """ Mean Relative Absolute Error
     Parameters
     ----------
@@ -3028,7 +3235,7 @@ def mrae(true, predicted, preprocess:bool = True, benchmark: np.ndarray = None):
     preprocess :
         process the true and predicted array
     benchmark:
-    
+
     Examples
     ---------
     >>> import numpy as np
@@ -3039,7 +3246,9 @@ def mrae(true, predicted, preprocess:bool = True, benchmark: np.ndarray = None):
     """
     true, predicted = maybe_preprocess(preprocess, true, predicted, METRIC_TYPES['mrae'])
     return float(np.mean(np.abs(_relative_error(true, predicted, False, benchmark))))
-def norm_euclid_distance(true, predicted, preprocess:bool = True) -> float:
+
+
+def norm_euclid_distance(true, predicted, preprocess: bool = True) -> float:
     """Normalized Euclidian distance
     Parameters
     ----------
@@ -3050,7 +3259,7 @@ def norm_euclid_distance(true, predicted, preprocess:bool = True) -> float:
          simulated values
     preprocess :
         process the true and predicted array
-    
+
     Examples
     ---------
     >>> import numpy as np
@@ -3064,7 +3273,9 @@ def norm_euclid_distance(true, predicted, preprocess:bool = True) -> float:
     a = true / np.mean(true)
     b = predicted / np.mean(predicted)
     return float(np.linalg.norm(a - b))
-def nrmse_range(true, predicted, preprocess:bool = True) -> float:
+
+
+def nrmse_range(true, predicted, preprocess: bool = True) -> float:
     """Range Normalized Root Mean Squared Error.
     RMSE normalized by true values. This allows comparison between data sets
     with different scales. It is more sensitive to outliers.
@@ -3079,7 +3290,7 @@ def nrmse_range(true, predicted, preprocess:bool = True) -> float:
          simulated values
     preprocess :
         process the true and predicted array
-    
+
     Examples
     ---------
     >>> import numpy as np
@@ -3091,7 +3302,9 @@ def nrmse_range(true, predicted, preprocess:bool = True) -> float:
     true, predicted = maybe_preprocess(preprocess, true, predicted, METRIC_TYPES['nrmse_range'])
 
     return float(rmse(true, predicted) / (np.max(true) - np.min(true)))
-def nrmse_ipercentile(true, predicted, preprocess:bool = True, q1=25, q2=75) -> float:
+
+
+def nrmse_ipercentile(true, predicted, preprocess: bool = True, q1=25, q2=75) -> float:
     """
     RMSE normalized by inter percentile range of true. This is least sensitive to outliers.
     q1: any interger between 1 and 99
@@ -3108,7 +3321,7 @@ def nrmse_ipercentile(true, predicted, preprocess:bool = True, q1=25, q2=75) -> 
         process the true and predicted array
     q1:
     q2:
-    
+
     Examples
     ---------
     >>> import numpy as np
@@ -3124,7 +3337,9 @@ def nrmse_ipercentile(true, predicted, preprocess:bool = True, q1=25, q2=75) -> 
     iqr = q3 - q1
 
     return float(rmse(true, predicted) / iqr)
-def nrmse_mean(true, predicted, preprocess:bool = True) -> float:
+
+
+def nrmse_mean(true, predicted, preprocess: bool = True) -> float:
     """Mean Normalized RMSE
     RMSE normalized by mean of true values.This allows comparison between datasets with different scales.
 
@@ -3138,7 +3353,7 @@ def nrmse_mean(true, predicted, preprocess:bool = True) -> float:
          simulated values
     preprocess :
         process the true and predicted array
-    
+
     Examples
     ---------
     >>> import numpy as np
@@ -3149,7 +3364,9 @@ def nrmse_mean(true, predicted, preprocess:bool = True) -> float:
     """
     true, predicted = maybe_preprocess(preprocess, true, predicted, METRIC_TYPES['nrmse_mean'])
     return float(rmse(true, predicted) / np.mean(true))
-def norm_ae(true, predicted, preprocess:bool = True) -> float:
+
+
+def norm_ae(true, predicted, preprocess: bool = True) -> float:
     """ Normalized Absolute Error
     Parameters
     ----------
@@ -3160,7 +3377,7 @@ def norm_ae(true, predicted, preprocess:bool = True) -> float:
          simulated values
     preprocess :
         process the true and predicted array
-        
+
     Examples
     ---------
     >>> import numpy as np
@@ -3170,10 +3387,11 @@ def norm_ae(true, predicted, preprocess:bool = True) -> float:
     >>> norm_ae(t, p)
     """
     true, predicted = maybe_preprocess(preprocess, true, predicted, METRIC_TYPES['norm_ae'])
-    error= true- predicted
+    error = true - predicted
     return float(np.sqrt(np.sum(np.square(error - mae(true, predicted, False))) / (len(true) - 1)))
 
-def log_prob(true, predicted, preprocess:bool = True) -> float:
+
+def log_prob(true, predicted, preprocess: bool = True) -> float:
     """
     Logarithmic probability distribution
     Parameters
@@ -3185,7 +3403,7 @@ def log_prob(true, predicted, preprocess:bool = True) -> float:
          simulated values
     preprocess :
         process the true and predicted array
-    
+
     Examples
     ---------
     >>> import numpy as np
@@ -3201,7 +3419,9 @@ def log_prob(true, predicted, preprocess:bool = True) -> float:
     y = (true - predicted) / scale
     normpdf = -y ** 2 / 2 - np.log(np.sqrt(2 * np.pi))
     return float(np.mean(normpdf))
-def rmdspe(true, predicted, preprocess:bool = True) -> float:
+
+
+def rmdspe(true, predicted, preprocess: bool = True) -> float:
     """
     Root Median Squared Percentage Error
     Parameters
@@ -3213,7 +3433,7 @@ def rmdspe(true, predicted, preprocess:bool = True) -> float:
          simulated values
     preprocess :
         process the true and predicted array
-    
+
     Examples
     ---------
     >>> import numpy as np
@@ -3224,7 +3444,9 @@ def rmdspe(true, predicted, preprocess:bool = True) -> float:
     """
     true, predicted = maybe_preprocess(preprocess, true, predicted, METRIC_TYPES['rmdspe'])
     return float(np.sqrt(np.median(np.square(_percentage_error(true, predicted)))) * 100.0)
-def rse(true, predicted, preprocess:bool = True) -> float:
+
+
+def rse(true, predicted, preprocess: bool = True) -> float:
     """Relative Squared Error
     Parameters
     ----------
@@ -3235,7 +3457,7 @@ def rse(true, predicted, preprocess:bool = True) -> float:
          simulated values
     preprocess :
         process the true and predicted array
-    
+
     Examples
     ---------
     >>> import numpy as np
@@ -3246,7 +3468,9 @@ def rse(true, predicted, preprocess:bool = True) -> float:
     """
     true, predicted = maybe_preprocess(preprocess, true, predicted, METRIC_TYPES['rse'])
     return float(np.sum(np.square(true - predicted)) / np.sum(np.square(true - np.mean(true))))
-def rrse(true, predicted, preprocess:bool = True) -> float:
+
+
+def rrse(true, predicted, preprocess: bool = True) -> float:
     """ Root Relative Squared Error
     Parameters
     ----------
@@ -3257,7 +3481,7 @@ def rrse(true, predicted, preprocess:bool = True) -> float:
          simulated values
     preprocess :
         process the true and predicted array
-    
+
     Examples
     ---------
     >>> import numpy as np
@@ -3267,7 +3491,9 @@ def rrse(true, predicted, preprocess:bool = True) -> float:
     >>> rrse(t, p)"""
     true, predicted = maybe_preprocess(preprocess, true, predicted, METRIC_TYPES['rrse'])
     return float(np.sqrt(rse(true, predicted)))
-def rae(true, predicted, preprocess:bool = True) -> float:
+
+
+def rae(true, predicted, preprocess: bool = True) -> float:
     """ Relative Absolute Error (aka Approximation Error)
     Parameters
     ----------
@@ -3278,7 +3504,7 @@ def rae(true, predicted, preprocess:bool = True) -> float:
          simulated values
     preprocess :
         process the true and predicted array
-    
+
     Examples
     ---------
     >>> import numpy as np
@@ -3289,7 +3515,9 @@ def rae(true, predicted, preprocess:bool = True) -> float:
     """
     true, predicted = maybe_preprocess(preprocess, true, predicted, METRIC_TYPES['rae'])
     return float(np.sum(_ae(true, predicted)) / (np.sum(np.abs(true - np.mean(true))) + EPS))
-def ref_agreement_index(true, predicted, preprocess:bool = True) -> float:
+
+
+def ref_agreement_index(true, predicted, preprocess: bool = True) -> float:
     """Refined Index of Agreement. From -1 to 1. Larger the better.
     Refrence: Willmott et al., 2012
     Parameters
@@ -3301,7 +3529,7 @@ def ref_agreement_index(true, predicted, preprocess:bool = True) -> float:
          simulated values
     preprocess :
         process the true and predicted array
-    
+
     Examples
     ---------
     >>> import numpy as np
@@ -3317,7 +3545,9 @@ def ref_agreement_index(true, predicted, preprocess:bool = True) -> float:
         return float(1 - (a / b))
     else:
         return float((b / a) - 1)
-def rel_agreement_index(true, predicted, preprocess:bool = True) -> float:
+
+
+def rel_agreement_index(true, predicted, preprocess: bool = True) -> float:
     """Relative index of agreement. from 0 to 1. larger the better.
     Parameters
     ----------
@@ -3328,7 +3558,7 @@ def rel_agreement_index(true, predicted, preprocess:bool = True) -> float:
          simulated values
     preprocess :
         process the true and predicted array
-        
+
     Examples
     ---------
     >>> import numpy as np
@@ -3344,7 +3574,8 @@ def rel_agreement_index(true, predicted, preprocess:bool = True) -> float:
     e = ((b + c) / np.mean(true)) ** 2
     return float(1 - (np.sum(a) / np.sum(e)))
 
-def relative_rmse(true, predicted, preprocess:bool = True) -> float:
+
+def relative_rmse(true, predicted, preprocess: bool = True) -> float:
     """
     Relative Root Mean Squared Error
 
@@ -3359,7 +3590,7 @@ def relative_rmse(true, predicted, preprocess:bool = True) -> float:
          simulated values
     preprocess :
         process the true and predicted array
-    
+
     Examples
     ---------
     >>> import numpy as np
@@ -3371,7 +3602,9 @@ def relative_rmse(true, predicted, preprocess:bool = True) -> float:
     true, predicted = maybe_preprocess(preprocess, true, predicted, METRIC_TYPES['relative_rmse'])
     rrmse = rmse(true, predicted) / np.mean(true)
     return float(rrmse)
-def rmspe(true, predicted, preprocess:bool = True) -> float:
+
+
+def rmspe(true, predicted, preprocess: bool = True) -> float:
     """
     Root Mean Square Percentage Error_ .
 
@@ -3386,7 +3619,7 @@ def rmspe(true, predicted, preprocess:bool = True) -> float:
          simulated values
     preprocess :
         process the true and predicted array
-    
+
     Examples
     ---------
     >>> import numpy as np
@@ -3397,7 +3630,9 @@ def rmspe(true, predicted, preprocess:bool = True) -> float:
     """
     true, predicted = maybe_preprocess(preprocess, true, predicted, METRIC_TYPES['rmspe'])
     return float(np.sqrt(np.mean(np.square(((true - predicted) / true)), axis=0)))
-def rsr(true, predicted, preprocess:bool = True) -> float:
+
+
+def rsr(true, predicted, preprocess: bool = True) -> float:
     """
     Moriasi et al., 2007.
     It incorporates the benefits of error index statistics andincludes a
@@ -3412,7 +3647,7 @@ def rsr(true, predicted, preprocess:bool = True) -> float:
          simulated values
     preprocess :
         process the true and predicted array
-    
+
     Examples
     ---------
     >>> import numpy as np
@@ -3422,8 +3657,10 @@ def rsr(true, predicted, preprocess:bool = True) -> float:
     >>> rsr(t, p)
     """
     true, predicted = maybe_preprocess(preprocess, true, predicted, METRIC_TYPES['rsr'])
-    return float(rmse(predicted= predicted, true= true) / np.std(true))
-def rmsse(true, predicted, preprocess:bool = True, seasonality: int = 1) -> float:
+    return float(rmse(predicted=predicted, true=true) / np.std(true))
+
+
+def rmsse(true, predicted, preprocess: bool = True, seasonality: int = 1) -> float:
     """ Root Mean Squared Scaled Error
 
     Parameters
@@ -3436,7 +3673,7 @@ def rmsse(true, predicted, preprocess:bool = True, seasonality: int = 1) -> floa
     preprocess :
         process the true and predicted array
     seasonality:
-    
+
     Examples
     ---------
     >>> import numpy as np
@@ -3446,10 +3683,12 @@ def rmsse(true, predicted, preprocess:bool = True, seasonality: int = 1) -> floa
     >>> rmsse(t, p)
     """
     true, predicted = maybe_preprocess(preprocess, true, predicted, METRIC_TYPES['rmsse'])
-    error= true- predicted
+    error = true - predicted
     q = np.abs(error) / mae(true[seasonality:], _naive_prognose(true, seasonality))
     return float(np.sqrt(np.mean(np.square(q))))
-def sa(true, predicted, preprocess:bool = True) -> float:
+
+
+def sa(true, predicted, preprocess: bool = True) -> float:
     """Spectral angle. From -pi/2 to pi/2. Closer to 0 is better.
     It measures angle between two vectors in hyperspace indicating
     how well the shape of two arrays match instead of their magnitude.
@@ -3464,7 +3703,7 @@ def sa(true, predicted, preprocess:bool = True) -> float:
          simulated values
     preprocess :
         process the true and predicted array
-    
+
     Examples
     ---------
     >>> import numpy as np
@@ -3477,7 +3716,9 @@ def sa(true, predicted, preprocess:bool = True) -> float:
     a = np.dot(predicted, true)
     b = np.linalg.norm(predicted) * np.linalg.norm(true)
     return float(np.arccos(a / b))
-def sc(true, predicted, preprocess:bool = True) -> float:
+
+
+def sc(true, predicted, preprocess: bool = True) -> float:
     """Spectral correlation.
     It varies from -pi/2 to pi/2. Closer to 0 is better.
 
@@ -3490,7 +3731,7 @@ def sc(true, predicted, preprocess:bool = True) -> float:
          simulated values
     preprocess :
         process the true and predicted array
-    
+
     Examples
     ---------
     >>> import numpy as np
@@ -3505,7 +3746,9 @@ def sc(true, predicted, preprocess:bool = True) -> float:
     c = np.linalg.norm(predicted - np.mean(predicted))
     e = b * c
     return float(np.arccos(a / e))
-def sga(true, predicted, preprocess:bool = True) -> float:
+
+
+def sga(true, predicted, preprocess: bool = True) -> float:
     """Spectral gradient angle.
     It varies from -pi/2 to pi/2. Closer to 0 is better.
 
@@ -3518,7 +3761,7 @@ def sga(true, predicted, preprocess:bool = True) -> float:
          simulated values
     preprocess :
         process the true and predicted array
-    
+
     Examples
     ---------
     >>> import numpy as np
@@ -3535,7 +3778,7 @@ def sga(true, predicted, preprocess:bool = True) -> float:
     return float(np.arccos(a / b))
 
 
-def smape(true, predicted, preprocess:bool = True) -> float:
+def smape(true, predicted, preprocess: bool = True) -> float:
     """
     Symmetric Mean Absolute Percentage Error_. Adoption from_ .
 
@@ -3554,7 +3797,7 @@ def smape(true, predicted, preprocess:bool = True) -> float:
          simulated values
     preprocess :
         process the true and predicted array
-    
+
     Examples
     ---------
     >>> import numpy as np
@@ -3566,7 +3809,9 @@ def smape(true, predicted, preprocess:bool = True) -> float:
     true, predicted = maybe_preprocess(preprocess, true, predicted, METRIC_TYPES['smape'])
     _temp = np.sum(2 * np.abs(predicted - true) / (np.abs(true) + np.abs(predicted)))
     return float(100 / len(true) * _temp)
-def smdape(true, predicted, preprocess:bool = True) -> float:
+
+
+def smdape(true, predicted, preprocess: bool = True) -> float:
     """
     Symmetric Median Absolute Percentage Error
     Note: result is NOT multiplied by 100
@@ -3580,7 +3825,7 @@ def smdape(true, predicted, preprocess:bool = True) -> float:
          simulated values
     preprocess :
         process the true and predicted array
-    
+
     Examples
     ---------
     >>> import numpy as np
@@ -3590,8 +3835,10 @@ def smdape(true, predicted, preprocess:bool = True) -> float:
     >>> smdape(t, p)
     """
     true, predicted = maybe_preprocess(preprocess, true, predicted, METRIC_TYPES['smdape'])
-    return float(np.median(2.0 * _ae(predicted= predicted, true= true) / ((np.abs(true) + np.abs(predicted)) + EPS)))
-def sid(true, predicted, preprocess:bool = True) -> float:
+    return float(np.median(2.0 * _ae(predicted=predicted, true=true) / ((np.abs(true) + np.abs(predicted)) + EPS)))
+
+
+def sid(true, predicted, preprocess: bool = True) -> float:
     """Spectral Information Divergence.
     From -pi/2 to pi/2. Closer to 0 is better.
 
@@ -3604,7 +3851,7 @@ def sid(true, predicted, preprocess:bool = True) -> float:
          simulated values
     preprocess :
         process the true and predicted array
-    
+
     Examples
     ---------
     >>> import numpy as np
@@ -3619,7 +3866,9 @@ def sid(true, predicted, preprocess:bool = True) -> float:
     second1 = np.log10(true) - np.log10(np.mean(true))
     second2 = np.log10(predicted) - np.log10(np.mean(predicted))
     return float(np.dot(first, second1 - second2))
-def skill_score_murphy(true, predicted, preprocess:bool = True) -> float:
+
+
+def skill_score_murphy(true, predicted, preprocess: bool = True) -> float:
     """
     Adopted from here_ .
     Calculate non-dimensional skill score (SS) between two variables using
@@ -3660,7 +3909,7 @@ def skill_score_murphy(true, predicted, preprocess:bool = True) -> float:
          simulated values
     preprocess :
         process the true and predicted array
-    
+
     Examples
     ---------
     >>> import numpy as np
@@ -3669,7 +3918,7 @@ def skill_score_murphy(true, predicted, preprocess:bool = True) -> float:
     >>> p = np.random.random(10)
     >>> skill_score_murphy(t, p)
     """
-    true, predicted = maybe_preprocess(preprocess, true, predicted,  METRIC_TYPES['skill_score_murphy'])
+    true, predicted = maybe_preprocess(preprocess, true, predicted, METRIC_TYPES['skill_score_murphy'])
     # Calculate RMSE
     rmse2 = rmse(true, predicted) ** 2
 
@@ -3680,7 +3929,9 @@ def skill_score_murphy(true, predicted, preprocess:bool = True) -> float:
     ss = 1 - rmse2 / sdev2
 
     return float(ss)
-def std_ratio(true, predicted, preprocess:bool = True, **kwargs) -> float:
+
+
+def std_ratio(true, predicted, preprocess: bool = True, **kwargs) -> float:
     """ratio of standard deviations of predictions and trues.
     Also known as standard ratio, it varies from 0.0 to infinity while
     1.0 being the perfect value.
@@ -3694,7 +3945,7 @@ def std_ratio(true, predicted, preprocess:bool = True, **kwargs) -> float:
          simulated values
     preprocess :
         process the true and predicted array
-    
+
     Examples
     ---------
     >>> import numpy as np
@@ -3705,7 +3956,9 @@ def std_ratio(true, predicted, preprocess:bool = True, **kwargs) -> float:
     """
     true, predicted = maybe_preprocess(preprocess, true, predicted, METRIC_TYPES['std_ratio'])
     return float(np.std(predicted, **kwargs) / np.std(true, **kwargs))
-def umbrae(true, predicted, preprocess:bool = True, benchmark: np.ndarray = None):
+
+
+def umbrae(true, predicted, preprocess: bool = True, benchmark: np.ndarray = None):
     """ Unscaled Mean Bounded Relative Absolute Error
 
     Parameters
@@ -3727,7 +3980,9 @@ def umbrae(true, predicted, preprocess:bool = True, benchmark: np.ndarray = None
     """
     true, predicted = maybe_preprocess(preprocess, true, predicted, METRIC_TYPES['umbrae'])
     return mbrae(true, predicted, False, benchmark) / (1 - mbrae(true, predicted, False, benchmark))
-def ve(true, predicted, preprocess:bool = True) -> float:
+
+
+def ve(true, predicted, preprocess: bool = True) -> float:
     """
     Volumetric efficiency. from 0 to 1. Smaller the better.
     Reference: Criss and Winston 2008.
@@ -3740,7 +3995,7 @@ def ve(true, predicted, preprocess:bool = True) -> float:
          simulated values
     preprocess :
         process the true and predicted array
-    
+
     Examples
     ---------
     >>> import numpy as np
@@ -3754,7 +4009,8 @@ def ve(true, predicted, preprocess:bool = True) -> float:
     b = np.sum(true)
     return float(1 - (a / b))
 
-def volume_error(true, predicted, preprocess:bool = True) -> float:
+
+def volume_error(true, predicted, preprocess: bool = True) -> float:
     """
     Returns the Volume Error (Ve).
     It is an indicator of the agreement between the averages of the simulated
@@ -3783,7 +4039,7 @@ def volume_error(true, predicted, preprocess:bool = True) -> float:
          simulated values
     preprocess :
         process the true and predicted array
-    
+
     Examples
     ---------
     >>> import numpy as np
@@ -3797,7 +4053,8 @@ def volume_error(true, predicted, preprocess:bool = True) -> float:
     ve_ = np.sum(predicted - true) / np.sum(true)
     return float(ve_)
 
-def wape(true, predicted, preprocess:bool = True) -> float:
+
+def wape(true, predicted, preprocess: bool = True) -> float:
     """
     weighted absolute percentage error (wape_)
 
@@ -3833,7 +4090,7 @@ def wape(true, predicted, preprocess:bool = True) -> float:
     return float(np.sum(_ae(true, predicted) / np.sum(true)))
 
 
-def watt_m(true, predicted, preprocess:bool = True) -> float:
+def watt_m(true, predicted, preprocess: bool = True) -> float:
     """Watterson's M.
     Refrence: Watterson., 1996
 
@@ -3861,7 +4118,8 @@ def watt_m(true, predicted, preprocess:bool = True) -> float:
     f = c + e
     return float(a * np.arcsin(1 - (mse(true, predicted) / f)))
 
-def wmape(true, predicted, preprocess:bool = True) -> float:
+
+def wmape(true, predicted, preprocess: bool = True) -> float:
     """
     Weighted Mean Absolute Percent Error_
     .. _Error:
@@ -3905,7 +4163,8 @@ def wmape(true, predicted, preprocess:bool = True) -> float:
     ft_wmape_forecast = ft_actual_prod_mape_sum / ft_actual_sum
     return float(ft_wmape_forecast)
 
-def norm_ape(true, predicted, preprocess:bool = True) -> float:
+
+def norm_ape(true, predicted, preprocess: bool = True) -> float:
     """ Normalized Absolute Percentage Error
 
     Parameters
@@ -3927,7 +4186,9 @@ def norm_ape(true, predicted, preprocess:bool = True) -> float:
     >>> norm_ape(t, p)
     """
     true, predicted = maybe_preprocess(preprocess, true, predicted, METRIC_TYPES['norm_ape'])
-    return float(np.sqrt(np.sum(np.square(_percentage_error(true, predicted) - mape(true, predicted))) / (len(true) - 1)))
+    return float(
+        np.sqrt(np.sum(np.square(_percentage_error(true, predicted) - mape(true, predicted))) / (len(true) - 1)))
+
 
 def mse(true, predicted, preprocess=False, weights=None):
     """
@@ -3951,4 +4212,4 @@ def mse(true, predicted, preprocess=False, weights=None):
     >>> mse(t, p)
     """
     true, predicted = maybe_preprocess(preprocess, true, predicted, METRIC_TYPES['mse'])
-    return  float(np.average((true - predicted) ** 2, axis=0, weights=weights))
+    return float(np.average((true - predicted) ** 2, axis=0, weights=weights))

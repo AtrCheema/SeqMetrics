@@ -1,4 +1,3 @@
-
 import numbers
 import warnings
 from typing import Union
@@ -8,6 +7,7 @@ from scipy.sparse import csr_matrix, coo_matrix
 
 from .utils import list_subclass_methods
 from ._main import Metrics
+
 
 # confusion index
 
@@ -24,7 +24,7 @@ class ClassificationMetrics(Metrics):
         If true, it is assumed that the true labels are multiclass.
     **kwargs : optional
         Additional arguments to be passed to the :py:class:`Metrics` class.
-    
+
 
     Examples
     --------
@@ -76,15 +76,16 @@ class ClassificationMetrics(Metrics):
     >>> metrics = ClassificationMetrics(targets, predictions, multiclass=True)
     >>> print(metrics.calculate_all())
     """
+
     # todo add very major erro and major error
 
     def __init__(
-        self,
-        true,
-        predicted,
-        multiclass:bool = False,
-        *args,
-        **kwargs
+            self,
+            true,
+            predicted,
+            multiclass: bool = False,
+            *args,
+            **kwargs
     ):
 
         self.multiclass = multiclass
@@ -96,7 +97,7 @@ class ClassificationMetrics(Metrics):
             self.is_categorical = True
             assert self.predicted.dtype.kind in ['S', 'U']
 
-            self.true_cls , self.true_encoded = self._encode(self.true)
+            self.true_cls, self.true_encoded = self._encode(self.true)
             self.pred_cls, self.pred_encoded = self._encode(self.predicted)
 
         self.true_labels = self._true_labels()
@@ -105,7 +106,7 @@ class ClassificationMetrics(Metrics):
         self.pred_logits = self._pred_logits()
 
         self.all_methods = list_subclass_methods(ClassificationMetrics, True)
-        
+
         self.n_samples = len(self.true_labels)
         self.labels = np.unique(np.stack((self.true_labels, self.pred_labels)))
         self.n_labels = self.labels.size
@@ -131,12 +132,12 @@ class ClassificationMetrics(Metrics):
 
     def _true_labels(self):
         """retuned array is 1d"""
-    
+
         if self.multiclass:
 
             if self.true.size == len(self.true):
-                return self.true.reshape(-1,1)
-            
+                return self.true.reshape(-1, 1)
+
             # supposing this to be logits
             return np.argmax(self.true, axis=1)
 
@@ -144,7 +145,7 @@ class ClassificationMetrics(Metrics):
         # it should be 1 dimensional
         if true.size != len(true):
             true = np.argmax(true, 1)
-        return true.reshape(-1,)
+        return true.reshape(-1, )
 
     def _true_logits(self):
         """returned array is 2d"""
@@ -163,8 +164,8 @@ class ClassificationMetrics(Metrics):
         if self.multiclass:
 
             if self.predicted.size == len(self.predicted):
-                return self.predicted.reshape(-1,1)
-            
+                return self.predicted.reshape(-1, 1)
+
             # supposing this to be logits
             return np.argmax(self.predicted, axis=1)
 
@@ -184,8 +185,8 @@ class ClassificationMetrics(Metrics):
         # we can't do it
         return None
 
-    def cross_entropy(self, epsilon=1e-12)->float:
-        return cross_entropy(true= self.true, predicted=self.predicted, epsilon= epsilon)
+    def cross_entropy(self, epsilon=1e-12) -> float:
+        return cross_entropy(true=self.true, predicted=self.predicted, epsilon=epsilon)
 
     # def hinge_loss(self):
     #     """hinge loss using sklearn"""
@@ -193,18 +194,19 @@ class ClassificationMetrics(Metrics):
     #         return hinge_loss(self.true_labels, self.pred_logits)
     #     return None
 
-    def accuracy(self, normalize:bool=True)->float:
-        return accuracy(true = self.true, predicted= self.predicted, normalize= normalize)
+    def accuracy(self, normalize: bool = True) -> float:
+        return accuracy(true=self.true, predicted=self.predicted, normalize=normalize)
+
     def confusion_matrix(self, normalize=False):
-        return confusion_matrix(true= self.true, predicted= self.predicted, normalize= normalize)
+        return confusion_matrix(true=self.true, predicted=self.predicted, normalize=normalize)
+
     def _confusion_matrix(self, normalize=None):
 
-        pred = self.pred_labels.reshape(-1,)
-        true = self.true_labels.reshape(-1,)
+        pred = self.pred_labels.reshape(-1, )
+        true = self.true_labels.reshape(-1, )
         # copying method of sklearn
         target_shape = (len(self.labels), len(self.labels))
 
-        
         label_to_ind = {y: x for x, y in enumerate(self.labels)}
         # convert yt, yp into index
         pred = np.array([label_to_ind.get(x, self.n_labels + 1) for x in pred])
@@ -247,7 +249,7 @@ class ClassificationMetrics(Metrics):
 
         TN = []
         for i in range(self.n_labels):
-            temp = np.delete(self.cm, i, 0)    # delete ith row
+            temp = np.delete(self.cm, i, 0)  # delete ith row
             temp = np.delete(temp, i, 1)  # delete ith column
             TN.append(sum(sum(temp)))
 
@@ -258,7 +260,7 @@ class ClassificationMetrics(Metrics):
         # same as sklearn function
         return bool(isinstance(x, numbers.Real) and np.isnan(x))
 
-    def _encode(self, x:np.ndarray)->tuple:
+    def _encode(self, x: np.ndarray) -> tuple:
         """encodes a categorical array into numerical values"""
         classes, encoded = np.unique(x, return_inverse=True)
 
@@ -280,15 +282,16 @@ class ClassificationMetrics(Metrics):
         raise NotImplementedError
 
     def precision(self, average=None):
-       return precision(true= self.true, predicted= self.predicted, average= average)
+        return precision(true=self.true, predicted=self.predicted, average=average)
+
     def recall(self, average=None):
-        return recall(true= self.true, predicted= self.predicted, average= average)
+        return recall(true=self.true, predicted=self.predicted, average=average)
 
     def specificity(self, average=None):
-        return specificity(true= self.true, predicted= self.predicted, average= average)
+        return specificity(true=self.true, predicted=self.predicted, average=average)
 
-    def balanced_accuracy(self, average=None)->float:
-        return balanced_accuracy(true= self.true, predicted= self.predicted, average= average)
+    def balanced_accuracy(self, average=None) -> float:
+        return balanced_accuracy(true=self.true, predicted=self.predicted, average=average)
 
     def _f_score(self, average=None, beta=1.0):
         """calculates baseic f score"""
@@ -298,7 +301,7 @@ class ClassificationMetrics(Metrics):
 
         if average == "micro":
             return ((1 + beta ** 2) * (self.precision("micro") * self.recall("micro"))) / (
-                        beta ** 2 * (self.precision("micro") + self.recall("micro")))
+                    beta ** 2 * (self.precision("micro") + self.recall("micro")))
 
         _f_score = ((1 + beta ** 2) * (precision * recall)) / (beta ** 2 * (precision + recall))
 
@@ -314,46 +317,49 @@ class ClassificationMetrics(Metrics):
                 return np.average(_f_score, weights=self._tp() + self._fn())
 
         return _f_score
-    def f1_score(self, average=None)->Union[np.ndarray, float]:
-        return f1_score(true= self.true, predicted= self.predicted, average= average)
+
+    def f1_score(self, average=None) -> Union[np.ndarray, float]:
+        return f1_score(true=self.true, predicted=self.predicted, average=average)
 
     def f2_score(self, average=None):
-        return f2_score(true= self.true, predicted= self.predicted, average= average)
+        return f2_score(true=self.true, predicted=self.predicted, average=average)
 
     def false_positive_rate(self):
-        return false_positive_rate(true= self.true, predicted= self.predicted)
+        return false_positive_rate(true=self.true, predicted=self.predicted)
 
     def false_discovery_rate(self):
-        return false_discovery_rate(true= self.true, predicted= self.predicted)
+        return false_discovery_rate(true=self.true, predicted=self.predicted)
 
     def false_negative_rate(self):
-        return false_negative_rate(true= self.true, predicted= self.predicted)
+        return false_negative_rate(true=self.true, predicted=self.predicted)
 
     def negative_predictive_value(self):
-        return negative_predictive_value(true= self.true, predicted= self.predicted)
+        return negative_predictive_value(true=self.true, predicted=self.predicted)
+
     def error_rate(self):
-        return error_rate(true= self.true, predicted= self.predicted)
+        return error_rate(true=self.true, predicted=self.predicted)
 
     def mathews_corr_coeff(self):
-        return mathews_corr_coeff(true= self.true, predicted= self.predicted)
+        return mathews_corr_coeff(true=self.true, predicted=self.predicted)
 
     def positive_likelihood_ratio(self, average=None):
-        return positive_likelihood_ratio(true= self.true, predicted= self.predicted, average= average)
+        return positive_likelihood_ratio(true=self.true, predicted=self.predicted, average=average)
 
     def negative_likelihood_ratio(self, average=None):
-        return negative_likelihood_ratio(true= self.true, predicted= self.predicted, average= average)
+        return negative_likelihood_ratio(true=self.true, predicted=self.predicted, average=average)
 
     def youden_index(self, average=None):
-        return youden_index(true= self.true, predicted= self.predicted, average= average)
+        return youden_index(true=self.true, predicted=self.predicted, average=average)
 
     def fowlkes_mallows_index(self, average=None):
-        return fowlkes_mallows_index(true= self.true, predicted= self.predicted, average= average)
+        return fowlkes_mallows_index(true=self.true, predicted=self.predicted, average=average)
 
     def prevalence_threshold(self, average=None):
-        return prevalence_threshold(true= self.true, predicted= self.predicted, average= average)
+        return prevalence_threshold(true=self.true, predicted=self.predicted, average=average)
 
     def false_omission_rate(self, average=None):
-        return false_omission_rate(true= self.true, predicted= self.predicted)
+        return false_omission_rate(true=self.true, predicted=self.predicted)
+
 
 def cross_entropy(true, predicted, epsilon=1e-12) -> float:
     """
@@ -373,7 +379,7 @@ def cross_entropy(true, predicted, epsilon=1e-12) -> float:
          simulated values
 
     """
-    cls= ClassificationMetrics(true, predicted)
+    cls = ClassificationMetrics(true, predicted)
     if cls.is_categorical:
         predictions = np.clip(cls.pred_encoded, epsilon, 1. - epsilon)
         n = predictions.shape[0]
@@ -383,6 +389,7 @@ def cross_entropy(true, predicted, epsilon=1e-12) -> float:
         n = predictions.shape[0]
         ce = -np.sum(true * np.log(predictions + 1e-9)) / n
     return ce
+
 
 def one_hot_encode(array):
     """one hot encoding of an array like"""
@@ -396,7 +403,7 @@ def one_hot_encode(array):
     container = np.empty_like(indices)
     container.fill(1)
     Y = csr_matrix((container, indices, indptr),
-                      shape=(len(array), len(classes_)))
+                   shape=(len(array), len(classes_)))
 
     Y = Y.toarray()
     Y = Y.astype(int, copy=False)
@@ -411,7 +418,9 @@ def binarize(array):
     """must be used only for binary classification"""
     y = one_hot_encode(array)
     return y[:, -1].reshape((-1, 1))
-def accuracy(true, predicted, normalize:bool=True)->float:
+
+
+def accuracy(true, predicted, normalize: bool = True) -> float:
     """
     calculates accuracy
 
@@ -438,8 +447,9 @@ def accuracy(true, predicted, normalize:bool=True)->float:
     cls = ClassificationMetrics(true, predicted)
 
     if normalize:
-        return np.average(cls.true_labels==cls.pred_labels)
+        return np.average(cls.true_labels == cls.pred_labels)
     return (cls.true_labels == cls.pred_labels).sum()
+
 
 def confusion_matrix(true, predicted, normalize=False):
     """
@@ -475,8 +485,9 @@ def confusion_matrix(true, predicted, normalize=False):
     >>> metrics.confusion_matrix()
 
     """
-    cls= ClassificationMetrics (true, predicted)
+    cls = ClassificationMetrics(true, predicted)
     return cls._confusion_matrix(normalize=normalize)
+
 
 def precision(true, predicted, average=None):
     """
@@ -505,10 +516,9 @@ def precision(true, predicted, average=None):
     >>> print(metrics.precision(average="weighted"))
     """
 
-    cls= ClassificationMetrics(true, predicted)
+    cls = ClassificationMetrics(true, predicted)
     TP = cls._tp()
     FP = cls._fp()
-
 
     if average == "micro":
         return sum(TP) / (sum(TP) + sum(FP))
@@ -528,6 +538,7 @@ def precision(true, predicted, average=None):
 
     return _precision
 
+
 def recall(true, predicted, average=None):
     """
     It is also called sensitivity or true positive rate. It is
@@ -546,7 +557,7 @@ def recall(true, predicted, average=None):
 
     """
 
-    cls= ClassificationMetrics(true, predicted)
+    cls = ClassificationMetrics(true, predicted)
     TP = cls._tp()
     FN = cls._fn()
 
@@ -566,6 +577,7 @@ def recall(true, predicted, average=None):
             return np.average(_recall, weights=TP + FN)
 
     return _recall
+
 
 def specificity(true, predicted, average=None):
     """
@@ -594,7 +606,7 @@ def specificity(true, predicted, average=None):
     >>> print(metrics.specificity(average="macro"))
     >>> print(metrics.specificity(average="weighted"))
     """
-    cls= ClassificationMetrics(true, predicted)
+    cls = ClassificationMetrics(true, predicted)
     TN = cls._tn()
     FP = cls._fp()
 
@@ -612,7 +624,9 @@ def specificity(true, predicted, average=None):
             return np.average(_spcificity, weights=TN + FP)
 
     return _spcificity
-def balanced_accuracy(true, predicted, average=None)->float:
+
+
+def balanced_accuracy(true, predicted, average=None) -> float:
     """
     balanced accuracy.
     It performs better on imbalanced datasets.
@@ -623,7 +637,7 @@ def balanced_accuracy(true, predicted, average=None)->float:
          or pandas series/DataFrame or a list.
     predicted : simulated values
     """
-    cls= ClassificationMetrics(true, predicted)
+    cls = ClassificationMetrics(true, predicted)
     TP = cls._tp()
     score = TP / cls.cm.sum(axis=1)
     if np.any(np.isnan(score)):
@@ -631,7 +645,9 @@ def balanced_accuracy(true, predicted, average=None)->float:
     score = np.nanmean(score).item()
 
     return score
-def f1_score(true, predicted, average=None)->Union[np.ndarray, float]:
+
+
+def f1_score(true, predicted, average=None) -> Union[np.ndarray, float]:
     """
            Calculates f1 score according to following formula
            f1_score = 2 * (precision * recall)  / (precision + recall)
@@ -660,9 +676,11 @@ def f1_score(true, predicted, average=None)->Union[np.ndarray, float]:
            >>> print(metrics.f1_score(average="weighted"))
 
            """
-    cls= ClassificationMetrics(true, predicted)
+    cls = ClassificationMetrics(true, predicted)
 
     return cls._f_score(average, 1.0)
+
+
 def f2_score(true, predicted, average=None):
     """
     f2 score
@@ -675,8 +693,10 @@ def f2_score(true, predicted, average=None):
          or pandas series/DataFrame or a list.
     predicted : simulated values
     """
-    cls= ClassificationMetrics(true, predicted)
+    cls = ClassificationMetrics(true, predicted)
     return cls._f_score(average, 2.0)
+
+
 def false_positive_rate(true, predicted):
     """
     False positive rate is the number of incorrect positive predictions divided
@@ -692,13 +712,15 @@ def false_positive_rate(true, predicted):
     predicted : simulated values
 
     """
-    cls= ClassificationMetrics(true, predicted)
+    cls = ClassificationMetrics(true, predicted)
     TP = cls._tp()
     fpr = TP / (TP + cls._tn())
 
     fpr = np.nan_to_num(fpr)
 
     return fpr
+
+
 def false_discovery_rate(true, predicted):
     """
     False discovery rate
@@ -710,7 +732,7 @@ def false_discovery_rate(true, predicted):
          or pandas series/DataFrame or a list.
     predicted : simulated values
     """
-    cls= ClassificationMetrics(true, predicted)
+    cls = ClassificationMetrics(true, predicted)
     FP = cls._fp()
 
     fdr = FP / (cls._tp() + FP)
@@ -718,6 +740,8 @@ def false_discovery_rate(true, predicted):
     fdr = np.nan_to_num(fdr)
 
     return fdr
+
+
 def false_negative_rate(true, predicted):
     """
     False Negative Rate or miss rate.
@@ -730,13 +754,15 @@ def false_negative_rate(true, predicted):
          or pandas series/DataFrame or a list.
     predicted : simulated values
     """
-    cls= ClassificationMetrics(true, predicted)
+    cls = ClassificationMetrics(true, predicted)
     FN = cls._fn()
     fnr = FN / (FN + cls._tp())
 
     fnr = np.nan_to_num(fnr)
 
     return fnr
+
+
 def negative_predictive_value(true, predicted):
     """
     Negative Predictive Value
@@ -748,12 +774,13 @@ def negative_predictive_value(true, predicted):
          or pandas series/DataFrame or a list.
     predicted : simulated values
     """
-    cls= ClassificationMetrics(true, predicted)
+    cls = ClassificationMetrics(true, predicted)
     TN = cls._tn()
     npv = TN / (TN + cls._fn())
 
     npv = np.nan_to_num(npv)
     return npv
+
 
 def error_rate(true, predicted):
     """
@@ -766,9 +793,10 @@ def error_rate(true, predicted):
          or pandas series/DataFrame or a list.
     predicted : simulated values
     """
-    cls= ClassificationMetrics(true, predicted)
+    cls = ClassificationMetrics(true, predicted)
 
     return (cls._fp() + cls._fn()) / cls.n_samples
+
 
 def mathews_corr_coeff(true, predicted):
     """
@@ -781,12 +809,12 @@ def mathews_corr_coeff(true, predicted):
     predicted : simulated values
 
     """
-    cls= ClassificationMetrics(true, predicted)
+    cls = ClassificationMetrics(true, predicted)
     TP, TN, FP, FN = cls._tp(), cls._tn(), cls._fp(), cls._fn()
 
     top = TP * TN - FP * FN
     bottom = np.sqrt(((TP + FP) * (FP + FN) * (TN + FP) * (TN + FN)))
-    return top/bottom
+    return top / bottom
 
 
 def positive_likelihood_ratio(true, predicted, average=None):
@@ -802,8 +830,9 @@ def positive_likelihood_ratio(true, predicted, average=None):
          or pandas series/DataFrame or a list.
     predicted : simulated values
     """
-    cls= ClassificationMetrics(true, predicted)
+    cls = ClassificationMetrics(true, predicted)
     return cls.recall(average=average) / (1 - cls.specificity(average=average))
+
 
 def negative_likelihood_ratio(true, predicted, average=None):
     """
@@ -821,9 +850,10 @@ def negative_likelihood_ratio(true, predicted, average=None):
          or pandas series/DataFrame or a list.
     predicted : simulated values
     """
-    cls= ClassificationMetrics(true, predicted)
+    cls = ClassificationMetrics(true, predicted)
 
     return 1 - cls.recall(average) / cls.specificity(average)
+
 
 def youden_index(true, predicted, average=None):
     """
@@ -841,8 +871,9 @@ def youden_index(true, predicted, average=None):
          or pandas series/DataFrame or a list.
     predicted : simulated values
     """
-    cls= ClassificationMetrics(true, predicted)
-    return  cls.recall(average) + cls.specificity(average) - 1
+    cls = ClassificationMetrics(true, predicted)
+    return cls.recall(average) + cls.specificity(average) - 1
+
 
 def fowlkes_mallows_index(true, predicted, average=None):
     """
@@ -863,8 +894,9 @@ def fowlkes_mallows_index(true, predicted, average=None):
          or pandas series/DataFrame or a list.
     predicted : simulated values
     """
-    cls= ClassificationMetrics(true, predicted)
+    cls = ClassificationMetrics(true, predicted)
     return np.sqrt(cls.precision(average) * cls.recall(average))
+
 
 def prevalence_threshold(true, predicted, average=None):
     """
@@ -882,10 +914,11 @@ def prevalence_threshold(true, predicted, average=None):
          or pandas series/DataFrame or a list.
     predicted : simulated values
     """
-    cls= ClassificationMetrics(true, predicted)
+    cls = ClassificationMetrics(true, predicted)
     FPR = cls.false_positive_rate()
 
     return np.sqrt(FPR) / (np.sqrt(cls.recall(average)) + np.sqrt(FPR))
+
 
 def false_omission_rate(true, predicted):
     """
@@ -899,7 +932,7 @@ def false_omission_rate(true, predicted):
          or pandas series/DataFrame or a list.
     predicted : simulated values
     """
-    cls= ClassificationMetrics(true, predicted)
+    cls = ClassificationMetrics(true, predicted)
     FN = cls._fn()
     FOR = FN / (FN + cls._tn())
 

@@ -1,10 +1,12 @@
+__all__ = ['Metrics']
+
 import json
 import warnings
 import numpy as np
 from typing import Union
 
 from .utils import maybe_preprocess
-from .utils import features, to_oneD_array, maybe_to_oneD_array
+from .utils import features
 
 # TODO remove repeated calculation of mse, std, mean etc
 # TODO make weights, class attribute
@@ -65,15 +67,15 @@ class Metrics(object):
             remove_zero: bool = False,
             remove_neg: bool = False,
             metric_type: str = 'regression',
-            np_errstate:dict = None,
-        ):
+            np_errstate: dict = None,
+    ):
 
         """
         Parameters
         -----------
-            true : array like, 
+            true : array like,
                 ture/observed/actual/target values
-            predicted : array like, 
+            predicted : array like,
                 simulated values
             replace_nan : default None. if not None, then NaNs in true
                 and predicted will be replaced by this value.
@@ -108,7 +110,6 @@ class Metrics(object):
     def log1p_p(self):
         with np.errstate(**self.err_state):
             return np.log1p(self.predicted)
-
 
     @property
     def log1p_t(self):
@@ -177,13 +178,11 @@ class Metrics(object):
             they are {len(self.true)} and {len(self.predicted)}""")
         return
 
-
-
     def calculate_all(self, statistics=False, verbose=False, write=False, name=None) -> dict:
         """ calculates errors using all available methods except brier_score..
         write: bool, if True, will write the calculated errors in file.
         name: str, if not None, then must be path of the file in which to write.
-        
+
         Parameters
         ----------
         verbose : bool, optional
@@ -192,12 +191,12 @@ class Metrics(object):
             if True, will write the calculated errors in file. The default is False.
         name : str, optional
             if not None, then must be path of the file in which to write. The default is None.
-        
+
         Returns
         -------
         dict
             dictionary of calculated errors.
-        
+
         Examples
         --------
         >>> import numpy as np
@@ -290,7 +289,7 @@ class Metrics(object):
             else:
                 seasonality = benchmark
             return self._error(self.true[seasonality:], self.predicted[seasonality:]) / \
-                              (self._error(self.true[seasonality:], self._naive_prognose(seasonality)) + EPS)
+                (self._error(self.true[seasonality:], self._naive_prognose(seasonality)) + EPS)
 
         return self._error() / (self._error(self.true, benchmark) + EPS)
 
@@ -323,7 +322,7 @@ class Metrics(object):
         -------
         dict
             Dictionary with all metrics
-        
+
         Examples
         --------
         >>> import numpy as np
