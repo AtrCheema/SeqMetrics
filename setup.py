@@ -13,7 +13,7 @@ setup(
 
     version="2.0.0",
 
-    description='SeqMetrics: Various errors for sequential data',
+    description='SeqMetrics: a unified library for performance metrics calculation in Python',
     long_description=long_desc,
     long_description_content_type="text/markdown",
 
@@ -40,7 +40,9 @@ setup(
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
-        'Programming Language :: Python :: 3.9', 
+        'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10',
+        'Programming Language :: Python :: 3.11',
     ],
 
     packages=['SeqMetrics'],

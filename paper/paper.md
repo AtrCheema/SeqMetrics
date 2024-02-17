@@ -90,7 +90,8 @@ scientific community.
 # Graphical User Interface
 The SeqMetrics graphical user interface (GUI) offers a user-friendly and intuitive 
 platform for seamless error calculation. This interface is built and deployed using 
-streamlit. There are 2 ways of providing input in GUI. The first method includes 
+streamlit at https://seqmetrics.streamlit.app . There are 2 ways of providing input 
+in this web-based GUI. The first method includes 
 providing it the input data arrays by copying and pasting the true and predicted 
 arrays (Fig. 2). Another way is by importing CSV or Excel /files into the 
 interface (Fig 3). This streamlines the process of entering true and predicted 
@@ -103,10 +104,8 @@ model performance without compromising on robustness and precision. Therefore,
 the design of the SeqMetrics is equally beneficial for advanced programmers as 
 well as for those with limited programming knowledge. 
 
-<p float="left">
-  <img src="fig2.jpg" width="500" />
-  <img src="fig3.jpg" width="500" />
-</p>
+![**Method of copying and pasting arrays in SeqMetrics GUI**](fig2.jpg)
+![**Method of reading data from files in SeqMetrics GUI**](fig3.jpg)
 
 # Testing and documentation
 Following the ‘unit test’ protocol the library undergoes comprehensive testing 
