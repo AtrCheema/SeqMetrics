@@ -85,9 +85,7 @@ a widely adopted standard, which not only streamlines the process but also
 contributes to the overall efficiency of the application for the broader 
 scientific community.
 
-<p float="left">
-  <img src="fig1.jpg" width="700" />
-</p>
+![**Comparison of class-based and functional API**](fig1.jpg)
 
 # Graphical User Interface
 The SeqMetrics graphical user interface (GUI) offers a user-friendly and intuitive 
