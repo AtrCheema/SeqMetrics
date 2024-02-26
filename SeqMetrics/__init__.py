@@ -117,6 +117,7 @@ from ._rgr import centered_rms_dev
 from ._rgr import mapd
 from ._rgr import sga
 from ._rgr import mse
+from ._rgr import variability_ratio
 from ._rgr import RegressionMetrics
 
 from ._cls import f1_score

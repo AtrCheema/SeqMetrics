@@ -114,6 +114,8 @@ from SeqMetrics import volume_error
 from SeqMetrics import wape
 from SeqMetrics import watt_m
 from SeqMetrics import wmape
+from SeqMetrics import variability_ratio
+
 
 t = np.random.random((20, 1))
 p = np.random.random((20, 1))
@@ -532,6 +534,7 @@ class test_errors(unittest.TestCase):
         new_norm_euclid_distance = norm_euclid_distance(t11, p11)
         assert np.allclose(new_norm_euclid_distance, 7.338597737626875)
         return
+
     def test_nrmse_range(self):
         new_nrmse_range = nrmse_range(t11, p11)
         assert np.allclose(new_nrmse_range, 0.4081874143525102)
@@ -632,6 +635,7 @@ class test_errors(unittest.TestCase):
         new_ve = ve(t11, p11)
         assert np.allclose(new_ve, 0.3794625949621073)
         return
+    
     def test_volume_error(self):
         new_volume_error = volume_error(t11, p11)
         assert np.allclose(new_volume_error, 0.13214685733697532)
@@ -640,25 +644,21 @@ class test_errors(unittest.TestCase):
         new_wape = wape(t11, p11)
         assert np.allclose(new_wape, 0.6205374050378927)
         return
+    
     def test_watt_m(self):
         new_watt_m = watt_m(t11, p11)
         assert np.allclose(new_watt_m, 0.017290316806567577)
         return
+    
     def test_wmape(self):
         new_wmape = wmape(t11, p11)
         assert np.allclose(new_wmape, 0.6205374050378927)
         return
 
-
-
-
-
-
-
-
-
-
-
+    def test_wmape(self):
+        new_vr = variability_ratio(t11, p11)
+        assert np.allclose(new_vr, 0.9040387267698112)
+        return
 
 if __name__ == "__main__":
     unittest.main()

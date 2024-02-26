@@ -573,8 +573,8 @@ METRIC_TYPES = {
     'nrmse_mean': 'min',
     'norm_ae': 'min',
     'log_prob': 'min',
-    'rmdspe': 'min'
-
+    'rmdspe': 'min',
+    'variability_ratio': 'min',
 }
 
 

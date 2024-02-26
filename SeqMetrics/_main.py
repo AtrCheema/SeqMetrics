@@ -11,6 +11,7 @@ from .utils import features
 # TODO remove repeated calculation of mse, std, mean etc
 # TODO make weights, class attribute
 # TODO standardized residual sum of squares
+# TODO treat_metrics is not being used!
 # http://documentation.sas.com/?cdcId=fscdc&cdcVersion=15.1&docsetId=fsug&docsetTarget=n1sm8nk3229ttun187529xtkbtpu.htm&locale=en
 # https://arxiv.org/ftp/arxiv/papers/1809/1809.03006.pdf
 # https://www.researchgate.net/profile/Mark-Tschopp/publication/322147437_Quantifying_Similarity_and_Distance_Measures_for_Vector-Based_Datasets_Histograms_Signals_and_Probability_Distribution_Functions/links/5a48089ca6fdcce1971c8142/Quantifying-Similarity-and-Distance-Measures-for-Vector-Based-Datasets-Histograms-Signals-and-Probability-Distribution-Functions.pdf

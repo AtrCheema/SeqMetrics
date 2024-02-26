@@ -181,7 +181,7 @@ class RegressionMetrics(Metrics):
         return kge_bound(true=self.true, predicted=self.predicted, preprocess=False)
 
     def kge_mod(self):
-        return kge(true=self.true, predicted=self.predicted, preprocess=False)
+        return kge_mod(true=self.true, predicted=self.predicted, preprocess=False)
 
     def kge_np(self):
         return kge_np(true=self.true, predicted=self.predicted, preprocess=False)
@@ -423,6 +423,9 @@ class RegressionMetrics(Metrics):
 
     def wmape(self) -> float:
         return wmape(true=self.true, predicted=self.predicted, preprocess=False)
+    
+    def variability_ratio(self) -> float:
+        return variability_ratio(true=self.true, predicted=self.predicted, preprocess=False)
 
 
 def post_process_kge(cc, alpha, beta, return_all=False):
@@ -515,7 +518,7 @@ def nse(true, predicted, preprocess: bool = True) -> float:
 def nse_alpha(true, predicted, preprocess: bool = True) -> float:
     """
     Alpha decomposition of the NSE, see `Gupta_ et al. 2009 <https://doi.org/10.1029/97WR03495>`_
-    used in kratzert et al., 2018
+    used in `kratzert et al., 2018 <>`_
 
     Returns
     -------
@@ -746,15 +749,18 @@ def adjusted_r2(true, predicted, preprocess: bool = True) -> float:
 
 def kge(true, predicted, preprocess: bool = True, return_all=False):
     """
-    Kling-Gupta Efficiency
-    Gupta, Kling, Yilmaz, Martinez, 2009, Decomposition of the mean squared error and NSE performance
-     criteria: Implications for improving hydrological modelling
+    Kling-Gupta Efficiency following `Gupta_ et al. 2009 <https://doi.org/10.1016/j.jhydrol.2009.08.003>`_.
+
 
     output:
+        If return_all is True, it returns a numpy array of shape (4, ) containing
+        kge, cc, alpha, beta. Otherwise, it returns kge.
+
         kge: Kling-Gupta Efficiency
         cc: correlation
         alpha: ratio of the standard deviation
         beta: ratio of the mean
+
     Parameters
     ----------
     true :
@@ -783,10 +789,8 @@ def kge(true, predicted, preprocess: bool = True, return_all=False):
 
 def kge_bound(true, predicted, preprocess: bool = True) -> float:
     """
-    Bounded Version of the Original Kling-Gupta Efficiency_
-
-    .. _Efficiency:
-        https://iahs.info/uploads/dms/13614.21--211-219-41-MATHEVET.pdf
+    Bounded Version of the Original Kling-Gupta Efficiency after
+    `Mathevet et al. 2006 <https://iahs.info/uploads/dms/13614.21--211-219-41-MATHEVET.pdf>`_.
 
     Parameters
     ----------
@@ -815,10 +819,7 @@ def kge_bound(true, predicted, preprocess: bool = True) -> float:
 
 def kge_mod(true, predicted, preprocess: bool = True, return_all=False):
     """
-    Modified Kling-Gupta Efficiency_ .
-
-    .. _Efficiency:
-        https://doi.org/10.1016/j.jhydrol.2012.01.011
+    Modified Kling-Gupta Efficiency after `Kling et al. 2012 <https://doi.org/10.1016/j.jhydrol.2012.01.011>`_.
 
     Parameters
     ----------
@@ -858,19 +859,7 @@ def kge_mod(true, predicted, preprocess: bool = True, return_all=False):
 
 def kge_np(true, predicted, preprocess: bool = True, return_all=False):
     """
-    Non parametric Kling-Gupta Efficiency
-
-    output:
-        kge: Kling-Gupta Efficiency
-        cc: correlation
-        alpha: ratio of the standard deviation
-        beta: ratio of the mean
-
-    References
-    ---------
-    Pool, Vis, and Seibert, 2018 Evaluating model performance: towards a non-parametric variant of the
-    Kling-Gupta efficiency, Hydrological Sciences Journal.
-    https://doi.org/10.1080/02626667.2018.1552002
+    Non parametric Kling-Gupta Efficiency after `Pool et al. 2018 <https://doi.org/10.1080/02626667.2018.1552002>`_.
 
     Parameters
     ----------
@@ -883,6 +872,13 @@ def kge_np(true, predicted, preprocess: bool = True, return_all=False):
         process the true and predicted array
     return_all :
 
+    output
+    ------
+        kge: Kling-Gupta Efficiency
+        cc: correlation
+        alpha: ratio of the standard deviation
+        beta: ratio of the mean    
+    
     Examples
     ---------
     >>> import numpy as np
@@ -2486,6 +2482,7 @@ def kgeprime_c2m(true, predicted, preprocess: bool = True) -> float:
 
     .. _Efficiency:
         https://iahs.info/uploads/dms/13614.21--211-219-41-MATHEVET.pdf
+
     Parameters
     ----------
     true :
@@ -2647,6 +2644,7 @@ def mbe(true, predicted, preprocess: bool = True) -> float:
 
     .. _other:
         https://doi.org/10.1016/j.rser.2015.08.035
+
     Parameters
     ----------
     true :
@@ -2672,6 +2670,7 @@ def mbe(true, predicted, preprocess: bool = True) -> float:
 
 def _bounded_relative_error(true, predicted, preprocess: bool = True, benchmark: np.ndarray = None):
     """ Bounded Relative Error
+
     Parameters
     ----------
     true :
@@ -2701,6 +2700,7 @@ def _bounded_relative_error(true, predicted, preprocess: bool = True, benchmark:
 
 def mbrae(true, predicted, preprocess: bool = True, benchmark: np.ndarray = None) -> float:
     """ Mean Bounded Relative Absolute Error
+
     Parameters
     ----------
     true :
@@ -4122,8 +4122,10 @@ def watt_m(true, predicted, preprocess: bool = True) -> float:
 def wmape(true, predicted, preprocess: bool = True) -> float:
     """
     Weighted Mean Absolute Percent Error_
+
     .. _Error:
         https://stackoverflow.com/a/54833202/5982232
+
     Parameters
     ----------
     true :
@@ -4190,7 +4192,7 @@ def norm_ape(true, predicted, preprocess: bool = True) -> float:
         np.sqrt(np.sum(np.square(_percentage_error(true, predicted) - mape(true, predicted))) / (len(true) - 1)))
 
 
-def mse(true, predicted, preprocess=False, weights=None):
+def mse(true, predicted, preprocess:bool=True, weights=None)->float:
     """
     Mean Square Error
 
@@ -4213,3 +4215,31 @@ def mse(true, predicted, preprocess=False, weights=None):
     """
     true, predicted = maybe_preprocess(preprocess, true, predicted, METRIC_TYPES['mse'])
     return float(np.average((true - predicted) ** 2, axis=0, weights=weights))
+
+
+def variability_ratio(true, predicted, preprocess:bool=True)->float:
+    """
+    Variability Ratio
+    It is the ratio of the variance of the predicted values to the variance of the true values.
+    It is used to measure the variability of the predicted values relative to the true values.
+
+    Parameters
+    ----------
+    true :
+         ture/observed/actual/target values. It must be a numpy array,
+         or pandas series/DataFrame or a list.
+    predicted :
+        simulated/predicted values
+    preprocess :
+        process the true and predicted array
+
+    Examples
+    ---------
+    >>> import numpy as np
+    >>> from SeqMetrics import variability_ratio
+    >>> t = np.random.random(10)
+    >>> p = np.random.random(10)
+    >>> variability_ratio(t, p)
+    """
+    true, predicted = maybe_preprocess(preprocess, true, predicted, METRIC_TYPES['variability_ratio'])
+    return float(1 - abs((np.std(predicted) / np.mean(predicted)) / (np.std(true) / np.mean(true)) - 1))
