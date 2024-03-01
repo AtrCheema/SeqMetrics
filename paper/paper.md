@@ -43,10 +43,18 @@ Overall, SeqMetrics bridges the gap in Python's scientific analysis toolkit,
 contributing to data analysis.
 
 # Statement of need
-Quantification and analysis of model performance through error and performance 
-metrics is a crucial step in any scientific modeling exercise [@Gleckler2008]. However, Python 
-lacks a unified library encompassing performance metrics across diverse fields. 
-Addressing this gap is imperative to provide researchers a unified platform for 
+Performance metrics and errors measure the distance and similarity between 
+two arrays [@Botchkarev]. Quantification and analysis of model performance 
+through error and performance metrics is a crucial step in any scientific 
+modeling exercise [@Gleckler2008]. However, Python 
+lacks a unified library encompassing performance metrics across diverse fields
+for one-dimensional numerical data. 
+Existing Python libraries for performance evaluation offer only a limited number of metrics. 
+For instance, the metrics sub-module from Keras [@chollet2015keras] contains only 24 metrics, 
+while scikit-learn's [@pedregosa2011scikit] metrics module covers 45 metrics. Torchmetrics library, [@detlefsen2022torchmetrics] 
+although contains 100+ metrics, however, it provides only 48 which are intended
+for 1-dimensional numerical data. Addressing this gap is imperative to provide 
+researchers a unified platform for 
 comprehensive model evaluation, streamlining their computational workflows and 
 enhancing accuracy across various domains. The SeqMetrics application addresses 
 the critical need for a robust and versatile toolkit for assessing and comparing 
@@ -55,7 +63,7 @@ With a comprehensive suite of performance metrics for sequential (tabular and
 time series) data, spanning traditional statistical measures to specialized 
 atmospheric sciences metrics, the software serves as a valuable resource for 
 researchers, analysts, and practitioners in fields such as hydrology, finance, 
-and engineering.   By providing a unified platform for evaluating model performance 
+and engineering.   By providing a standardized platform for evaluating model performance 
 through a diverse set of metrics, the application facilitates the rigorous 
 validation and optimization of regression and classification models, contributing 
 to informed decision-making processes and ensuring the reliability of predictive 
