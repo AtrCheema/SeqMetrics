@@ -5,20 +5,20 @@ import warnings
 import numpy as np
 from typing import Union
 
-from .utils import maybe_preprocess
 from .utils import features
+from .utils import maybe_preprocess
+
 
 # TODO remove repeated calculation of mse, std, mean etc
 # TODO make weights, class attribute
 # TODO standardized residual sum of squares
-# TODO treat_metrics is not being used!
 # http://documentation.sas.com/?cdcId=fscdc&cdcVersion=15.1&docsetId=fsug&docsetTarget=n1sm8nk3229ttun187529xtkbtpu.htm&locale=en
 # https://arxiv.org/ftp/arxiv/papers/1809/1809.03006.pdf
 # https://www.researchgate.net/profile/Mark-Tschopp/publication/322147437_Quantifying_Similarity_and_Distance_Measures_for_Vector-Based_Datasets_Histograms_Signals_and_Probability_Distribution_Functions/links/5a48089ca6fdcce1971c8142/Quantifying-Similarity-and-Distance-Measures-for-Vector-Based-Datasets-Histograms-Signals-and-Probability-Distribution-Functions.pdf
 # Jeffreys Divergence
 # kullback-Leibler divergence
 # Peak flow ratio https://hess.copernicus.org/articles/24/869/2020/
-# Legates׳s coefficient of efficiency
+# Legates?s coefficient of efficiency
 # outliear percentage : pysteps
 # mean squared error skill score, mean absolute error skill score, https://doi.org/10.1016/j.ijforecast.2018.11.010
 # root mean quartic error, Kolmogorov–Smirnov test integral, OVERPer, Rényi entropy,
@@ -67,6 +67,8 @@ class Metrics(object):
             replace_inf: Union[int, float, None] = None,
             remove_zero: bool = False,
             remove_neg: bool = False,
+            remove_nan: bool = True,
+            remove_inf: bool = True,
             metric_type: str = 'regression',
             np_errstate: dict = None,
     ):
@@ -97,11 +99,23 @@ class Metrics(object):
         global ERR_STATE
 
         self.metric_type = metric_type
-        self.true, self.predicted = maybe_preprocess(True, true, predicted, metric_type)
+        self.true, self.predicted = maybe_preprocess(
+            preprocess=True,
+            true=true,
+            predicted=predicted,
+            metric_type=metric_type,
+            remove_nan=remove_nan,
+            replace_nan=replace_nan,
+            remove_zero=remove_zero,
+            remove_neg=remove_neg,
+            replace_inf=replace_inf,
+            remove_inf=remove_inf,
+            )
         self.replace_nan = replace_nan
         self.replace_inf = replace_inf
         self.remove_zero = remove_zero
         self.remove_neg = remove_neg
+        self.remove_nan = remove_nan
         if np_errstate is None:
             np_errstate = {}
         self.err_state = np_errstate
@@ -393,113 +407,6 @@ class Metrics(object):
     def composite_metrics(self):
         pass
 
-    def treat_values(self):
-        """
-        This function is applied by default at the start/at the time of initiating
-        the class. However, it can be used any time after that. This can be handy
-        if we want to calculate error first by ignoring nan and then by no ignoring
-        nan. Adopting from HydroErr_ . Removes the nan, negative, and inf values 
-        in two numpy arrays
-
-        .. _HydroErr:
-            https://github.com/BYU-Hydroinformatics/HydroErr/blob/master/HydroErr/HydroErr.py#L6210
-        """
-        sim_copy = np.copy(self.predicted)
-        obs_copy = np.copy(self.true)
-
-        # Treat missing data in observed_array and simulated_array, rows in simulated_array or
-        # observed_array that contain nan values
-        all_treatment_array = np.ones(obs_copy.size, dtype=bool)
-
-        if np.any(np.isnan(obs_copy)) or np.any(np.isnan(sim_copy)):
-            if self.replace_nan is not None:
-                # Finding the NaNs
-                sim_nan = np.isnan(sim_copy)
-                obs_nan = np.isnan(obs_copy)
-                # Replacing the NaNs with the input
-                sim_copy[sim_nan] = self.replace_nan
-                obs_copy[obs_nan] = self.replace_nan
-
-                warnings.warn("Elements(s) {} contained NaN values in the simulated array and "
-                              "elements(s) {} contained NaN values in the observed array and have been "
-                              "replaced (Elements are zero indexed).".format(np.where(sim_nan)[0],
-                                                                             np.where(obs_nan)[0]),
-                              UserWarning)
-            else:
-                # Getting the indices of the nan values, combining them, and informing user.
-                nan_indices_fcst = ~np.isnan(sim_copy)
-                nan_indices_obs = ~np.isnan(obs_copy)
-                all_nan_indices = np.logical_and(nan_indices_fcst, nan_indices_obs)
-                all_treatment_array = np.logical_and(all_treatment_array, all_nan_indices)
-
-                warnings.warn("Row(s) {} contained NaN values and the row(s) have been "
-                              "removed (Rows are zero indexed).".format(np.where(~all_nan_indices)[0]),
-                              UserWarning)
-
-        if np.any(np.isinf(obs_copy)) or np.any(np.isinf(sim_copy)):
-            if self.replace_inf is not None:
-                # Finding the NaNs
-                sim_inf = np.isinf(sim_copy)
-                obs_inf = np.isinf(obs_copy)
-                # Replacing the NaNs with the input
-                sim_copy[sim_inf] = self.replace_inf
-                obs_copy[obs_inf] = self.replace_inf
-
-                warnings.warn("Elements(s) {} contained Inf values in the simulated array and "
-                              "elements(s) {} contained Inf values in the observed array and have been "
-                              "replaced (Elements are zero indexed).".format(np.where(sim_inf)[0],
-                                                                             np.where(obs_inf)[0]),
-                              UserWarning)
-            else:
-                inf_indices_fcst = ~(np.isinf(sim_copy))
-                inf_indices_obs = ~np.isinf(obs_copy)
-                all_inf_indices = np.logical_and(inf_indices_fcst, inf_indices_obs)
-                all_treatment_array = np.logical_and(all_treatment_array, all_inf_indices)
-
-                warnings.warn(
-                    "Row(s) {} contained Inf or -Inf values and the row(s) have been removed (Rows "
-                    "are zero indexed).".format(np.where(~all_inf_indices)[0]),
-                    UserWarning
-                )
-
-        # Treat zero data in observed_array and simulated_array, rows in simulated_array or
-        # observed_array that contain zero values
-        if self.remove_zero:
-            if (obs_copy == 0).any() or (sim_copy == 0).any():
-                zero_indices_fcst = ~(sim_copy == 0)
-                zero_indices_obs = ~(obs_copy == 0)
-                all_zero_indices = np.logical_and(zero_indices_fcst, zero_indices_obs)
-                all_treatment_array = np.logical_and(all_treatment_array, all_zero_indices)
-
-                warnings.warn(
-                    "Row(s) {} contained zero values and the row(s) have been removed (Rows are "
-                    "zero indexed).".format(np.where(~all_zero_indices)[0]),
-                    UserWarning
-                )
-
-        # Treat negative data in observed_array and simulated_array, rows in simulated_array or
-        # observed_array that contain negative values
-
-        # Ignore runtime warnings from comparing
-        if self.remove_neg:
-            with np.errstate(invalid='ignore'):
-                obs_copy_bool = obs_copy < 0
-                sim_copy_bool = sim_copy < 0
-
-            if obs_copy_bool.any() or sim_copy_bool.any():
-                neg_indices_fcst = ~sim_copy_bool
-                neg_indices_obs = ~obs_copy_bool
-                all_neg_indices = np.logical_and(neg_indices_fcst, neg_indices_obs)
-                all_treatment_array = np.logical_and(all_treatment_array, all_neg_indices)
-
-                warnings.warn("Row(s) {} contained negative values and the row(s) have been "
-                              "removed (Rows are zero indexed).".format(np.where(~all_neg_indices)[0]),
-                              UserWarning)
-
-        self.true = obs_copy[all_treatment_array]
-        self.predicted = sim_copy[all_treatment_array]
-
-        return
 
     def mse(self, weights=None) -> float:
         """ mean square error """

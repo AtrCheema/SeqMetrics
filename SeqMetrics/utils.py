@@ -578,14 +578,50 @@ METRIC_TYPES = {
 }
 
 
-def _assert_1darray(array_like, metric_type:str) -> np.ndarray:
+def _assert_1darray(array_like, metric_type: str) -> np.ndarray:
     """Makes sure that the provided `array_like` is 1D numpy array"""
     if metric_type == "regression":
         return to_oneD_array(array_like)
 
     return maybe_to_oneD_array(array_like)
 
-def maybe_preprocess(preprocess:bool= None, true= None, predicted= None, metric_type= None):
+
+def maybe_preprocess(
+        preprocess: bool = None,
+        true=None,
+        predicted=None,
+        metric_type: str = None,
+        **process_kws
+):
+    """
+    This function is applied by default at the start/at the time of initiating
+    the class. However, it can be used any time after that. This can be handy
+    if we want to calculate error first by ignoring nan and then by no ignoring
+    nan. Adopting from HydroErr_ . Removes the nan, negative, and inf values
+    in two numpy arrays
+
+    .. _HydroErr:
+        https://github.com/BYU-Hydroinformatics/HydroErr/blob/master/HydroErr/HydroErr.py#L6210
+
+    parameters
+    ----------
+    preprocess: bool, default None
+        if True, preprocess the true and predicted arrays
+    true: array_like
+        array of true/actual/observed values
+    predicted: array_like
+        array of predicted/simulated/calculated values
+    metric_type: str
+        type of metric, either "regression" or "classification"
+    process_kws:
+        keyword arguments for preprocessing
+            - remove_nan: bool, default True
+            - remove_inf : bool,
+            - replace_nan: float, default None
+            - remove_zero: bool, default None
+            - remove_neg: bool, default None
+            - replace_inf: float, default None
+    """
 
     if preprocess:
         predicted = _assert_1darray(predicted, metric_type)
@@ -594,4 +630,103 @@ def maybe_preprocess(preprocess:bool= None, true= None, predicted= None, metric_
         lengths of provided arrays mismatch, predicted array: {}, true array: {}
         """.format(len(predicted), len(true))
 
+        true, predicted = treat_arrays(true, predicted, **process_kws)
+
     return true, predicted
+
+
+def treat_arrays(
+        true,
+        predicted,
+        remove_nan: bool = True,
+        remove_inf: bool = True,
+        replace_nan=None,
+        remove_zero=None,
+        remove_neg=None,
+        replace_inf=None
+):
+    sim_copy = np.copy(predicted)
+    obs_copy = np.copy(true)
+
+    # Treat missing data in observed_array and simulated_array, rows in simulated_array or
+    # observed_array that contain nan values
+    all_treatment_array = np.ones(obs_copy.size, dtype=bool)
+
+    if replace_nan and (np.any(np.isnan(obs_copy)) or np.any(np.isnan(sim_copy))):
+        # Finding the NaNs
+        sim_nan = np.isnan(sim_copy)
+        obs_nan = np.isnan(obs_copy)
+        # Replacing the NaNs with the input
+        sim_copy[sim_nan] = replace_nan
+        obs_copy[obs_nan] = replace_nan
+
+        warnings.warn("Elements(s) {} contained NaN values in the simulated array and "
+                      "elements(s) {} contained NaN values in the observed array and have been "
+                      "replaced (Elements are zero indexed).".format(np.where(sim_nan)[0],
+                                                                     np.where(obs_nan)[0]),
+                      UserWarning)
+
+    if replace_inf and (np.any(np.isinf(obs_copy)) or np.any(np.isinf(sim_copy))):
+        # Finding the NaNs
+        sim_inf = np.isinf(sim_copy)
+        obs_inf = np.isinf(obs_copy)
+        # Replacing the NaNs with the input
+        sim_copy[sim_inf] = replace_inf
+        obs_copy[obs_inf] = replace_inf
+
+        warnings.warn("Elements(s) {} contained Inf values in the simulated array and "
+                      "elements(s) {} contained Inf values in the observed array and have been "
+                      "replaced (Elements are zero indexed).".format(np.where(sim_inf)[0],
+                                                                     np.where(obs_inf)[0]),
+                      UserWarning)
+
+    # Treat zero data in observed_array and simulated_array, rows in simulated_array or
+    # observed_array that contain zero values
+    if remove_zero:
+        if (obs_copy == 0).any() or (sim_copy == 0).any():
+            zero_indices_fcst = ~(sim_copy == 0)
+            zero_indices_obs = ~(obs_copy == 0)
+            all_zero_indices = np.logical_and(zero_indices_fcst, zero_indices_obs)
+            all_treatment_array = np.logical_and(all_treatment_array, all_zero_indices)
+
+            warnings.warn(
+                "Row(s) {} contained zero values and the row(s) have been removed (Rows are "
+                "zero indexed).".format(np.where(~all_zero_indices)[0]),
+                UserWarning
+            )
+
+    # Treat negative data in observed_array and simulated_array, rows in simulated_array or
+    # observed_array that contain negative values
+
+    # Ignore runtime warnings from comparing
+    if remove_neg:
+        with np.errstate(invalid='ignore'):
+            obs_copy_bool = obs_copy < 0
+            sim_copy_bool = sim_copy < 0
+
+        if obs_copy_bool.any() or sim_copy_bool.any():
+            neg_indices_fcst = ~sim_copy_bool
+            neg_indices_obs = ~obs_copy_bool
+            all_neg_indices = np.logical_and(neg_indices_fcst, neg_indices_obs)
+            all_treatment_array = np.logical_and(all_treatment_array, all_neg_indices)
+
+            warnings.warn("Row(s) {} contained negative values and the row(s) have been "
+                          "removed (Rows are zero indexed).".format(np.where(~all_neg_indices)[0]),
+                          UserWarning)
+
+    obs_copy = obs_copy[all_treatment_array]
+    sim_copy = sim_copy[all_treatment_array]
+
+    if remove_nan:
+        data = np.array([sim_copy.flatten(), obs_copy.flatten()])
+        data = np.transpose(data)
+        data = data[~np.isnan(data).any(1)]
+        sim_copy, obs_copy = data[:, 0], data[:, 1]
+
+    if remove_inf:
+        data = np.array([sim_copy.flatten(), obs_copy.flatten()])
+        data = np.transpose(data)
+        data = data[~np.isinf(data).any(1)]
+        sim_copy, obs_copy = data[:, 0], data[:, 1]
+
+    return obs_copy, sim_copy

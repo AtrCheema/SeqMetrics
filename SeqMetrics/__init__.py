@@ -1,5 +1,5 @@
 """
-SeqMetrics, the module to calculate performance related to tabular/structured and 
+SeqMetrics, the module to calculate performance related to tabular/structured and
 sequential data. The values in a sequence are not necessarily related.
 """
 
@@ -147,4 +147,3 @@ from ._cls import ClassificationMetrics
 from .utils import plot_metrics
 
 __version__ = '2.0.0'
-
