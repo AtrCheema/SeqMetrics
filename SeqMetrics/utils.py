@@ -586,7 +586,7 @@ def _assert_1darray(array_like, metric_type: str) -> np.ndarray:
     return maybe_to_oneD_array(array_like)
 
 
-def maybe_preprocess(
+def maybe_treat_arrays(
         preprocess: bool = None,
         true=None,
         predicted=None,
@@ -630,7 +630,8 @@ def maybe_preprocess(
         lengths of provided arrays mismatch, predicted array: {}, true array: {}
         """.format(len(predicted), len(true))
 
-        true, predicted = treat_arrays(true, predicted, **process_kws)
+        if metric_type == 'regression':  # todo
+            true, predicted = treat_arrays(true, predicted, **process_kws)
 
     return true, predicted
 
@@ -648,6 +649,38 @@ def treat_arrays(
     sim_copy = np.copy(predicted)
     obs_copy = np.copy(true)
 
+    sim_copy, obs_copy = maybe_replace(sim_copy, obs_copy, replace_nan, replace_inf, remove_zero, remove_neg)
+
+    if remove_nan:
+        sim_copy, obs_copy = maybe_remove_nan(sim_copy, obs_copy)
+
+    if remove_inf:
+        sim_copy, obs_copy = maybe_remove_inf(sim_copy, obs_copy)
+
+    return obs_copy, sim_copy
+
+
+def maybe_remove_nan(sim_copy, obs_copy):
+
+    data = np.array([sim_copy.flatten(), obs_copy.flatten()])
+    data = np.transpose(data)
+    if data.dtype.kind not in {'U', 'S'}:
+        data = data[~np.isnan(data).any(1)]  # TODO check NaNs in an array containing strings
+    sim_copy, obs_copy = data[:, 0], data[:, 1]
+
+    return sim_copy, obs_copy
+
+def maybe_remove_inf(sim_copy, obs_copy):
+
+    data = np.array([sim_copy.flatten(), obs_copy.flatten()])
+    data = np.transpose(data)
+    if data.dtype.kind not in {'U', 'S'}:
+        data = data[~np.isinf(data).any(1)]  # TODO infinity NaNs in an array containing strings
+    sim_copy, obs_copy = data[:, 0], data[:, 1]
+
+    return sim_copy, obs_copy
+
+def maybe_replace(sim_copy, obs_copy, replace_nan, replace_inf, remove_zero, remove_neg):
     # Treat missing data in observed_array and simulated_array, rows in simulated_array or
     # observed_array that contain nan values
     all_treatment_array = np.ones(obs_copy.size, dtype=bool)
@@ -717,16 +750,4 @@ def treat_arrays(
     obs_copy = obs_copy[all_treatment_array]
     sim_copy = sim_copy[all_treatment_array]
 
-    if remove_nan:
-        data = np.array([sim_copy.flatten(), obs_copy.flatten()])
-        data = np.transpose(data)
-        data = data[~np.isnan(data).any(1)]
-        sim_copy, obs_copy = data[:, 0], data[:, 1]
-
-    if remove_inf:
-        data = np.array([sim_copy.flatten(), obs_copy.flatten()])
-        data = np.transpose(data)
-        data = data[~np.isinf(data).any(1)]
-        sim_copy, obs_copy = data[:, 0], data[:, 1]
-
-    return obs_copy, sim_copy
+    return sim_copy, obs_copy

@@ -1,12 +1,11 @@
 __all__ = ['Metrics']
 
 import json
-import warnings
 import numpy as np
 from typing import Union
 
 from .utils import features
-from .utils import maybe_preprocess
+from .utils import maybe_treat_arrays
 
 
 # TODO remove repeated calculation of mse, std, mean etc
@@ -90,6 +89,12 @@ class Metrics(object):
                 removed.
             remove_neg : default False, if True, the negative values in true
                 or predicted arrays will be removed.
+            remove_inf : bool (default=True)
+                whether to remove infitinity (np.inf) values from ``true`` and ``predicted``
+                arrays or not.
+            remove_nan : bool (default=True)
+                whether to remove nan (np.nan) values from ``true`` and ``predicted``
+                arrays or not.
             metric_type : type of metric.
             np_errstate : dict
                 any keyword options for np.errstate() to calculate np.log1p
@@ -99,7 +104,7 @@ class Metrics(object):
         global ERR_STATE
 
         self.metric_type = metric_type
-        self.true, self.predicted = maybe_preprocess(
+        self.true, self.predicted = maybe_treat_arrays(
             preprocess=True,
             true=true,
             predicted=predicted,

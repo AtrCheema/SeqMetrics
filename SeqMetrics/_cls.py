@@ -457,7 +457,7 @@ def confusion_matrix(true, predicted, normalize=False):
 
     Parameters
     ----------
-    normalize : str, [None, 'true', 'pred', 'all]
+    normalize : str, [None, 'true', 'pred', 'all']
         If None, no normalization is done.
     true : ture/observed/actual/target values. It must be a numpy array,
          or pandas series/DataFrame or a list.
@@ -585,7 +585,7 @@ def specificity(true, predicted, average=None):
     the predictions are negative when the true labels are also negative.
     It is number of correct negative predictions divided by the total number of negatives.
 
-    It's formula is following
+    Formula :
     TN / TN+FP
 
     Parameters
