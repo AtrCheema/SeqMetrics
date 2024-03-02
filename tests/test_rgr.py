@@ -812,6 +812,11 @@ class TestTreatment(unittest.TestCase):
         assert np.isnan(kge(t_, p_, remove_inf=False))
         return
 
+    def test_replace_nan_in_true(self):
+        t_ = self.t.copy()
+        t_[0] = np.nan
+        assert not np.isnan(kge(t_, self.p, replace_nan=1.0))
+        return
 
 if __name__ == "__main__":
     unittest.main()

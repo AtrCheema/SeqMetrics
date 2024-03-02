@@ -8,10 +8,12 @@ site.addsitedir(ai4_dir)
 
 import numpy as np
 
+from SeqMetrics import ClassificationMetrics
 from SeqMetrics import RegressionMetrics
 from SeqMetrics import plot_metrics
 from SeqMetrics.utils import list_subclass_methods
 from SeqMetrics.utils import features
+from SeqMetrics.utils import maybe_treat_arrays
 
 
 t = np.random.random((20, 1))
@@ -85,6 +87,81 @@ class TestPlot(unittest.TestCase):
 
         for k, s in stats.items():
             assert isinstance(s, float) or isinstance(s, int), f"{k} is of type {type(s)}"
+        return
+
+
+class TestInputFromOtherLibraries(unittest.TestCase):
+
+    def test_torch_tensor(self):
+        try:
+            import torch
+        except (ModuleNotFoundError, ImportError):
+            print('Cant run test_torch_tensor')
+            torch = None
+
+        if torch is not None:
+            t_ = torch.tensor(np.random.random(10))
+            p_ = torch.tensor(np.random.random(10))
+            _t, _p = maybe_treat_arrays(True, t_, p_)
+            assert isinstance(_t, np.ndarray)
+            assert isinstance(_p, np.ndarray)
+
+            kge_ = RegressionMetrics(t_, p_).kge()
+
+            assert isinstance(kge_, float)
+
+            acc_ = ClassificationMetrics(t_, p_).accuracy()
+
+            assert isinstance(acc_, float)
+        return
+
+
+    def test_tf_tensor(self):
+        try:
+            import tensorflow as tf
+        except (ModuleNotFoundError, ImportError):
+            print('Cant run test_tf_tensor')
+            tf = None
+
+        if tf is not None:
+            t_ = tf.constant(np.random.random(10))
+            p_ = tf.constant(np.random.random(10))
+            _t, _p = maybe_treat_arrays(True, t_, p_)
+            assert isinstance(_t, np.ndarray)
+            assert isinstance(_p, np.ndarray)
+
+            kge_ = RegressionMetrics(t_, p_).kge()
+
+            assert isinstance(kge_, float)
+
+            acc_ = ClassificationMetrics(t_, p_).accuracy()
+
+            assert isinstance(acc_, float)
+
+        return
+
+    def test_xr_dataarray(self):
+        try:
+            import xarray as xr
+        except (ModuleNotFoundError, ImportError):
+            print('Cant run test_xr_dataarray')
+            xr = None
+
+        if xr is not None:
+            t_ = xr.DataArray(np.random.random(10))
+            p_ = xr.DataArray(np.random.random(10))
+            _t, _p = maybe_treat_arrays(True, t_, p_)
+            assert isinstance(_t, np.ndarray)
+            assert isinstance(_p, np.ndarray)
+
+            kge_ = RegressionMetrics(t_, p_).kge()
+
+            assert isinstance(kge_, float)
+
+            acc_ = ClassificationMetrics(t_, p_).accuracy()
+
+            assert isinstance(acc_, float)
+
         return
 
 if __name__ == "__main__":

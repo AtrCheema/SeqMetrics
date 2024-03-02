@@ -76,9 +76,11 @@ class Metrics(object):
         Parameters
         -----------
             true : array like,
-                ture/observed/actual/target values
+                ture/observed/actual/target values. This can be anything
+                which can be converted to numpy array.
             predicted : array like,
-                simulated values
+                predicted/simulated values. This can be anything
+                which can be converted to numpy array.
             replace_nan : default None. if not None, then NaNs in true
                 and predicted will be replaced by this value.
             replace_inf : default None, if not None, then inf vlaues in true and

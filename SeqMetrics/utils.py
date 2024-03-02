@@ -580,6 +580,15 @@ METRIC_TYPES = {
 
 def _assert_1darray(array_like, metric_type: str) -> np.ndarray:
     """Makes sure that the provided `array_like` is 1D numpy array"""
+
+    # this will convert tensorflow and torch tensors to numpy
+    if hasattr(array_like, 'numpy') and callable(getattr(array_like, 'numpy')):
+        array_like = getattr(array_like, 'numpy')()
+
+    # this will cover xarray DataArray
+    if hasattr(array_like, 'to_numpy') and callable(getattr(array_like, 'to_numpy')):
+        array_like = getattr(array_like, 'to_numpy')()
+
     if metric_type == "regression":
         return to_oneD_array(array_like)
 
