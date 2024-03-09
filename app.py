@@ -254,7 +254,7 @@ col1, col2 = st.columns(2)
 
 with col1:
     st.markdown('<div class="upload-label">Type/Paste the observed/true values or upload a file:</div>', unsafe_allow_html=True)
-    true_values = st.text_area("True Values", placeholder="Type/Paste the observed/true values", height=100, key="true")
+    true_values = st.text_area("True Values", placeholder="Type/Paste the observed/true values as comma separated list", height=100, key="true")
     st.markdown('<div class="or-separator">OR</div>', unsafe_allow_html=True)
     st.markdown('<div class="upload-label">Upload CSV or Excel file with one column as true:</div>', unsafe_allow_html=True)
     uploaded_true = st.file_uploader("", key="upload_true")
@@ -268,7 +268,7 @@ with col1:
 
 with col2:
     st.markdown('<div class="upload-label">Type/Paste the predicted values or upload a file:</div>', unsafe_allow_html=True)
-    predicted_values = st.text_area("Predicted Values", placeholder="Type/Paste the predicted values", height=100, key="predicted")
+    predicted_values = st.text_area("Predicted Values", placeholder="Type/Paste the predicted values as comma separated list", height=100, key="predicted")
     st.markdown('<div class="or-separator">OR</div>', unsafe_allow_html=True)
     st.markdown('<div class="upload-label">Upload CSV or Excel file with one column as predicted:</div>', unsafe_allow_html=True)
     uploaded_pred = st.file_uploader("", key="upload_pred")
