@@ -3,10 +3,22 @@ Installation
 
 using pip
 =========
-The most easy way to install ai4water is using ``pip``
+The most easy way to install seqmetrics is using ``pip``
 ::
     pip install SeqMetrics
 
+However, if you are interested in installing all dependencies of seqmetrics, you can
+choose to install all of them as well.
+::
+    pip install SeqMetrics[all]
+
+We can also specify the seqmetrics version that we want to install as below
+::
+    pip install SeqMetrics==1.3.2
+
+To updated the installation run
+::
+    pip install --upgrade SeqMetrics
 
 using github link
 =================
