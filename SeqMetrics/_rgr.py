@@ -76,356 +76,2057 @@ class RegressionMetrics(Metrics):
                 'mase', 'r2_score']
 
     def abs_pbias(self) -> float:
+        """Absolute Percent bias
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.abs_pbias()
+        """
         return abs_pbias(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def acc(self) -> float:
+        """Anomaly correction coefficient. See Langland_ et al., 2012; Miyakoda_ et al., 1972
+        and Murphy_ et al., 1989.
+
+        .. _Langland:
+            https://doi.org/10.3402/tellusa.v64i0.17531
+
+        .. _Miyakoda:
+
+        .. _Murphy:
+            https://doi.org/10.1080/02723646.1972.10642213
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.acc()
+        """
         return acc(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def adjusted_r2(self) -> float:
+        """Adjusted R squared.
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.adjusted_r2()
+        """
         return adjusted_r2(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def agreement_index(self) -> float:
+        """
+        Agreement Index (d) developed by Willmott_, 1981.
+
+        It detects additive and pro-portional differences in the observed and
+        simulated means and vari-ances Moriasi_ et al., 2015. It is overly sensitive
+        to extreme values due to the squared differences_. It can also be used
+        as a substitute for R2 to identify the degree to which model predic-tions
+        are error-free.
+
+        .. math::
+            d = 1 - \\frac{\\sum_{i=1}^{N}(e_{i} - s_{i})^2}{\\sum_{i=1}^{N}(\\left | s_{i} - \\bar{e}
+             \\right | + \\left | e_{i} - \\bar{e} \\right |)^2}
+
+        .. _differences:
+            Legates and McCabe, 199
+
+        .. _Willmott:
+            https://doi.org/10.1080/02723646.1981.10642213
+
+        .. _Moriasi:
+            https://doi.org/10.13031/trans.58.10715
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.agreement_index()
+        """
         return agreement_index(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def aic(self, p=1) -> float:
+        """
+        Akaike_ Information Criterion. Modifying from this source_
+
+        .. _Akaike:
+            https://doi.org/10.1007/978-1-4612-1694-0_15
+
+        .. _source:
+            https://github.com/UBC-MDS/RegscorePy/blob/master/RegscorePy/aic.py
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.aic( )
+        """
         return aic(true=self.true, predicted=self.predicted, treat_arrays=False, p=p)
 
     def aitchison(self, center='mean') -> float:
+        """Aitchison distance. used in Zhang_ et al., 2020
+
+        .. _Zhang:
+            https://doi.org/10.5194/hess-24-2505-2020
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.aitchison( )
+        """
         return aitchison(true=self.true, predicted=self.predicted, treat_arrays=False,
                          center=center)
 
     def amemiya_adj_r2(self) -> float:
+        """Amemiya's Adjusted R-squared
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.amemiya_adj_r2( )
+        """
         return amemiya_adj_r2(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def amemiya_pred_criterion(self) -> float:
+        """Amemiya's Prediction Criterion
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.amemiya_pred_criterion()
+        """
         return amemiya_pred_criterion(true=self.true, predicted=self.predicted,
                                       treat_arrays=False)
 
     def bias(self) -> float:
+        """
+        Bias as and given by Gupta1998_ et al., 1998
+
+        .. math::
+            Bias=\\frac{1}{N}\\sum_{i=1}^{N}(e_{i}-s_{i})
+
+        .. _Gupta1998:
+            https://doi.org/10.1029/97WR03495
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.bias()
+        """
         return bias(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def bic(self, p=1) -> float:
+        """
+        Bayesian Information Criterion
+
+        Minimising the BIC_ is intended to give the best model. The
+        model chosen by the BIC is either the same as that chosen by the AIC, or one
+        with fewer terms. This is because the BIC penalises the number of parameters
+        more heavily than the AIC.  Modified after RegscorePy_.
+
+        .. _BIC:
+            https://otexts.com/fpp2/selecting-predictors.html#schwarzs-bayesian-information-criterion
+
+        .. _RegscorePy:
+            https://github.com/UBC-MDS/RegscorePy/blob/master/RegscorePy/bic.py
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.bic()
+        """
         return bic(true=self.true, predicted=self.predicted, treat_arrays=False, p=p)
 
     def brier_score(self) -> float:
+        """
+        Adopted from SkillMetrics_
+        Calculates the Brier score (BS), a measure of the mean-square error of
+        probability forecasts for a dichotomous (two-category) event, such as
+        the occurrence/non-occurrence of precipitation. The score is calculated
+        using the formula:
+
+        .. math::
+            BS = sum_(n=1)^N (f_n - o_n)^2/N
+
+        where f is the forecast probabilities, o is the observed probabilities
+        (0 or 1), and N is the total number of values in f & o. Note that f & o
+        must have the same number of values, and those values must be in the
+        range_ [0,1].
+
+        Returns
+        --------
+        float
+            BS : Brier score
+
+        References
+        ---------
+        Glenn W. Brier, 1950: Verification of forecasts expressed in terms
+        of probabilities. Mon. We. Rev., 78, 1-23.
+        D. S. Wilks, 1995: Statistical Methods in the Atmospheric Sciences.
+        Cambridge Press. 547 pp.
+
+        .. _SkillMetrics:
+            https://github.com/PeterRochford/SkillMetrics/blob/master/skill_metrics/brier_score.py
+
+        .. _range:
+            https://data.library.virginia.edu/a-brief-on-brier-scores/
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.brier_score()
+
+        """
         return brier_score(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def corr_coeff(self) -> float:
+        """
+        Pearson correlation coefficient.
+        It measures linear correlatin between true and predicted arrays.
+        It is sensitive to outliers.
+        Reference: Pearson, K 1895.
+
+        .. math::
+            r = \\frac{\\sum ^n _{i=1}(e_i - \\bar{e})(s_i - \\bar{s})}{\\sqrt{\\sum ^n _{i=1}(e_i - \\bar{e})^2}
+             \\sqrt{\\sum ^n _{i=1}(s_i - \\bar{s})^2}}
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.corr_coeff()
+
+        """
         return corr_coeff(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def covariance(self) -> float:
+        """
+        Covariance
+            .. math::
+            Covariance = \\frac{1}{N} \\sum_{i=1}^{N}((e_{i} - \\bar{e}) * (s_{i} - \\bar{s}))
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.covariance()
+        """
         return covariance(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def cronbach_alpha(self) -> float:
+        """
+        It is a measure of internal consitency of data. See ucla and stackoverflow_
+        pages for more info.
+
+        .. _ucla:
+            https://stats.idre.ucla.edu/spss/faq/what-does-cronbachs-alpha-mean/
+
+        .. _stackoverflow:
+            https://stackoverflow.com/a/20799687/5982232
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.cronbach_alpha()
+        """
         return cronbach_alpha(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def centered_rms_dev(self) -> float:
+        """
+        Modified after SkillMetrics_.
+        Calculates the centered root-mean-square (RMS) difference between true and predicted
+        using the formula:
+        (E')^2 = sum_(n=1)^N [(p_n - mean(p))(r_n - mean(r))]^2/N
+        where p is the predicted values, r is the true values, and
+        N is the total number of values in p & r.
+
+        Output:
+        CRMSDIFF : centered root-mean-square (RMS) difference (E')^2
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.centered_rms_dev()
+        """
         return centered_rms_dev(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def cosine_similarity(self) -> float:
+        """
+        It is a judgment of orientation and not magnitude: two vectors with
+        the same orientation have a cosine similarity of 1, two vectors oriented
+        at 90° relative to each other have a similarity of 0, and two vectors diametrically
+        opposed have a similarity of -1, independent of their magnitude. See_
+
+        .. _see:
+            https://en.wikipedia.org/wiki/Cosine_similarity
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.cosine_similarity()
+        """
         return cosine_similarity(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def decomposed_mse(self) -> float:
+        """
+        Decomposed MSE developed by Kobayashi and Salam (2000)
+
+        .. math ::
+            dMSE = (\\frac{1}{N}\\sum_{i=1}^{N}(e_{i}-s_{i}))^2 + SDSD + LCS
+            SDSD = (\\sigma(e) - \\sigma(s))^2
+            LCS = 2 \\sigma(e) \\sigma(s) * (1 - \\frac{\\sum ^n _{i=1}(e_i - \\bar{e})(s_i - \\bar{s})}
+            {\\sqrt{\\sum ^n _{i=1}(e_i - \\bar{e})^2} \\sqrt{\\sum ^n _{i=1}(s_i - \\bar{s})^2}})
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.decomposed_mse()
+        """
         return decomposed_mse(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def euclid_distance(self) -> float:
+        """Euclidian distance
+
+        Referneces: Kennard et al., 2010
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.euclid_distance()
+        """
         return euclid_distance(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def exp_var_score(self, weights=None) -> Union[float, None]:
+        """
+        Explained variance score_ . Best value is 1, lower values are less accurate.
+
+        .. _score:
+            https://stackoverflow.com/q/24378176/5982232
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.exp_var_score()
+        """
+
         return exp_var_score(true=self.true, predicted=self.predicted, treat_arrays=False,
                              weights=weights)
 
     def expanded_uncertainty(self, cov_fact=1.96) -> float:
+        """By default, it calculates uncertainty with 95% confidence interval.
+        1.96 is the coverage factor corresponding 95% confidence level .This
+        indicator is used in order to show more information about the model
+        deviation. Using formula from by Behar_ et al., 2015 and Gueymard_ et al., 2014.
+        .. _Behar:
+            https://doi.org/10.1016/j.enconman.2015.03.067
+
+        .. _Gueymard:
+            https://doi.org/10.1016/j.rser.2014.07.117
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.expanded_uncertainty()
+        """
         return expanded_uncertainty(true=self.true, predicted=self.predicted,
                                     treat_arrays=False, cov_fact=cov_fact)
 
     def fdc_fhv(self, h: float = 0.02) -> float:
+        """
+        modified Kratzert2018_ code. Peak flow bias of the flow duration curve (Yilmaz 2008).
+        used in kratzert et al., 2018
+
+        .. _Kratzert2018:
+            https://github.com/kratzert/ealstm_regional_modeling/blob/64a446e9012ecd601e0a9680246d3bbf3f002f6d/papercode/metrics.py#L190
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.fdc_fhv()
+        """
         return fdc_fhv(true=self.true, predicted=self.predicted, treat_arrays=False, h=h)
 
     def fdc_flv(self, low_flow: float = 0.3) -> float:
+        """
+        bias of the bottom 30 % low flows. modified Kratzert_ code
+        used in kratzert et al., 2018
+
+        .. _Kratzert:
+            https://github.com/kratzert/ealstm_regional_modeling/blob/64a446e9012ecd601e0a9680246d3bbf3f002f6d/papercode/metrics.py#L237
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.fdc_flv()
+        """
         return fdc_flv(true=self.true, predicted=self.predicted, treat_arrays=False,
                        low_flow=low_flow)
 
     def gmae(self) -> float:
+        """ Geometric Mean Absolute Error
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.gmae()
+        """
         return gmae(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def gmean_diff(self) -> float:
-        return gmae(true=self.true, predicted=self.predicted, treat_arrays=False)
+        """Geometric mean difference. First geometric mean is calculated for each
+        of two samples and their difference is calculated.
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.gmean_diff()
+        """
+        return gmean_diff(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def gmrae(self, benchmark: np.ndarray = None) -> float:
+        """ Geometric Mean Relative Absolute Error
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.gmrae()
+        """
         return gmrae(true=self.true, predicted=self.predicted, treat_arrays=False,
                      benchmark=benchmark)
 
     def calculate_hydro_metrics(self):
+        """
+        Calculates the following performance metrics related to hydrology.
+            - fdc_flv
+            - fdc_fhv
+            - kge
+            - kge_np
+            - kge_mod
+            - kge_bound
+            - kgeprime_c2m
+            - kgenp_bound
+            - nse
+            - nse_alpha
+            - nse_beta
+            - nse_mod
+            - nse_bound
+            - r2
+            - mape
+            - nrmse
+            - corr_coeff
+            - rmse
+            - mae
+            - mse
+            - mpe
+            - mase
+            - r2_score
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.calculate_hydro_metrics()
+        """
         return calculate_hydro_metrics(true=self.true, predicted=self.predicted,
                                        treat_arrays=False)
 
     def inrse(self) -> float:
+        """ Integral Normalized Root Squared Error
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.inrse()
+
+        """
         return inrse(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def irmse(self) -> float:
+        """Inertial RMSE. RMSE divided by standard deviation of the gradient of true.
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.irmse()
+        """
         return irmse(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def JS(self) -> float:
+        """Jensen-shannon divergence
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.JS()
+        """
         return JS(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def kendaull_tau(self, return_p=False) -> Union[float, tuple]:
+        """Kendall's tau_ .used in Probst_ et al., 2019.
+
+        .. _tau:
+            https://machinelearningmastery.com/how-to-calculate-nonparametric-rank-correlation-in-python/
+
+        .. _Probst:
+            https://www.jmlr.org/papers/volume20/18-444/18-444.pdf
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.kendaull_tau()
+        """
         return kendaull_tau(true=self.true, predicted=self.predicted, return_p=return_p,
                             treat_arrays=False)
 
     def kge(self):
+        """
+        Kling-Gupta Efficiency following `Gupta_ et al. 2009 <https://doi.org/10.1016/j.jhydrol.2009.08.003>`_.
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.kge()
+        """
         return kge(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def kge_bound(self) -> float:
+        """
+        Bounded Version of the Original Kling-Gupta Efficiency after
+        `Mathevet et al. 2006 <https://iahs.info/uploads/dms/13614.21--211-219-41-MATHEVET.pdf>`_.
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.kge_bound()
+        """
         return kge_bound(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def kge_mod(self):
+        """
+        Modified Kling-Gupta Efficiency after `Kling et al. 2012 <https://doi.org/10.1016/j.jhydrol.2012.01.011>`_.
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.kge_mod()
+
+        """
         return kge_mod(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def kge_np(self):
+        """
+        Non-parametric Kling-Gupta Efficiency after `Pool et al. 2018 <https://doi.org/10.1080/02626667.2018.1552002>`_.
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.kge_np()
+
+        """
         return kge_np(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def kgeprime_c2m(self) -> float:
+        """
+        Bounded Version of the Modified Kling-Gupta Efficiency_
+
+        .. _Efficiency:
+            https://iahs.info/uploads/dms/13614.21--211-219-41-MATHEVET.pdf
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.kgeprime_c2m()
+
+        """
         return kgeprime_c2m(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def kgenp_bound(self):
+        """
+        Bounded Version of the Non-Parametric Kling-Gupta Efficiency
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.kgenp_bound()
+
+        """
         return kgenp_bound(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def kl_sym(self) -> Union[float, None]:
+        """Symmetric kullback-leibler divergence
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.kl_sym()
+        """
         return kl_sym(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def lm_index(self, obs_bar_p=None) -> float:
+        """Legate-McCabe Efficiency Index.
+        Less sensitive to outliers in the data. The larger, the better
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.lm_index()
+        """
         return lm_index(true=self.true, predicted=self.predicted, treat_arrays=False,
                         obs_bar_p=obs_bar_p)
 
     def maape(self) -> float:
+        """
+        Mean Arctangent Absolute Percentage Error
+        Note: result is NOT multiplied by 100
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.maape()
+        """
         return maape(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def mae(self) -> float:
+        """ Mean Absolute Error.
+        It is less sensitive to outliers as compared to mse/rmse.
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.mae()
+        """
         return mae(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def mape(self) -> float:
+        """ Mean Absolute Percentage Error.
+        The MAPE is often used when the quantity to predict is known to remain
+        way above zero_. It is useful when the size or size of a prediction variable
+        is significant in evaluating the accuracy of a prediction_. It has advantages
+        of scale-independency and interpretability. However, it has the significant
+        disadvantage that it produces infinite or undefined values for zero or
+        close-to-zero actual values_.
+
+        .. _zero:
+            https://doi.org/10.1016/j.neucom.2015.12.114
+
+        .. _prediction:
+            https://doi.org/10.1088/1742-6596/930/1/012002
+
+        .. _values:
+            https://doi.org/10.1016/j.ijforecast.2015.12.003
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.mape()
+        """
         return mape(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def mbe(self) -> float:
+        """Mean bias error. This indicator expresses a tendency of model to underestimate (negative value)
+         or overestimate (positive value) global radiation, while the MBE values closest to zero are desirable.
+         The drawback of this test is that it does not show the correct performance when the model presents
+         overestimated and underestimated values at the same time, since overestimation and underestimation
+         values cancel each other_. [1]
+
+         Examples
+         ---------
+         >>> import numpy as np
+         >>> from SeqMetrics import RegressionMetrics
+         >>> t = np.random.random(10)
+         >>> p = np.random.random(10)
+         >>> metrics= RegressionMetrics(t, p)
+         >>> metrics.mbe()
+         """
         return mbe(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def mbrae(self, benchmark: np.ndarray = None) -> float:
+        """ Mean Bounded Relative Absolute Error
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.mbrae()
+        """
         return mbrae(true=self.true, predicted=self.predicted, benchmark=benchmark,
                      treat_arrays=False)
 
     def mapd(self) -> float:
+        """Mean absolute percentage deviation.
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.mapd(t, p)
+        """
         return mapd(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def mase(self, seasonality: int = 1):
-        return mase(true=self.true, treat_arrays=False, predicted=self.predicted)
+        """
+        Mean Absolute Scaled Error. Baseline (benchmark) is computed with naive
+        forecasting (shifted by @seasonality) modified after [11]_. It is the
+        ratio of MAE of used model and MAE of naive forecast.
+
+        References
+        ----------
+        .. [11] https://gist.github.com/bshishov/5dc237f59f019b26145648e2124ca1c9
+
+        Hyndman, R. J. (2006). Another look at forecast-accuracy metrics for intermittent demand.
+        Foresight: The International Journal of Applied Forecasting, 4(4), 43-46.
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.mase()
+        """
+        return mase(true=self.true, treat_arrays=False, predicted=self.predicted, seasonality= seasonality)
 
     def mare(self) -> float:
+        """ Mean Absolute Relative Error. When expressed in %age, it is also known as mape_.
+
+        .. _mape:
+            https://doi.org/10.1016/j.rser.2015.08.035
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.mare()
+        """
         return mare(true=self.true, predicted=self.predicted,
                     treat_arrays=False)
 
     def max_error(self) -> float:
+        """
+        maximum absolute error
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.max_error()
+        """
         return max_error(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def mb_r(self) -> float:
+        """Mielke-Berry R value.
+        Berry and Mielke, 1988.
+
+        References
+        ----------
+        Mielke, P. W., & Berry, K. J. (2007). Permutation methods: a distance function approach.
+        Springer Science & Business Media.
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.mb_r()
+        """
         return mb_r(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def mda(self) -> float:
+        """ Mean Directional Accuracy
+        modified after_
+
+        .. _after:
+             https://gist.github.com/bshishov/5dc237f59f019b26145648e2124ca1c9
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.mda()
+         """
         return mda(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def mde(self) -> float:
+        """Median Error
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.mde()
+        """
         return mde(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def mdape(self) -> float:
+        """
+        Median Absolute Percentage Error
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.mdape()
+        """
         return mdape(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def mdrae(self, benchmark: np.ndarray = None) -> float:
+        """ Median Relative Absolute Error
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.mdrae()
+        """
         return mdrae(true=self.true, predicted=self.predicted, treat_arrays=False,
                      benchmark=benchmark)
 
     def me(self):
+        """Mean error
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.me()
+        """
         return me(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def mean_bias_error(self) -> float:
+        """
+        Mean Bias Error
+        It represents overall bias error or systematic error. It shows average interpolation bias; i.e. average over-
+        or underestimation. [1][2].This indicator expresses a tendency of model to underestimate (negative value)
+        or overestimate (positive value) global radiation, while the MBE values closest to zero are desirable.
+        The drawback of this test is that it does not show the correct performance when the model presents
+        overestimated and underestimated values at the same time, since overestimation and underestimation
+        values cancel each other.
+
+        References
+        ----------
+
+        - Willmott, C. J., & Matsuura, K. (2006). On the use of dimensioned measures of error to evaluate the performance
+            of spatial interpolators. International Journal of Geographical Information Science, 20(1), 89-102.
+            https://doi.org/10.1080/1365881050028697
+
+        - Valipour, M. (2015). Retracted: Comparative Evaluation of Radiation-Based Methods for Estimation of Potential
+            Evapotranspiration. Journal of Hydrologic Engineering, 20(5), 04014068.
+            https://dx.doi.org/10.1061/(ASCE)HE.1943-5584.0001066
+        -  https://doi.org/10.1016/j.rser.2015.08.035
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.mean_bias_error()
+         """
         return mean_bias_error(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def mean_var(self) -> float:
+        """Mean variance
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.mean_var()
+        """
         return mean_var(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def mean_poisson_deviance(self, weights=None) -> float:
+        """
+        mean poisson deviance
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.mean_poisson_deviance()
+        """
         return mean_poisson_deviance(true=self.true, predicted=self.predicted,
                                      weights=weights, treat_arrays=False)
 
     def mean_gamma_deviance(self, weights=None) -> float:
+        """
+        mean gamma deviance
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.mean_gamma_deviance()
+        """
+
         return mean_gamma_deviance(true=self.true, predicted=self.predicted, weights=weights,
                                    treat_arrays=False)
 
     def median_abs_error(self) -> float:
+        """
+        median absolute error
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.median_abs_error()
+        """
         return median_abs_error(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def med_seq_error(self) -> float:
+        """Median Squared Error
+        Same as mse, but it takes median which reduces the impact of outliers.
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.med_seq_error()
+        """
         return med_seq_error(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def mle(self) -> float:
+        """Mean log error
+
+            Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.mle()
+        """
         return mle(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def mod_agreement_index(self, j=1) -> float:
+        """Modified agreement of index.
+        j: int, when j==1, this is same as agreement_index. Higher j means more impact of outliers.
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.mod_agreement_index()
+        """
         return mod_agreement_index(true=self.true, predicted=self.predicted,
                                    treat_arrays=False, j=j)
 
     def mpe(self) -> float:
+        """ Mean Percentage Error
+
+            Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.mpe()
+        """
         return mpe(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def mrae(self, benchmark: np.ndarray = None):
+        """ Mean Relative Absolute Error
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.mrae()
+        """
+
         return mrae(true=self.true, predicted=self.predicted, treat_arrays=False,
                     benchmark=benchmark)
 
     def msle(self, weights=None) -> float:
+        """
+        mean square logrithmic error
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.msle()
+        """
+
         return msle(true=self.true, predicted=self.predicted, treat_arrays=False,
                     weights=weights)
 
     def norm_euclid_distance(self) -> float:
+        """Normalized Euclidian distance
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.norm_euclid_distance()
+        """
         return norm_euclid_distance(true=self.true, predicted=self.predicted,
                                     treat_arrays=False)
 
     def nrmse_range(self) -> float:
+        """Range Normalized Root Mean Squared Error.
+        RMSE normalized by true values. This allows comparison between data sets
+        with different scales. It is more sensitive to outliers.
+
+        Reference: Pontius et al., 2008
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.nrmse_range()
+        """
         return nrmse_range(true=self.true, treat_arrays=False, predicted=self.predicted)
 
     def nrmse_ipercentile(self, q1=25, q2=75) -> float:
+        """
+        RMSE normalized by inter percentile range of true. This is the least sensitive to outliers.
+        q1: any interger between 1 and 99
+        q2: any integer between 2 and 100. Should be greater than q1.
+        Reference: Pontius et al., 2008.
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.nrmse_ipercentile()
+        """
         return nrmse_ipercentile(true=self.true, treat_arrays=False, q1=q1, q2=q2, predicted=self.predicted)
 
     def nrmse_mean(self) -> float:
+        """Mean Normalized RMSE
+        RMSE normalized by mean of true values.This allows comparison between datasets with different scales.
+
+        Reference: Pontius et al., 2008
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.nrmse_mean()
+        """
         return nrmse_mean(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def norm_ae(self) -> float:
+        """ Normalized Absolute Error
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.norm_ae()
+        """
         return norm_ae(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def norm_ape(self) -> float:
+        """ Normalized Absolute Percentage Error
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.norm_ape()
+        """
         return norm_ape(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def nrmse(self) -> float:
+        """ Normalized Root Mean Squared Error
+
+            Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.nrmse()
+        """
         return nrmse(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def nse(self) -> float:
+        """Nash-Sutcliff Efficiency.
+
+        The Nash-Sutcliffe efficiency (NSE) is a normalized statistic that determines
+        the relative magnitude of the residual variance compared to the measured data
+        variance It determines how well the model simulates trends for the output response
+        of concern. But cannot help identify model bias and cannot be used to identify
+        differences in timing and magnitude of peak flows and shape of recession curves;
+        in other words, it cannot be used for single-event simulations. It is sensitive
+        to extreme values due to the squared differ-ences [1]. To make it less sensitive
+        to outliers, [2] proposed log and relative nse.
+
+        References
+        ----------
+        - Moriasi, D. N., Gitau, M. W., Pai, N., & Daggupati, P. (2015). Hydrologic and water quality models:
+            Performance measures and evaluation criteria. Transactions of the ASABE, 58(6), 1763-1785.
+        - Krause, P., Boyle, D., & Bäse, F. (2005). Comparison of different efficiency criteria for hydrological
+            model assessment. Adv. Geosci., 5, 89-97. https://dx.doi.org/10.5194/adgeo-5-89-2005.
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.nse()
+        """
         return nse(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def nse_alpha(self) -> float:
+        """
+        Alpha decomposition of the NSE, see `Gupta_ et al. 2009 <https://doi.org/10.1029/97WR03495>`_
+        used in `kratzert et al., 2018 <>`_
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.nse_alpha()
+        """
         return nse_alpha(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def nse_beta(self) -> float:
+        """
+        Beta decomposition of NSE. See Gupta_ et al. 2009 .
+        used in kratzert et al., 2018
+
+        .. _Gupta:
+            https://doi.org/10.1016/j.jhydrol.2009.08.003
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.nse_beta()
+
+        """
         return nse_beta(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def nse_mod(self, j=1) -> float:
+        """
+        Gives less weightage to outliers if j=1 and if j>1 then it gives more
+        weightage to outliers. Reference: Krause et al., 2005
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.nse_mod()
+
+        """
         return nse_mod(true=self.true, predicted=self.predicted, treat_arrays=False, j=j)
 
     def nse_rel(self) -> float:
+        """
+        Relative NSE.
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.nse_rel()
+        """
         return nse_rel(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def nse_bound(self) -> float:
+        """
+        Bounded Version of the Nash-Sutcliffe Efficiency (nse_)
+
+        .. _nse:
+            https://iahs.info/uploads/dms/13614.21--211-219-41-MATHEVET.pdf
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.nse_bound()
+        """
         return nse_bound(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def log_nse(self, epsilon=0.0) -> float:
+        """
+        log Nash-Sutcliffe model efficiency
+
+        .. math::
+            NSE = 1-\\frac{\\sum_{i=1}^{N}(log(e_{i})-log(s_{i}))^2}{\\sum_{i=1}^{N}(log(e_{i})-log(\\bar{e})^2}-1)*-1
+
+            Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.log_nse()
+
+        """
         return log_nse(true=self.true, predicted=self.predicted, epsilon=epsilon, treat_arrays=False)
 
     def log_prob(self) -> float:
+        """
+        Logarithmic probability distribution
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.log_prob()
+        """
         return log_prob(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def pbias(self) -> float:
+        """
+        Percent Bias.
+        It determines how well the model simulates the average magnitudes for the
+        output response of interest. It can also determine over and under-prediction.
+        It cannot be used (1) for single-event simula-tions to identify differences
+        in timing and magnitude of peak flows and the shape of recession curves nor (2)
+        to determine how well the model simulates residual variations and/or trends
+        for the output response of interest. It can  give a deceiving rating of
+        model performance if the model overpredicts as much as it underpredicts,
+        in which case PBIAS will be close to zero even though the model simulation
+        is poor. [1]
+
+        [1] Moriasi et al., 2015
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.pbias()
+        """
+
         return pbias(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def rmsle(self) -> float:
+        """Root mean square log error.
+
+        This error is less sensitive to `outliers <https://stats.stackexchange.com/q/56658/314919>`_ .
+        Compared to RMSE, RMSLE only considers the relative error between predicted
+        and actual values, and the scale of the error is nullified by the log-transformation.
+        Furthermore, RMSLE penalizes underestimation more than overestimation.
+        This is especially useful in those studies where the underestimation
+        of the target variable is not acceptable but overestimation can be
+        `tolerated <https://doi.org/10.1016/j.scitotenv.2020.137894>`_ .
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.rmsle()
+
+         """
         return rmsle(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def rmdspe(self) -> float:
+        """
+        Root Median Squared Percentage Error
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.rmdspe()
+        """
         return rmdspe(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def rse(self) -> float:
+        """Relative Squared Error
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.rse()
+        """
         return rse(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def rrse(self) -> float:
+        """ Root Relative Squared Error
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.rrse()
+        """
         return rrse(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def rae(self) -> float:
+        """ Relative Absolute Error (aka Approximation Error)
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.rae()
+        """
         return rae(true=self.true, treat_arrays=False, predicted=self.predicted)
 
     def ref_agreement_index(self) -> float:
+        """Refined Index of Agreement. From -1 to 1. Larger the better.
+        Refrence: Willmott et al., 2012
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.ref_agreement_index()
+        """
         return ref_agreement_index(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def rel_agreement_index(self) -> float:
+        """Relative index of agreement. from 0 to 1. larger the better.
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.rel_agreement_index()
+        """
         return rel_agreement_index(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def rmse(self, weights=None) -> float:
+        """ Root mean squared error
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.rmse()
+        """
         return rmse(true=self.true, predicted=self.predicted, treat_arrays=False, weights=weights)
 
     def r2(self) -> float:
+        """
+        R2 is a statistical measure of how well the regression line approximates the actual data.
+        Quantifies the percent of variation in the response that the 'model'
+        explains_. The 'model' here is anything from which we obtained predicted
+        array. It is also called coefficient of determination or square of pearson
+        correlation coefficient. More heavily affected by outliers than pearson correlatin r.
+
+        .. _explains:
+            https://data.library.virginia.edu/is-r-squared-useless/
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> r_square= metrics.r2()
+        >>> r_square
+        """
+
         return r2(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def r2_score(self, weights=None):
+        """
+        This is not a symmetric function.
+        Unlike most other scores, R^2 score may be negative (it need not actually
+        be the square of a quantity R).
+        This metric is not well-defined for single samples and will return a NaN
+        value if n_samples is less than two.
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.r2_score()
+
+        """
         return r2_score(true=self.true, predicted=self.predicted, treat_arrays=False, weights=weights)
 
     def relative_rmse(self) -> float:
+        """
+        Relative Root Mean Squared Error
+
+        .. math::
+            RRMSE=\\frac{\\sqrt{\\frac{1}{N}\\sum_{i=1}^{N}(e_{i}-s_{i})^2}}{\\bar{e}}
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.relative_rmse()
+        """
         return relative_rmse(true=self.true, treat_arrays=False, predicted=self.predicted)
 
     def rmspe(self) -> float:
+        """
+        Root Mean Square Percentage Error_ .
+
+        .. _Error:
+            https://stackoverflow.com/a/53166790/5982232
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.rmspe()
+        """
         return rmspe(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def rsr(self) -> float:
+        """
+        Moriasi et al., 2007.
+        It incorporates the benefits of error index statistics andincludes a
+        scaling/normalization factor, so that the resulting statistic and reported
+        values can apply to various constitu-ents.
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.rsr()
+        """
         return rsr(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def rmsse(self) -> float:
+        """ Root Mean Squared Scaled Error
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.rmsse()
+        """
         return rmsse(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def sa(self) -> float:
+        """Spectral angle. From -pi/2 to pi/2. Closer to 0 is better.
+        It measures angle between two vectors in hyperspace indicating
+        how well the shape of two arrays match instead of their magnitude.
+        Reference: Robila and Gershman, 2005.
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.sa()
+        """
         return sa(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def sc(self) -> float:
+        """Spectral correlation.
+        It varies from -pi/2 to pi/2. Closer to 0 is better.
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.sc()
+        """
         return sc(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def sga(self) -> float:
+        """Spectral gradient angle.
+        It varies from -pi/2 to pi/2. Closer to 0 is better.
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.sga()
+        """
         return sga(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def smape(self) -> float:
+        """
+        Symmetric Mean Absolute Percentage Error_. Adoption from_ .
+
+        .. _Error:
+             https://en.wikipedia.org/wiki/Symmetric_mean_absolute_percentage_error
+
+        .. _from:
+            https://stackoverflow.com/a/51440114/5982232
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.smape()
+        """
         return smape(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def smdape(self) -> float:
+        """
+        Symmetric Median Absolute Percentage Error
+        Note: result is NOT multiplied by 100
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.smdape()
+        """
         return smdape(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def sid(self) -> float:
+        """Spectral Information Divergence.
+        From -pi/2 to pi/2. Closer to 0 is better.
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.sid()
+        """
         return sid(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def skill_score_murphy(self) -> float:
+        """
+        Adopted from here_ .
+        Calculate non-dimensional skill score (SS) between two variables using
+        definition of Murphy (1988) using the formula:
+
+        .. math::
+            SS = 1 - RMSE^2/SDEV^2
+
+            SDEV is the standard deviation of the true values
+
+            SDEV^2 = sum_(n=1)^N [r_n - mean(r)]^2/(N-1)
+
+        where p is the predicted values, r is the reference values, and N is the total number of values in p & r.
+        Note that p & r must have the same number of values. A positive skill score can be interpreted as the percentage
+        of improvement of the new model forecast in comparison to the reference. On the other hand, a negative skill
+        score denotes that the forecast of interest is worse than the referencing forecast. Consequently, a value of
+        zero denotes that both forecasts perform equally [MLAir, 2020].
+
+        References
+        ---------
+            Allan H. Murphy, 1988: Skill Scores Based on the Mean Square Error
+            and Their Relationships to the Correlation Coefficient. Mon. Wea.
+            Rev., 116, 2417-2424.
+            doi: http//dx.doi.org/10.1175/1520-0493(1988)<2417:SSBOTM>2.0.CO;2
+
+        .. _here:
+            https://github.com/PeterRochford/SkillMetrics/blob/278b2f58c7d73566f25f10c9c16a15dc204f5869/skill_metrics/skill_score_murphy.py
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.skill_score_murphy()
+        """
         return skill_score_murphy(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def spearmann_corr(self) -> float:
+        """Separmann correlation coefficient_.
+
+        This is a nonparametric metric and assesses how well the relationship
+        between the true and predicted data can be described using a monotonic
+        function.
+
+        .. _coefficient:
+            https://hess.copernicus.org/articles/24/2505/2020/hess-24-2505-2020.pdf
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.spearmann_corr()
+        """
         return spearmann_corr(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def sse(self) -> float:
+        """
+        Sum of squared errors_ (model vs actual). It is measure of how far off
+        our model's predictions are from the observed values. A value of 0 indicates
+        that all predications are spot on. A non-zero value indicates errors.
+
+        This is also called residual sum of squares (RSS) or sum of squared residuals
+        as per tutorialspoint_ .
+
+        .. errors:
+            https://dziganto.github.io/data%20science/linear%20regression/machine%20learning/python/Linear-Regression-101-Metrics/
+
+        .. _tutorialspoint:
+            https://www.tutorialspoint.com/statistics/residual_sum_of_squares.html
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.sse()
+        """
         return sse(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def std_ratio(self, **kwargs) -> float:
+        """ratio of standard deviations of predictions and trues.
+        Also known as standard ratio, it varies from 0.0 to infinity while
+        1.0 being the perfect value.
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.std_ratio()
+        """
         return std_ratio(true=self.true, predicted=self.predicted, treat_arrays=False, **kwargs)
 
     def umbrae(self, benchmark: np.ndarray = None):
+        """ Unscaled Mean Bounded Relative Absolute Error
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.umbrae()
+        """
         return umbrae(true=self.true, predicted=self.predicted, treat_arrays=False, benchmark=benchmark)
 
     def ve(self) -> float:
+        """
+        Volumetric efficiency. from 0 to 1. Smaller the better.
+        Reference: Criss and Winston 2008.
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.ve()
+        """
         return ve(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def volume_error(self) -> float:
+        """
+        Returns the Volume Error (Ve).
+        It is an indicator of the agreement between the averages of the simulated
+        and observed runoff (i.e. long-term water balance).
+        used in Reynolds_ paper:
+
+        .. math::
+            Sum(self.predicted- true)/sum(self.predicted)
+
+        References
+        ----------
+        Reynolds_, J.E., S. Halldin, C.Y. Xu, J. Seibert, and A. Kauffeldt. 2017.
+        "Sub-Daily Runoff Predictions Using Parameters Calibrated on the Basis of Data with a
+        Daily Temporal Resolution."  Journal of Hydrology 550 (July):399?411.
+
+
+        .. _Reynolds:
+            https://doi.org/10.1016/j.jhydrol.2017.05.012.
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.volume_error()
+        """
         return volume_error(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def wape(self) -> float:
+        """
+        weighted absolute percentage error (wape_)
+
+        It is a variation of mape but more suitable for intermittent and low-volume
+        data_.
+        .. _wape:
+            https://mattdyor.wordpress.com/2018/05/23/calculating-wape/
+
+        .. _data:
+            https://arxiv.org/pdf/2103.12057v1.pdf
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.wape()
+
+
+        """
         return wape(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def watt_m(self) -> float:
+        """Watterson's M.
+        Refrence: Watterson., 1996
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.watt_m()
+        """
         return watt_m(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def wmape(self) -> float:
+        """
+        Weighted Mean Absolute Percent Error_
+
+        .. _Error:
+            https://stackoverflow.com/a/54833202/5982232
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.wmape()
+        """
         return wmape(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def variability_ratio(self) -> float:
-        return variability_ratio(true=self.true, predicted=self.predicted, treat_arrays=False)
+        """
+        Variability Ratio
+        It is the ratio of the variance of the predicted values to the variance of the true values.
+        It is used to measure the variability of the predicted values relative to the true values.
 
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.variability_ratio()
+        """
+        return variability_ratio(true=self.true, predicted=self.predicted, treat_arrays=False)
 
 def post_process_kge(cc, alpha, beta, return_all=False):
     kge_ = float(1 - np.sqrt((cc - 1) ** 2 + (alpha - 1) ** 2 + (beta - 1) ** 2))
