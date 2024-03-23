@@ -186,6 +186,18 @@ class ClassificationMetrics(Metrics):
         return None
 
     def cross_entropy(self, epsilon=1e-12) -> float:
+        """
+        Examples
+        --------
+        >>> import numpy as np
+        >>> from SeqMetrics import ClassificationMetrics
+        >>> true = np.array([1, 0, 0, 0])
+        >>> pred = np.array([1, 1, 1, 1])
+        >>> metrics = ClassificationMetrics(true, pred)
+        >>> print(metrics.cross_entropy())
+        Computes cross entropy between targets (encoded as one-hot vectors)
+        and predictions.
+        """
         return cross_entropy(true=self.true, predicted=self.predicted, epsilon=epsilon)
 
     # def hinge_loss(self):
@@ -195,9 +207,41 @@ class ClassificationMetrics(Metrics):
     #     return None
 
     def accuracy(self, normalize: bool = True) -> float:
+        """
+        calculates accuracy
+
+        Examples
+        --------
+        >>> import numpy as np
+        >>> from SeqMetrics import ClassificationMetrics
+        >>> true = np.array([1, 0, 0, 0])
+        >>> pred = np.array([1, 1, 1, 1])
+        >>> metrics = ClassificationMetrics(true, pred)
+        >>> print(metrics.accuracy())
+        """
+
         return accuracy(true=self.true, predicted=self.predicted, normalize=normalize)
 
     def confusion_matrix(self, normalize=False):
+        """
+        calculates confusion matrix
+
+        Examples
+        --------
+        >>> import numpy as np
+        >>> from SeqMetrics import ClassificationMetrics
+        >>> true = np.array([1, 0, 0, 0])
+        >>> pred = np.array([1, 1, 1, 1])
+        >>> metrics = ClassificationMetrics(true, pred)
+        >>> metrics.confusion_matrix()
+
+        multiclass classification
+
+        >>> true = np.random.randint(1, 4, 100)
+        >>> pred = np.random.randint(1, 4, 100)
+        >>> metrics = ClassificationMetrics(true, pred)
+        >>> metrics.confusion_matrix()
+        """
         return confusion_matrix(true=self.true, predicted=self.predicted, normalize=normalize)
 
     def _confusion_matrix(self, normalize=None):
@@ -282,15 +326,82 @@ class ClassificationMetrics(Metrics):
         raise NotImplementedError
 
     def precision(self, average=None):
+        """
+        Returns precision score, also called positive predictive value.
+        It is number of correct positive predictions divided by the total
+        number of positive predictions.
+        TP/(TP+FP)
+
+        Examples
+        --------
+        >>> import numpy as np
+        >>> from SeqMetrics import ClassificationMetrics
+        >>> true = np.array([1, 0, 0, 0])
+        >>> pred = np.array([1, 1, 1, 1])
+        >>> metrics = ClassificationMetrics(true, pred)
+        >>> print(metrics.precision())
+        ...
+        >>> print(metrics.precision(average="macro"))
+        >>> print(metrics.precision(average="weighted"))
+        """
         return precision(true=self.true, predicted=self.predicted, average=average)
 
     def recall(self, average=None):
+        """
+        It is also called sensitivity or true positive rate. It is
+        number of correct positive predictions divided by the total number of positives
+        Formula :
+            True Posivitive / True Positive + False Negative
+
+        Examples
+        --------
+        >>> import numpy as np
+        >>> from SeqMetrics import ClassificationMetrics
+        >>> true = np.array([1, 0, 0, 0])
+        >>> pred = np.array([1, 1, 1, 1])
+        >>> metrics = ClassificationMetrics(true, pred)
+        >>> metrics.recall()
+
+        """
         return recall(true=self.true, predicted=self.predicted, average=average)
 
     def specificity(self, average=None):
+        """
+        It is also called true negative rate or selectivity. It is the probability that
+        the predictions are negative when the true labels are also negative.
+        It is number of correct negative predictions divided by the total number of negatives.
+
+        Formula :
+        TN / TN+FP
+
+        Examples
+        --------
+        >>> import numpy as np
+        >>> from SeqMetrics import ClassificationMetrics
+        >>> true = np.array([1, 0, 0, 0])
+        >>> pred = np.array([1, 1, 1, 1])
+        >>> metrics = ClassificationMetrics(true, pred)
+        >>> print(metrics.specificity())
+        ...
+        >>> print(metrics.specificity(average="macro"))
+        >>> print(metrics.specificity(average="weighted"))
+        """
         return specificity(true=self.true, predicted=self.predicted, average=average)
 
     def balanced_accuracy(self, average=None) -> float:
+        """
+        balanced accuracy.
+        It performs better on imbalanced datasets.
+
+        Examples
+        --------
+        >>> import numpy as np
+        >>> from SeqMetrics import ClassificationMetrics
+        >>> true = np.array([1, 0, 0, 0])
+        >>> pred = np.array([1, 1, 1, 1])
+        >>> metrics = ClassificationMetrics(true, pred)
+        >>> metrics.balanced_accuracy()
+        """
         return balanced_accuracy(true=self.true, predicted=self.predicted, average=average)
 
     def _f_score(self, average=None, beta=1.0):
@@ -319,45 +430,262 @@ class ClassificationMetrics(Metrics):
         return _f_score
 
     def f1_score(self, average=None) -> Union[np.ndarray, float]:
+        """
+               Calculates f1 score according to following formula
+               f1_score = 2 * (precision * recall)  / (precision + recall)
+
+               Examples
+               --------
+               >>> import numpy as np
+               >>> from SeqMetrics import ClassificationMetrics
+               >>> true = np.array([1, 0, 0, 0])
+               >>> pred = np.array([1, 1, 1, 1])
+               >>> metrics = ClassificationMetrics(true, pred)
+               >>> calc_f1_score = metrics.f1_score()
+               ...
+               >>> print(metrics.f1_score(average="macro"))
+               >>> print(metrics.f1_score(average="weighted"))
+
+               """
         return f1_score(true=self.true, predicted=self.predicted, average=average)
 
     def f2_score(self, average=None):
+        """
+        f2 score
+
+        Examples
+       --------
+       >>> import numpy as np
+       >>> from SeqMetrics import ClassificationMetrics
+       >>> true = np.array([1, 0, 0, 0])
+       >>> pred = np.array([1, 1, 1, 1])
+       >>> metrics = ClassificationMetrics(true, pred)
+       >>> calc_f2_score = metrics.f2_score()
+       ...
+       >>> print(metrics.f2_score(average="macro"))
+       >>> print(metrics.f2_score(average="weighted"))
+        """
         return f2_score(true=self.true, predicted=self.predicted, average=average)
 
     def false_positive_rate(self):
+        """
+        False positive rate is the number of incorrect positive predictions divided
+        by the total number of negatives. Its best value is 0.0 and worst value is 1.0.
+        It is also called probability of false alarm or fall-out.
+
+         TP / (TP + TN)
+
+        Examples
+       --------
+       >>> import numpy as np
+       >>> from SeqMetrics import ClassificationMetrics
+       >>> true = np.array([1, 0, 0, 0])
+       >>> pred = np.array([1, 1, 1, 1])
+       >>> metrics = ClassificationMetrics(true, pred)
+       >>> print(metrics.false_positive_rate())
+        """
         return false_positive_rate(true=self.true, predicted=self.predicted)
 
     def false_discovery_rate(self):
+        """
+        False discovery rate
+         FP / (TP + FP)
+
+        Examples
+       --------
+       >>> import numpy as np
+       >>> from SeqMetrics import ClassificationMetrics
+       >>> true = np.array([1, 0, 0, 0])
+       >>> pred = np.array([1, 1, 1, 1])
+       >>> metrics = ClassificationMetrics(true, pred)
+       >>> print(metrics.false_discovery_rate())
+        """
         return false_discovery_rate(true=self.true, predicted=self.predicted)
 
     def false_negative_rate(self):
+        """
+        False Negative Rate or miss rate.
+
+        FN / (FN + TP)
+
+        Examples
+       --------
+       >>> import numpy as np
+       >>> from SeqMetrics import ClassificationMetrics
+       >>> true = np.array([1, 0, 0, 0])
+       >>> pred = np.array([1, 1, 1, 1])
+       >>> metrics = ClassificationMetrics(true, pred)
+       >>> print(metrics.false_negative_rate())
+        """
         return false_negative_rate(true=self.true, predicted=self.predicted)
 
     def negative_predictive_value(self):
+        """
+        Negative Predictive Value
+        TN/(TN+FN)
+
+        Examples
+       --------
+       >>> import numpy as np
+       >>> from SeqMetrics import ClassificationMetrics
+       >>> true = np.array([1, 0, 0, 0])
+       >>> pred = np.array([1, 1, 1, 1])
+       >>> metrics = ClassificationMetrics(true, pred)
+       >>> print(metrics.negative_predictive_value())
+        """
         return negative_predictive_value(true=self.true, predicted=self.predicted)
 
     def error_rate(self):
+        """
+        Error rate is the number of all incorrect predictions divided by the total
+        number of samples in data.
+
+        Examples
+       --------
+       >>> import numpy as np
+       >>> from SeqMetrics import ClassificationMetrics
+       >>> true = np.array([1, 0, 0, 0])
+       >>> pred = np.array([1, 1, 1, 1])
+       >>> metrics = ClassificationMetrics(true, pred)
+       >>> print(metrics.error_rate())
+        """
         return error_rate(true=self.true, predicted=self.predicted)
 
     def mathews_corr_coeff(self):
+        """
+        Methew's correlation coefficient
+
+        Examples
+       --------
+       >>> import numpy as np
+       >>> from SeqMetrics import ClassificationMetrics
+       >>> true = np.array([1, 0, 0, 0])
+       >>> pred = np.array([1, 1, 1, 1])
+       >>> metrics = ClassificationMetrics(true, pred)
+       >>> print(metrics.mathews_corr_coeff())
+        """
         return mathews_corr_coeff(true=self.true, predicted=self.predicted)
 
     def positive_likelihood_ratio(self, average=None):
+        """
+        Positive likelihood ratio
+        sensitivity / 1-specificity
+
+        Examples
+       --------
+       >>> import numpy as np
+       >>> from SeqMetrics import ClassificationMetrics
+       >>> true = np.array([1, 0, 0, 0])
+       >>> pred = np.array([1, 1, 1, 1])
+       >>> metrics = ClassificationMetrics(true, pred)
+       >>> print(metrics.positive_likelihood_ratio(average="macro"))
+       >>> print(metrics.positive_likelihood_ratio(average="weighted"))
+        """
         return positive_likelihood_ratio(true=self.true, predicted=self.predicted, average=average)
 
     def negative_likelihood_ratio(self, average=None):
+        """
+        Negative likelihood ratio
+
+        1 - sensitivity / specificity
+
+        https://en.wikipedia.org/wiki/Likelihood_ratios_in_diagnostic_testing#positive_likelihood_ratio
+
+        Examples
+       --------
+       >>> import numpy as np
+       >>> from SeqMetrics import ClassificationMetrics
+       >>> true = np.array([1, 0, 0, 0])
+       >>> pred = np.array([1, 1, 1, 1])
+       >>> metrics = ClassificationMetrics(true, pred)
+       >>> print(metrics.negative_likelihood_ratio(average="macro"))
+       >>> print(metrics.negative_likelihood_ratio(average="weighted"))
+
+        """
         return negative_likelihood_ratio(true=self.true, predicted=self.predicted, average=average)
 
     def youden_index(self, average=None):
+        """
+        Youden index, also known as informedness
+
+        j = TPR + TNR − 1 =   sensitivity +  specificity - 1
+
+        https://en.wikipedia.org/wiki/Youden%27s_J_statistic
+
+        Examples
+       --------
+       >>> import numpy as np
+       >>> from SeqMetrics import ClassificationMetrics
+       >>> true = np.array([1, 0, 0, 0])
+       >>> pred = np.array([1, 1, 1, 1])
+       >>> metrics = ClassificationMetrics(true, pred)
+       >>> print(metrics.youden_index(average="macro"))
+       >>> print(metrics.youden_index(average="weighted"))
+
+        """
         return youden_index(true=self.true, predicted=self.predicted, average=average)
 
     def fowlkes_mallows_index(self, average=None):
+        """
+        Fowlkes–Mallows index
+
+        sqrt(PPV * TPR)
+
+        PPV is positive predictive value or precision.
+        TPR is true positive rate or recall or sensitivity
+
+        https://en.wikipedia.org/wiki/Fowlkes%E2%80%93Mallows_index
+
+        Examples
+       --------
+       >>> import numpy as np
+       >>> from SeqMetrics import ClassificationMetrics
+       >>> true = np.array([1, 0, 0, 0])
+       >>> pred = np.array([1, 1, 1, 1])
+       >>> metrics = ClassificationMetrics(true, pred)
+       >>> print(metrics.fowlkes_mallows_index(average="macro"))
+       >>> print(metrics.fowlkes_mallows_index(average="weighted"))
+
+        """
         return fowlkes_mallows_index(true=self.true, predicted=self.predicted, average=average)
 
     def prevalence_threshold(self, average=None):
+        """
+        Prevalence threshold
+
+        sqrt(FPR) / (sqrt(TPR) + sqrt(FPR))
+
+        TPR is true positive rate or recall
+
+        Examples
+       --------
+       >>> import numpy as np
+       >>> from SeqMetrics import ClassificationMetrics
+       >>> true = np.array([1, 0, 0, 0])
+       >>> pred = np.array([1, 1, 1, 1])
+       >>> metrics = ClassificationMetrics(true, pred)
+       >>> print(metrics.prevalence_threshold(average="macro"))
+       >>> print(metrics.prevalence_threshold(average="weighted"))
+
+        """
         return prevalence_threshold(true=self.true, predicted=self.predicted, average=average)
 
-    def false_omission_rate(self, average=None):
+    def false_omission_rate(self):
+        """
+        False omission rate
+
+        FN / (FN + TN)
+
+        Examples
+       --------
+       >>> import numpy as np
+       >>> from SeqMetrics import ClassificationMetrics
+       >>> true = np.array([1, 0, 0, 0])
+       >>> pred = np.array([1, 1, 1, 1])
+       >>> metrics = ClassificationMetrics(true, pred)
+       >>> print(metrics.false_omission_rate())
+
+        """
         return false_omission_rate(true=self.true, predicted=self.predicted)
 
 
@@ -377,6 +705,14 @@ def cross_entropy(true, predicted, epsilon=1e-12) -> float:
          or pandas series/DataFrame or a list.
     predicted :
          simulated values
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> from SeqMetrics import cross_entropy
+    >>> true = np.array([1, 0, 0, 0])
+    >>> pred = np.array([1, 1, 1, 1])
+    >>> metrics = cross_entropy(true, pred)
 
     """
     cls = ClassificationMetrics(true, predicted)
@@ -437,11 +773,11 @@ def accuracy(true, predicted, normalize: bool = True) -> float:
     Examples
     --------
     >>> import numpy as np
-    >>> from SeqMetrics import ClassificationMetrics
+    >>> from SeqMetrics import accuracy
     >>> true = np.array([1, 0, 0, 0])
     >>> pred = np.array([1, 1, 1, 1])
-    >>> metrics = ClassificationMetrics(true, pred)
-    >>> print(metrics.accuracy())
+    >>> accuracy(true, pred)
+
     """
 
     cls = ClassificationMetrics(true, predicted)
@@ -471,18 +807,17 @@ def confusion_matrix(true, predicted, normalize=False):
     Examples
     --------
     >>> import numpy as np
-    >>> from SeqMetrics import ClassificationMetrics
+    >>> from SeqMetrics import confusion_matrix
     >>> true = np.array([1, 0, 0, 0])
     >>> pred = np.array([1, 1, 1, 1])
-    >>> metrics = ClassificationMetrics(true, pred)
-    >>> metrics.confusion_matrix()
+    >>> metrics = confusion_matrix(true, pred)
 
     multiclass classification
 
     >>> true = np.random.randint(1, 4, 100)
     >>> pred = np.random.randint(1, 4, 100)
-    >>> metrics = ClassificationMetrics(true, pred)
-    >>> metrics.confusion_matrix()
+    >>> metrics = confusion_matrix(true, pred)
+
 
     """
     cls = ClassificationMetrics(true, predicted)
@@ -506,14 +841,12 @@ def precision(true, predicted, average=None):
     Examples
     --------
     >>> import numpy as np
-    >>> from SeqMetrics import ClassificationMetrics
+    >>> from SeqMetrics import precision
     >>> true = np.array([1, 0, 0, 0])
     >>> pred = np.array([1, 1, 1, 1])
-    >>> metrics = ClassificationMetrics(true, pred)
-    >>> print(metrics.precision())
-    ...
-    >>> print(metrics.precision(average="macro"))
-    >>> print(metrics.precision(average="weighted"))
+    >>> metrics = precision(true, pred, average="macro")
+    >>> metrics = precision(true, pred, average="weighted")
+
     """
 
     cls = ClassificationMetrics(true, predicted)
@@ -554,6 +887,14 @@ def recall(true, predicted, average=None):
          or pandas series/DataFrame or a list.
         predicted : simulated values
 
+    Examples
+    --------
+    >>> import numpy as np
+    >>> from SeqMetrics import recall
+    >>> true = np.array([1, 0, 0, 0])
+    >>> pred = np.array([1, 1, 1, 1])
+    >>> metrics = recall(true, pred, average="macro")
+    >>> metrics = recall(true, pred, average="weighted")
 
     """
 
@@ -597,14 +938,12 @@ def specificity(true, predicted, average=None):
     Examples
     --------
     >>> import numpy as np
-    >>> from SeqMetrics import ClassificationMetrics
+    >>> from SeqMetrics import specificity
     >>> true = np.array([1, 0, 0, 0])
     >>> pred = np.array([1, 1, 1, 1])
-    >>> metrics = ClassificationMetrics(true, pred)
-    >>> print(metrics.specificity())
-    ...
-    >>> print(metrics.specificity(average="macro"))
-    >>> print(metrics.specificity(average="weighted"))
+    >>> print(metrics = specificity(true, pred, average="macro"))
+    >>> print(metrics = specificity(true, pred, average="weighted"))
+
     """
     cls = ClassificationMetrics(true, predicted)
     TN = cls._tn()
@@ -636,6 +975,14 @@ def balanced_accuracy(true, predicted, average=None) -> float:
     true : ture/observed/actual/target values. It must be a numpy array,
          or pandas series/DataFrame or a list.
     predicted : simulated values
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> from SeqMetrics import balanced_accuracy
+    >>> true = np.array([1, 0, 0, 0])
+    >>> pred = np.array([1, 1, 1, 1])
+    >>> metrics = balanced_accuracy(true, pred)
     """
     cls = ClassificationMetrics(true, predicted)
     TP = cls._tp()
@@ -666,14 +1013,11 @@ def f1_score(true, predicted, average=None) -> Union[np.ndarray, float]:
            Examples
            --------
            >>> import numpy as np
-           >>> from SeqMetrics import ClassificationMetrics
+           >>> from SeqMetrics import f1_score
            >>> true = np.array([1, 0, 0, 0])
            >>> pred = np.array([1, 1, 1, 1])
-           >>> metrics = ClassificationMetrics(true, pred)
-           >>> calc_f1_score = metrics.f1_score()
-           ...
-           >>> print(metrics.f1_score(average="macro"))
-           >>> print(metrics.f1_score(average="weighted"))
+           >>> print(metrics = f1_score(true, pred, average="macro"))
+           >>> print(metrics = f1_score(true, pred, average="weighted"))
 
            """
     cls = ClassificationMetrics(true, predicted)
@@ -692,6 +1036,15 @@ def f2_score(true, predicted, average=None):
     true : ture/observed/actual/target values. It must be a numpy array,
          or pandas series/DataFrame or a list.
     predicted : simulated values
+
+    Examples
+   --------
+    >>> import numpy as np
+    >>> from SeqMetrics import f2_score
+    >>> true = np.array([1, 0, 0, 0])
+    >>> pred = np.array([1, 1, 1, 1])
+    >>> print(f2_score(true, pred, average="macro"))
+    >>> print(f2_score(true, pred, average="weighted"))
     """
     cls = ClassificationMetrics(true, predicted)
     return cls._f_score(average, 2.0)
@@ -711,6 +1064,13 @@ def false_positive_rate(true, predicted):
          or pandas series/DataFrame or a list.
     predicted : simulated values
 
+    Examples
+   --------
+    >>> import numpy as np
+    >>> from SeqMetrics import false_positive_rate
+    >>> true = np.array([1, 0, 0, 0])
+    >>> pred = np.array([1, 1, 1, 1])
+    >>> print(false_positive_rate(true, pred))
     """
     cls = ClassificationMetrics(true, predicted)
     TP = cls._tp()
@@ -731,6 +1091,14 @@ def false_discovery_rate(true, predicted):
     true : ture/observed/actual/target values. It must be a numpy array,
          or pandas series/DataFrame or a list.
     predicted : simulated values
+
+    Examples
+   --------
+    >>> import numpy as np
+    >>> from SeqMetrics import false_discovery_rate
+    >>> true = np.array([1, 0, 0, 0])
+    >>> pred = np.array([1, 1, 1, 1])
+    >>> print(false_discovery_rate(true, pred))
     """
     cls = ClassificationMetrics(true, predicted)
     FP = cls._fp()
@@ -753,6 +1121,14 @@ def false_negative_rate(true, predicted):
     true : ture/observed/actual/target values. It must be a numpy array,
          or pandas series/DataFrame or a list.
     predicted : simulated values
+
+    Examples
+   --------
+    >>> import numpy as np
+    >>> from SeqMetrics import false_negative_rate
+    >>> true = np.array([1, 0, 0, 0])
+    >>> pred = np.array([1, 1, 1, 1])
+    >>> print(false_negative_rate(true, pred))
     """
     cls = ClassificationMetrics(true, predicted)
     FN = cls._fn()
@@ -773,6 +1149,14 @@ def negative_predictive_value(true, predicted):
     true : ture/observed/actual/target values. It must be a numpy array,
          or pandas series/DataFrame or a list.
     predicted : simulated values
+
+    Examples
+   --------
+    >>> import numpy as np
+    >>> from SeqMetrics import negative_predictive_value
+    >>> true = np.array([1, 0, 0, 0])
+    >>> pred = np.array([1, 1, 1, 1])
+    >>> print(negative_predictive_value(true, pred))
     """
     cls = ClassificationMetrics(true, predicted)
     TN = cls._tn()
@@ -792,6 +1176,14 @@ def error_rate(true, predicted):
     true : ture/observed/actual/target values. It must be a numpy array,
          or pandas series/DataFrame or a list.
     predicted : simulated values
+
+    Examples
+   --------
+    >>> import numpy as np
+    >>> from SeqMetrics import error_rate
+    >>> true = np.array([1, 0, 0, 0])
+    >>> pred = np.array([1, 1, 1, 1])
+    >>> print(error_rate(true, pred))
     """
     cls = ClassificationMetrics(true, predicted)
 
@@ -807,6 +1199,14 @@ def mathews_corr_coeff(true, predicted):
     true : ture/observed/actual/target values. It must be a numpy array,
          or pandas series/DataFrame or a list.
     predicted : simulated values
+
+    Examples
+   --------
+    >>> import numpy as np
+    >>> from SeqMetrics import mathews_corr_coeff
+    >>> true = np.array([1, 0, 0, 0])
+    >>> pred = np.array([1, 1, 1, 1])
+    >>> print(mathews_corr_coeff(true, pred))
 
     """
     cls = ClassificationMetrics(true, predicted)
@@ -829,6 +1229,15 @@ def positive_likelihood_ratio(true, predicted, average=None):
     true : ture/observed/actual/target values. It must be a numpy array,
          or pandas series/DataFrame or a list.
     predicted : simulated values
+
+    Examples
+   --------
+    >>> import numpy as np
+    >>> from SeqMetrics import positive_likelihood_ratio
+    >>> true = np.array([1, 0, 0, 0])
+    >>> pred = np.array([1, 1, 1, 1])
+    >>> print(positive_likelihood_ratio(true, pred, average="macro"))
+    >>> print(positive_likelihood_ratio(true, pred, average="weighted"))
     """
     cls = ClassificationMetrics(true, predicted)
     return cls.recall(average=average) / (1 - cls.specificity(average=average))
@@ -849,6 +1258,15 @@ def negative_likelihood_ratio(true, predicted, average=None):
     true : ture/observed/actual/target values. It must be a numpy array,
          or pandas series/DataFrame or a list.
     predicted : simulated values
+
+    Examples
+   --------
+    >>> import numpy as np
+    >>> from SeqMetrics import negative_likelihood_ratio
+    >>> true = np.array([1, 0, 0, 0])
+    >>> pred = np.array([1, 1, 1, 1])
+    >>> print(negative_likelihood_ratio(true, pred, average="macro"))
+    >>> print(negative_likelihood_ratio(true, pred, average="weighted"))
     """
     cls = ClassificationMetrics(true, predicted)
 
@@ -870,6 +1288,15 @@ def youden_index(true, predicted, average=None):
     true : ture/observed/actual/target values. It must be a numpy array,
          or pandas series/DataFrame or a list.
     predicted : simulated values
+
+    Examples
+   --------
+    >>> import numpy as np
+    >>> from SeqMetrics import youden_index
+    >>> true = np.array([1, 0, 0, 0])
+    >>> pred = np.array([1, 1, 1, 1])
+    >>> print(youden_index(true, pred, average="macro"))
+    >>> print(youden_index(true, pred, average="weighted"))
     """
     cls = ClassificationMetrics(true, predicted)
     return cls.recall(average) + cls.specificity(average) - 1
@@ -893,6 +1320,15 @@ def fowlkes_mallows_index(true, predicted, average=None):
     true : ture/observed/actual/target values. It must be a numpy array,
          or pandas series/DataFrame or a list.
     predicted : simulated values
+
+    Examples
+   --------
+    >>> import numpy as np
+    >>> from SeqMetrics import fowlkes_mallows_index
+    >>> true = np.array([1, 0, 0, 0])
+    >>> pred = np.array([1, 1, 1, 1])
+    >>> print(fowlkes_mallows_index(true, pred, average="macro"))
+    >>> print(fowlkes_mallows_index(true, pred, average="weighted"))
     """
     cls = ClassificationMetrics(true, predicted)
     return np.sqrt(cls.precision(average) * cls.recall(average))
@@ -913,6 +1349,15 @@ def prevalence_threshold(true, predicted, average=None):
     true : ture/observed/actual/target values. It must be a numpy array,
          or pandas series/DataFrame or a list.
     predicted : simulated values
+
+    Examples
+   --------
+    >>> import numpy as np
+    >>> from SeqMetrics import prevalence_threshold
+    >>> true = np.array([1, 0, 0, 0])
+    >>> pred = np.array([1, 1, 1, 1])
+    >>> print(prevalence_threshold(true, pred, average="macro"))
+    >>> print(prevalence_threshold(true, pred, average="weighted"))
     """
     cls = ClassificationMetrics(true, predicted)
     FPR = cls.false_positive_rate()
@@ -931,6 +1376,14 @@ def false_omission_rate(true, predicted):
     true : ture/observed/actual/target values. It must be a numpy array,
          or pandas series/DataFrame or a list.
     predicted : simulated values
+
+    Examples
+   --------
+    >>> import numpy as np
+    >>> from SeqMetrics import false_omission_rate
+    >>> true = np.array([1, 0, 0, 0])
+    >>> pred = np.array([1, 1, 1, 1])
+    >>> print(false_omission_rate(true, pred))
     """
     cls = ClassificationMetrics(true, predicted)
     FN = cls._fn()
