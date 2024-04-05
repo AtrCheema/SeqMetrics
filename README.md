@@ -267,3 +267,9 @@ used stream [https://seqmetrics.streamlit.app/](https://seqmetrics.streamlit.app
 [SkillMetrics](https://github.com/PeterRochford/SkillMetrics)
 
 [HydroErr](https://github.com/BYU-Hydroinformatics/HydroErr)
+
+[Keras](https://github.com/keras-team/keras.git)
+
+[SickitLearn](https://github.com/scikit-learn/scikit-learn.git)
+
+[Torchmetrics](https://github.com/Lightning-AI/torchmetrics.git)
