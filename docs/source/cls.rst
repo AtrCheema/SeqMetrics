@@ -16,7 +16,7 @@ metrics.
 .. autofunction:: SeqMetrics.cross_entropy
 .. autofunction:: SeqMetrics.ClassificationMetrics
 
-ClassificationMetrics
+Class-Based API
 =====================
 .. autoclass:: SeqMetrics.ClassificationMetrics
    :members:

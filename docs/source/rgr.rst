@@ -122,7 +122,7 @@ metrics.
 
 
 
-RegressionMetrics
+Class-Based API
 ==================
 .. autoclass:: SeqMetrics.RegressionMetrics
    :members:
