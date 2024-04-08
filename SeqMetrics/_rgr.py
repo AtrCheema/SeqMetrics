@@ -8,6 +8,7 @@ from scipy.stats import gmean, kendalltau
 from .utils import maybe_treat_arrays
 from .utils import _geometric_mean, _mean_tweedie_deviance, _foo, list_subclass_methods
 from ._main import Metrics, EPS, ERR_STATE
+from torchmetrics.utilities.compute import _safe_xlogy
 
 
 class RegressionMetrics(Metrics):
@@ -2127,6 +2128,98 @@ class RegressionMetrics(Metrics):
         >>> metrics.variability_ratio()
         """
         return variability_ratio(true=self.true, predicted=self.predicted, treat_arrays=False)
+
+    def concordance_corr_coef(self) -> float:
+        """
+        Concordance Correlation Coefficient (CCC)
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.concordance_corr_coef()
+        """
+        return concordance_corr_coef(true= self.true, predicted= self.predicted, treat_arrays=False)
+
+    def critical_success_index(self, threshold= 0.5) -> float:
+        """
+        Critical Success Index (CSI)
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.array([0, 1, 1, 0, 0, 1])
+        >>> p = np.array([0, 1, 0, 1, 1, 1])
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.critical_success_index()
+        """
+        return critical_success_index(true= self.true, predicted= self.predicted, treat_arrays=False, threshold= threshold)
+
+
+    def kl_divergence(self) -> float:
+        """
+        Kullback-Leibler Divergence
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.array([0.1, 0.2, 0.3, 0.2, 0.2])
+        >>> p = np.array([0.2, 0.2, 0.2, 0.2, 0.2])
+        >>> metrics= RegressionMetrics(t, p)
+        >>> divergence = metrics.kl_divergence()
+        """
+        return kl_divergence(true= self.true, predicted= self.predicted, treat_arrays=False)
+
+    def log_cosh_error(self) -> float:
+        """
+        Log-Cosh Error
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.array([1, 2, 3, 4, 5])
+        >>> p = np.array([1.1, 1.9, 3.1, 4.2, 4.8])
+        >>> metrics= RegressionMetrics(t, p)
+        >>> error = metrics.log_cosh_error()
+        """
+        return log_cosh_error(true= self.true, predicted= self.predicted, treat_arrays=False)
+
+    def minkowski_distance(self, order= 1) -> float:
+        """
+        Minkowski Distance
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.array([1, 2, 3, 4, 5])
+        >>> p = np.array([1.1, 1.9, 3.1, 4.2, 4.8])
+        >>> metrics= RegressionMetrics(t, p)
+        >>> distance = metrics.minkowski_distance()
+        """
+        return minkowski_distance(true= self.true, predicted= self.predicted, treat_arrays=False, order= order)
+
+    def tweedie_deviance_score(self, power=0) -> float:
+        """
+        Tweedie Deviance Score
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.array([1, 2, 3, 4, 5])
+        >>> p = np.array([1.1, 1.9, 3.1, 4.2, 4.8])
+        >>> metrics= RegressionMetrics(t, p)
+        >>> score = metrics.tweedie_deviance_score()
+        """
+        return tweedie_deviance_score(true= self.true, predicted= self.predicted, treat_arrays=False, power= power)
+
+
 
 def post_process_kge(cc, alpha, beta, return_all=False):
     kge_ = float(1 - np.sqrt((cc - 1) ** 2 + (alpha - 1) ** 2 + (beta - 1) ** 2))
@@ -6073,3 +6166,244 @@ def variability_ratio(true, predicted, treat_arrays: bool = True,
     """
     true, predicted = maybe_treat_arrays(treat_arrays, true, predicted, 'regression', **treat_arrays_kws)
     return float(1 - abs((np.std(predicted) / np.mean(predicted)) / (np.std(true) / np.mean(true)) - 1))
+
+def concordance_corr_coef(
+        true, predicted, treat_arrays: bool = True, **treat_arrays_kws
+) -> float:
+    """
+    Concordance Correlation Coefficient (CCC)
+
+    Parameters
+    ----------
+    true :
+        true/observed/actual/target values. It must be a numpy array,
+        or pandas series/DataFrame or a list.
+    predicted :
+        simulated values
+    treat_arrays :
+        treat_arrays the true and predicted array
+
+    Examples
+    ---------
+    >>> import numpy as np
+    >>> from SeqMetrics import concordance_corr_coef
+    >>> t = np.random.random(10)
+    >>> p = np.random.random(10)
+    >>> concordance_corr_coef(t, p)
+    """
+
+    true, predicted = maybe_treat_arrays(treat_arrays, true, predicted, 'regression', **treat_arrays_kws)
+
+    # taken from https://nirpyresearch.com/concordance-correlation-coefficient/
+    mean_true = np.mean(true)
+    mean_predicted = np.mean(predicted)
+
+    var_true = np.var(true)
+    var_predicted = np.var(predicted)
+
+    true_mean = np.mean(true)
+    pred_mean = np.mean(predicted)
+
+    numerator = np.sum((true - true_mean) * (predicted - pred_mean))
+    denominator = np.sqrt(np.sum((true - true_mean) ** 2)) * np.sqrt(np.sum((predicted - pred_mean) ** 2))
+
+    pearson = numerator / denominator
+
+    ccc = (2 * pearson * np.sqrt(var_true) * np.sqrt(var_predicted)) / (var_true + var_predicted + (mean_true - mean_predicted) ** 2)
+
+    return float(ccc)
+
+def critical_success_index(
+        true, predicted,treat_arrays: bool = True, threshold=0.5, **treat_arrays_kws
+)->float:
+    """
+    Critical Success Index (CSI)
+
+    Parameters
+    ----------
+    true :
+        True/observed/actual/target values. It should be a binary array (0s and 1s),
+        or a continuous array where values are binarized using a threshold.
+    predicted :
+        Predicted values, same format as 'true'.
+    treat_arrays :
+        treat_arrays the true and predicted array
+    threshold :
+        Threshold for binarizing continuous values (if applicable).
+
+    Examples
+    ---------
+    >>> import numpy as np
+    >>> from SeqMetrics import critical_success_index
+    >>> t = np.array([0, 1, 1, 0, 0, 1])
+    >>> p = np.array([0, 1, 0, 1, 1, 1])
+    >>> critical_success_index(t, p)
+    """
+    true, predicted = maybe_treat_arrays(treat_arrays, true, predicted, 'regression', **treat_arrays_kws)
+
+    # Binarize if the arrays are not binary
+    true = np.array(true) >= threshold
+    predicted = np.array(predicted) >= threshold
+
+    TP = np.sum((true == 1) & (predicted == 1))
+    FN = np.sum((true == 1) & (predicted == 0))
+    FP = np.sum((true == 0) & (predicted == 1))
+
+    csi = TP / float(TP + FN + FP) if (TP + FN + FP) > 0 else 0
+    return csi
+
+def kl_divergence(
+        true, predicted, treat_arrays: bool = True, **treat_arrays_kws
+)->float:
+    """
+    Kullback-Leibler Divergence
+
+    Parameters
+    ----------
+    true :
+        True/observed/actual/target probability distribution. It must be a numpy array,
+        pandas series/DataFrame, or a list.
+    predicted :
+        Predicted probability distribution, same format as 'true'.
+    treat_arrays :
+        treat_arrays the true and predicted array
+
+    Examples
+    ---------
+    >>> import numpy as np
+    >>> from SeqMetrics import kl_divergence
+    >>> t = np.array([0.1, 0.2, 0.3, 0.2, 0.2])
+    >>> p = np.array([0.2, 0.2, 0.2, 0.2, 0.2])
+    >>> divergence = kl_divergence(t, p)
+    """
+    true, predicted = maybe_treat_arrays(treat_arrays, true, predicted, 'regression', **treat_arrays_kws)
+
+    # taken from https://lightning.ai/docs/torchmetrics/stable/regression/kl_divergence.html
+    predicted = predicted / predicted.sum(axis=-1, keepdims=True)
+    true = true / true.sum(axis=-1, keepdims=True)
+
+    res = predicted * np.log(predicted / true)
+    res[predicted == 0] = 0.0
+    kl = res.sum(axis=-1)
+
+    return float(kl)
+
+
+def log_cosh_error(
+        true, predicted, treat_arrays: bool = True, **treat_arrays_kws
+)->float:
+    """
+    Log-Cosh Error
+
+    Parameters
+    ----------
+    true :
+        True/observed/actual/target values. It must be a numpy array,
+        pandas series/DataFrame, or a list.
+    predicted :
+        Predicted values, same format as 'true'.
+    treat_arrays :
+        treat_arrays the true and predicted array
+
+    Examples
+    ---------
+    >>> import numpy as np
+    >>> from SeqMetrics import log_cosh_error
+    >>> t = np.array([1, 2, 3, 4, 5])
+    >>> p = np.array([1.1, 1.9, 3.1, 4.2, 4.8])
+    >>> error = log_cosh_error(t, p)
+    """
+    true, predicted = maybe_treat_arrays(treat_arrays, true, predicted, 'regression', **treat_arrays_kws)
+
+    true = np.asarray(true)
+    predicted = np.asarray(predicted)
+
+    # Calculation of Log-Cosh Error
+    error = np.log(np.cosh(predicted - true))
+    return float(np.mean(error))
+
+def minkowski_distance(
+        true, predicted, order =1, treat_arrays: bool = True, **treat_arrays_kws
+)->float:
+    """
+    Minkowski Distance
+
+    Parameters
+    ----------
+    true :
+        True/observed/actual/target values. It must be a numpy array,
+        pandas series/DataFrame, or a list.
+    predicted :
+        Predicted values, same format as 'true'.
+    order :
+        The order of the norm of the difference. `order=2` is equivalent to the Euclidean distance,
+        `order=1` is the Manhattan distance.
+    treat_arrays :
+        treat_arrays the true and predicted array
+
+    Examples
+    ---------
+    >>> import numpy as np
+    >>> from SeqMetrics import minkowski_distance
+    >>> t = np.array([1, 2, 3, 4, 5])
+    >>> p = np.array([1.1, 1.9, 3.1, 4.2, 4.8])
+    >>> order = 2  # Euclidean distance
+    >>> distance = minkowski_distance(t, p, order)
+    """
+    true, predicted = maybe_treat_arrays(treat_arrays, true, predicted, 'regression', **treat_arrays_kws)
+
+    true = np.asarray(true)
+    predicted = np.asarray(predicted)
+
+    # Calculation of Minkowski Distance
+    return float(np.sum(np.abs(true - predicted) ** order) ** (1 / order))
+
+def tweedie_deviance_score(
+        true, predicted, power=0, treat_arrays: bool = True, **treat_arrays_kws
+)->float:
+    """
+    Tweedie Deviance Score
+
+    Parameters
+    ----------
+    true :
+        True/observed/actual/target values. It must be a numpy array,
+        pandas series/DataFrame, or a list.
+    predicted :
+        Predicted values, same format as 'true'.
+    power :
+        The power determines the underlying target distribution.
+        `power=0` for Normal, `power=1` for Poisson, `power=2` for Gamma,
+        and `power=3` for Inverse Gaussian.
+    treat_arrays :
+        treat_arrays the true and predicted array
+
+    Examples
+    ---------
+    >>> import numpy as np
+    >>> from SeqMetrics import tweedie_deviance_score
+    >>> t = np.array([1, 2, 3, 4, 5])
+    >>> p = np.array([1.1, 1.9, 3.1, 4.2, 4.8])
+    >>> power = 2  # Gamma distribution
+    >>> score = tweedie_deviance_score(t, p, power)
+    """
+    true, predicted = maybe_treat_arrays(treat_arrays, true, predicted, 'regression', **treat_arrays_kws)
+
+    true = np.asarray(true)
+    predicted = np.asarray(predicted)
+
+    # Tweedie Deviance Score calculation
+    if power == 0:
+        # Normal distribution
+        return np.mean((true - predicted) ** 2).item()
+    elif power == 1:
+        # Poisson distribution
+        return 2 * np.sum(true * np.log((true + (true == 0)) / predicted) - true + predicted)
+    elif power == 2:
+        # Gamma distribution
+        return 2 * np.sum((true / predicted) - np.log(true / predicted) - 1)
+    elif power == 3:
+        # Inverse Gaussian distribution
+        return 2 * np.sum((true - predicted) ** 2 / (true ** 2 * predicted))
+    else:
+        raise ValueError("Invalid power value. Power must be 0 (Normal), 1 (Poisson), 2 (Gamma), or 3 (Inverse Gaussian).")

@@ -3,3 +3,4 @@ scikit-learn
 easy_mpl>=0.20.4
 scipy
 pandas
+torchmetrics

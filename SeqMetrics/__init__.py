@@ -119,6 +119,13 @@ from ._rgr import sga
 from ._rgr import mse
 from ._rgr import variability_ratio
 from ._rgr import RegressionMetrics
+from ._rgr import concordance_corr_coef
+from ._rgr import critical_success_index
+from ._rgr import kl_divergence
+from ._rgr import log_cosh_error
+from ._rgr import minkowski_distance
+from ._rgr import tweedie_deviance_score
+
 
 from ._cls import f1_score
 from ._cls import accuracy

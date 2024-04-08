@@ -7,6 +7,8 @@ site.addsitedir(ai4_dir)
 
 import numpy as np
 import pandas as pd
+import torch
+
 
 from SeqMetrics import r2
 from SeqMetrics import RegressionMetrics
@@ -115,6 +117,12 @@ from SeqMetrics import wape
 from SeqMetrics import watt_m
 from SeqMetrics import wmape
 from SeqMetrics import variability_ratio
+from SeqMetrics import concordance_corr_coef as sm_concordance_corr_coef
+from SeqMetrics import critical_success_index as sm_critical_success_index
+from SeqMetrics import kl_divergence as sm_kl_divergence
+from SeqMetrics import log_cosh_error as sm_log_cosh_error
+from SeqMetrics import minkowski_distance as sm_minkowski_distance
+from SeqMetrics import tweedie_deviance_score as sm_tweedie_deviance_score
 
 t = np.random.random((20, 1))
 p = np.random.random((20, 1))
@@ -757,6 +765,165 @@ class test_errors(unittest.TestCase):
     def test_wmape(self):
         new_vr = variability_ratio(t11, p11)
         assert np.allclose(new_vr, 0.9040387267698112)
+        return
+
+    def test_concordance_corr_coef(self):
+        # taken from https://nirpyresearch.com/concordance-correlation-coefficient/
+
+        new_concordance_corr_coef = self.metrics.concordance_corr_coef()
+        self.assertAlmostEqual(new_concordance_corr_coef, 0.017599598191033003)
+        return
+
+    def test_concordance_corr_coef1(self):
+        # taken from https://nirpyresearch.com/concordance-correlation-coefficient/
+
+        new_concordance_corr_coef = sm_concordance_corr_coef(t11, p11)
+        self.assertAlmostEqual(new_concordance_corr_coef, 0.017599598191033003)
+        return
+
+class test_torch_metrics(unittest.TestCase):
+
+    metrics = RegressionMetrics(t11, p11)
+
+    def test_critical_success_index_cls(self):
+        try:
+            import torch
+            from torchmetrics.regression import CriticalSuccessIndex
+        except (ModuleNotFoundError, ImportError):
+            print('Cant run test_torch_tensor')
+            torch = None
+
+        if torch is not None:
+            new_critical_success_index = self.metrics.critical_success_index()
+            csi = CriticalSuccessIndex(0.5)
+            torch_csi = csi(torch.tensor(p11), torch.tensor(t11))
+            self.assertAlmostEqual(new_critical_success_index, torch_csi)
+        return
+    def test_critical_success_index_func(self):
+        try:
+            import torch
+            from torchmetrics.regression import CriticalSuccessIndex
+        except (ModuleNotFoundError, ImportError):
+            print('Cant run test_torch_tensor')
+            torch = None
+        if torch is not None:
+            new_critical_success_index = sm_critical_success_index(t11, p11)
+            csi = CriticalSuccessIndex(0.5)
+            torch_csi = csi(torch.tensor(p11), torch.tensor(t11))
+            self.assertAlmostEqual(new_critical_success_index, torch_csi)
+        return
+
+    def test_kl_divergence_cls(self):
+        try:
+            import torch
+            from torchmetrics.regression import KLDivergence
+        except (ModuleNotFoundError, ImportError):
+            print('Cant run test_torch_tensor')
+            torch = None
+        if torch is not None:
+            new_kl_divergence = self.metrics.kl_divergence()
+            kl_div = KLDivergence()
+            torch_kl_div = kl_div(torch.tensor(p11).reshape(1,-1), torch.tensor(t11).reshape(1,-1))
+            self.assertAlmostEqual(new_kl_divergence, torch_kl_div.numpy().item())
+        return
+
+    def test_kl_divergence_func(self):
+        try:
+            import torch
+            from torchmetrics.regression import KLDivergence
+        except (ModuleNotFoundError, ImportError):
+            print('Cant run test_torch_tensor')
+            torch = None
+        if torch is not None:
+            new_kl_divergence = sm_kl_divergence(t11, p11)
+            kl_div = KLDivergence()
+            torch_kl_div = kl_div(torch.tensor(p11).reshape(1,-1), torch.tensor(t11).reshape(1,-1))
+            self.assertAlmostEqual(new_kl_divergence, torch_kl_div.numpy().item())
+        return
+
+    def test_log_cosh_error_cls(self):
+        try:
+            import torch
+            from torchmetrics.regression import LogCoshError
+        except (ModuleNotFoundError, ImportError):
+            print('Cant run test_torch_tensor')
+            torch = None
+        if torch is not None:
+            new_log_cosh_error = self.metrics.log_cosh_error()
+            lg_cosh_err = LogCoshError()
+            torch_lg_cosh_err = lg_cosh_err(torch.tensor(p11), torch.tensor(t11))
+            self.assertAlmostEqual(new_log_cosh_error, torch_lg_cosh_err)
+        return
+
+    def test_log_cosh_error_func(self):
+        try:
+            import torch
+            from torchmetrics.regression import LogCoshError
+        except (ModuleNotFoundError, ImportError):
+            print('Cant run test_torch_tensor')
+            torch = None
+        if torch is not None:
+            new_log_cosh_error = sm_log_cosh_error(t11, p11)
+            lg_cosh_err = LogCoshError()
+            torch_lg_cosh_err = lg_cosh_err(torch.tensor(p11), torch.tensor(t11))
+            self.assertAlmostEqual(new_log_cosh_error, torch_lg_cosh_err)
+        return
+
+
+    def test_minkowski_distance_cls(self):
+        try:
+            import torch
+            from torchmetrics.regression import MinkowskiDistance
+        except (ModuleNotFoundError, ImportError):
+            print('Cant run test_torch_tensor')
+            torch = None
+        if torch is not None:
+            new_minkowski_distance = self.metrics.minkowski_distance()
+            mink_dist = MinkowskiDistance(1)
+            torch_mink_dist = mink_dist(torch.tensor(p11), torch.tensor(t11))
+            self.assertAlmostEqual(new_minkowski_distance, torch_mink_dist)
+        return
+
+    def test_minkowski_distance_func(self):
+        try:
+            import torch
+            from torchmetrics.regression import MinkowskiDistance
+        except (ModuleNotFoundError, ImportError):
+            print('Cant run test_torch_tensor')
+            torch = None
+        if torch is not None:
+            new_minkowski_distance = sm_minkowski_distance(t11, p11)
+            mink_dist = MinkowskiDistance(1)
+            torch_mink_dist = mink_dist(torch.tensor(p11), torch.tensor(t11))
+            self.assertAlmostEqual(new_minkowski_distance, torch_mink_dist)
+        return
+
+    def test_tweedie_deviance_score_cls(self):
+        try:
+            import torch
+            from torchmetrics.regression import TweedieDevianceScore
+        except (ModuleNotFoundError, ImportError):
+            print('Cant run test_torch_tensor')
+            torch = None
+        if torch is not None:
+            new_tweedie_deviance_score = self.metrics.tweedie_deviance_score()
+            tw_dev_score = TweedieDevianceScore(0)
+            torch_tw_dev_score = tw_dev_score(torch.tensor(p11), torch.tensor(t11))
+            self.assertAlmostEqual(new_tweedie_deviance_score, torch_tw_dev_score)
+        return
+
+    def test_tweedie_deviance_score_func(self):
+        try:
+            import torch
+            from torchmetrics.regression import TweedieDevianceScore
+        except (ModuleNotFoundError, ImportError):
+            print('Cant run test_torch_tensor')
+            torch = None
+        if torch is not None:
+            new_tweedie_deviance_score = sm_tweedie_deviance_score(t11, p11)
+            tw_dev_score = TweedieDevianceScore(0)
+            torch_tw_dev_score = tw_dev_score(torch.tensor(p11), torch.tensor(t11))
+            self.assertAlmostEqual(new_tweedie_deviance_score, torch_tw_dev_score)
         return
 
 
