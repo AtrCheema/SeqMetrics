@@ -27,6 +27,9 @@ or using setup file, go to folder where repo is downloaded
 
     python setup.py install
 
+You can also install SeqMetrics with all of its dependencies by making use of ``all`` option
+
+  pip install SeqMetrics[all]
 
 ## How to Use
 SeqMetrics provides a uniform API for calculation of both regression and classification metrics.
