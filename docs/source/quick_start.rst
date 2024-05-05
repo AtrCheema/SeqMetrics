@@ -59,3 +59,18 @@ ClassificationMetrics
     >>> metrics = ClassificationMetrics(targets, predictions, multiclass=True)
     >>> metrics.cross_entropy()
     ...  0.71355817782
+
+
+Streamlit App
+==============
+The SeqMetrics library is available from the webapp which is deployed
+used stream [https://seqmetrics.streamlit.app/](https://seqmetrics.streamlit.app/)
+
+You can also launch the app locally if you do not wish to use the web-based app. 
+Make sure you follow the below steps
+::
+    git clone https://github.com/AtrCheema/SeqMetrics.git
+    cd SeqMetrics
+    pip install requirements.txt
+    pip install streamlit
+    streamlit run app.py

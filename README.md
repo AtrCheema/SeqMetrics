@@ -261,6 +261,15 @@ of classification.
 The SeqMetrics library is available from the webapp which is deployed
 used stream [https://seqmetrics.streamlit.app/](https://seqmetrics.streamlit.app/)
 
+You can also launch the app locally if you do not wish to use the web-based app. 
+Make sure you follow the below steps
+
+    git clone https://github.com/AtrCheema/SeqMetrics.git
+    cd SeqMetrics
+    pip install requirements.txt
+    pip install streamlit
+    streamlit run app.py
+
 ## Related
 
 [forecasting_metrics](https://gist.github.com/bshishov/5dc237f59f019b26145648e2124ca1c9)
