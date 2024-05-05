@@ -343,13 +343,13 @@ class test_errors(unittest.TestCase):
 
     def test_mape_cls(self):
         new_mape = metrics.mape()
-        sk_mape= mean_absolute_percentage_error(t11, p11)
+        sk_mape= mean_absolute_percentage_error(t11, p11) * 100.0
         self.assertAlmostEqual(new_mape, sk_mape)
         return
 
     def test_mape_func(self):
         new_mape = sm_mape(t11, p11)
-        sk_mape= mean_absolute_percentage_error(t11, p11)
+        sk_mape= mean_absolute_percentage_error(t11, p11) * 100.0
         self.assertAlmostEqual(new_mape, sk_mape)
         return
 

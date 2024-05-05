@@ -1,7 +1,7 @@
 
 import os
 import unittest
-import site   # so that ai4water directory is in path
+import site   # so that seqmetrics directory is in path
 
 ai4_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 site.addsitedir(ai4_dir)
