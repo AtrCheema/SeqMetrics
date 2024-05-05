@@ -48,10 +48,10 @@ setup(
     packages=['SeqMetrics'],
 
     install_requires=[
-        'numpy',
-        'scipy',
+        'numpy<=1.26.4',
+        'scipy<=1.13',
     ],
     extras_require={
-        'all': ["numpy", "scipy", "easy_mpl"], 
+        'all': ["numpy<=1.26.4", "scipy<=1.13", "easy_mpl"], 
     }
 )

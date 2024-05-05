@@ -1,6 +1,6 @@
-numpy
+numpy<=1.26.4
 scikit-learn
 easy_mpl>=0.20.4
-scipy
+scipy<=1.13
 pandas
 torchmetrics
