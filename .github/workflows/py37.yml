@@ -1,4 +1,4 @@
-name: py37
+name: py3
 on:
   push:
     branches: [ master ]
@@ -8,9 +8,10 @@ on:
 jobs:
   build:
 
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
+        os: [ubuntu-latest, windows-latest]
         python-version: [3.7, 3.12]
 
     steps:
