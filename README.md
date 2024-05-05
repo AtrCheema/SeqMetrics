@@ -5,6 +5,7 @@
 [![Downloads](https://pepy.tech/badge/SeqMetrics)](https://pepy.tech/project/SeqMetrics)
 [![Documentation Status](https://readthedocs.org/projects/seqmetrics/badge/?version=latest)](https://seqmetrics.readthedocs.io/en/latest/?badge=latest)
 [![PyPI version](https://badge.fury.io/py/SeqMetrics.svg)](https://badge.fury.io/py/SeqMetrics)
+[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/SeqMetrics)](https://pypi.org/project/SeqMetrics/)
 ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/AtrCheema/SeqMetrics)
 ![GitHub contributors](https://img.shields.io/github/contributors/AtrCheema/SeqMetrics)
 ![GitHub last commit (branch)](https://img.shields.io/github/last-commit/AtrCheema/SeqMetrics/master)
