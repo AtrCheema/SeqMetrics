@@ -7,10 +7,12 @@ site.addsitedir(ai4_dir)
 
 import numpy as np
 import pandas as pd
-import torch
 
+from sklearn.metrics import max_error, explained_variance_score, mean_absolute_error
+from sklearn.metrics import mean_squared_error, mean_squared_log_error, r2_score
+from sklearn.metrics import median_absolute_error, mean_absolute_percentage_error
 
-from SeqMetrics import r2
+from SeqMetrics import mse as sm_mse
 from SeqMetrics import RegressionMetrics
 from SeqMetrics import nse
 from SeqMetrics import nse_alpha
@@ -18,7 +20,7 @@ from SeqMetrics import nse_beta
 from SeqMetrics import nse_mod
 from SeqMetrics import nse_rel
 from SeqMetrics import nse_bound
-from SeqMetrics import r2_score
+from SeqMetrics import r2_score as sm_r2_score
 from SeqMetrics import adjusted_r2
 from SeqMetrics import kge
 from SeqMetrics import kge_bound
@@ -26,23 +28,22 @@ from SeqMetrics import kge_mod
 from SeqMetrics import kge_np
 from SeqMetrics import log_nse
 from SeqMetrics import corr_coeff
-from SeqMetrics import rmse
-from SeqMetrics import rmsle
-from SeqMetrics import mape
+from SeqMetrics import rmse as sm_rmse
+from SeqMetrics import rmsle as sm_rmsle
+from SeqMetrics import mape as sm_mape
 from SeqMetrics import nrmse
 from SeqMetrics import pbias
 from SeqMetrics import bias
 from SeqMetrics import med_seq_error
-from SeqMetrics import mae
+from SeqMetrics import mae as sm_mae
 from SeqMetrics import abs_pbias
 from SeqMetrics import gmae
 from SeqMetrics import inrse
 from SeqMetrics import irmse
 from SeqMetrics import mase
 from SeqMetrics import mare
-from SeqMetrics import msle
+from SeqMetrics import msle as sm_msle
 from SeqMetrics import covariance
-from SeqMetrics import brier_score
 from SeqMetrics import bic
 from SeqMetrics import sse
 from SeqMetrics import amemiya_pred_criterion
@@ -54,7 +55,7 @@ from SeqMetrics import euclid_distance
 from SeqMetrics import cosine_similarity
 from SeqMetrics import decomposed_mse
 from SeqMetrics import cronbach_alpha
-from SeqMetrics import exp_var_score
+from SeqMetrics import exp_var_score as sm_exp_var_score
 from SeqMetrics import expanded_uncertainty
 from SeqMetrics import fdc_fhv
 from SeqMetrics import fdc_flv
@@ -70,7 +71,7 @@ from SeqMetrics import lm_index
 from SeqMetrics import maape
 from SeqMetrics import mbe
 from SeqMetrics import mbrae
-from SeqMetrics import max_error
+from SeqMetrics import max_error as sm_max_error
 from SeqMetrics import mb_r
 from SeqMetrics import mda
 from SeqMetrics import mde
@@ -81,7 +82,7 @@ from SeqMetrics import mean_bias_error
 from SeqMetrics import mean_var
 from SeqMetrics import mean_poisson_deviance
 from SeqMetrics import mean_gamma_deviance
-from SeqMetrics import median_abs_error
+from SeqMetrics import median_abs_error as sm_median_abs_error
 from SeqMetrics import mle
 from SeqMetrics import mod_agreement_index
 from SeqMetrics import mpe
@@ -150,7 +151,7 @@ random_state = np.random.RandomState(seed=313)
 
 t11 = random_state.random(100)
 p11 = random_state.random(100)
-
+metrics = RegressionMetrics(t11, p11)
 
 class test_errors(unittest.TestCase):
 
@@ -237,8 +238,20 @@ class test_errors(unittest.TestCase):
         return
 
     def test_r2(self):
-        new_r2 = r2(t11, p11)
+        new_r2 = metrics.r2()
         assert np.allclose(new_r2, 0.0003276772244559177)
+        return
+
+    def test_mse_cls(self):
+        new_mse = metrics.mse()
+        sk_mse= mean_squared_error(t11, p11)
+        assert np.allclose(new_mse, sk_mse)
+        return
+
+    def test_mse_func(self):
+        new_mse = sm_mse(t11, p11)
+        sk_mse= mean_squared_error(t11, p11)
+        assert np.allclose(new_mse, sk_mse)
         return
 
     def test_nse(self):
@@ -271,9 +284,16 @@ class test_errors(unittest.TestCase):
         assert np.allclose(new_nse_bound, -0.34818860428052295)
         return
 
-    def test_r2_score(self):
-        new_r2_score = r2_score(t11, p11)
-        assert np.allclose(new_r2_score, -1.0683722517498735)
+    def test_r2_score_cls(self):
+        new_r2_score = metrics.r2_score()
+        sk_r2_score= r2_score(t11, p11)
+        assert np.allclose(new_r2_score, sk_r2_score)
+        return
+
+    def test_r2_score_func(self):
+        new_r2_score = sm_r2_score(t11, p11)
+        sk_r2_score = r2_score(t11, p11)
+        assert np.allclose(new_r2_score, sk_r2_score)
         return
 
     def test_adjusted_r2(self):
@@ -312,18 +332,25 @@ class test_errors(unittest.TestCase):
         return
 
     def test_rmse(self):
-        new_rmse = rmse(t11, p11)
+        new_rmse = sm_rmse(t11, p11)
         assert np.allclose(new_rmse, 0.40289487147518754)
         return
 
     def test_rmsle(self):
-        new_rmsle = rmsle(t11, p11)
+        new_rmsle = sm_rmsle(t11, p11)
         assert np.allclose(new_rmsle, 0.276438581263699)
         return
 
-    def test_mape(self):
-        new_mape = mape(t11, p11)
-        assert np.allclose(new_mape, 4259.236161487332)
+    def test_mape_cls(self):
+        new_mape = metrics.mape()
+        sk_mape= mean_absolute_percentage_error(t11, p11)
+        self.assertAlmostEqual(new_mape, sk_mape)
+        return
+
+    def test_mape_func(self):
+        new_mape = sm_mape(t11, p11)
+        sk_mape= mean_absolute_percentage_error(t11, p11)
+        self.assertAlmostEqual(new_mape, sk_mape)
         return
 
     def test_nrmse(self):
@@ -346,9 +373,16 @@ class test_errors(unittest.TestCase):
         assert np.allclose(new_med_seq_error, 0.06731204476856545)
         return
 
-    def test_mae(self):
-        new_mae = mae(t11, p11)
-        assert np.allclose(new_mae, 0.31644440160349424)
+    def test_mae_cls(self):
+        new_mae = metrics.mae()
+        sk_mae = mean_absolute_error(t11, p11)
+        assert np.allclose(new_mae, sk_mae)
+        return
+
+    def test_mae_func(self):
+        new_mae = sm_mae(t11, p11)
+        sk_mae = mean_absolute_error(t11, p11)
+        assert np.allclose(new_mae, sk_mae)
         return
 
     def test_abs_pbias(self):
@@ -381,9 +415,16 @@ class test_errors(unittest.TestCase):
         assert np.allclose(new_mare, 42.59236161487332)
         return
 
-    def test_msle(self):
-        new_msle = msle(t11, p11)
-        assert np.allclose(new_msle, 0.07641828921108672)
+    def test_msle_cls(self):
+        new_msle = metrics.msle()
+        sk_msle= mean_squared_log_error(t11, p11)
+        assert np.allclose(new_msle, sk_msle)
+        return
+
+    def test_msle_func(self):
+        new_msle = sm_msle(t11, p11)
+        sk_msle= mean_squared_log_error(t11, p11)
+        assert np.allclose(new_msle, sk_msle)
         return
 
     def test_covariance(self):
@@ -451,9 +492,16 @@ class test_errors(unittest.TestCase):
         assert np.allclose(new_euclid_distance, 4.028948714751875)
         return
 
-    def test_exp_var_score(self):
-        new_exp_var_score = exp_var_score(t11, p11)
-        assert np.allclose(new_exp_var_score, -1.0105070054240683)
+    def test_exp_var_score_cls(self):
+        new_exp_var_score = metrics.exp_var_score()
+        sk_exp_var_scr= explained_variance_score(t11, p11)
+        assert np.allclose(new_exp_var_score, sk_exp_var_scr)
+        return
+
+    def test_exp_var_score_func(self):
+        new_exp_var_score = sm_exp_var_score(t11, p11)
+        sk_exp_var_scr= explained_variance_score(t11, p11)
+        assert np.allclose(new_exp_var_score, sk_exp_var_scr)
         return
 
     def test_expanded_uncertainty(self):
@@ -532,9 +580,15 @@ class test_errors(unittest.TestCase):
         assert np.allclose(new_mbrae, 0.46659593775205116)
         return
 
-    def test_max_error(self):
-        new_max_error = max_error(t11, p11)
-        assert np.allclose(new_max_error, 0.9192299717467063)
+    def test_max_error_cls(self):
+        new_max_error = metrics.max_error()
+        sk_max_error= max_error(t11, p11)
+        assert np.allclose(new_max_error, sk_max_error)
+        return
+    def test_max_error_func(self):
+        new_max_error = sm_max_error(t11, p11)
+        sk_max_error= max_error(t11, p11)
+        assert np.allclose(new_max_error, sk_max_error)
         return
 
     def test_mb_r(self):
@@ -587,9 +641,16 @@ class test_errors(unittest.TestCase):
         assert np.allclose(new_mean_gamma_deviance, 11.533824019539743)
         return
 
-    def test_median_abs_error(self):
-        new_median_abs_error = median_abs_error(t11, p11)
-        assert np.allclose(new_median_abs_error, 0.2594229386964548)
+    def test_median_abs_error_cls(self):
+        new_median_abs_error = metrics.median_abs_error()
+        sk_median_abs_error= median_absolute_error(t11, p11)
+        assert np.allclose(new_median_abs_error, sk_median_abs_error)
+        return
+
+    def test_median_abs_error_func(self):
+        new_median_abs_error = sm_median_abs_error(t11, p11)
+        sk_median_abs_error= median_absolute_error(t11, p11)
+        assert np.allclose(new_median_abs_error, sk_median_abs_error)
         return
 
     def test_mle(self):
@@ -770,7 +831,7 @@ class test_errors(unittest.TestCase):
     def test_concordance_corr_coef(self):
         # taken from https://nirpyresearch.com/concordance-correlation-coefficient/
 
-        new_concordance_corr_coef = self.metrics.concordance_corr_coef()
+        new_concordance_corr_coef = metrics.concordance_corr_coef()
         self.assertAlmostEqual(new_concordance_corr_coef, 0.017599598191033003)
         return
 
@@ -783,8 +844,6 @@ class test_errors(unittest.TestCase):
 
 class test_torch_metrics(unittest.TestCase):
 
-    metrics = RegressionMetrics(t11, p11)
-
     def test_critical_success_index_cls(self):
         try:
             import torch
@@ -794,7 +853,7 @@ class test_torch_metrics(unittest.TestCase):
             torch = None
 
         if torch is not None:
-            new_critical_success_index = self.metrics.critical_success_index()
+            new_critical_success_index = metrics.critical_success_index()
             csi = CriticalSuccessIndex(0.5)
             torch_csi = csi(torch.tensor(p11), torch.tensor(t11))
             self.assertAlmostEqual(new_critical_success_index, torch_csi)
@@ -821,7 +880,7 @@ class test_torch_metrics(unittest.TestCase):
             print('Cant run test_torch_tensor')
             torch = None
         if torch is not None:
-            new_kl_divergence = self.metrics.kl_divergence()
+            new_kl_divergence = metrics.kl_divergence()
             kl_div = KLDivergence()
             torch_kl_div = kl_div(torch.tensor(p11).reshape(1,-1), torch.tensor(t11).reshape(1,-1))
             self.assertAlmostEqual(new_kl_divergence, torch_kl_div.numpy().item())
@@ -849,7 +908,7 @@ class test_torch_metrics(unittest.TestCase):
             print('Cant run test_torch_tensor')
             torch = None
         if torch is not None:
-            new_log_cosh_error = self.metrics.log_cosh_error()
+            new_log_cosh_error = metrics.log_cosh_error()
             lg_cosh_err = LogCoshError()
             torch_lg_cosh_err = lg_cosh_err(torch.tensor(p11), torch.tensor(t11))
             self.assertAlmostEqual(new_log_cosh_error, torch_lg_cosh_err)
@@ -878,7 +937,7 @@ class test_torch_metrics(unittest.TestCase):
             print('Cant run test_torch_tensor')
             torch = None
         if torch is not None:
-            new_minkowski_distance = self.metrics.minkowski_distance()
+            new_minkowski_distance = metrics.minkowski_distance()
             mink_dist = MinkowskiDistance(1)
             torch_mink_dist = mink_dist(torch.tensor(p11), torch.tensor(t11))
             self.assertAlmostEqual(new_minkowski_distance, torch_mink_dist)
@@ -906,7 +965,7 @@ class test_torch_metrics(unittest.TestCase):
             print('Cant run test_torch_tensor')
             torch = None
         if torch is not None:
-            new_tweedie_deviance_score = self.metrics.tweedie_deviance_score()
+            new_tweedie_deviance_score = metrics.tweedie_deviance_score()
             tw_dev_score = TweedieDevianceScore(0)
             torch_tw_dev_score = tw_dev_score(torch.tensor(p11), torch.tensor(t11))
             self.assertAlmostEqual(new_tweedie_deviance_score, torch_tw_dev_score)

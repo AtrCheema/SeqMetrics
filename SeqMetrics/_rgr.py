@@ -8,7 +8,6 @@ from scipy.stats import gmean, kendalltau
 from .utils import maybe_treat_arrays
 from .utils import _geometric_mean, _mean_tweedie_deviance, _foo, list_subclass_methods
 from ._main import Metrics, EPS, ERR_STATE
-from torchmetrics.utilities.compute import _safe_xlogy
 
 
 class RegressionMetrics(Metrics):
@@ -6250,7 +6249,7 @@ def critical_success_index(
     FP = np.sum((true == 0) & (predicted == 1))
 
     csi = TP / float(TP + FN + FP) if (TP + FN + FP) > 0 else 0
-    return csi
+    return float(csi)
 
 def kl_divergence(
         true, predicted, treat_arrays: bool = True, **treat_arrays_kws
