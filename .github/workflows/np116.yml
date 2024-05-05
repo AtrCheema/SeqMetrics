@@ -26,6 +26,7 @@ jobs:
         python -m pip install flake8 pytest
         pip install -r dev_requirements.txt
         pip install numpy==1.16.0
+        pip install pandas==0.25
     - name: Test with unittest
       run: |
         pip install pytest

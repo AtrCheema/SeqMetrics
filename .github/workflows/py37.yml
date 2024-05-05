@@ -1,4 +1,4 @@
-name: py3
+name: ubuntu_windows
 on:
   push:
     branches: [ master ]
