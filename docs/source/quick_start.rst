@@ -74,3 +74,14 @@ Make sure you follow the below steps
     pip install requirements.txt
     pip install streamlit
     streamlit run app.py
+
+.. image:: imgs/fig2.png
+    :align: center
+    :height: 400
+    :width: 400
+
+.. image:: imgs/fig1.png
+    :align: center
+    :height: 400
+    :width: 400
+

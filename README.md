@@ -271,6 +271,17 @@ Make sure you follow the below steps
     pip install streamlit
     streamlit run app.py
 
+Using the streamlit based application app involves, 1) providing the true and predicted arrays
+either by pasting the data in the boxes or by uploading a file, 2) Selecting the 
+relevant performance metric and 3) calculating the performance metric. These steps are further
+illustrated in following images.
+
+<p float="left">
+  <img src="/paper/fig2.jpg" width="400" />
+  <img src="/paper/fig2.jpg" width="400" />
+</p>
+
+
 ## Related
 
 [forecasting_metrics](https://gist.github.com/bshishov/5dc237f59f019b26145648e2124ca1c9)
