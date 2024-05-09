@@ -54,14 +54,13 @@ NAME_REG = {'calculate_all' : 'Calculate All Regression Metrics',
             'kge_mod': 'Modified Kling-Gupta Efficiency',
             'kge_np': 'Non parametric Kling-Gupta Efficiency',
             'kendaull_tau': 'Kendall’s tau',
-            'kgeprime_c2m': 'Bounded Version of the Modified Kling-Gupta Efficiency',
+            'kgeprime_bound': 'Bounded Version of the Modified Kling-Gupta Efficiency',
             'kgenp_bound': 'Bounded Version of the Non-Parametric Kling-Gupta Efficiency',
             'kl_sym': 'Symmetric Kullback-leibler Divergence',
             'lm_index': 'Legate-McCabe Efficiency Index',
             'log_prob': 'Logarithmic Probability Distribution',
             'log_nse': 'Log Nash-Sutcliffe model Efficiency',
             'maape': 'Mean Arctangent Absolute Percentage Error',
-            'mbe': 'Mean Bias Error',
             'mbrae': 'Mean Bounded Relative Absolute Error',
             'max_error': 'Maximum Absolute Error',
             'mb_r': 'Mielke-Berry R value',
@@ -129,7 +128,8 @@ NAME_REG = {'calculate_all' : 'Calculate All Regression Metrics',
             'volume_error' : 'Volume Error',
             'wape' : 'Weighted Absolute Percentage Error',
             'watt_m' : 'Watterson’s M. Refrence',
-            'wmape' : 'Weighted Mean Absolute Percent Error'
+            'wmape' : 'Weighted Mean Absolute Percent Error',
+            'mre': "Mean Relative Error",
             }
 
 NAME_CLS = {'accuracy' : 'Accuracy',
@@ -253,8 +253,8 @@ st.markdown('<p class="subtitle">Effortlessly calculate a variety of metrics for
 col1, col2 = st.columns(2)
 
 with col1:
-    st.markdown('<div class="upload-label">Type/Paste the observed/true values or upload a file:</div>', unsafe_allow_html=True)
-    true_values = st.text_area("True Values", placeholder="Type/Paste the observed/true values as comma separated list", height=100, key="true")
+    st.markdown('<div class="upload-label">Provide the observed/true data by either typing/pasting or by uploading a file:</div>', unsafe_allow_html=True)
+    true_values = st.text_area("True Values", placeholder="Type the observed/true data as comma or space separated. You can copy from Excel, text or any other file", height=100, key="true")
     st.markdown('<div class="or-separator">OR</div>', unsafe_allow_html=True)
     st.markdown('<div class="upload-label">Upload CSV or Excel file with one column as true:</div>', unsafe_allow_html=True)
     uploaded_true = st.file_uploader("", key="upload_true")
@@ -267,8 +267,8 @@ with col1:
                                      key="reg_metric")
 
 with col2:
-    st.markdown('<div class="upload-label">Type/Paste the predicted values or upload a file:</div>', unsafe_allow_html=True)
-    predicted_values = st.text_area("Predicted Values", placeholder="Type/Paste the predicted values as comma separated list", height=100, key="predicted")
+    st.markdown('<div class="upload-label">Provide the predicted/simulated data by either typing/pasting or by uploading a file:</div>', unsafe_allow_html=True)
+    predicted_values = st.text_area("Predicted data", placeholder="Type the predicted/simulated data as comma or space separated. You can copy from Excel, text or any other file", height=100, key="predicted")
     st.markdown('<div class="or-separator">OR</div>', unsafe_allow_html=True)
     st.markdown('<div class="upload-label">Upload CSV or Excel file with one column as predicted:</div>', unsafe_allow_html=True)
     uploaded_pred = st.file_uploader("", key="upload_pred")

@@ -58,12 +58,11 @@ from ._rgr import gmrae
 from ._rgr import calculate_hydro_metrics
 from ._rgr import JS
 from ._rgr import kendaull_tau
-from ._rgr import kgeprime_c2m
+from ._rgr import kgeprime_bound
 from ._rgr import kgenp_bound
 from ._rgr import kl_sym
 from ._rgr import lm_index
 from ._rgr import maape
-from ._rgr import mbe
 from ._rgr import mbrae
 from ._rgr import max_error
 from ._rgr import mb_r
@@ -125,6 +124,7 @@ from ._rgr import kl_divergence
 from ._rgr import log_cosh_error
 from ._rgr import minkowski_distance
 from ._rgr import tweedie_deviance_score
+from ._rgr import mre
 
 
 from ._cls import f1_score

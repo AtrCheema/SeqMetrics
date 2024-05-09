@@ -275,18 +275,9 @@ def _mean_tweedie_deviance(y_true, y_pred, power=0, weights=None):
     return float(np.average(dev, weights=weights))
 
 
-def _geometric_mean(a, axis=0, dtype=None):
+def _geometric_mean(a, axis=0):
     """ Geometric mean """
-    if not isinstance(a, np.ndarray):  # if not an ndarray object attempt to convert it
-        log_a = np.log(np.array(a, dtype=dtype))
-    elif dtype:  # Must change the default dtype allowing array type
-        if isinstance(a, np.ma.MaskedArray):
-            log_a = np.log(np.ma.asarray(a, dtype=dtype))
-        else:
-            log_a = np.log(np.asarray(a, dtype=dtype))
-    else:
-        log_a = np.log(a)
-    return float(np.exp(log_a.mean(axis=axis)))
+    return float(np.exp(np.log(a).mean(axis=axis)))
 
 
 def listMethods(cls):
@@ -492,7 +483,7 @@ METRIC_TYPES = {
     'gmrae': 'min',
     'JS': 'min',
     'kendaull_tau': 'max',
-    'kgeprime_c2m': 'max',
+    'kgeprime_bound': 'max',
     'kgenp_bound': 'max',
     'kl_sym': 'min',
     'lm_index': 'max',
@@ -575,6 +566,7 @@ METRIC_TYPES = {
     'log_prob': 'min',
     'rmdspe': 'min',
     'variability_ratio': 'min',
+    "mre" : 'min'
 }
 
 

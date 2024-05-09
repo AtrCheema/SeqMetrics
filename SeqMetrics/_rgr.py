@@ -3,7 +3,11 @@ from math import sqrt
 from typing import Union
 
 import numpy as np
-from scipy.stats import gmean, kendalltau
+
+try:
+    from scipy.stats import kendalltau
+except (ImportError, ModuleNotFoundError):
+    kendalltau = None, None
 
 from .utils import maybe_treat_arrays
 from .utils import _geometric_mean, _mean_tweedie_deviance, _foo, list_subclass_methods
@@ -55,7 +59,7 @@ class RegressionMetrics(Metrics):
 
         return self._minimal() + [
             'fdc_flv', 'fdc_fhv',
-            'kge', 'kge_np', 'kge_mod', 'kge_bound', 'kgeprime_c2m', 'kgenp_bound',
+            'kge', 'kge_np', 'kge_mod', 'kge_bound', 'kgeprime_bound', 'kgenp_bound',
             'nse', 'nse_alpha', 'nse_beta', 'nse_mod', 'nse_bound']
 
     @staticmethod
@@ -599,7 +603,7 @@ class RegressionMetrics(Metrics):
             - kge_np
             - kge_mod
             - kge_bound
-            - kgeprime_c2m
+            - kgeprime_bound
             - kgenp_bound
             - nse
             - nse_alpha
@@ -690,6 +694,9 @@ class RegressionMetrics(Metrics):
         >>> metrics= RegressionMetrics(t, p)
         >>> metrics.kendaull_tau()
         """
+        if kendalltau is None:
+            raise NotImplementedError("scipy is not installed. Please install scipy to use this method")
+
         return kendaull_tau(true=self.true, predicted=self.predicted, return_p=return_p,
                             treat_arrays=False)
 
@@ -756,7 +763,7 @@ class RegressionMetrics(Metrics):
         """
         return kge_np(true=self.true, predicted=self.predicted, treat_arrays=False)
 
-    def kgeprime_c2m(self) -> float:
+    def kgeprime_bound(self) -> float:
         """
         Bounded Version of the Modified Kling-Gupta Efficiency_
 
@@ -770,10 +777,10 @@ class RegressionMetrics(Metrics):
         >>> t = np.random.random(10)
         >>> p = np.random.random(10)
         >>> metrics= RegressionMetrics(t, p)
-        >>> metrics.kgeprime_c2m()
+        >>> metrics.kgeprime_bound()
 
         """
-        return kgeprime_c2m(true=self.true, predicted=self.predicted, treat_arrays=False)
+        return kgeprime_bound(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def kgenp_bound(self):
         """
@@ -880,24 +887,6 @@ class RegressionMetrics(Metrics):
         >>> metrics.mape()
         """
         return mape(true=self.true, predicted=self.predicted, treat_arrays=False)
-
-    def mbe(self) -> float:
-        """Mean bias error. This indicator expresses a tendency of model to underestimate (negative value)
-         or overestimate (positive value) global radiation, while the MBE values closest to zero are desirable.
-         The drawback of this test is that it does not show the correct performance when the model presents
-         overestimated and underestimated values at the same time, since overestimation and underestimation
-         values cancel each other_. [1]
-
-         Examples
-         ---------
-         >>> import numpy as np
-         >>> from SeqMetrics import RegressionMetrics
-         >>> t = np.random.random(10)
-         >>> p = np.random.random(10)
-         >>> metrics= RegressionMetrics(t, p)
-         >>> metrics.mbe()
-         """
-        return mbe(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def mbrae(self, benchmark: np.ndarray = None) -> float:
         """ Mean Bounded Relative Absolute Error
@@ -1267,6 +1256,22 @@ class RegressionMetrics(Metrics):
 
         return msle(true=self.true, predicted=self.predicted, treat_arrays=False,
                     weights=weights)
+
+    def mre(self, benchmark:np.ndarray=None):
+        """
+        Mean Relative Error
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.mre()
+
+        """
+        return mre(self.true, self.predicted, treat_arrays=False, benchmark=benchmark)
 
     def norm_euclid_distance(self) -> float:
         """Normalized Euclidian distance
@@ -2527,6 +2532,8 @@ def adjusted_r2(true, predicted, treat_arrays: bool = True,
                 **treat_arrays_kws) -> float:
     """Adjusted R squared.
 
+    Equation taken from https://people.duke.edu/~rnau/rsquared.htm
+
     Parameters
     ----------
     true :
@@ -2710,7 +2717,7 @@ def kge_np(
 
     fdc_sim = np.sort(predicted / (np.nanmean(predicted) * len(predicted)))
     fdc_obs = np.sort(true / (np.nanmean(true) * len(true)))
-    alpha = 1 - 0.5 * np.nanmean(np.abs(fdc_sim - fdc_obs))
+    alpha = 1 - 0.5 * np.sum(np.abs(fdc_sim - fdc_obs))
 
     beta = np.mean(predicted) / np.mean(true)
     return post_process_kge(cc, alpha, beta, return_all)
@@ -2774,6 +2781,7 @@ def log_nse(true, predicted, treat_arrays: bool = True, epsilon=0.0,
 
     .. math::
         NSE = 1-\\frac{\\sum_{i=1}^{N}(log(e_{i})-log(s_{i}))^2}{\\sum_{i=1}^{N}(log(e_{i})-log(\\bar{e})^2}-1)*-1
+
     Parameters
     ----------
     true :
@@ -2805,6 +2813,7 @@ def corr_coeff(true, predicted, treat_arrays: bool = True,
     Pearson correlation coefficient.
     It measures linear correlatin between true and predicted arrays.
     It is sensitive to outliers.
+
     Reference: Pearson, K 1895.
 
     .. math::
@@ -2898,8 +2907,12 @@ def rmsle(true, predicted, treat_arrays: bool = True,
     return float(np.sqrt(np.mean(np.power(log1p(predicted) - log1p(true), 2))))
 
 
-def mape(true, predicted, treat_arrays: bool = True,
-         **treat_arrays_kws) -> float:
+def mape(
+        true, 
+        predicted, 
+        treat_arrays: bool = True,
+         **treat_arrays_kws
+         ) -> float:
     """ Mean Absolute Percentage Error.
     The MAPE is often used when the quantity to predict is known to remain
     way above zero_. It is useful when the size or size of a prediction variable
@@ -2999,13 +3012,13 @@ def pbias(true, predicted, treat_arrays: bool = True,
     >>> pbias(t, p)
     """
     true, predicted = maybe_treat_arrays(treat_arrays, true, predicted, 'regression', **treat_arrays_kws)
-    return float(100.0 * sum(predicted - true) / sum(true))
+    return float(100.0 * sum(true - predicted) / sum(true))
 
 
 def bias(true, predicted, treat_arrays: bool = True,
          **treat_arrays_kws) -> float:
     """
-    Bias as and given by Gupta1998_ et al., 1998
+    Bias as and given by Gupta1998_ et al., 1998 in Table 1
 
     .. math::
         Bias=\\frac{1}{N}\\sum_{i=1}^{N}(e_{i}-s_{i})
@@ -3151,6 +3164,7 @@ def inrse(true, predicted, treat_arrays: bool = True,
 def irmse(true, predicted, treat_arrays: bool = True,
           **treat_arrays_kws) -> float:
     """Inertial RMSE. RMSE divided by standard deviation of the gradient of true.
+
     Parameters
     ----------
     true :
@@ -3280,10 +3294,15 @@ def log1p(array):
         return np.log1p(array)
 
 
-def covariance(true, predicted, treat_arrays: bool = True,
-               **treat_arrays_kws) -> float:
+def covariance(
+        true, 
+        predicted, 
+        treat_arrays: bool = True,
+        **treat_arrays_kws
+        ) -> float:
     """
     Covariance
+
         .. math::
         Covariance = \\frac{1}{N} \\sum_{i=1}^{N}((e_{i} - \\bar{e}) * (s_{i} - \\bar{s}))
 
@@ -3384,7 +3403,11 @@ def brier_score(true, predicted, treat_arrays: bool = True,
     return bs
 
 
-def bic(true, predicted, treat_arrays: bool = True, p=1,
+def bic(
+        true, 
+        predicted, 
+        treat_arrays: bool = True, 
+        p=1,
         **treat_arrays_kws) -> float:
     """
     Bayesian Information Criterion
@@ -3467,6 +3490,8 @@ def amemiya_pred_criterion(true, predicted, treat_arrays: bool = True,
                            **treat_arrays_kws) -> float:
     """Amemiya's Prediction Criterion
 
+    Equation taken from https://www.sfu.ca/sasdoc/sashtml/ets/chap30/sect19.htm#:~:text=Amemiya
+
     Parameters
     ----------
     true :
@@ -3495,6 +3520,8 @@ def amemiya_pred_criterion(true, predicted, treat_arrays: bool = True,
 def amemiya_adj_r2(true, predicted, treat_arrays: bool = True,
                    **treat_arrays_kws) -> float:
     """Amemiya's Adjusted R-squared
+
+    Equation taken from https://www.sfu.ca/sasdoc/sashtml/ets/chap30/sect19.htm#:~:text=Amemiya
 
     Parameters
     ----------
@@ -3527,6 +3554,8 @@ def aitchison(true, predicted, treat_arrays: bool = True, center='mean',
 
     .. _Zhang:
         https://doi.org/10.5194/hess-24-2505-2020
+    
+    https://doi.org/10.1007/bf00891269 
 
     Parameters
     ----------
@@ -3583,8 +3612,12 @@ def _assert_greater_than_one(true, predicted):
     return
 
 
-def acc(true, predicted, treat_arrays: bool = True,
-        **treat_arrays_kws) -> float:
+def acc(
+        true, 
+        predicted, 
+        treat_arrays: bool = True,
+        **treat_arrays_kws
+        ) -> float:
     """Anomaly correction coefficient. See Langland_ et al., 2012; Miyakoda_ et al., 1972
     and Murphy_ et al., 1989.
 
@@ -3669,8 +3702,12 @@ def agreement_index(true, predicted, treat_arrays: bool = True,
     return float(agreement_index_)
 
 
-def aic(true, predicted, treat_arrays: bool = True, p=1,
-        **treat_arrays_kws) -> float:
+def aic(
+        true, 
+        predicted, 
+        treat_arrays: bool = True, p=1,
+        **treat_arrays_kws
+        ) -> float:
     """
     Akaike_ Information Criterion. Modifying from this source_
 
@@ -3828,13 +3865,15 @@ def cosine_similarity(true, predicted, treat_arrays: bool = True,
 def decomposed_mse(true, predicted, treat_arrays: bool = True,
                    **treat_arrays_kws) -> float:
     """
-    Decomposed MSE developed by Kobayashi and Salam (2000)
+    Decomposed MSE developed by Kobayashi and Salam (2000) Equation 24
 
     .. math ::
         dMSE = (\\frac{1}{N}\\sum_{i=1}^{N}(e_{i}-s_{i}))^2 + SDSD + LCS
         SDSD = (\\sigma(e) - \\sigma(s))^2
         LCS = 2 \\sigma(e) \\sigma(s) * (1 - \\frac{\\sum ^n _{i=1}(e_i - \\bar{e})(s_i - \\bar{s})}
         {\\sqrt{\\sum ^n _{i=1}(e_i - \\bar{e})^2} \\sqrt{\\sum ^n _{i=1}(s_i - \\bar{s})^2}})
+
+    https://doi.org/10.2134/agronj2000.922345x
 
     Parameters
     ----------
@@ -3855,12 +3894,16 @@ def decomposed_mse(true, predicted, treat_arrays: bool = True,
     >>> decomposed_mse(t, p)
     """
     true, predicted = maybe_treat_arrays(treat_arrays, true, predicted, 'regression', **treat_arrays_kws)
-    e_std = np.std(true)
+    t_std = np.std(true)
     s_std = np.std(predicted)
 
     bias_squared = bias(true, predicted, treat_arrays=False) ** 2
-    sdsd = (e_std - s_std) ** 2
-    lcs = 2 * e_std * s_std * (1 - corr_coeff(true, predicted, treat_arrays=False))
+    # sdsd is difference in the magnitude of fluctuation between predicted and true
+    # bigger sdsd means the model fails to simulate the magnitude of the fluctuations in the true data
+    sdsd = (s_std - t_std) ** 2
+    # lack of positive correlation weighted by the std
+    # bigger lcs means the models fails to simulate the patters of the fluctuations in the true data
+    lcs = 2 * t_std * s_std * (1 - corr_coeff(true, predicted, treat_arrays=False))
 
     decomposed_mse_ = bias_squared + sdsd + lcs
 
@@ -3942,6 +3985,7 @@ def expanded_uncertainty(true, predicted, treat_arrays: bool = True, cov_fact=1.
     1.96 is the coverage factor corresponding 95% confidence level .This
     indicator is used in order to show more information about the model
     deviation. Using formula from by Behar_ et al., 2015 and Gueymard_ et al., 2014.
+
     .. _Behar:
         https://doi.org/10.1016/j.enconman.2015.03.067
 
@@ -3975,7 +4019,7 @@ def expanded_uncertainty(true, predicted, treat_arrays: bool = True, cov_fact=1.
 def fdc_fhv(true, predicted, treat_arrays: bool = True, h: float = 0.02,
             **treat_arrays_kws) -> float:
     """
-    modified Kratzert2018_ code. Peak flow bias of the flow duration curve (Yilmaz 2008).
+    modified Kratzert2018_ code. Peak flow bias of the flow duration curve (Yilmaz 2008) doi:10.1029/2007WR006716.
     used in kratzert et al., 2018
 
     Parameters
@@ -4011,14 +4055,14 @@ def fdc_fhv(true, predicted, treat_arrays: bool = True, h: float = 0.02,
         raise RuntimeError("h has to be in the range (0,1)")
 
     # sort both in descending order
-    obs = -np.sort(-true)
-    sim = -np.sort(-predicted)
+    true = -np.sort(-true)
+    predicted = -np.sort(-predicted)
 
     # subset data to only top h flow values
-    obs = obs[:np.round(h * len(obs)).astype(int)]
-    sim = sim[:np.round(h * len(sim)).astype(int)]
+    true = true[:np.round(h * len(true)).astype(int)]
+    predicted = predicted[:np.round(h * len(predicted)).astype(int)]
 
-    fhv = np.sum(sim - obs) / (np.sum(obs) + 1e-6)
+    fhv = np.sum(predicted - true) / (np.sum(true))
 
     return float(fhv * 100)
 
@@ -4080,8 +4124,8 @@ def fdc_flv(true, predicted, treat_arrays: bool = True, low_flow: float = 0.3,
     sim = sim[np.round(low_flow * len(sim)).astype(int):]
 
     # transform values to log scale
-    obs = np.log(obs + 1e-6)
-    sim = np.log(sim + 1e-6)
+    obs = np.log(obs)
+    sim = np.log(sim)
 
     # calculate flv part by part
     qsl = np.sum(sim - sim.min())
@@ -4094,8 +4138,9 @@ def fdc_flv(true, predicted, treat_arrays: bool = True, low_flow: float = 0.3,
 
 def gmean_diff(true, predicted, treat_arrays: bool = True,
                **treat_arrays_kws) -> float:
-    """Geometric mean difference. First geometric mean is calculated for each
-    of two samples and their difference is calculated.
+    """
+    Geometric mean difference. First geometric mean is calculated for true and
+    predicted arrays and their difference is calculated.
 
     Parameters
     ----------
@@ -4116,7 +4161,7 @@ def gmean_diff(true, predicted, treat_arrays: bool = True,
     >>> gmean_diff(t, p)
     """
     true, predicted = maybe_treat_arrays(treat_arrays, true, predicted, 'regression', **treat_arrays_kws)
-    return float(np.exp(gmean(log1p(predicted)) - gmean(log1p(true))))
+    return float(_geometric_mean(true) - _geometric_mean(predicted))
 
 
 def gmrae(true, predicted, treat_arrays: bool = True, benchmark: np.ndarray = None,
@@ -4147,7 +4192,8 @@ def gmrae(true, predicted, treat_arrays: bool = True, benchmark: np.ndarray = No
 
 
 def _relative_error(true, predicted, benchmark: np.ndarray = None):
-    """ Relative Error
+    """
+    Relative Error
 
     Parameters
     ----------
@@ -4194,7 +4240,7 @@ def _hydro_metrics() -> list:
 
     return _minimal() + [
         'fdc_flv', 'fdc_fhv',
-        'kge', 'kge_np', 'kge_mod', 'kge_bound', 'kgeprime_c2m', 'kgenp_bound',
+        'kge', 'kge_np', 'kge_mod', 'kge_bound', 'kgeprime_bound', 'kgenp_bound',
         'nse', 'nse_alpha', 'nse_beta', 'nse_mod', 'nse_bound']
 
 
@@ -4208,7 +4254,7 @@ def calculate_hydro_metrics(true, predicted, treat_arrays: bool = True,
         - kge_np
         - kge_mod
         - kge_bound
-        - kgeprime_c2m
+        - kgeprime_bound
         - kgenp_bound
         - nse
         - nse_alpha
@@ -4253,7 +4299,7 @@ def calculate_hydro_metrics(true, predicted, treat_arrays: bool = True,
     metrics = {}
     true, predicted = maybe_treat_arrays(treat_arrays, true, predicted, 'regression', **treat_arrays_kws)
 
-    for metric in [fdc_flv, fdc_fhv, kge, kge_np, kge_mod, kge_bound, kgeprime_c2m, kgenp_bound,
+    for metric in [fdc_flv, fdc_fhv, kge, kge_np, kge_mod, kge_bound, kgeprime_bound, kgenp_bound,
                    nse, nse_alpha, nse_beta, nse_mod, nse_bound, r2, mape, nrmse, corr_coeff, rmse, mae, mse, mpe,
                    mase, r2_score]:
         metrics[metric.__name__] = metric(true, predicted, treat_arrays=False)
@@ -4296,7 +4342,13 @@ def JS(true, predicted, treat_arrays: bool = True,
 
 def kendaull_tau(true, predicted, treat_arrays: bool = True, return_p=False,
                  **treat_arrays_kws) -> Union[float, tuple]:
-    """Kendall's tau_ .used in Probst_ et al., 2019.
+    """
+    Kendall's tau_ .used in Probst_ et al., 2019.
+    It is a non-parameteric estimate of correlation between true and predicted arrays.
+    It does not assume linearity of the relationship between true and predicted values.
+    It compares the ranks of the values in the two arrays to estimate strength
+    and direction of association between them. It ranges between -1 to 1 with 1 indicating
+    strong association and -1 indicated strong disassociation.
 
     .. _tau:
         https://machinelearningmastery.com/how-to-calculate-nonparametric-rank-correlation-in-python/
@@ -4323,14 +4375,17 @@ def kendaull_tau(true, predicted, treat_arrays: bool = True, return_p=False,
     >>> p = np.random.random(10)
     >>> kendaull_tau(t, p)
     """
+    if kendalltau is None:
+        raise NotImplementedError("kendalltau function is not available. Please install scipy")
+
     true, predicted = maybe_treat_arrays(treat_arrays, true, predicted, 'regression', **treat_arrays_kws)
     coef, p = kendalltau(true, predicted)
     if return_p:
         return coef, p
-    return float(p)
+    return float(coef)
 
 
-def kgeprime_c2m(true, predicted, treat_arrays: bool = True,
+def kgeprime_bound(true, predicted, treat_arrays: bool = True,
                  **treat_arrays_kws) -> float:
     """
     Bounded Version of the Modified Kling-Gupta Efficiency_
@@ -4351,10 +4406,10 @@ def kgeprime_c2m(true, predicted, treat_arrays: bool = True,
     Examples
     ---------
     >>> import numpy as np
-    >>> from SeqMetrics import kgeprime_c2m
+    >>> from SeqMetrics import kgeprime_bound
     >>> t = np.random.random(10)
     >>> p = np.random.random(10)
-    >>> kgeprime_c2m(t, p)
+    >>> kgeprime_bound(t, p)
 
     """
     true, predicted = maybe_treat_arrays(treat_arrays, true, predicted, 'regression', **treat_arrays_kws)
@@ -4397,6 +4452,7 @@ def kgenp_bound(true, predicted, treat_arrays: bool = True,
 def kl_sym(true, predicted, treat_arrays: bool = True,
            **treat_arrays_kws) -> Union[float, None]:
     """Symmetric kullback-leibler divergence
+
     Parameters
     ----------
     true :
@@ -4494,16 +4550,9 @@ def maape(true, predicted, treat_arrays: bool = True,
     return float(np.mean(np.arctan(np.abs((true - predicted) / (true + EPS)))))
 
 
-def mbe(true, predicted, treat_arrays: bool = True,
-        **treat_arrays_kws) -> float:
-    """Mean bias error. This indicator expresses a tendency of model to underestimate (negative value)
-    or overestimate (positive value) global radiation, while the MBE values closest to zero are desirable.
-    The drawback of this test is that it does not show the correct performance when the model presents
-    overestimated and underestimated values at the same time, since overestimation and underestimation
-    values cancel each other_. [1]
-
-    .. _other:
-        https://doi.org/10.1016/j.rser.2015.08.035
+def _percentage_error(true, predicted):
+    """
+    Percentage error. The value is multiplied by 100 to reflect percentage.
 
     Parameters
     ----------
@@ -4512,20 +4561,10 @@ def mbe(true, predicted, treat_arrays: bool = True,
          or pandas series/DataFrame or a list.
     predicted :
          simulated values
-    treat_arrays :
-        process the true and predicted arrays using maybe_treat_arrays function
-
-    Examples
-    ---------
-    >>> import numpy as np
-    >>> from SeqMetrics import mbe
-    >>> t = np.random.random(10)
-    >>> p = np.random.random(10)
-    >>> mbe(t, p)
     """
-    true, predicted = maybe_treat_arrays(treat_arrays, true, predicted, 'regression', **treat_arrays_kws)
+
     error = true - predicted
-    return float(np.mean(error))
+    return error / (true + EPS) * 100
 
 
 def _bounded_relative_error(
@@ -4693,9 +4732,12 @@ def mb_r(true, predicted, treat_arrays: bool = True,
     return float(mb)
 
 
-def mda(true, predicted, treat_arrays: bool = True,
+def mda(
+        true,
+        predicted,
+        treat_arrays: bool = True,
         **treat_arrays_kws) -> float:
-    """ Mean Directional Accuracy
+    """Mean Directional Accuracy
     modified after_
 
     .. _after:
@@ -4719,13 +4761,14 @@ def mda(true, predicted, treat_arrays: bool = True,
     >>> mda(t, p)
      """
     true, predicted = maybe_treat_arrays(treat_arrays, true, predicted, 'regression', **treat_arrays_kws)
-    dict_acc = np.sign(true[1:] - true[:-1]) == np.sign(predicted[1:] - predicted[:-1])
+    dict_acc = np.sign(true[1:] - true[:-1]) == np.sign(predicted[1:] - true[:-1])
     return float(np.mean(dict_acc))
 
 
 def mde(true, predicted, treat_arrays: bool = True,
         **treat_arrays_kws) -> float:
     """Median Error
+
     Parameters
     ----------
     true :
@@ -4748,26 +4791,11 @@ def mde(true, predicted, treat_arrays: bool = True,
     return float(np.median(predicted - true))
 
 
-def _percentage_error(true, predicted):
-    """
-    Percentage error
-    Parameters
-    ----------
-    true :
-         true/observed/actual/target values. It must be a numpy array,
-         or pandas series/DataFrame or a list.
-    predicted :
-         simulated values
-    """
-
-    error = true - predicted
-    return error / (true + EPS) * 100
-
-
 def mdape(true, predicted, treat_arrays: bool = True,
           **treat_arrays_kws) -> float:
     """
-    Median Absolute Percentage Error
+    Median Absolute Percentage Error. The value is multiplied by 100.
+
     Parameters
     ----------
     true :
@@ -4787,7 +4815,7 @@ def mdape(true, predicted, treat_arrays: bool = True,
     >>> mdape(t, p)
     """
     true, predicted = maybe_treat_arrays(treat_arrays, true, predicted, 'regression', **treat_arrays_kws)
-    return float(np.median(np.abs(_percentage_error(true, predicted))) * 100)
+    return float(np.median(np.abs(_percentage_error(true, predicted))))
 
 
 def mdrae(true, predicted, treat_arrays: bool = True, benchmark: np.ndarray = None,
@@ -4851,7 +4879,7 @@ def mean_bias_error(true, predicted, treat_arrays: bool = True,
     or overestimate (positive value) global radiation, while the MBE values closest to zero are desirable.
     The drawback of this test is that it does not show the correct performance when the model presents
     overestimated and underestimated values at the same time, since overestimation and underestimation
-    values cancel each other.
+    values cancel each other_.
 
     References
     ----------
@@ -4864,6 +4892,10 @@ def mean_bias_error(true, predicted, treat_arrays: bool = True,
         Evapotranspiration. Journal of Hydrologic Engineering, 20(5), 04014068.
         https://dx.doi.org/10.1061/(ASCE)HE.1943-5584.0001066
     -  https://doi.org/10.1016/j.rser.2015.08.035
+
+    .. _other:
+        https://doi.org/10.1016/j.rser.2015.08.035
+
     Parameters
     ----------
     true :
@@ -4889,6 +4921,7 @@ def mean_bias_error(true, predicted, treat_arrays: bool = True,
 def mean_var(true, predicted, treat_arrays: bool = True,
              **treat_arrays_kws) -> float:
     """Mean variance
+
     Parameters
     ----------
     true :
@@ -4943,6 +4976,7 @@ def mean_gamma_deviance(true, predicted, treat_arrays: bool = True, weights=None
                         **treat_arrays_kws) -> float:
     """
     mean gamma deviance
+
     Parameters
     ----------
     true :
@@ -5076,9 +5110,14 @@ def mod_agreement_index(true, predicted, treat_arrays: bool = True, j=1,
     return float(1 - (np.sum(a) / np.sum(e)))
 
 
-def mpe(true, predicted, treat_arrays: bool = True,
-        **treat_arrays_kws) -> float:
-    """ Mean Percentage Error
+def mpe(
+        true, 
+        predicted, 
+        treat_arrays: bool = True,
+        **treat_arrays_kws
+        ) -> float:
+    """Mean Percentage Error. The value is multiplied by 100 to reflect percentage.
+
     Parameters
     ----------
     true :
@@ -5185,13 +5224,20 @@ def nrmse_range(true, predicted, treat_arrays: bool = True,
     return float(rmse(true, predicted, treat_arrays=False) / (np.max(true) - np.min(true)))
 
 
-def nrmse_ipercentile(true, predicted, treat_arrays: bool = True, q1=25, q2=75,
-                      **treat_arrays_kws) -> float:
+def nrmse_ipercentile(
+        true, 
+        predicted, 
+        treat_arrays: bool = True, 
+        q1=25, 
+        q2=75,
+        **treat_arrays_kws
+        ) -> float:
     """
     RMSE normalized by inter percentile range of true. This is the least sensitive to outliers.
     q1: any interger between 1 and 99
     q2: any integer between 2 and 100. Should be greater than q1.
     Reference: Pontius et al., 2008.
+
     Parameters
     ----------
     true :
@@ -5309,7 +5355,9 @@ def log_prob(true, predicted, treat_arrays: bool = True,
 def rmdspe(true, predicted, treat_arrays: bool = True,
            **treat_arrays_kws) -> float:
     """
-    Root Median Squared Percentage Error
+    Root Median Squared Percentage Error. The percentage error is 
+    calulated as percentage instead of fraction by multilying with 100.
+
     Parameters
     ----------
     true :
@@ -5329,12 +5377,17 @@ def rmdspe(true, predicted, treat_arrays: bool = True,
     >>> rmdspe(t, p)
     """
     true, predicted = maybe_treat_arrays(treat_arrays, true, predicted, 'regression', **treat_arrays_kws)
-    return float(np.sqrt(np.median(np.square(_percentage_error(true, predicted)))) * 100.0)
+    return float(np.sqrt(np.median(np.square(_percentage_error(true, predicted)))))
 
 
-def rse(true, predicted, treat_arrays: bool = True,
-        **treat_arrays_kws) -> float:
+def rse(
+        true, 
+        predicted, 
+        treat_arrays: bool = True,
+        **treat_arrays_kws
+        ) -> float:
     """Relative Squared Error
+
     Parameters
     ----------
     true :
@@ -5409,6 +5462,7 @@ def rae(true, predicted, treat_arrays: bool = True,
 def ref_agreement_index(true, predicted, treat_arrays: bool = True,
                         **treat_arrays_kws) -> float:
     """Refined Index of Agreement. From -1 to 1. Larger the better.
+
     Refrence: Willmott et al., 2012
     Parameters
     ----------
@@ -5466,13 +5520,15 @@ def rel_agreement_index(true, predicted, treat_arrays: bool = True,
     return float(1 - (np.sum(a) / np.sum(e)))
 
 
-def relative_rmse(true, predicted, treat_arrays: bool = True,
+def relative_rmse(
+        true, predicted, treat_arrays: bool = True,
                   **treat_arrays_kws) -> float:
     """
     Relative Root Mean Squared Error
 
     .. math::
         RRMSE=\\frac{\\sqrt{\\frac{1}{N}\\sum_{i=1}^{N}(e_{i}-s_{i})^2}}{\\bar{e}}
+
     Parameters
     ----------
     true :
@@ -5522,16 +5578,28 @@ def rmspe(true, predicted, treat_arrays: bool = True,
     >>> rmspe(t, p)
     """
     true, predicted = maybe_treat_arrays(treat_arrays, true, predicted, 'regression', **treat_arrays_kws)
-    return float(np.sqrt(np.mean(np.square(((true - predicted) / true)), axis=0)))
+    return float(np.sqrt(np.mean(np.square(_percentage_error(true, predicted)), axis=0)))
 
 
-def rsr(true, predicted, treat_arrays: bool = True,
-        **treat_arrays_kws) -> float:
+def rsr(
+        true, 
+        predicted, 
+        treat_arrays: bool = True,
+        **treat_arrays_kws
+        ) -> float:
     """
-    Moriasi et al., 2007.
+    It is MSE normalized by standard deviation of true values. 
+    Following Moriasi et al., 2007. https://swat.tamu.edu/media/1312/moriasimodeleval.pdf
+
     It incorporates the benefits of error index statistics andincludes a
     scaling/normalization factor, so that the resulting statistic and reported
-    values can apply to various constitu-ents.
+    values can apply to various constitu-ents. It ranges from 0 to infinity, with
+    0-0.5 indicating very good model performance, 0.5-0.8 indicating good model
+    performance. 
+
+    Standard deviation is calculated using np.ntd(true, ddof=1) to match the results of
+    https://rdrr.io/cran/hydroGOF/man/rsr.html
+
     Parameters
     ----------
     true :
@@ -5551,7 +5619,7 @@ def rsr(true, predicted, treat_arrays: bool = True,
     >>> rsr(t, p)
     """
     true, predicted = maybe_treat_arrays(treat_arrays, true, predicted, 'regression', **treat_arrays_kws)
-    return float(rmse(predicted=predicted, true=true, treat_arrays=False) / np.std(true))
+    return float(rmse(predicted=predicted, true=true, treat_arrays=False) / np.std(true, ddof=1))
 
 
 def rmsse(true, predicted, treat_arrays: bool = True, seasonality: int = 1,
@@ -5687,6 +5755,9 @@ def smape(true, predicted, treat_arrays: bool = True,
     .. _from:
         https://stackoverflow.com/a/51440114/5982232
 
+    Goodwin and Lawton, 1999 : https://doi.org/10.1016/S0169-2070(99)00007-2
+    Flores et al., 1986 : https://doi.org/10.1016/0305-0483(86)90013-7
+        
     Parameters
     ----------
     true :
@@ -5839,7 +5910,8 @@ def std_ratio(true,
               std_kwargs: dict = None,
               **treat_arrays_kws
               ) -> float:
-    """ratio of standard deviations of predictions and trues.
+    """
+    Ratio of standard deviations of predictions and trues.
     Also known as standard ratio, it varies from 0.0 to infinity while
     1.0 being the perfect value.
 
@@ -5868,9 +5940,10 @@ def std_ratio(true,
     return float(np.std(predicted, **std_kwargs) / np.std(true, **std_kwargs))
 
 
-def umbrae(true, predicted, treat_arrays: bool = True, benchmark: np.ndarray = None,
+def umbrae(
+        true, predicted, treat_arrays: bool = True, benchmark: np.ndarray = None,
            **treat_arrays_kws):
-    """ Unscaled Mean Bounded Relative Absolute Error
+    """Unscaled Mean Bounded Relative Absolute Error
 
     Parameters
     ----------
@@ -5881,6 +5954,8 @@ def umbrae(true, predicted, treat_arrays: bool = True, benchmark: np.ndarray = N
          simulated values
     treat_arrays :
         process the true and predicted arrays using maybe_treat_arrays function
+    benchmark :
+
     Examples
     ---------
     >>> import numpy as np
@@ -5896,8 +5971,9 @@ def umbrae(true, predicted, treat_arrays: bool = True, benchmark: np.ndarray = N
 def ve(true, predicted, treat_arrays: bool = True,
        **treat_arrays_kws) -> float:
     """
-    Volumetric efficiency. from 0 to 1. Smaller the better.
+    Volumetric efficiency. Ranges from 0 to 1. Smaller the better.
     Reference: Criss and Winston 2008.
+
     Parameters
     ----------
     true :
@@ -5970,10 +6046,11 @@ def volume_error(true, predicted, treat_arrays: bool = True,
 def wape(true, predicted, treat_arrays: bool = True,
          **treat_arrays_kws) -> float:
     """
-    weighted absolute percentage error (wape_)
+    weighted absolute percentage error (wape_). The lower the better.
 
     It is a variation of mape but more suitable for intermittent and low-volume
     data_.
+
     .. _wape:
         https://mattdyor.wordpress.com/2018/05/23/calculating-wape/
 
@@ -6007,6 +6084,7 @@ def wape(true, predicted, treat_arrays: bool = True,
 def watt_m(true, predicted, treat_arrays: bool = True,
            **treat_arrays_kws) -> float:
     """Watterson's M.
+
     Refrence: Watterson., 1996
 
     Parameters
@@ -6034,7 +6112,8 @@ def watt_m(true, predicted, treat_arrays: bool = True,
     return float(a * np.arcsin(1 - (mse(true, predicted, treat_arrays=False) / f)))
 
 
-def wmape(true, predicted, treat_arrays: bool = True,
+def wmape(
+        true, predicted, treat_arrays: bool = True,
           **treat_arrays_kws) -> float:
     """
     Weighted Mean Absolute Percent Error_
@@ -6406,3 +6485,38 @@ def tweedie_deviance_score(
         return 2 * np.sum((true - predicted) ** 2 / (true ** 2 * predicted))
     else:
         raise ValueError("Invalid power value. Power must be 0 (Normal), 1 (Poisson), 2 (Gamma), or 3 (Inverse Gaussian).")
+
+
+def mre(
+        true,
+        predicted,
+        benchmark:np.ndarray = None,
+        treat_arrays: bool = True,
+        **treat_arrays_kws
+)->float:
+    """
+    mean relative error
+
+    Parameters
+    ----------
+    true :
+        True/observed/actual/target values. It must be a numpy array,
+        pandas series/DataFrame, or a list.
+    predicted :
+        Predicted values, same format as 'true'.
+    benchmark :
+    treat_arrays :
+        treat_arrays the true and predicted array
+
+    Examples
+    ---------
+    >>> import numpy as np
+    >>> from SeqMetrics import mre
+    >>> t = np.array([1, 2, 3, 4, 5])
+    >>> p = np.array([1.1, 1.9, 3.1, 4.2, 4.8])
+    >>> score = mre(t, p)
+    """
+
+    true, predicted = maybe_treat_arrays(treat_arrays, true, predicted, 'regression', **treat_arrays_kws)
+    re = _relative_error(true, predicted, benchmark)
+    return float(np.mean(re))
