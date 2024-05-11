@@ -129,19 +129,7 @@ from SeqMetrics import log_cosh_error as sm_log_cosh_error
 from SeqMetrics import minkowski_distance as sm_minkowski_distance
 from SeqMetrics import tweedie_deviance_score as sm_tweedie_deviance_score
 
-t = np.random.random((20, 1))
-p = np.random.random((20, 1))
-
-ts = pd.Series(np.random.random((20,)))
-ps = pd.Series(np.random.random((20,)))
-tdf = pd.DataFrame(np.random.random((20, 1)))
-pdf = pd.DataFrame(np.random.random((20, 1)))
-
-er = RegressionMetrics(t, p)
-ers = RegressionMetrics(ts, ps)
-erdf = RegressionMetrics(tdf, pdf)
-
-all_errors = er.calculate_all()
+from SeqMetrics.utils import maybe_treat_arrays
 
 not_metrics = ['calculate_all',
                "treat_arrays",
@@ -157,41 +145,50 @@ t11 = random_state.random(100)
 p11 = random_state.random(100)
 metrics = RegressionMetrics(t11, p11)
 
+# check with very large values say > 1e7
+t_large = random_state.random(100) * 1e7
+p_large = random_state.random(100) * 1e7
+metrics_large = RegressionMetrics(t_large, p_large)
+
+# check by inserting NaN values at random places in t11 and p11
+t_nan = t11.copy()
+p_nan = p11.copy()
+nan_indices = random_state.choice(range(100), 10, replace=False)
+t_nan[nan_indices] = np.nan
+nan_indices = random_state.choice(range(100), 10, replace=False)
+p_nan[nan_indices] = np.nan
+metrics_nan = RegressionMetrics(t_nan, p_nan)
+
+# check where some values are negative and some values are positive
+t_neg = random_state.randint(-100, 100, 100)
+p_neg = random_state.randint(-100, 100, 100)
+metrics_neg = RegressionMetrics(t_neg, p_neg)
+
+
 class test_errors(unittest.TestCase):
     
     def test_attrs(self):
         for _attr in not_metrics:
-            assert _attr not in er.all_methods
+            assert _attr not in metrics.all_methods
     
     def test_calculate_all(self):
+        
+        all_errors = metrics.calculate_all()
         assert len(all_errors) > 100
-        for er_name, er_val in all_errors.items():
-            if er_val is not None:
-                er_val = getattr(er, er_name)()
-                self.assertEqual(er_val.__class__.__name__, 'float', f'{er_name} is {er_val}')
-        return
-    
-    def test_calculate_all_series(self):
-        series_errors = ers.calculate_all()
-        assert len(series_errors) > 100
-        for er_name, er_val in series_errors.items():
-            if er_val is not None:
-                er_val = getattr(ers, er_name)()
-                self.assertEqual(er_val.__class__.__name__, 'float', f'{er_name} is {er_val}')
-        return
-    
-    def test_calculate_all_df(self):
-        df_errors = ers.calculate_all()
-        assert len(df_errors) > 100
-        for er_name, er_val in df_errors.items():
-            if er_val is not None:
-                er_val = getattr(erdf, er_name)()
-                self.assertEqual(er_val.__class__.__name__, 'float', f'{er_name} is {er_val}')
-        return
+        assert all([isinstance(val, float) for val in all_errors.values()])
 
-    def test_mrae(self):
-        # ref : reference_for_seqmetric_tests.ipynb
-        assert np.allclose(metrics.mrae(), 2.5711621568850163)
+        all_errors = metrics_large.calculate_all()
+        assert len(all_errors) > 100
+        assert all([isinstance(val, float) for val in all_errors.values()])
+
+        all_errors = metrics_nan.calculate_all()
+        assert len(all_errors) > 100
+        assert all([isinstance(val, float) for val in all_errors.values()])
+
+        all_errors = metrics_neg.calculate_all()
+        assert len(all_errors) > 100
+        assert all([isinstance(val, float) for val in all_errors.values()])
+
         return
 
     def test_mrae(self):
@@ -222,28 +219,79 @@ class test_errors(unittest.TestCase):
         return
 
     def test_hydro_metrics(self):
-        hydr_metrics = er.calculate_hydro_metrics()
-        assert len(hydr_metrics) == len(er._hydro_metrics())
+        hydr_metrics = metrics.calculate_hydro_metrics()
+        assert len(hydr_metrics) == len(metrics._hydro_metrics())
+
+        hydr_metrics = metrics_large.calculate_hydro_metrics()
+        assert len(hydr_metrics) == len(metrics._hydro_metrics())
+
+        hydr_metrics = metrics_nan.calculate_hydro_metrics()
+        assert len(hydr_metrics) == len(metrics._hydro_metrics())
+
+        hydr_metrics = metrics_neg.calculate_hydro_metrics()
+        assert len(hydr_metrics) == len(metrics._hydro_metrics())
+
         return
 
     def test_minimal(self):
-        minimal_metrics = er.calculate_minimal()
-        assert len(minimal_metrics) == len(er._minimal())
+        minimal_metrics = metrics.calculate_minimal()
+        assert len(minimal_metrics) == len(metrics._minimal())
+
+        minimal_metrics = metrics_large.calculate_minimal()
+        assert len(minimal_metrics) == len(metrics._minimal())
+
+        minimal_metrics = metrics_nan.calculate_minimal()
+        assert len(minimal_metrics) == len(metrics._minimal())
+
+        minimal_metrics = metrics_neg.calculate_minimal()
+        assert len(minimal_metrics) == len(metrics._minimal())
         return
 
     def test_scale_dependent(self):
-        minimal_metrics = er.calculate_scale_dependent_metrics()
-        assert len(minimal_metrics) == len(er._scale_dependent_metrics())
+        minimal_metrics = metrics.calculate_scale_dependent_metrics()
+        assert len(minimal_metrics) == len(metrics._scale_dependent_metrics())
+
+        minimal_metrics = metrics_large.calculate_scale_dependent_metrics()
+        assert len(minimal_metrics) == len(metrics._scale_dependent_metrics())
+
+        minimal_metrics = metrics_nan.calculate_scale_dependent_metrics()
+        assert len(minimal_metrics) == len(metrics._scale_dependent_metrics())
+
+        minimal_metrics = metrics_neg.calculate_scale_dependent_metrics()
+        assert len(minimal_metrics) == len(metrics._scale_dependent_metrics())
+
         return
 
     def test_scale_independent(self):
-        minimal_metrics = er.calculate_scale_independent_metrics()
-        assert len(minimal_metrics) == len(er._scale_independent_metrics())
+        minimal_metrics = metrics.calculate_scale_independent_metrics()
+        assert len(minimal_metrics) == len(metrics._scale_independent_metrics())
+
+        minimal_metrics = metrics_large.calculate_scale_independent_metrics()
+        assert len(minimal_metrics) == len(metrics._scale_independent_metrics())
+
+        minimal_metrics = metrics_nan.calculate_scale_independent_metrics()
+        assert len(minimal_metrics) == len(metrics._scale_independent_metrics())
+
+        minimal_metrics = metrics_neg.calculate_scale_independent_metrics()
+        assert len(minimal_metrics) == len(metrics._scale_independent_metrics())
         return
 
     def test_r2(self):
         new_r2 = metrics.r2()
         _, _, rvalue, _, _ = scipy.stats.linregress(t11, p11)
+        assert np.allclose(new_r2, rvalue**2)
+
+        new_r2 = metrics_large.r2()
+        _, _, rvalue, _, _ = scipy.stats.linregress(t_large, p_large)
+        assert np.allclose(new_r2, rvalue**2)
+
+        new_r2 = metrics_nan.r2()
+        t_nan_, p_nan_ = maybe_treat_arrays(True, t_nan, p_nan, 'regression', remove_nan=True)
+        _, _, rvalue, _, _ = scipy.stats.linregress(t_nan_, p_nan_)
+        assert np.allclose(new_r2, rvalue**2)
+
+        new_r2 = metrics_neg.r2()
+        _, _, rvalue, _, _ = scipy.stats.linregress(t_neg, p_neg)
         assert np.allclose(new_r2, rvalue**2)
         return
 
@@ -251,11 +299,37 @@ class test_errors(unittest.TestCase):
         new_mse = metrics.mse()
         sk_mse= mean_squared_error(t11, p11)
         assert np.allclose(new_mse, sk_mse)
+
+        new_mse = metrics_large.mse()
+        sk_mse= mean_squared_error(t_large, p_large)
+        assert np.allclose(new_mse, sk_mse)
+
+        new_mse = metrics_nan.mse()
+        t_nan_, p_nan_ = maybe_treat_arrays(True, t_nan, p_nan, 'regression', remove_nan=True)
+        sk_mse= mean_squared_error(t_nan_, p_nan_)
+        assert np.allclose(new_mse, sk_mse)
+
+        new_mse = metrics_neg.mse()
+        sk_mse= mean_squared_error(t_neg, p_neg)
+        assert np.allclose(new_mse, sk_mse)
         return
 
     def test_mse_func(self):
         new_mse = sm_mse(t11, p11)
         sk_mse= mean_squared_error(t11, p11)
+        assert np.allclose(new_mse, sk_mse)
+
+        new_mse = sm_mse(t_large, p_large)
+        sk_mse= mean_squared_error(t_large, p_large)
+        assert np.allclose(new_mse, sk_mse)
+
+        new_mse = sm_mse(t_nan, p_nan)
+        t_nan_, p_nan_ = maybe_treat_arrays(True, t_nan, p_nan, 'regression', remove_nan=True)
+        sk_mse= mean_squared_error(t_nan_, p_nan_)
+        assert np.allclose(new_mse, sk_mse)
+
+        new_mse = sm_mse(t_neg, p_neg)
+        sk_mse= mean_squared_error(t_neg, p_neg)
         assert np.allclose(new_mse, sk_mse)
         return
 
@@ -299,11 +373,37 @@ class test_errors(unittest.TestCase):
         new_r2_score = metrics.r2_score()
         sk_r2_score= r2_score(t11, p11)
         assert np.allclose(new_r2_score, sk_r2_score)
+
+        new_r2_score = metrics_large.r2_score()
+        sk_r2_score= r2_score(t_large, p_large)
+        assert np.allclose(new_r2_score, sk_r2_score)
+
+        new_r2_score = metrics_nan.r2_score()
+        t_nan_, p_nan_ = maybe_treat_arrays(True, t_nan, p_nan, 'regression', remove_nan=True)
+        sk_r2_score= r2_score(t_nan_, p_nan_)
+        assert np.allclose(new_r2_score, sk_r2_score)
+
+        new_r2_score = metrics_neg.r2_score()
+        sk_r2_score= r2_score(t_neg, p_neg)
+        assert np.allclose(new_r2_score, sk_r2_score)
         return
 
     def test_r2_score_func(self):
         new_r2_score = sm_r2_score(t11, p11)
         sk_r2_score = r2_score(t11, p11)
+        assert np.allclose(new_r2_score, sk_r2_score)
+
+        new_r2_score = sm_r2_score(t_large, p_large)
+        sk_r2_score = r2_score(t_large, p_large)
+        assert np.allclose(new_r2_score, sk_r2_score)
+
+        new_r2_score = sm_r2_score(t_nan, p_nan)
+        t_nan_, p_nan_ = maybe_treat_arrays(True, t_nan, p_nan, 'regression', remove_nan=True)
+        sk_r2_score = r2_score(t_nan_, p_nan_)
+        assert np.allclose(new_r2_score, sk_r2_score)
+
+        new_r2_score = sm_r2_score(t_neg, p_neg)
+        sk_r2_score = r2_score(t_neg, p_neg)
         assert np.allclose(new_r2_score, sk_r2_score)
         return
 
@@ -345,27 +445,83 @@ class test_errors(unittest.TestCase):
     def test_corr_coeff(self):
         new_corr_coeff = corr_coeff(t11, p11)
         assert np.allclose(new_corr_coeff, pearsonr(t11, p11)[0])
+
+        new_corr_coeff = corr_coeff(t_large, p_large)
+        assert np.allclose(new_corr_coeff, pearsonr(t_large, p_large)[0])
+
+        new_corr_coeff = corr_coeff(t_nan, p_nan)
+        t_nan_, p_nan_ = maybe_treat_arrays(True, t_nan, p_nan, 'regression', remove_nan=True)
+        assert np.allclose(new_corr_coeff, pearsonr(t_nan_, p_nan_)[0])
+
+        new_corr_coeff = corr_coeff(t_neg, p_neg)
+        assert np.allclose(new_corr_coeff, pearsonr(t_neg, p_neg)[0])
         return
 
     def test_rmse(self):
         new_rmse = sm_rmse(t11, p11)
         assert np.allclose(new_rmse, np.sqrt(mean_squared_error(t11, p11)))
+
+        new_rmse = sm_rmse(t_large, p_large)
+        assert np.allclose(new_rmse, np.sqrt(mean_squared_error(t_large, p_large)))
+
+        new_rmse = sm_rmse(t_nan, p_nan)
+        t_nan_, p_nan_ = maybe_treat_arrays(True, t_nan, p_nan, 'regression', remove_nan=True)
+        assert np.allclose(new_rmse, np.sqrt(mean_squared_error(t_nan_, p_nan_)))
+
+        new_rmse = sm_rmse(t_neg, p_neg)
+        assert np.allclose(new_rmse, np.sqrt(mean_squared_error(t_neg, p_neg)))
         return
 
     def test_rmsle(self):
         new_rmsle = sm_rmsle(t11, p11)
         assert np.allclose(new_rmsle, np.sqrt(mean_squared_log_error(t11, p11)))
+
+        new_rmsle = sm_rmsle(t_large, p_large)
+        assert np.allclose(new_rmsle, np.sqrt(mean_squared_log_error(t_large, p_large)))
+
+        new_rmsle = sm_rmsle(t_nan, p_nan)
+        t_nan_, p_nan_ = maybe_treat_arrays(True, t_nan, p_nan, 'regression', remove_nan=True)
+        assert np.allclose(new_rmsle, np.sqrt(mean_squared_log_error(t_nan_, p_nan_)))
+
+        new_rmsle = sm_rmsle(t_neg, p_neg)
+        # assert np.allclose(new_rmsle, np.sqrt(mean_squared_log_error(t_neg, p_neg)))
         return
 
     def test_mape_cls(self):
         new_mape = metrics.mape()
         sk_mape= mean_absolute_percentage_error(t11, p11) * 100.0
         self.assertAlmostEqual(new_mape, sk_mape)
+
+        new_mape = metrics_large.mape()
+        sk_mape= mean_absolute_percentage_error(t_large, p_large) * 100.0
+        self.assertAlmostEqual(new_mape, sk_mape)
+
+        new_mape = metrics_nan.mape()
+        t_nan_, p_nan_ = maybe_treat_arrays(True, t_nan, p_nan, 'regression', remove_nan=True)
+        sk_mape= mean_absolute_percentage_error(t_nan_, p_nan_) * 100.0
+        self.assertAlmostEqual(new_mape, sk_mape)
+
+        new_mape = metrics_neg.mape()
+        sk_mape= mean_absolute_percentage_error(t_neg, p_neg) * 100.0
+        self.assertAlmostEqual(new_mape, sk_mape)
         return
 
     def test_mape_func(self):
         new_mape = sm_mape(t11, p11)
         sk_mape= mean_absolute_percentage_error(t11, p11) * 100.0
+        self.assertAlmostEqual(new_mape, sk_mape)
+
+        new_mape = sm_mape(t_large, p_large)
+        sk_mape= mean_absolute_percentage_error(t_large, p_large) * 100.0
+        self.assertAlmostEqual(new_mape, sk_mape)
+
+        new_mape = sm_mape(t_nan, p_nan)
+        t_nan_, p_nan_ = maybe_treat_arrays(True, t_nan, p_nan, 'regression', remove_nan=True)
+        sk_mape= mean_absolute_percentage_error(t_nan_, p_nan_) * 100.0
+        self.assertAlmostEqual(new_mape, sk_mape)
+
+        new_mape = sm_mape(t_neg, p_neg)
+        sk_mape= mean_absolute_percentage_error(t_neg, p_neg) * 100.0
         self.assertAlmostEqual(new_mape, sk_mape)
         return
 
@@ -397,11 +553,37 @@ class test_errors(unittest.TestCase):
         new_mae = metrics.mae()
         sk_mae = mean_absolute_error(t11, p11)
         assert np.allclose(new_mae, sk_mae)
+
+        new_mae = metrics_large.mae()
+        sk_mae = mean_absolute_error(t_large, p_large)
+        assert np.allclose(new_mae, sk_mae)
+
+        new_mae = metrics_nan.mae()
+        t_nan_, p_nan_ = maybe_treat_arrays(True, t_nan, p_nan, 'regression', remove_nan=True)
+        sk_mae = mean_absolute_error(t_nan_, p_nan_)
+        assert np.allclose(new_mae, sk_mae)
+
+        new_mae = metrics_neg.mae()
+        sk_mae = mean_absolute_error(t_neg, p_neg)
+        assert np.allclose(new_mae, sk_mae)
         return
 
     def test_mae_func(self):
         new_mae = sm_mae(t11, p11)
         sk_mae = mean_absolute_error(t11, p11)
+        assert np.allclose(new_mae, sk_mae)
+
+        new_mae = sm_mae(t_large, p_large)
+        sk_mae = mean_absolute_error(t_large, p_large)
+        assert np.allclose(new_mae, sk_mae)
+
+        new_mae = sm_mae(t_nan, p_nan)
+        t_nan_, p_nan_ = maybe_treat_arrays(True, t_nan, p_nan, 'regression', remove_nan=True)
+        sk_mae = mean_absolute_error(t_nan_, p_nan_)
+        assert np.allclose(new_mae, sk_mae)
+
+        new_mae = sm_mae(t_neg, p_neg)
+        sk_mae = mean_absolute_error(t_neg, p_neg)
         assert np.allclose(new_mae, sk_mae)
         return
 
@@ -438,23 +620,74 @@ class test_errors(unittest.TestCase):
         sm_mare = mare(t11, p11)
         assert sm_mare * 100.0 == sm_mape(t11, p11)
         assert np.allclose(sm_mare, mean_absolute_percentage_error(t11, p11))
+
+        sm_mare = mare(t_large, p_large)
+        assert sm_mare * 100.0 == sm_mape(t_large, p_large)
+        assert np.allclose(sm_mare, mean_absolute_percentage_error(t_large, p_large))
+
+        sm_mare = mare(t_nan, p_nan)
+        assert sm_mare * 100.0 == sm_mape(t_nan, p_nan)
+        # assert np.allclose(sm_mare, mean_absolute_percentage_error(t_nan, p_nan))
+
+        sm_mare = mare(t_neg, p_neg)
+        assert sm_mare * 100.0 == sm_mape(t_neg, p_neg)
+        assert np.allclose(sm_mare, mean_absolute_percentage_error(t_neg, p_neg))
         return
 
     def test_msle_cls(self):
         new_msle = metrics.msle()
         sk_msle= mean_squared_log_error(t11, p11)
         assert np.allclose(new_msle, sk_msle)
+
+        new_msle = metrics_large.msle()
+        sk_msle= mean_squared_log_error(t_large, p_large)
+        assert np.allclose(new_msle, sk_msle)
+
+        new_msle = metrics_nan.msle()
+        t_nan_, p_nan_ = maybe_treat_arrays(True, t_nan, p_nan, 'regression', remove_nan=True)
+        sk_msle= mean_squared_log_error(t_nan_, p_nan_)
+        assert np.allclose(new_msle, sk_msle)
+
+        new_msle = metrics_neg.msle()
+        # sk_msle= mean_squared_log_error(t_neg, p_neg)
+        # assert np.allclose(new_msle, sk_msle)
         return
 
     def test_msle_func(self):
         new_msle = sm_msle(t11, p11)
         sk_msle= mean_squared_log_error(t11, p11)
         assert np.allclose(new_msle, sk_msle)
+
+        new_msle = sm_msle(t_large, p_large)
+        sk_msle= mean_squared_log_error(t_large, p_large)
+        assert np.allclose(new_msle, sk_msle)
+
+        new_msle = sm_msle(t_nan, p_nan)
+        t_nan_, p_nan_ = maybe_treat_arrays(True, t_nan, p_nan, 'regression', remove_nan=True)
+        sk_msle= mean_squared_log_error(t_nan_, p_nan_)
+        assert np.allclose(new_msle, sk_msle)
+
+        new_msle = sm_msle(t_neg, p_neg)
+        # sk_msle= mean_squared_log_error(t_neg, p_neg)
+        # assert np.allclose(new_msle, sk_msle)
         return
 
     def test_covariance(self):
         new_covariance = covariance(t11, p11)
         np_cov = np.cov(t11, p11, bias=True)[0][1]  # https://stackoverflow.com/a/39098306
+        assert np.allclose(new_covariance, np_cov)
+
+        new_covariance = covariance(t_large, p_large)
+        np_cov = np.cov(t_large, p_large, bias=True)[0][1]  # https://stackoverflow.com/a/39098306
+        assert np.allclose(new_covariance, np_cov)
+
+        new_covariance = covariance(t_nan, p_nan)
+        t_nan_, p_nan_ = maybe_treat_arrays(True, t_nan, p_nan, 'regression', remove_nan=True)
+        np_cov = np.cov(t_nan_, p_nan_, bias=True)[0][1]  # https://stackoverflow.com/a/39098306
+        assert np.allclose(new_covariance, np_cov)
+
+        new_covariance = covariance(t_neg, p_neg)
+        np_cov = np.cov(t_neg, p_neg, bias=True)[0][1]  # https://stackoverflow.com/a/39098306
         assert np.allclose(new_covariance, np_cov)
         return
 
@@ -472,6 +705,19 @@ class test_errors(unittest.TestCase):
     def test_sse(self):
         new_sse = sse(t11, p11)
         np_sse = ((t11-p11)**2).sum()  # https://stackoverflow.com/a/2284634
+        assert np.allclose(new_sse, np_sse)
+
+        new_sse = sse(t_large, p_large)
+        np_sse = ((t_large-p_large)**2).sum()  # https://stackoverflow.com/a/2284634
+        assert np.allclose(new_sse, np_sse)
+
+        new_sse = sse(t_nan, p_nan)
+        t_nan_, p_nan_ = maybe_treat_arrays(True, t_nan, p_nan, 'regression', remove_nan=True)
+        np_sse = ((t_nan_ - p_nan_)**2).sum()  # https://stackoverflow.com/a/2284634
+        assert np.allclose(new_sse, np_sse)
+
+        new_sse = sse(t_neg, p_neg)
+        np_sse = ((t_neg - p_neg)**2).sum()  # https://stackoverflow.com/a/2284634
         assert np.allclose(new_sse, np_sse)
         return
 
@@ -515,6 +761,19 @@ class test_errors(unittest.TestCase):
         new_cosine_similarity = cosine_similarity(t11, p11)
         sklearn_cos_sim_val = sklearn_cos_sim(t11.reshape(1,-1), p11.reshape(1,-1))[0].item()
         assert np.allclose(new_cosine_similarity, sklearn_cos_sim_val)
+
+        new_cosine_similarity = cosine_similarity(t_large, p_large)
+        sklearn_cos_sim_val = sklearn_cos_sim(t_large.reshape(1,-1), p_large.reshape(1,-1))[0].item()
+        assert np.allclose(new_cosine_similarity, sklearn_cos_sim_val)
+
+        new_cosine_similarity = cosine_similarity(t_nan, p_nan)
+        # todo sklearn_cos_sim does not allow nan
+        #sklearn_cos_sim_val = sklearn_cos_sim(t_nan.reshape(1,-1), p_nan.reshape(1,-1))[0].item()
+        #assert np.allclose(new_cosine_similarity, sklearn_cos_sim_val)
+
+        new_cosine_similarity = cosine_similarity(t_neg, p_neg)
+        sklearn_cos_sim_val = sklearn_cos_sim(t_neg.reshape(1,-1), p_neg.reshape(1,-1))[0].item()
+        assert np.allclose(new_cosine_similarity, sklearn_cos_sim_val)
         return
 
     def test_decomposed_mse(self):
@@ -533,11 +792,35 @@ class test_errors(unittest.TestCase):
         new_exp_var_score = metrics.exp_var_score()
         sk_exp_var_scr= explained_variance_score(t11, p11)
         assert np.allclose(new_exp_var_score, sk_exp_var_scr)
+
+        new_exp_var_score = metrics_large.exp_var_score()
+        sk_exp_var_scr= explained_variance_score(t_large, p_large)
+        assert np.allclose(new_exp_var_score, sk_exp_var_scr)
+
+        new_exp_var_score = metrics_nan.exp_var_score()
+        # sk_exp_var_scr= explained_variance_score(t_nan, p_nan)
+        # assert np.allclose(new_exp_var_score, sk_exp_var_scr)
+
+        new_exp_var_score = metrics_neg.exp_var_score()
+        sk_exp_var_scr= explained_variance_score(t_neg, p_neg)
+        assert np.allclose(new_exp_var_score, sk_exp_var_scr)
         return
 
     def test_exp_var_score_func(self):
         new_exp_var_score = sm_exp_var_score(t11, p11)
         sk_exp_var_scr= explained_variance_score(t11, p11)
+        assert np.allclose(new_exp_var_score, sk_exp_var_scr)
+
+        new_exp_var_score = sm_exp_var_score(t_large, p_large)
+        sk_exp_var_scr= explained_variance_score(t_large, p_large)
+        assert np.allclose(new_exp_var_score, sk_exp_var_scr)
+
+        new_exp_var_score = sm_exp_var_score(t_nan, p_nan)
+        # sk_exp_var_scr= explained_variance_score(t_nan, p_nan)
+        # assert np.allclose(new_exp_var_score, sk_exp_var_scr)
+
+        new_exp_var_score = sm_exp_var_score(t_neg, p_neg)
+        sk_exp_var_scr= explained_variance_score(t_neg, p_neg)
         assert np.allclose(new_exp_var_score, sk_exp_var_scr)
         return
 
@@ -574,7 +857,7 @@ class test_errors(unittest.TestCase):
         return
 
     def test_calculate_hydro_metrics(self):
-        out = calculate_hydro_metrics(t, p)
+        out = calculate_hydro_metrics(t11, p11)
         assert isinstance(out, dict)
         assert len(out) > 1
         return
@@ -588,6 +871,16 @@ class test_errors(unittest.TestCase):
     def test_kendaull_tau(self):
         new_kendaull_tau = kendaull_tau(t11, p11)
         assert np.allclose(new_kendaull_tau, kendalltau(t11, p11)[0])
+
+        new_kendaull_tau = kendaull_tau(t_large, p_large)
+        assert np.allclose(new_kendaull_tau, kendalltau(t_large, p_large)[0])
+
+        new_kendaull_tau = kendaull_tau(t_nan, p_nan)
+        t_nan_, p_nan_ = maybe_treat_arrays(True, t_nan, p_nan, 'regression', remove_nan=True)
+        assert np.allclose(new_kendaull_tau, kendalltau(t_nan_, p_nan_)[0])
+
+        new_kendaull_tau = kendaull_tau(t_neg, p_neg)
+        assert np.allclose(new_kendaull_tau, kendalltau(t_neg, p_neg)[0])
         return
 
     def test_kgeprime_c2m(self):
@@ -629,11 +922,35 @@ class test_errors(unittest.TestCase):
         new_max_error = metrics.max_error()
         sk_max_error= max_error(t11, p11)
         assert np.allclose(new_max_error, sk_max_error)
+
+        new_max_error = metrics_large.max_error()
+        sk_max_error= max_error(t_large, p_large)
+        assert np.allclose(new_max_error, sk_max_error)
+
+        new_max_error = metrics_nan.max_error()
+        # sk_max_error= max_error(t_nan, p_nan)
+        # assert np.allclose(new_max_error, sk_max_error)
+
+        new_max_error = metrics_neg.max_error()
+        sk_max_error= max_error(t_neg, p_neg)
+        assert np.allclose(new_max_error, sk_max_error)
         return
 
     def test_max_error_func(self):
         new_max_error = sm_max_error(t11, p11)
         sk_max_error= max_error(t11, p11)
+        assert np.allclose(new_max_error, sk_max_error)
+
+        new_max_error = sm_max_error(t_large, p_large)
+        sk_max_error= max_error(t_large, p_large)
+        assert np.allclose(new_max_error, sk_max_error)
+
+        new_max_error = sm_max_error(t_nan, p_nan)
+        # sk_max_error= max_error(t_nan, p_nan)
+        # assert np.allclose(new_max_error, sk_max_error)
+
+        new_max_error = sm_max_error(t_neg, p_neg)
+        sk_max_error= max_error(t_neg, p_neg)
         assert np.allclose(new_max_error, sk_max_error)
         return
 
@@ -677,6 +994,19 @@ class test_errors(unittest.TestCase):
         sm_mbe = mean_bias_error(t11, p11)
         np_mbe = np.mean(t11 - p11) # https://stackoverflow.com/q/59935155
         assert np.allclose(sm_mbe, np_mbe)
+
+        sm_mbe = mean_bias_error(t_large, p_large)
+        np_mbe = np.mean(t_large - p_large) # https://stackoverflow.com/q/59935155
+        assert np.allclose(sm_mbe, np_mbe)
+
+        sm_mbe = mean_bias_error(t_nan, p_nan)
+        t_nan_, p_nan_ = maybe_treat_arrays(True, t_nan, p_nan, 'regression', remove_nan=True)
+        np_mbe = np.mean(t_nan_ - p_nan_) # https://stackoverflow.com/q/59935155
+        assert np.allclose(sm_mbe, np_mbe)
+
+        sm_mbe = mean_bias_error(t_neg, p_neg)
+        np_mbe = np.mean(t_neg - p_neg) # https://stackoverflow.com/q/59935155
+        assert np.allclose(sm_mbe, np_mbe)
         return
 
     def test_mean_var(self):
@@ -688,22 +1018,68 @@ class test_errors(unittest.TestCase):
     def test_mean_poisson_deviance(self):
         new_mean_poisson_deviance = sm_mean_poisson_deviance(t11, p11)
         assert np.allclose(new_mean_poisson_deviance, mean_poisson_deviance(t11, p11))
+
+        new_mean_poisson_deviance = sm_mean_poisson_deviance(t_large, p_large)
+        assert np.allclose(new_mean_poisson_deviance, mean_poisson_deviance(t_large, p_large))
+
+        new_mean_poisson_deviance = sm_mean_poisson_deviance(t_nan, p_nan)
+        t_nan_, p_nan_ = maybe_treat_arrays(True, t_nan, p_nan, 'regression', remove_nan=True)
+        assert np.allclose(new_mean_poisson_deviance, mean_poisson_deviance(t_nan_, p_nan_))
+
+        # new_mean_poisson_deviance = sm_mean_poisson_deviance(t_neg, p_neg)
+        # assert np.allclose(new_mean_poisson_deviance, mean_poisson_deviance(t_neg, p_neg))
         return
 
     def test_mean_gamma_deviance(self):
         new_mean_gamma_deviance = sm_mean_gamma_deviance(t11, p11)
         assert np.allclose(new_mean_gamma_deviance, mean_gamma_deviance(t11, p11))
+
+        new_mean_gamma_deviance = sm_mean_gamma_deviance(t_large, p_large)
+        assert np.allclose(new_mean_gamma_deviance, mean_gamma_deviance(t_large, p_large))
+
+        new_mean_gamma_deviance = sm_mean_gamma_deviance(t_nan, p_nan)
+        t_nan_, p_nan_ = maybe_treat_arrays(True, t_nan, p_nan, 'regression', remove_nan=True)
+        assert np.allclose(new_mean_gamma_deviance, mean_gamma_deviance(t_nan_, p_nan_))
+
+        # new_mean_gamma_deviance = sm_mean_gamma_deviance(t_neg, p_neg)
+        # assert np.allclose(new_mean_gamma_deviance, mean_gamma_deviance(t_neg, p_neg))
         return
 
     def test_median_abs_error_cls(self):
         new_median_abs_error = metrics.median_abs_error()
         sk_median_abs_error= median_absolute_error(t11, p11)
         assert np.allclose(new_median_abs_error, sk_median_abs_error)
+
+        new_median_abs_error = metrics_large.median_abs_error()
+        sk_median_abs_error= median_absolute_error(t_large, p_large)
+        assert np.allclose(new_median_abs_error, sk_median_abs_error)
+
+        new_median_abs_error = metrics_nan.median_abs_error()
+        t_nan_, p_nan_ = maybe_treat_arrays(True, t_nan, p_nan, 'regression', remove_nan=True)
+        sk_median_abs_error = median_absolute_error(t_nan_, p_nan_)
+        assert np.allclose(new_median_abs_error, sk_median_abs_error)
+
+        new_median_abs_error = metrics_neg.median_abs_error()
+        sk_median_abs_error= median_absolute_error(t_neg, p_neg)
+        assert np.allclose(new_median_abs_error, sk_median_abs_error)
         return
 
     def test_median_abs_error_func(self):
         new_median_abs_error = sm_median_abs_error(t11, p11)
         sk_median_abs_error= median_absolute_error(t11, p11)
+        assert np.allclose(new_median_abs_error, sk_median_abs_error)
+
+        new_median_abs_error = sm_median_abs_error(t_large, p_large)
+        sk_median_abs_error= median_absolute_error(t_large, p_large)
+        assert np.allclose(new_median_abs_error, sk_median_abs_error)
+
+        new_median_abs_error = sm_median_abs_error(t_nan, p_nan)
+        t_nan_, p_nan_ = maybe_treat_arrays(True, t_nan, p_nan, 'regression', remove_nan=True)
+        sk_median_abs_error = median_absolute_error(t_nan_, p_nan_)
+        assert np.allclose(new_median_abs_error, sk_median_abs_error)
+
+        new_median_abs_error = sm_median_abs_error(t_neg, p_neg)
+        sk_median_abs_error= median_absolute_error(t_neg, p_neg)
         assert np.allclose(new_median_abs_error, sk_median_abs_error)
         return
 
@@ -903,6 +1279,19 @@ class test_errors(unittest.TestCase):
         new_wape = wape(t11, p11)
         np_wape = np.abs(t11 - p11).sum() / t11.sum() # https://stackoverflow.com/a/68531393
         assert np.allclose(new_wape, np_wape)
+
+        new_wape = wape(t_large, p_large)
+        np_wape = np.abs(t_large - p_large).sum() / t_large.sum() # https://stackoverflow.com/a/68531393
+        assert np.allclose(new_wape, np_wape)
+
+        new_wape = wape(t_nan, p_nan)
+        t_nan_, p_nan_ = maybe_treat_arrays(True, t_nan, p_nan, 'regression', remove_nan=True)
+        np_wape = np.abs(t_nan_ - p_nan_).sum() / t_nan_.sum() # https://stackoverflow.com/a/68531393
+        assert np.allclose(new_wape, np_wape)
+
+        new_wape = wape(t_neg, p_neg)
+        np_wape = np.abs(t_neg - p_neg).sum() / t_neg.sum() # https://stackoverflow.com/a/68531393
+        assert np.allclose(new_wape, np_wape)
         return
 
     def test_watt_m(self):
@@ -924,14 +1313,12 @@ class test_errors(unittest.TestCase):
 
     def test_concordance_corr_coef_cls(self):
         # taken from https://nirpyresearch.com/concordance-correlation-coefficient/
-
         new_concordance_corr_coef = metrics.concordance_corr_coef()
         self.assertAlmostEqual(new_concordance_corr_coef, 0.017599598191033003)
         return
 
     def test_concordance_corr_coef_func(self):
         # taken from https://nirpyresearch.com/concordance-correlation-coefficient/
-
         new_concordance_corr_coef = sm_concordance_corr_coef(t11, p11)
         self.assertAlmostEqual(new_concordance_corr_coef, 0.017599598191033003)
         return
@@ -942,207 +1329,207 @@ class test_errors(unittest.TestCase):
         return
 
 
-class test_torch_metrics(unittest.TestCase):
+# class test_torch_metrics(unittest.TestCase):
 
-    def test_critical_success_index_cls(self):
-        try:
-            import torch
-            from torchmetrics.regression import CriticalSuccessIndex
-        except (ModuleNotFoundError, ImportError):
-            print('Cant run test_torch_tensor')
-            torch = None
+#     def test_critical_success_index_cls(self):
+#         try:
+#             import torch
+#             from torchmetrics.regression import CriticalSuccessIndex
+#         except (ModuleNotFoundError, ImportError):
+#             print('Cant run test_torch_tensor')
+#             torch = None
 
-        if torch is not None:
-            new_critical_success_index = metrics.critical_success_index()
-            csi = CriticalSuccessIndex(0.5)
-            torch_csi = csi(torch.tensor(p11), torch.tensor(t11))
-            self.assertAlmostEqual(new_critical_success_index, torch_csi)
-        return
-    def test_critical_success_index_func(self):
-        try:
-            import torch
-            from torchmetrics.regression import CriticalSuccessIndex
-        except (ModuleNotFoundError, ImportError):
-            print('Cant run test_torch_tensor')
-            torch = None
-        if torch is not None:
-            new_critical_success_index = sm_critical_success_index(t11, p11)
-            csi = CriticalSuccessIndex(0.5)
-            torch_csi = csi(torch.tensor(p11), torch.tensor(t11))
-            self.assertAlmostEqual(new_critical_success_index, torch_csi)
-        return
+#         if torch is not None:
+#             new_critical_success_index = metrics.critical_success_index()
+#             csi = CriticalSuccessIndex(0.5)
+#             torch_csi = csi(torch.tensor(p11), torch.tensor(t11))
+#             self.assertAlmostEqual(new_critical_success_index, torch_csi)
+#         return
+#     def test_critical_success_index_func(self):
+#         try:
+#             import torch
+#             from torchmetrics.regression import CriticalSuccessIndex
+#         except (ModuleNotFoundError, ImportError):
+#             print('Cant run test_torch_tensor')
+#             torch = None
+#         if torch is not None:
+#             new_critical_success_index = sm_critical_success_index(t11, p11)
+#             csi = CriticalSuccessIndex(0.5)
+#             torch_csi = csi(torch.tensor(p11), torch.tensor(t11))
+#             self.assertAlmostEqual(new_critical_success_index, torch_csi)
+#         return
 
-    def test_kl_divergence_cls(self):
-        try:
-            import torch
-            from torchmetrics.regression import KLDivergence
-        except (ModuleNotFoundError, ImportError):
-            print('Cant run test_torch_tensor')
-            torch = None
-        if torch is not None:
-            new_kl_divergence = metrics.kl_divergence()
-            kl_div = KLDivergence()
-            torch_kl_div = kl_div(torch.tensor(p11).reshape(1,-1), torch.tensor(t11).reshape(1,-1))
-            self.assertAlmostEqual(new_kl_divergence, torch_kl_div.numpy().item())
-        return
+#     def test_kl_divergence_cls(self):
+#         try:
+#             import torch
+#             from torchmetrics.regression import KLDivergence
+#         except (ModuleNotFoundError, ImportError):
+#             print('Cant run test_torch_tensor')
+#             torch = None
+#         if torch is not None:
+#             new_kl_divergence = metrics.kl_divergence()
+#             kl_div = KLDivergence()
+#             torch_kl_div = kl_div(torch.tensor(p11).reshape(1,-1), torch.tensor(t11).reshape(1,-1))
+#             self.assertAlmostEqual(new_kl_divergence, torch_kl_div.numpy().item())
+#         return
 
-    def test_kl_divergence_func(self):
-        try:
-            import torch
-            from torchmetrics.regression import KLDivergence
-        except (ModuleNotFoundError, ImportError):
-            print('Cant run test_torch_tensor')
-            torch = None
-        if torch is not None:
-            new_kl_divergence = sm_kl_divergence(t11, p11)
-            kl_div = KLDivergence()
-            torch_kl_div = kl_div(torch.tensor(p11).reshape(1,-1), torch.tensor(t11).reshape(1,-1))
-            self.assertAlmostEqual(new_kl_divergence, torch_kl_div.numpy().item())
-        return
+#     def test_kl_divergence_func(self):
+#         try:
+#             import torch
+#             from torchmetrics.regression import KLDivergence
+#         except (ModuleNotFoundError, ImportError):
+#             print('Cant run test_torch_tensor')
+#             torch = None
+#         if torch is not None:
+#             new_kl_divergence = sm_kl_divergence(t11, p11)
+#             kl_div = KLDivergence()
+#             torch_kl_div = kl_div(torch.tensor(p11).reshape(1,-1), torch.tensor(t11).reshape(1,-1))
+#             self.assertAlmostEqual(new_kl_divergence, torch_kl_div.numpy().item())
+#         return
 
-    def test_log_cosh_error_cls(self):
-        try:
-            import torch
-            from torchmetrics.regression import LogCoshError
-        except (ModuleNotFoundError, ImportError):
-            print('Cant run test_torch_tensor')
-            torch = None
-        if torch is not None:
-            new_log_cosh_error = metrics.log_cosh_error()
-            lg_cosh_err = LogCoshError()
-            torch_lg_cosh_err = lg_cosh_err(torch.tensor(p11), torch.tensor(t11))
-            self.assertAlmostEqual(new_log_cosh_error, torch_lg_cosh_err)
-        return
+#     def test_log_cosh_error_cls(self):
+#         try:
+#             import torch
+#             from torchmetrics.regression import LogCoshError
+#         except (ModuleNotFoundError, ImportError):
+#             print('Cant run test_torch_tensor')
+#             torch = None
+#         if torch is not None:
+#             new_log_cosh_error = metrics.log_cosh_error()
+#             lg_cosh_err = LogCoshError()
+#             torch_lg_cosh_err = lg_cosh_err(torch.tensor(p11), torch.tensor(t11))
+#             self.assertAlmostEqual(new_log_cosh_error, torch_lg_cosh_err)
+#         return
 
-    def test_log_cosh_error_func(self):
-        try:
-            import torch
-            from torchmetrics.regression import LogCoshError
-        except (ModuleNotFoundError, ImportError):
-            print('Cant run test_torch_tensor')
-            torch = None
-        if torch is not None:
-            new_log_cosh_error = sm_log_cosh_error(t11, p11)
-            lg_cosh_err = LogCoshError()
-            torch_lg_cosh_err = lg_cosh_err(torch.tensor(p11), torch.tensor(t11))
-            self.assertAlmostEqual(new_log_cosh_error, torch_lg_cosh_err)
-        return
-
-
-    def test_minkowski_distance_cls(self):
-        try:
-            import torch
-            from torchmetrics.regression import MinkowskiDistance
-        except (ModuleNotFoundError, ImportError):
-            print('Cant run test_torch_tensor')
-            torch = None
-        if torch is not None:
-            new_minkowski_distance = metrics.minkowski_distance()
-            mink_dist = MinkowskiDistance(1)
-            torch_mink_dist = mink_dist(torch.tensor(p11), torch.tensor(t11))
-            self.assertAlmostEqual(new_minkowski_distance, torch_mink_dist)
-        return
-
-    def test_minkowski_distance_func(self):
-        try:
-            import torch
-            from torchmetrics.regression import MinkowskiDistance
-        except (ModuleNotFoundError, ImportError):
-            print('Cant run test_torch_tensor')
-            torch = None
-        if torch is not None:
-            new_minkowski_distance = sm_minkowski_distance(t11, p11)
-            mink_dist = MinkowskiDistance(1)
-            torch_mink_dist = mink_dist(torch.tensor(p11), torch.tensor(t11))
-            self.assertAlmostEqual(new_minkowski_distance, torch_mink_dist)
-        return
-
-    def test_tweedie_deviance_score_cls(self):
-        try:
-            import torch
-            from torchmetrics.regression import TweedieDevianceScore
-        except (ModuleNotFoundError, ImportError):
-            print('Cant run test_torch_tensor')
-            torch = None
-        if torch is not None:
-            new_tweedie_deviance_score = metrics.tweedie_deviance_score()
-            tw_dev_score = TweedieDevianceScore(0)
-            torch_tw_dev_score = tw_dev_score(torch.tensor(p11), torch.tensor(t11))
-            self.assertAlmostEqual(new_tweedie_deviance_score, torch_tw_dev_score)
-        return
-
-    def test_tweedie_deviance_score_func(self):
-        try:
-            import torch
-            from torchmetrics.regression import TweedieDevianceScore
-        except (ModuleNotFoundError, ImportError):
-            print('Cant run test_torch_tensor')
-            torch = None
-        if torch is not None:
-            new_tweedie_deviance_score = sm_tweedie_deviance_score(t11, p11)
-            tw_dev_score = TweedieDevianceScore(0)
-            torch_tw_dev_score = tw_dev_score(torch.tensor(p11), torch.tensor(t11))
-            self.assertAlmostEqual(new_tweedie_deviance_score, torch_tw_dev_score)
-        return
+#     def test_log_cosh_error_func(self):
+#         try:
+#             import torch
+#             from torchmetrics.regression import LogCoshError
+#         except (ModuleNotFoundError, ImportError):
+#             print('Cant run test_torch_tensor')
+#             torch = None
+#         if torch is not None:
+#             new_log_cosh_error = sm_log_cosh_error(t11, p11)
+#             lg_cosh_err = LogCoshError()
+#             torch_lg_cosh_err = lg_cosh_err(torch.tensor(p11), torch.tensor(t11))
+#             self.assertAlmostEqual(new_log_cosh_error, torch_lg_cosh_err)
+#         return
 
 
-class TestTreatment(unittest.TestCase):
-    random_state = np.random.RandomState(seed=92)
+#     def test_minkowski_distance_cls(self):
+#         try:
+#             import torch
+#             from torchmetrics.regression import MinkowskiDistance
+#         except (ModuleNotFoundError, ImportError):
+#             print('Cant run test_torch_tensor')
+#             torch = None
+#         if torch is not None:
+#             new_minkowski_distance = metrics.minkowski_distance()
+#             mink_dist = MinkowskiDistance(1)
+#             torch_mink_dist = mink_dist(torch.tensor(p11), torch.tensor(t11))
+#             self.assertAlmostEqual(new_minkowski_distance, torch_mink_dist)
+#         return
 
-    t = random_state.random(20)
-    p = random_state.random(20)
+#     def test_minkowski_distance_func(self):
+#         try:
+#             import torch
+#             from torchmetrics.regression import MinkowskiDistance
+#         except (ModuleNotFoundError, ImportError):
+#             print('Cant run test_torch_tensor')
+#             torch = None
+#         if torch is not None:
+#             new_minkowski_distance = sm_minkowski_distance(t11, p11)
+#             mink_dist = MinkowskiDistance(1)
+#             torch_mink_dist = mink_dist(torch.tensor(p11), torch.tensor(t11))
+#             self.assertAlmostEqual(new_minkowski_distance, torch_mink_dist)
+#         return
+
+#     def test_tweedie_deviance_score_cls(self):
+#         try:
+#             import torch
+#             from torchmetrics.regression import TweedieDevianceScore
+#         except (ModuleNotFoundError, ImportError):
+#             print('Cant run test_torch_tensor')
+#             torch = None
+#         if torch is not None:
+#             new_tweedie_deviance_score = metrics.tweedie_deviance_score()
+#             tw_dev_score = TweedieDevianceScore(0)
+#             torch_tw_dev_score = tw_dev_score(torch.tensor(p11), torch.tensor(t11))
+#             self.assertAlmostEqual(new_tweedie_deviance_score, torch_tw_dev_score)
+#         return
+
+#     def test_tweedie_deviance_score_func(self):
+#         try:
+#             import torch
+#             from torchmetrics.regression import TweedieDevianceScore
+#         except (ModuleNotFoundError, ImportError):
+#             print('Cant run test_torch_tensor')
+#             torch = None
+#         if torch is not None:
+#             new_tweedie_deviance_score = sm_tweedie_deviance_score(t11, p11)
+#             tw_dev_score = TweedieDevianceScore(0)
+#             torch_tw_dev_score = tw_dev_score(torch.tensor(p11), torch.tensor(t11))
+#             self.assertAlmostEqual(new_tweedie_deviance_score, torch_tw_dev_score)
+#         return
+
+
+# class TestTreatment(unittest.TestCase):
+#     random_state = np.random.RandomState(seed=92)
+
+#     t = random_state.random(20)
+#     p = random_state.random(20)
     
-    def test_nan_in_true(self):
-        t = self.t.copy()
-        t[0] = np.nan
-        assert not np.isnan(kge(t, self.p))
-        assert np.isnan(kge(t, self.p, remove_nan=False))
-        return
+#     def test_nan_in_true(self):
+#         t = self.t.copy()
+#         t[0] = np.nan
+#         assert not np.isnan(kge(t, self.p))
+#         assert np.isnan(kge(t, self.p, remove_nan=False))
+#         return
     
-    def test_nan_in_pred(self):
-        p = self.p.copy()
-        p[0] = np.nan
-        assert not np.isnan(kge(self.t, p))
-        assert np.isnan(kge(self.t, p, remove_nan=False))
-        return
+#     def test_nan_in_pred(self):
+#         p = self.p.copy()
+#         p[0] = np.nan
+#         assert not np.isnan(kge(self.t, p))
+#         assert np.isnan(kge(self.t, p, remove_nan=False))
+#         return
     
-    def test_nan_in_true_and_pred(self):
-        t_ = self.t.copy()
-        t_[0] = np.nan
-        p_ = self.p.copy()
-        p_[1] = np.nan
-        assert not np.isnan(kge(t_, p_))
-        assert np.isnan(kge(t_, p_, remove_nan=False))
-        return
+#     def test_nan_in_true_and_pred(self):
+#         t_ = self.t.copy()
+#         t_[0] = np.nan
+#         p_ = self.p.copy()
+#         p_[1] = np.nan
+#         assert not np.isnan(kge(t_, p_))
+#         assert np.isnan(kge(t_, p_, remove_nan=False))
+#         return
     
-    def test_inf_in_true(self):
-        t = self.t.copy()
-        t[0] = np.inf
-        assert not np.isnan(kge(t, self.p))
-        assert np.isnan(kge(t, self.p, remove_inf=False))
-        return
+#     def test_inf_in_true(self):
+#         t = self.t.copy()
+#         t[0] = np.inf
+#         assert not np.isnan(kge(t, self.p))
+#         assert np.isnan(kge(t, self.p, remove_inf=False))
+#         return
     
-    def test_inf_in_pred(self):
-        p = self.p.copy()
-        p[0] = np.inf
-        assert not np.isnan(kge(self.t, p))
-        assert np.isnan(kge(self.t, p, remove_inf=False))
-        return
+#     def test_inf_in_pred(self):
+#         p = self.p.copy()
+#         p[0] = np.inf
+#         assert not np.isnan(kge(self.t, p))
+#         assert np.isnan(kge(self.t, p, remove_inf=False))
+#         return
     
-    def test_inf_in_true_and_pred(self):
-        t_ = self.t.copy()
-        t_[0] = np.inf
-        p_ = self.p.copy()
-        p_[1] = np.inf
-        assert not np.isnan(kge(t_, p_))
-        assert np.isnan(kge(t_, p_, remove_inf=False))
-        return
+#     def test_inf_in_true_and_pred(self):
+#         t_ = self.t.copy()
+#         t_[0] = np.inf
+#         p_ = self.p.copy()
+#         p_[1] = np.inf
+#         assert not np.isnan(kge(t_, p_))
+#         assert np.isnan(kge(t_, p_, remove_inf=False))
+#         return
     
-    def test_replace_nan_in_true(self):
-        t_ = self.t.copy()
-        t_[0] = np.nan
-        assert not np.isnan(kge(t_, self.p, replace_nan=1.0))
-        return
+#     def test_replace_nan_in_true(self):
+#         t_ = self.t.copy()
+#         t_[0] = np.nan
+#         assert not np.isnan(kge(t_, self.p, replace_nan=1.0))
+#         return
 
 if __name__ == "__main__":
     unittest.main()

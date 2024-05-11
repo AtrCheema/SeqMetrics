@@ -6043,8 +6043,12 @@ def volume_error(true, predicted, treat_arrays: bool = True,
     return float(ve_)
 
 
-def wape(true, predicted, treat_arrays: bool = True,
-         **treat_arrays_kws) -> float:
+def wape(
+        true,
+        predicted,
+        treat_arrays: bool = True,
+         **treat_arrays_kws
+) -> float:
     """
     weighted absolute percentage error (wape_). The lower the better.
 

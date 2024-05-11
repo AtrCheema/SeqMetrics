@@ -7,6 +7,7 @@ ai4_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 site.addsitedir(ai4_dir)
 
 import numpy as np
+import pandas as pd
 
 from SeqMetrics import ClassificationMetrics
 from SeqMetrics import RegressionMetrics
@@ -91,6 +92,37 @@ class TestPlot(unittest.TestCase):
 
 
 class TestInputFromOtherLibraries(unittest.TestCase):
+
+    def test_pandas_series(self):
+
+        ts = pd.Series(np.random.random((20,)))
+        ps = pd.Series(np.random.random((20,)))
+
+        ers = RegressionMetrics(ts, ps)
+
+        series_errors = ers.calculate_all()
+        assert len(series_errors) > 100
+        for er_name, er_val in series_errors.items():
+            if er_val is not None:
+                er_val = getattr(ers, er_name)()
+                self.assertEqual(er_val.__class__.__name__, 'float', f'{er_name} is {er_val}')
+        
+        return
+
+    def test_pandas_dataframe(self):
+        
+        tdf = pd.DataFrame(np.random.random((20, 1)))
+        pdf = pd.DataFrame(np.random.random((20, 1)))
+
+        erdf = RegressionMetrics(tdf, pdf)
+
+        df_errors = erdf.calculate_all()
+        assert len(df_errors) > 100
+        for er_name, er_val in df_errors.items():
+            if er_val is not None:
+                er_val = getattr(erdf, er_name)()
+                self.assertEqual(er_val.__class__.__name__, 'float', f'{er_name} is {er_val}')
+        return
 
     def test_torch_tensor(self):
         try:
