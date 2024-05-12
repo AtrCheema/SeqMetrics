@@ -1,9 +1,12 @@
+
 import os
 import unittest
 import site  # so that SeqMetrics directory is in path
 
 seqmet_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 site.addsitedir(seqmet_dir)
+
+import importlib
 
 import scipy
 import numpy as np
@@ -17,6 +20,7 @@ from sklearn.metrics import max_error, explained_variance_score, mean_absolute_e
 from sklearn.metrics import mean_squared_error, mean_squared_log_error, r2_score
 from sklearn.metrics import median_absolute_error, mean_absolute_percentage_error
 
+import SeqMetrics
 from SeqMetrics import mse as sm_mse
 from SeqMetrics import RegressionMetrics
 from SeqMetrics import nse
@@ -166,11 +170,8 @@ p_neg = random_state.randint(-100, 100, 100)
 metrics_neg = RegressionMetrics(t_neg, p_neg)
 
 
-class test_errors(unittest.TestCase):
-
-    def test_attrs(self):
-        for _attr in not_metrics:
-            assert _attr not in metrics.all_methods
+class TestGroupedMetrics(unittest.TestCase):
+    """Test those functions which return/culaulate multiple metrics"""
 
     def test_calculate_all(self):
         all_errors = metrics.calculate_all()
@@ -189,33 +190,6 @@ class test_errors(unittest.TestCase):
         assert len(all_errors) > 100
         assert all([isinstance(val, float) for val in all_errors.values()])
 
-        return
-
-    def test_mrae(self):
-        # https://support.numxl.com/hc/en-us/articles/115001223363-MRAE-Mean-Relative-Absolute-Error
-        data = np.array(
-            [[-2.9, -2.95],
-             [-2.83, -2.7],
-             [-0.95, -1.00],
-             [-0.88, -0.68],
-             [1.21, 1.50],
-             [-1.67, -1.00],
-             [0.83, 0.90],
-             [-0.27, -0.37],
-             [1.36, 1.26],
-             [-0.34, -0.54],
-             [0.48, 0.58],
-             [-2.83, -2.13],
-             [-0.95, -0.75],
-             [-0.88, -0.89],
-             [1.21, 1.25],
-             [-1.67, -1.65],
-             [-2.99, -3.20],
-             [1.24, 1.29],
-             [0.64, 0.60]]
-        )
-        errs = RegressionMetrics(data[:, 0], data[:, 1])
-        np.testing.assert_almost_equal(0.348, errs.mrae(), 2)
         return
 
     def test_hydro_metrics(self):
@@ -274,6 +248,81 @@ class test_errors(unittest.TestCase):
 
         minimal_metrics = metrics_neg.calculate_scale_independent_metrics()
         assert len(minimal_metrics) == len(metrics._scale_independent_metrics())
+        return
+
+
+class TestClassVsFunctionalAPI(unittest.TestCase):
+    """makes sure that class based API and functional API returns same results"""
+
+    def test_equality(self):
+        all_errors = metrics.calculate_all()
+        for err_name, err_val in all_errors.items():
+            func_val = getattr(SeqMetrics, err_name)(t11, p11)
+
+            self.assertAlmostEqual(err_val, func_val)
+        return
+
+    def test_equality_for_large_vals(self):
+        all_errors = metrics_large.calculate_all()
+        for err_name, err_val in all_errors.items():
+            func_val = getattr(SeqMetrics, err_name)(t_large, p_large)
+
+            self.assertAlmostEqual(err_val, func_val)
+        return
+
+    def test_equality_with_nan_vals(self):
+        all_errors = metrics_nan.calculate_all()
+        for err_name, err_val in all_errors.items():
+            func_val = getattr(SeqMetrics, err_name)(t_nan, p_nan)
+            if np.isnan(func_val):
+                assert np.isnan(err_val)
+            else:
+                self.assertAlmostEqual(err_val, func_val)
+        return
+
+    def test_equality_with_neg_vals(self):
+        all_errors = metrics_neg.calculate_all()
+        for err_name, err_val in all_errors.items():
+            func_val = getattr(SeqMetrics, err_name)(t_neg, p_neg)
+
+            if np.isnan(func_val):
+                assert np.isnan(err_val)
+            else:
+                self.assertAlmostEqual(err_val, func_val)
+        return
+
+
+class test_errors(unittest.TestCase):
+
+    def test_attrs(self):
+        for _attr in not_metrics:
+            assert _attr not in metrics.all_methods
+
+    def test_mrae(self):
+        # https://support.numxl.com/hc/en-us/articles/115001223363-MRAE-Mean-Relative-Absolute-Error
+        data = np.array(
+            [[-2.9, -2.95],
+             [-2.83, -2.7],
+             [-0.95, -1.00],
+             [-0.88, -0.68],
+             [1.21, 1.50],
+             [-1.67, -1.00],
+             [0.83, 0.90],
+             [-0.27, -0.37],
+             [1.36, 1.26],
+             [-0.34, -0.54],
+             [0.48, 0.58],
+             [-2.83, -2.13],
+             [-0.95, -0.75],
+             [-0.88, -0.89],
+             [1.21, 1.25],
+             [-1.67, -1.65],
+             [-2.99, -3.20],
+             [1.24, 1.29],
+             [0.64, 0.60]]
+        )
+        errs = RegressionMetrics(data[:, 0], data[:, 1])
+        np.testing.assert_almost_equal(0.348, errs.mrae(), 2)
         return
 
     def test_r2(self):
@@ -550,15 +599,25 @@ class test_errors(unittest.TestCase):
 
 
     def test_spearmann_corr(self):
+
         new_corr_coeff = spearmann_corr(t11, p11)
-        self.assertAlmostEqual(new_corr_coeff, spearmanr(t11, p11).statistic)
+        if scipy.__version__ > "1.8":
+            self.assertAlmostEqual(new_corr_coeff, spearmanr(t11, p11).statistic)
+        else:
+            self.assertAlmostEqual(new_corr_coeff, spearmanr(t11, p11).correlation)
 
         new_corr_coeff = spearmann_corr(t_large, p_large)
-        self.assertAlmostEqual(new_corr_coeff, spearmanr(t_large, p_large).statistic)
+        if scipy.__version__ > "1.8":
+            self.assertAlmostEqual(new_corr_coeff, spearmanr(t_large, p_large).statistic)
+        else:
+            self.assertAlmostEqual(new_corr_coeff, spearmanr(t_large, p_large).correlation)
 
         new_corr_coeff = spearmann_corr(t_nan, p_nan)
         t_nan_, p_nan_ = maybe_treat_arrays(True, t_nan, p_nan, 'regression', remove_nan=True)
-        self.assertAlmostEqual(new_corr_coeff, spearmanr(t_nan_, p_nan_).statistic)
+        if scipy.__version__ > "1.8":
+            self.assertAlmostEqual(new_corr_coeff, spearmanr(t_nan_, p_nan_).statistic)
+        else:
+            self.assertAlmostEqual(new_corr_coeff, spearmanr(t_nan_, p_nan_).correlation)
 
         # new_corr_coeff = spearmann_corr(t_neg, p_neg)
         # self.assertAlmostEqual(new_corr_coeff, spearmanr(t_neg, p_neg).statistic)

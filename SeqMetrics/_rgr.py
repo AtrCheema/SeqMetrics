@@ -79,19 +79,19 @@ class RegressionMetrics(Metrics):
         return ['r2', 'mape', 'nrmse', 'corr_coeff', 'rmse', 'mae', 'mse', 'mpe',
                 'mase', 'r2_score']
 
-    def abs_pbias(self) -> float:
-        """Absolute Percent bias
-
-        Examples
-        ---------
-        >>> import numpy as np
-        >>> from SeqMetrics import RegressionMetrics
-        >>> t = np.random.random(10)
-        >>> p = np.random.random(10)
-        >>> metrics= RegressionMetrics(t, p)
-        >>> metrics.abs_pbias()
-        """
-        return abs_pbias(true=self.true, predicted=self.predicted, treat_arrays=False)
+    # def abs_pbias(self) -> float:
+    #     """Absolute Percent bias
+    #
+    #     Examples
+    #     ---------
+    #     >>> import numpy as np
+    #     >>> from SeqMetrics import RegressionMetrics
+    #     >>> t = np.random.random(10)
+    #     >>> p = np.random.random(10)
+    #     >>> metrics= RegressionMetrics(t, p)
+    #     >>> metrics.abs_pbias()
+    #     """
+    #     return abs_pbias(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def acc(self) -> float:
         """Anomaly correction coefficient. See Langland_ et al., 2012; Miyakoda_ et al., 1972
@@ -1499,24 +1499,24 @@ class RegressionMetrics(Metrics):
         """
         return nse_bound(true=self.true, predicted=self.predicted, treat_arrays=False)
 
-    def log_nse(self, epsilon=0.0) -> float:
-        """
-        log Nash-Sutcliffe model efficiency
-
-        .. math::
-            NSE = 1-\\frac{\\sum_{i=1}^{N}(log(e_{i})-log(s_{i}))^2}{\\sum_{i=1}^{N}(log(e_{i})-log(\\bar{e})^2}-1)*-1
-
-            Examples
-        ---------
-        >>> import numpy as np
-        >>> from SeqMetrics import RegressionMetrics
-        >>> t = np.random.random(10)
-        >>> p = np.random.random(10)
-        >>> metrics= RegressionMetrics(t, p)
-        >>> metrics.log_nse()
-
-        """
-        return log_nse(true=self.true, predicted=self.predicted, epsilon=epsilon, treat_arrays=False)
+    # def log_nse(self, epsilon=0.0) -> float:
+    #     """
+    #     log Nash-Sutcliffe model efficiency
+    #
+    #     .. math::
+    #         NSE = 1-\\frac{\\sum_{i=1}^{N}(log(e_{i})-log(s_{i}))^2}{\\sum_{i=1}^{N}(log(e_{i})-log(\\bar{e})^2}-1)*-1
+    #
+    #         Examples
+    #     ---------
+    #     >>> import numpy as np
+    #     >>> from SeqMetrics import RegressionMetrics
+    #     >>> t = np.random.random(10)
+    #     >>> p = np.random.random(10)
+    #     >>> metrics= RegressionMetrics(t, p)
+    #     >>> metrics.log_nse()
+    #
+    #     """
+    #     return log_nse(true=self.true, predicted=self.predicted, epsilon=epsilon, treat_arrays=False)
 
     def log_prob(self) -> float:
         """
@@ -2769,91 +2769,91 @@ def spearmann_corr(
 
     return float(r)
 
-def spearmann_rank_corr(
-        true,
-        predicted,
-        treat_arrays: bool = True,
-        **treat_arrays_kws
-) -> float:
-    """Separmann rank correlation coefficient_.
+# def spearmann_rank_corr(
+#         true,
+#         predicted,
+#         treat_arrays: bool = True,
+#         **treat_arrays_kws
+# ) -> float:
+#     """Separmann rank correlation coefficient_.
+#
+#     This is a nonparametric metric and assesses how well the relationship
+#     between the true and predicted data can be described using a monotonic
+#     function.
+#
+#     .. _coefficient:
+#         https://hess.copernicus.org/articles/24/2505/2020/hess-24-2505-2020.pdf
+#
+#     Parameters
+#     ----------
+#     true :
+#          true/observed/actual/target values. It must be a numpy array,
+#          or pandas series/DataFrame or a list.
+#     predicted :
+#          simulated values
+#     treat_arrays :
+#         process the true and predicted arrays using maybe_treat_arrays function
+#
+#     Examples
+#     ---------
+#     >>> import numpy as np
+#     >>> from SeqMetrics import spearmann_rank_corr
+#     >>> t = np.random.random(10)
+#     >>> p = np.random.random(10)
+#     >>> spearmann_rank_corr(t, p)
+#     """
+#     true, predicted = maybe_treat_arrays(treat_arrays, true, predicted, 'regression', **treat_arrays_kws)
+#     col = [list(a) for a in zip(true, predicted)]
+#     xy = sorted(col, key=lambda _x: _x[0], reverse=False)
+#     # rang of x-value
+#     for i, row in enumerate(xy):
+#         row.append(i + 1)
+#
+#     a = sorted(xy, key=lambda _x: _x[1], reverse=False)
+#     # rang of y-value
+#     for i, row in enumerate(a):
+#         row.append(i + 1)
+#
+#     mw_rank_x = np.nanmean(np.array(a)[:, 2])
+#     mw_rank_y = np.nanmean(np.array(a)[:, 3])
+#
+#     numerator = np.nansum([float((a[j][2] - mw_rank_x) * (a[j][3] - mw_rank_y)) for j in range(len(a))])
+#     denominator1 = np.sqrt(np.nansum([(a[j][2] - mw_rank_x) ** 2. for j in range(len(a))]))
+#     denominator2 = np.sqrt(np.nansum([(a[j][3] - mw_rank_x) ** 2. for j in range(len(a))]))
+#     return float(numerator / (denominator1 * denominator2))
 
-    This is a nonparametric metric and assesses how well the relationship
-    between the true and predicted data can be described using a monotonic
-    function.
 
-    .. _coefficient:
-        https://hess.copernicus.org/articles/24/2505/2020/hess-24-2505-2020.pdf
-
-    Parameters
-    ----------
-    true :
-         true/observed/actual/target values. It must be a numpy array,
-         or pandas series/DataFrame or a list.
-    predicted :
-         simulated values
-    treat_arrays :
-        process the true and predicted arrays using maybe_treat_arrays function
-
-    Examples
-    ---------
-    >>> import numpy as np
-    >>> from SeqMetrics import spearmann_rank_corr
-    >>> t = np.random.random(10)
-    >>> p = np.random.random(10)
-    >>> spearmann_rank_corr(t, p)
-    """
-    true, predicted = maybe_treat_arrays(treat_arrays, true, predicted, 'regression', **treat_arrays_kws)
-    col = [list(a) for a in zip(true, predicted)]
-    xy = sorted(col, key=lambda _x: _x[0], reverse=False)
-    # rang of x-value
-    for i, row in enumerate(xy):
-        row.append(i + 1)
-
-    a = sorted(xy, key=lambda _x: _x[1], reverse=False)
-    # rang of y-value
-    for i, row in enumerate(a):
-        row.append(i + 1)
-
-    mw_rank_x = np.nanmean(np.array(a)[:, 2])
-    mw_rank_y = np.nanmean(np.array(a)[:, 3])
-
-    numerator = np.nansum([float((a[j][2] - mw_rank_x) * (a[j][3] - mw_rank_y)) for j in range(len(a))])
-    denominator1 = np.sqrt(np.nansum([(a[j][2] - mw_rank_x) ** 2. for j in range(len(a))]))
-    denominator2 = np.sqrt(np.nansum([(a[j][3] - mw_rank_x) ** 2. for j in range(len(a))]))
-    return float(numerator / (denominator1 * denominator2))
-
-
-def log_nse(true, predicted, treat_arrays: bool = True, epsilon=0.0,
-            **treat_arrays_kws) -> float:
-    """
-    log Nash-Sutcliffe model efficiency
-
-    .. math::
-        NSE = 1-\\frac{\\sum_{i=1}^{N}(log(e_{i})-log(s_{i}))^2}{\\sum_{i=1}^{N}(log(e_{i})-log(\\bar{e})^2}-1)*-1
-
-    Parameters
-    ----------
-    true :
-         true/observed/actual/target values. It must be a numpy array,
-         or pandas series/DataFrame or a list.
-    predicted :
-         simulated values
-    treat_arrays :
-        process the true and predicted arrays using maybe_treat_arrays function
-    epsilon :
-
-        Examples
-    ---------
-    >>> import numpy as np
-    >>> from SeqMetrics import log_nse
-    >>> t = np.random.random(10)
-    >>> p = np.random.random(10)
-    >>> log_nse(t, p)
-
-    """
-    true, predicted = maybe_treat_arrays(treat_arrays, true, predicted, 'regression', **treat_arrays_kws)
-    s, o = predicted + epsilon, true + epsilon  # todo, check why s is here
-    return float(1 - sum((np.log(o) - np.log(o)) ** 2) / sum((np.log(o) - np.mean(np.log(o))) ** 2))
+# def log_nse(true, predicted, treat_arrays: bool = True, epsilon=0.0,
+#             **treat_arrays_kws) -> float:
+#     """
+#     log Nash-Sutcliffe model efficiency
+#
+#     .. math::
+#         NSE = 1-\\frac{\\sum_{i=1}^{N}(log(e_{i})-log(s_{i}))^2}{\\sum_{i=1}^{N}(log(e_{i})-log(\\bar{e})^2}-1)*-1
+#
+#     Parameters
+#     ----------
+#     true :
+#          true/observed/actual/target values. It must be a numpy array,
+#          or pandas series/DataFrame or a list.
+#     predicted :
+#          simulated values
+#     treat_arrays :
+#         process the true and predicted arrays using maybe_treat_arrays function
+#     epsilon :
+#
+#         Examples
+#     ---------
+#     >>> import numpy as np
+#     >>> from SeqMetrics import log_nse
+#     >>> t = np.random.random(10)
+#     >>> p = np.random.random(10)
+#     >>> log_nse(t, p)
+#
+#     """
+#     true, predicted = maybe_treat_arrays(treat_arrays, true, predicted, 'regression', **treat_arrays_kws)
+#     s, o = predicted + epsilon, true + epsilon  # todo, check why s is here
+#     return float(1 - sum((np.log(o) - np.log(o)) ** 2) / sum((np.log(o) - np.mean(np.log(o))) ** 2))
 
 
 def corr_coeff(true, predicted, treat_arrays: bool = True,
@@ -3129,31 +3129,31 @@ def mae(true, predicted, treat_arrays: bool = True,
     return float(np.mean(np.abs(true - predicted)))
 
 
-def abs_pbias(true, predicted, treat_arrays: bool = True,
-              **treat_arrays_kws) -> float:
-    """Absolute Percent bias
-
-    Parameters
-    ----------
-    true :
-         true/observed/actual/target values. It must be a numpy array,
-         or pandas series/DataFrame or a list.
-    predicted :
-         simulated values
-    treat_arrays :
-        process the true and predicted arrays using maybe_treat_arrays function
-
-    Examples
-    ---------
-    >>> import numpy as np
-    >>> from SeqMetrics import abs_pbias
-    >>> t = np.random.random(10)
-    >>> p = np.random.random(10)
-    >>> abs_pbias(t, p)
-    """
-    true, predicted = maybe_treat_arrays(treat_arrays, true, predicted, 'regression', **treat_arrays_kws)
-    _apb = 100.0 * sum(abs(predicted - true)) / sum(true)
-    return float(_apb)
+# def abs_pbias(true, predicted, treat_arrays: bool = True,
+#               **treat_arrays_kws) -> float:
+#     """Absolute Percent bias
+#
+#     Parameters
+#     ----------
+#     true :
+#          true/observed/actual/target values. It must be a numpy array,
+#          or pandas series/DataFrame or a list.
+#     predicted :
+#          simulated values
+#     treat_arrays :
+#         process the true and predicted arrays using maybe_treat_arrays function
+#
+#     Examples
+#     ---------
+#     >>> import numpy as np
+#     >>> from SeqMetrics import abs_pbias
+#     >>> t = np.random.random(10)
+#     >>> p = np.random.random(10)
+#     >>> abs_pbias(t, p)
+#     """
+#     true, predicted = maybe_treat_arrays(treat_arrays, true, predicted, 'regression', **treat_arrays_kws)
+#     _apb = 100.0 * sum(abs(predicted - true)) / sum(true)
+#     return float(_apb)
 
 
 def gmae(true, predicted, treat_arrays: bool = True,
