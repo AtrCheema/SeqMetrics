@@ -6,11 +6,8 @@ import site  # so that SeqMetrics directory is in path
 seqmet_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 site.addsitedir(seqmet_dir)
 
-import importlib
-
 import scipy
 import numpy as np
-import pandas as pd
 
 from scipy.stats import pearsonr, kendalltau, spearmanr
 
@@ -133,6 +130,7 @@ from SeqMetrics import log_cosh_error as sm_log_cosh_error
 from SeqMetrics import minkowski_distance as sm_minkowski_distance
 from SeqMetrics import tweedie_deviance_score as sm_tweedie_deviance_score
 from SeqMetrics import spearmann_corr
+from SeqMetrics import r2
 
 from SeqMetrics.utils import maybe_treat_arrays
 
@@ -326,44 +324,25 @@ class test_errors(unittest.TestCase):
         return
 
     def test_r2(self):
-        new_r2 = metrics.r2()
+        new_r2 = r2(t11, p11)
         _, _, rvalue, _, _ = scipy.stats.linregress(t11, p11)
         assert np.allclose(new_r2, rvalue ** 2)
 
-        new_r2 = metrics_large.r2()
+        new_r2 = r2(t_large, p_large)
         _, _, rvalue, _, _ = scipy.stats.linregress(t_large, p_large)
         assert np.allclose(new_r2, rvalue ** 2)
 
-        new_r2 = metrics_nan.r2()
+        new_r2 = r2(t_nan, p_nan)
         t_nan_, p_nan_ = maybe_treat_arrays(True, t_nan, p_nan, 'regression', remove_nan=True)
         _, _, rvalue, _, _ = scipy.stats.linregress(t_nan_, p_nan_)
         assert np.allclose(new_r2, rvalue ** 2)
 
-        new_r2 = metrics_neg.r2()
+        new_r2 = r2(t_neg, p_neg)
         _, _, rvalue, _, _ = scipy.stats.linregress(t_neg, p_neg)
         assert np.allclose(new_r2, rvalue ** 2)
         return
 
-    def test_mse_cls(self):
-        new_mse = metrics.mse()
-        sk_mse = mean_squared_error(t11, p11)
-        assert np.allclose(new_mse, sk_mse)
-
-        new_mse = metrics_large.mse()
-        sk_mse = mean_squared_error(t_large, p_large)
-        assert np.allclose(new_mse, sk_mse)
-
-        new_mse = metrics_nan.mse()
-        t_nan_, p_nan_ = maybe_treat_arrays(True, t_nan, p_nan, 'regression', remove_nan=True)
-        sk_mse = mean_squared_error(t_nan_, p_nan_)
-        assert np.allclose(new_mse, sk_mse)
-
-        new_mse = metrics_neg.mse()
-        sk_mse = mean_squared_error(t_neg, p_neg)
-        assert np.allclose(new_mse, sk_mse)
-        return
-
-    def test_mse_func(self):
+    def test_mse(self):
         new_mse = sm_mse(t11, p11)
         sk_mse = mean_squared_error(t11, p11)
         assert np.allclose(new_mse, sk_mse)
@@ -467,25 +446,6 @@ class test_errors(unittest.TestCase):
         new_nse_bound = nse_bound(t_neg, p_neg)
         assert np.allclose(new_nse_bound, -0.29295000460088483)
 
-        return
-
-    def test_r2_score_cls(self):
-        new_r2_score = metrics.r2_score()
-        sk_r2_score = r2_score(t11, p11)
-        assert np.allclose(new_r2_score, sk_r2_score)
-
-        new_r2_score = metrics_large.r2_score()
-        sk_r2_score = r2_score(t_large, p_large)
-        assert np.allclose(new_r2_score, sk_r2_score)
-
-        new_r2_score = metrics_nan.r2_score()
-        t_nan_, p_nan_ = maybe_treat_arrays(True, t_nan, p_nan, 'regression', remove_nan=True)
-        sk_r2_score = r2_score(t_nan_, p_nan_)
-        assert np.allclose(new_r2_score, sk_r2_score)
-
-        new_r2_score = metrics_neg.r2_score()
-        sk_r2_score = r2_score(t_neg, p_neg)
-        assert np.allclose(new_r2_score, sk_r2_score)
         return
 
     def test_r2_score_func(self):
@@ -653,25 +613,6 @@ class test_errors(unittest.TestCase):
         # assert np.allclose(new_rmsle, np.sqrt(mean_squared_log_error(t_neg, p_neg)))
         return
 
-    def test_mape_cls(self):
-        new_mape = metrics.mape()
-        sk_mape = mean_absolute_percentage_error(t11, p11) * 100.0
-        self.assertAlmostEqual(new_mape, sk_mape)
-
-        new_mape = metrics_large.mape()
-        sk_mape = mean_absolute_percentage_error(t_large, p_large) * 100.0
-        self.assertAlmostEqual(new_mape, sk_mape)
-
-        new_mape = metrics_nan.mape()
-        t_nan_, p_nan_ = maybe_treat_arrays(True, t_nan, p_nan, 'regression', remove_nan=True)
-        sk_mape = mean_absolute_percentage_error(t_nan_, p_nan_) * 100.0
-        self.assertAlmostEqual(new_mape, sk_mape)
-
-        new_mape = metrics_neg.mape()
-        sk_mape = mean_absolute_percentage_error(t_neg, p_neg) * 100.0
-        self.assertAlmostEqual(new_mape, sk_mape)
-        return
-
     def test_mape_func(self):
         new_mape = sm_mape(t11, p11)
         sk_mape = mean_absolute_percentage_error(t11, p11) * 100.0
@@ -743,25 +684,6 @@ class test_errors(unittest.TestCase):
         new_med_seq_error = med_seq_error(t_neg, p_neg)
         assert np.allclose(new_med_seq_error, 3308.5)
 
-        return
-
-    def test_mae_cls(self):
-        new_mae = metrics.mae()
-        sk_mae = mean_absolute_error(t11, p11)
-        assert np.allclose(new_mae, sk_mae)
-
-        new_mae = metrics_large.mae()
-        sk_mae = mean_absolute_error(t_large, p_large)
-        assert np.allclose(new_mae, sk_mae)
-
-        new_mae = metrics_nan.mae()
-        t_nan_, p_nan_ = maybe_treat_arrays(True, t_nan, p_nan, 'regression', remove_nan=True)
-        sk_mae = mean_absolute_error(t_nan_, p_nan_)
-        assert np.allclose(new_mae, sk_mae)
-
-        new_mae = metrics_neg.mae()
-        sk_mae = mean_absolute_error(t_neg, p_neg)
-        assert np.allclose(new_mae, sk_mae)
         return
 
     def test_mae_func(self):
@@ -867,25 +789,6 @@ class test_errors(unittest.TestCase):
         sm_mare = mare(t_neg, p_neg)
         assert sm_mare * 100.0 == sm_mape(t_neg, p_neg)
         assert np.allclose(sm_mare, mean_absolute_percentage_error(t_neg, p_neg))
-        return
-
-    def test_msle_cls(self):
-        new_msle = metrics.msle()
-        sk_msle = mean_squared_log_error(t11, p11)
-        assert np.allclose(new_msle, sk_msle)
-
-        new_msle = metrics_large.msle()
-        sk_msle = mean_squared_log_error(t_large, p_large)
-        assert np.allclose(new_msle, sk_msle)
-
-        new_msle = metrics_nan.msle()
-        t_nan_, p_nan_ = maybe_treat_arrays(True, t_nan, p_nan, 'regression', remove_nan=True)
-        sk_msle = mean_squared_log_error(t_nan_, p_nan_)
-        assert np.allclose(new_msle, sk_msle)
-
-        new_msle = metrics_neg.msle()
-        # sk_msle= mean_squared_log_error(t_neg, p_neg)
-        # assert np.allclose(new_msle, sk_msle)
         return
 
     def test_msle_func(self):
@@ -1073,24 +976,6 @@ class test_errors(unittest.TestCase):
 
         return
 
-    def test_exp_var_score_cls(self):
-        new_exp_var_score = metrics.exp_var_score()
-        sk_exp_var_scr = explained_variance_score(t11, p11)
-        assert np.allclose(new_exp_var_score, sk_exp_var_scr)
-
-        new_exp_var_score = metrics_large.exp_var_score()
-        sk_exp_var_scr = explained_variance_score(t_large, p_large)
-        assert np.allclose(new_exp_var_score, sk_exp_var_scr)
-
-        new_exp_var_score = metrics_nan.exp_var_score()
-        # sk_exp_var_scr= explained_variance_score(t_nan, p_nan)
-        # assert np.allclose(new_exp_var_score, sk_exp_var_scr)
-
-        new_exp_var_score = metrics_neg.exp_var_score()
-        sk_exp_var_scr = explained_variance_score(t_neg, p_neg)
-        assert np.allclose(new_exp_var_score, sk_exp_var_scr)
-        return
-
     def test_exp_var_score_func(self):
         new_exp_var_score = sm_exp_var_score(t11, p11)
         sk_exp_var_scr = explained_variance_score(t11, p11)
@@ -1101,8 +986,9 @@ class test_errors(unittest.TestCase):
         assert np.allclose(new_exp_var_score, sk_exp_var_scr)
 
         new_exp_var_score = sm_exp_var_score(t_nan, p_nan)
-        # sk_exp_var_scr= explained_variance_score(t_nan, p_nan)
-        # assert np.allclose(new_exp_var_score, sk_exp_var_scr)
+        t_nan_, p_nan_ = maybe_treat_arrays(True, t_nan, p_nan, 'regression', remove_nan=True)
+        sk_exp_var_scr= explained_variance_score(t_nan_, p_nan_)
+        assert np.allclose(new_exp_var_score, sk_exp_var_scr)
 
         new_exp_var_score = sm_exp_var_score(t_neg, p_neg)
         sk_exp_var_scr = explained_variance_score(t_neg, p_neg)
@@ -1261,24 +1147,6 @@ class test_errors(unittest.TestCase):
         assert np.allclose(new_mbrae, 0.4330684929959228)
         return
 
-    def test_max_error_cls(self):
-        new_max_error = metrics.max_error()
-        sk_max_error = max_error(t11, p11)
-        assert np.allclose(new_max_error, sk_max_error)
-
-        new_max_error = metrics_large.max_error()
-        sk_max_error = max_error(t_large, p_large)
-        assert np.allclose(new_max_error, sk_max_error)
-
-        new_max_error = metrics_nan.max_error()
-        # sk_max_error= max_error(t_nan, p_nan)
-        # assert np.allclose(new_max_error, sk_max_error)
-
-        new_max_error = metrics_neg.max_error()
-        sk_max_error = max_error(t_neg, p_neg)
-        assert np.allclose(new_max_error, sk_max_error)
-        return
-
     def test_max_error_func(self):
         new_max_error = sm_max_error(t11, p11)
         sk_max_error = max_error(t11, p11)
@@ -1289,8 +1157,9 @@ class test_errors(unittest.TestCase):
         assert np.allclose(new_max_error, sk_max_error)
 
         new_max_error = sm_max_error(t_nan, p_nan)
-        # sk_max_error= max_error(t_nan, p_nan)
-        # assert np.allclose(new_max_error, sk_max_error)
+        t_nan_, p_nan_ = maybe_treat_arrays(True, t_nan, p_nan, 'regression', remove_nan=True)
+        sk_max_error= max_error(t_nan_, p_nan_)
+        assert np.allclose(new_max_error, sk_max_error)
 
         new_max_error = sm_max_error(t_neg, p_neg)
         sk_max_error = max_error(t_neg, p_neg)
@@ -1433,25 +1302,6 @@ class test_errors(unittest.TestCase):
 
         # new_mean_gamma_deviance = sm_mean_gamma_deviance(t_neg, p_neg)
         # assert np.allclose(new_mean_gamma_deviance, mean_gamma_deviance(t_neg, p_neg))
-        return
-
-    def test_median_abs_error_cls(self):
-        new_median_abs_error = metrics.median_abs_error()
-        sk_median_abs_error = median_absolute_error(t11, p11)
-        assert np.allclose(new_median_abs_error, sk_median_abs_error)
-
-        new_median_abs_error = metrics_large.median_abs_error()
-        sk_median_abs_error = median_absolute_error(t_large, p_large)
-        assert np.allclose(new_median_abs_error, sk_median_abs_error)
-
-        new_median_abs_error = metrics_nan.median_abs_error()
-        t_nan_, p_nan_ = maybe_treat_arrays(True, t_nan, p_nan, 'regression', remove_nan=True)
-        sk_median_abs_error = median_absolute_error(t_nan_, p_nan_)
-        assert np.allclose(new_median_abs_error, sk_median_abs_error)
-
-        new_median_abs_error = metrics_neg.median_abs_error()
-        sk_median_abs_error = median_absolute_error(t_neg, p_neg)
-        assert np.allclose(new_median_abs_error, sk_median_abs_error)
         return
 
     def test_median_abs_error_func(self):
