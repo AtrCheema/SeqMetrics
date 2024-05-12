@@ -52,8 +52,11 @@ for one-dimensional numerical data.
 Existing Python libraries for performance evaluation offer only a limited number of metrics. 
 For instance, the metrics sub-module from Keras [@chollet2015keras] contains only 24 metrics, 
 while scikit-learn's [@pedregosa2011scikit] metrics module covers 45 metrics. Torchmetrics library, [@detlefsen2022torchmetrics] 
-although contains 100+ metrics, however, it provides only 48 which are intended
-for 1-dimensional numerical data. Addressing this gap is imperative to provide 
+offers over 100 metrics. However, it provides only 48 which are intended
+for 1-dimensional numerical data. There are also some subject-specific
+libraries such as NeuralHydrology [Kratzert2022], hydroeval [hydroeval2021] and HydroErr [wade2018hydroerr], however these resources
+lack more general set of metrics which the experts in these demoains often require. 
+Addressing this gap is imperative to provide 
 researchers a unified platform for 
 comprehensive model evaluation, streamlining their computational workflows and 
 enhancing accuracy across various domains. The SeqMetrics application addresses 
@@ -114,6 +117,18 @@ well as for those with limited programming knowledge.
 
 ![**Method of copying and pasting arrays in SeqMetrics GUI**](fig2.jpg)
 ![**Method of reading data from files in SeqMetrics GUI**](fig3.jpg)
+
+The streamlit-based GUI can also be launched locally without having to upload
+the data on streamlit servers. This can be useful for users with data-privacy
+concerns or those without internet connection. The steps to launch streamlit GUI
+locally involve cloning the respository, isntalling the requirements and streamlit
+python package and then launching the streamlit app. These steps are given below
+
+    git clone https://github.com/AtrCheema/SeqMetrics.git
+    cd SeqMetrics
+    pip install requirements.txt
+    pip install streamlit
+    streamlit run app.py
 
 # Testing and documentation
 Following the ‘unit test’ protocol the library undergoes comprehensive testing 
