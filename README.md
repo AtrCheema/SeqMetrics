@@ -271,15 +271,16 @@ Make sure you follow the below steps
     pip install streamlit
     streamlit run app.py
 
-Using the streamlit based application app involves, 1) providing the true and predicted arrays
+Usage of streamlit based application app involves, 1) providing the true and predicted arrays
 either by pasting the data in the boxes or by uploading a file, 2) Selecting the 
 relevant performance metric and 3) calculating the performance metric. These steps are further
-illustrated in following images.
+illustrated below.
 
 <p float="left">
   <img src="/paper/fig2.jpg"/>
 </p>
 
+The method to provide data from a (excel/csv) file is described in below image
 
 <p float="left">
   <img src="/paper/fig3.jpg"/>

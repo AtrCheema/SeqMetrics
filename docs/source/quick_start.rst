@@ -75,9 +75,13 @@ Make sure you follow the below steps
     pip install streamlit
     streamlit run app.py
 
+The following figure shows steps for using the streamlit-app
+
 .. image:: imgs/fig2.jpg
     :align: center
 
+The following figure illustrates the method to provide true and predicted
+data from a csv/excel file.
 
 .. image:: imgs/fig3.jpg
     :align: center
