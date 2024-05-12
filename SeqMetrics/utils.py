@@ -617,7 +617,7 @@ def maybe_treat_arrays(
     process_kws:
         keyword arguments for preprocessing
             - remove_nan: bool, default True
-            - remove_inf : bool,
+            - remove_inf : bool, default True
             - replace_nan: float, default None
             - remove_zero: bool, default None
             - remove_neg: bool, default None

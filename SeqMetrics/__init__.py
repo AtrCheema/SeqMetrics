@@ -19,7 +19,7 @@ from ._rgr import kge
 from ._rgr import kge_bound
 from ._rgr import kge_mod
 from ._rgr import kge_np
-from ._rgr import log_nse
+# from ._rgr import log_nse todo, find reference for the code
 from ._rgr import corr_coeff
 from ._rgr import rmse
 from ._rgr import rmsle
@@ -29,7 +29,7 @@ from ._rgr import pbias
 from ._rgr import bias
 from ._rgr import med_seq_error
 from ._rgr import mae
-from ._rgr import abs_pbias
+# from ._rgr import abs_pbias #  todo, find reference for the code
 from ._rgr import gmae
 from ._rgr import inrse
 from ._rgr import irmse
@@ -125,6 +125,7 @@ from ._rgr import log_cosh_error
 from ._rgr import minkowski_distance
 from ._rgr import tweedie_deviance_score
 from ._rgr import mre
+# from ._rgr import spearmann_rank_corr todo, find reference for the code
 
 
 from ._cls import f1_score

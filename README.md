@@ -277,8 +277,8 @@ relevant performance metric and 3) calculating the performance metric. These ste
 illustrated in following images.
 
 <p float="left">
-  <img src="/paper/fig2.jpg" width="400" height="600" />
-  <img src="/paper/fig3.jpg" width="400" height="600" />
+  <img src="/paper/fig2.jpg" width="400" height="500" />
+  <img src="/paper/fig3.jpg" width="400" height="500" />
 </p>
 
 

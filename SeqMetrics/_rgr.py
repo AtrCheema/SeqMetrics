@@ -2723,9 +2723,59 @@ def kge_np(
     return post_process_kge(cc, alpha, beta, return_all)
 
 
-def spearmann_corr(true, predicted, treat_arrays: bool = True,
-                   **treat_arrays_kws) -> float:
-    """Separmann correlation coefficient_.
+def spearmann_corr(
+        true,
+        predicted,
+        treat_arrays:bool = True,
+        **treat_arrays_kws
+)->float:
+    """
+    Spearman correlation coefficient
+
+    Parameters
+    ----------
+    true :
+         true/observed/actual/target values. It must be a numpy array,
+         or pandas series/DataFrame or a list.
+    predicted :
+         simulated values
+    treat_arrays :
+        process the true and predicted arrays using maybe_treat_arrays function
+
+    Examples
+    ---------
+    >>> import numpy as np
+    >>> from SeqMetrics import spearmann_corr
+    >>> t = np.random.random(10)
+    >>> p = np.random.random(10)
+    >>> spearmann_corr(t, p)
+    """
+
+    true, predicted = maybe_treat_arrays(treat_arrays, true, predicted, 'regression', **treat_arrays_kws)
+
+    sim_rank = np.argsort(np.argsort(predicted, axis=0), axis=0)
+    obs_rank = np.argsort(np.argsort(true, axis=0), axis=0)
+
+    r_num = np.sum((obs_rank - np.mean(obs_rank, axis=0, dtype=np.float64))
+                    * (sim_rank - np.mean(sim_rank, axis=0, dtype=np.float64)),
+                    axis=0)
+    r_den = np.sqrt(
+        np.sum((obs_rank - np.mean(obs_rank, axis=0, dtype=np.float64)) ** 2,
+                axis=0)
+        * np.sum((sim_rank - np.mean(sim_rank, axis=0, dtype=np.float64)) ** 2,
+                    axis=0)
+    )
+    r = r_num / r_den
+
+    return float(r)
+
+def spearmann_rank_corr(
+        true,
+        predicted,
+        treat_arrays: bool = True,
+        **treat_arrays_kws
+) -> float:
+    """Separmann rank correlation coefficient_.
 
     This is a nonparametric metric and assesses how well the relationship
     between the true and predicted data can be described using a monotonic
@@ -2747,12 +2797,11 @@ def spearmann_corr(true, predicted, treat_arrays: bool = True,
     Examples
     ---------
     >>> import numpy as np
-    >>> from SeqMetrics import spearmann_corr
+    >>> from SeqMetrics import spearmann_rank_corr
     >>> t = np.random.random(10)
     >>> p = np.random.random(10)
-    >>> spearmann_corr(t, p)
+    >>> spearmann_rank_corr(t, p)
     """
-    # todo, is this spearman rank correlation?
     true, predicted = maybe_treat_arrays(treat_arrays, true, predicted, 'regression', **treat_arrays_kws)
     col = [list(a) for a in zip(true, predicted)]
     xy = sorted(col, key=lambda _x: _x[0], reverse=False)
@@ -5524,10 +5573,12 @@ def relative_rmse(
         true, predicted, treat_arrays: bool = True,
                   **treat_arrays_kws) -> float:
     """
-    Relative Root Mean Squared Error
+    Relative Root Mean Squared Error. It normalizes teh rmse by mean of true values.
 
     .. math::
         RRMSE=\\frac{\\sqrt{\\frac{1}{N}\\sum_{i=1}^{N}(e_{i}-s_{i})^2}}{\\bar{e}}
+
+    https://search.r-project.org/CRAN/refmans/metrica/html/RRMSE.html
 
     Parameters
     ----------

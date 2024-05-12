@@ -75,12 +75,12 @@ Make sure you follow the below steps
     pip install streamlit
     streamlit run app.py
 
-.. image:: imgs/fig2.jpb
+.. image:: imgs/fig2.jpg
     :align: center
     :height: 600
     :width: 400
 
-.. image:: imgs/fig3.jpb
+.. image:: imgs/fig3.jpg
     :align: center
     :height: 600
     :width: 400

@@ -9,7 +9,7 @@ import scipy
 import numpy as np
 import pandas as pd
 
-from scipy.stats import pearsonr, kendalltau
+from scipy.stats import pearsonr, kendalltau, spearmanr
 
 from sklearn.metrics.pairwise import cosine_similarity as sklearn_cos_sim
 from sklearn.metrics import mean_gamma_deviance, mean_poisson_deviance
@@ -31,7 +31,7 @@ from SeqMetrics import kge
 from SeqMetrics import kge_bound
 from SeqMetrics import kge_mod
 from SeqMetrics import kge_np
-from SeqMetrics import log_nse
+# from SeqMetrics import log_nse
 from SeqMetrics import corr_coeff
 from SeqMetrics import rmse as sm_rmse
 from SeqMetrics import rmsle as sm_rmsle
@@ -41,7 +41,7 @@ from SeqMetrics import pbias
 from SeqMetrics import bias
 from SeqMetrics import med_seq_error
 from SeqMetrics import mae as sm_mae
-from SeqMetrics import abs_pbias
+# from SeqMetrics import abs_pbias
 from SeqMetrics import gmae
 from SeqMetrics import inrse
 from SeqMetrics import irmse
@@ -128,6 +128,7 @@ from SeqMetrics import kl_divergence as sm_kl_divergence
 from SeqMetrics import log_cosh_error as sm_log_cosh_error
 from SeqMetrics import minkowski_distance as sm_minkowski_distance
 from SeqMetrics import tweedie_deviance_score as sm_tweedie_deviance_score
+from SeqMetrics import spearmann_corr
 
 from SeqMetrics.utils import maybe_treat_arrays
 
@@ -166,13 +167,12 @@ metrics_neg = RegressionMetrics(t_neg, p_neg)
 
 
 class test_errors(unittest.TestCase):
-    
+
     def test_attrs(self):
         for _attr in not_metrics:
             assert _attr not in metrics.all_methods
-    
+
     def test_calculate_all(self):
-        
         all_errors = metrics.calculate_all()
         assert len(all_errors) > 100
         assert all([isinstance(val, float) for val in all_errors.values()])
@@ -279,57 +279,57 @@ class test_errors(unittest.TestCase):
     def test_r2(self):
         new_r2 = metrics.r2()
         _, _, rvalue, _, _ = scipy.stats.linregress(t11, p11)
-        assert np.allclose(new_r2, rvalue**2)
+        assert np.allclose(new_r2, rvalue ** 2)
 
         new_r2 = metrics_large.r2()
         _, _, rvalue, _, _ = scipy.stats.linregress(t_large, p_large)
-        assert np.allclose(new_r2, rvalue**2)
+        assert np.allclose(new_r2, rvalue ** 2)
 
         new_r2 = metrics_nan.r2()
         t_nan_, p_nan_ = maybe_treat_arrays(True, t_nan, p_nan, 'regression', remove_nan=True)
         _, _, rvalue, _, _ = scipy.stats.linregress(t_nan_, p_nan_)
-        assert np.allclose(new_r2, rvalue**2)
+        assert np.allclose(new_r2, rvalue ** 2)
 
         new_r2 = metrics_neg.r2()
         _, _, rvalue, _, _ = scipy.stats.linregress(t_neg, p_neg)
-        assert np.allclose(new_r2, rvalue**2)
+        assert np.allclose(new_r2, rvalue ** 2)
         return
 
     def test_mse_cls(self):
         new_mse = metrics.mse()
-        sk_mse= mean_squared_error(t11, p11)
+        sk_mse = mean_squared_error(t11, p11)
         assert np.allclose(new_mse, sk_mse)
 
         new_mse = metrics_large.mse()
-        sk_mse= mean_squared_error(t_large, p_large)
+        sk_mse = mean_squared_error(t_large, p_large)
         assert np.allclose(new_mse, sk_mse)
 
         new_mse = metrics_nan.mse()
         t_nan_, p_nan_ = maybe_treat_arrays(True, t_nan, p_nan, 'regression', remove_nan=True)
-        sk_mse= mean_squared_error(t_nan_, p_nan_)
+        sk_mse = mean_squared_error(t_nan_, p_nan_)
         assert np.allclose(new_mse, sk_mse)
 
         new_mse = metrics_neg.mse()
-        sk_mse= mean_squared_error(t_neg, p_neg)
+        sk_mse = mean_squared_error(t_neg, p_neg)
         assert np.allclose(new_mse, sk_mse)
         return
 
     def test_mse_func(self):
         new_mse = sm_mse(t11, p11)
-        sk_mse= mean_squared_error(t11, p11)
+        sk_mse = mean_squared_error(t11, p11)
         assert np.allclose(new_mse, sk_mse)
 
         new_mse = sm_mse(t_large, p_large)
-        sk_mse= mean_squared_error(t_large, p_large)
+        sk_mse = mean_squared_error(t_large, p_large)
         assert np.allclose(new_mse, sk_mse)
 
         new_mse = sm_mse(t_nan, p_nan)
         t_nan_, p_nan_ = maybe_treat_arrays(True, t_nan, p_nan, 'regression', remove_nan=True)
-        sk_mse= mean_squared_error(t_nan_, p_nan_)
+        sk_mse = mean_squared_error(t_nan_, p_nan_)
         assert np.allclose(new_mse, sk_mse)
 
         new_mse = sm_mse(t_neg, p_neg)
-        sk_mse= mean_squared_error(t_neg, p_neg)
+        sk_mse = mean_squared_error(t_neg, p_neg)
         assert np.allclose(new_mse, sk_mse)
         return
 
@@ -337,54 +337,105 @@ class test_errors(unittest.TestCase):
         # verified against https://agrimetsoft.com/calculators/Nash%20Sutcliffe%20model%20Efficiency%20coefficient
         new_nse = nse(t11, p11)
         assert np.allclose(new_nse, -1.068372251749874)
+
         return
 
     def test_nse_alpha(self):
         new_nse_alpha = nse_alpha(t11, p11)
         # ref : reference_for_seqmetric_tests.ipynb
         assert np.allclose(new_nse_alpha, 1.0235046034233621)
+
+        new_nse_alpha = nse_alpha(t_large, p_large)
+        assert np.allclose(new_nse_alpha, 1.0196280911618452)
+
+        new_nse_alpha = nse_alpha(t_nan, p_nan)
+        assert np.allclose(new_nse_alpha, 0.9959736532709084)
+
+        new_nse_alpha = nse_alpha(t_neg, p_neg)
+        assert np.allclose(new_nse_alpha, 1.02998712689571)
+
         return
 
     def test_nse_beta(self):
         new_nse_beta = nse_beta(t11, p11)
         # ref : reference_for_seqmetric_tests.ipynb
         assert np.allclose(new_nse_beta, 0.2405519617999516)
+
+        new_nse_beta = nse_beta(t_large, p_large)
+        assert np.allclose(new_nse_beta, 0.041925308232251185)
+
+        new_nse_beta = nse_beta(t_nan, p_nan)
+        assert np.allclose(new_nse_beta, 0.28770418762004457)
+
+        new_nse_beta = nse_beta(t_neg, p_neg)
+        assert np.allclose(new_nse_beta, 0.18524934630444692)
+
         return
 
     def test_nse_mod(self):
         new_nse_mod = nse_mod(t11, p11)
         # ref : reference_for_seqmetric_tests.ipynb
         assert np.allclose(new_nse_mod, -0.32879454094431804)
+
+        new_nse_mod = nse_mod(t_large, p_large)
+        assert np.allclose(new_nse_mod, -0.3404113246014431)
+
+        new_nse_mod = nse_mod(t_nan, p_nan)
+        assert np.allclose(new_nse_mod, -0.30533623352042705)
+
+        new_nse_mod = nse_mod(t_neg, p_neg)
+        assert np.allclose(new_nse_mod, -0.2510189384046788)
+
         return
 
     def test_nse_rel(self):
         new_nse_rel = nse_rel(t11, p11)
         # ref : reference_for_seqmetric_tests.ipynb
         assert np.allclose(new_nse_rel, -517670.8159599439)
+
+        new_nse_rel = nse_rel(t_large, p_large)
+        assert np.allclose(new_nse_rel, -212.51788168937344)
+
+        new_nse_rel = nse_rel(t_nan, p_nan)
+        assert np.allclose(new_nse_rel, -957.2667493440044)
+
+        new_nse_rel = nse_rel(t_neg, p_neg)
+        assert np.allclose(new_nse_rel, 0.11784531614883476)
+
         return
 
     def test_nse_bound(self):
         new_nse_bound = nse_bound(t11, p11)
         # ref : reference_for_seqmetric_tests.ipynb
         assert np.allclose(new_nse_bound, -0.34818860428052295)
+
+        new_nse_bound = nse_bound(t_large, p_large)
+        assert np.allclose(new_nse_bound, -0.324654904767188)
+
+        # new_nse_bound = nse_bound(t_nan, p_nan)
+        # assert np.allclose(new_nse_bound, nan)
+
+        new_nse_bound = nse_bound(t_neg, p_neg)
+        assert np.allclose(new_nse_bound, -0.29295000460088483)
+
         return
 
     def test_r2_score_cls(self):
         new_r2_score = metrics.r2_score()
-        sk_r2_score= r2_score(t11, p11)
+        sk_r2_score = r2_score(t11, p11)
         assert np.allclose(new_r2_score, sk_r2_score)
 
         new_r2_score = metrics_large.r2_score()
-        sk_r2_score= r2_score(t_large, p_large)
+        sk_r2_score = r2_score(t_large, p_large)
         assert np.allclose(new_r2_score, sk_r2_score)
 
         new_r2_score = metrics_nan.r2_score()
         t_nan_, p_nan_ = maybe_treat_arrays(True, t_nan, p_nan, 'regression', remove_nan=True)
-        sk_r2_score= r2_score(t_nan_, p_nan_)
+        sk_r2_score = r2_score(t_nan_, p_nan_)
         assert np.allclose(new_r2_score, sk_r2_score)
 
         new_r2_score = metrics_neg.r2_score()
-        sk_r2_score= r2_score(t_neg, p_neg)
+        sk_r2_score = r2_score(t_neg, p_neg)
         assert np.allclose(new_r2_score, sk_r2_score)
         return
 
@@ -417,30 +468,70 @@ class test_errors(unittest.TestCase):
         new_kge = kge(t11, p11)
         # ref : reference_for_seqmetric_tests.ipynb
         assert np.allclose(new_kge, 0.008970625237195717)
+
+        new_kge = kge(t_large, p_large)
+        assert np.allclose(new_kge, 0.038626769079834755)
+
+        # new_kge = kge(t_nan, p_nan)
+        # assert np.allclose(new_kge, array([nan]))
+
+        new_kge = kge(t_neg, p_neg)
+        self.assertAlmostEqual(new_kge, -1.193416946870867)
+
         return
 
     def test_kge_bound(self):
         new_kge_bound = kge_bound(t11, p11)
         # ref : reference_for_seqmetric_tests.ipynb
         assert np.allclose(new_kge_bound, 0.0045055212900936776)
+
+        new_kge_bound = kge_bound(t_large, p_large)
+        assert np.allclose(new_kge_bound, 0.01969374)
+
+        # new_kge_bound = kge_bound(t_nan, p_nan)
+        # assert np.allclose(new_kge_bound, array([nan]))
+
+        new_kge_bound = kge_bound(t_neg, p_neg)
+        assert np.allclose(new_kge_bound, -0.3737116)
+
         return
 
     def test_kge_mod(self):
         new_kge_mod = kge_mod(t11, p11)
         # ref : reference_for_seqmetric_tests.ipynb
         assert np.allclose(new_kge_mod, 0.004612979178136856)
+
+        new_kge_mod = kge_mod(t_large, p_large)
+        assert np.allclose(new_kge_mod, 0.03880057852421015)
+
+        new_kge_mod = kge_mod(t_nan, p_nan)
+        assert np.allclose(new_kge_mod, -0.01881219864144601)
+
+        new_kge_mod = kge_mod(t_neg, p_neg)
+        assert np.allclose(new_kge_mod, -1.9795119132448913)
+
         return
 
     def test_kge_np(self):
         new_kge_np = kge_np(t11, p11)
         # ref : reference_for_seqmetric_tests.ipynb
         assert np.allclose(new_kge_np, -0.006718774884987511)
+
+        new_kge_np = kge_np(t_large, p_large)
+        assert np.allclose(new_kge_np, 0.04099218)
+
+        # new_kge_np = kge_np(t_nan, p_nan)
+        # assert np.allclose(new_kge_np, array([nan]))
+
+        new_kge_np = kge_np(t_neg, p_neg)
+        self.assertAlmostEqual(new_kge_np, -1.25351754)
+
         return
 
-    def test_log_nse(self):
-        new_log_nse = log_nse(t11, p11)
-        assert np.allclose(new_log_nse, 1.0)
-        return
+    # def test_log_nse(self):
+    #     new_log_nse = log_nse(t11, p11)
+    #     assert np.allclose(new_log_nse, 1.0)
+    #     return
 
     def test_corr_coeff(self):
         new_corr_coeff = corr_coeff(t11, p11)
@@ -455,6 +546,22 @@ class test_errors(unittest.TestCase):
 
         new_corr_coeff = corr_coeff(t_neg, p_neg)
         assert np.allclose(new_corr_coeff, pearsonr(t_neg, p_neg)[0])
+        return
+
+
+    def test_spearmann_corr(self):
+        new_corr_coeff = spearmann_corr(t11, p11)
+        self.assertAlmostEqual(new_corr_coeff, spearmanr(t11, p11).statistic)
+
+        new_corr_coeff = spearmann_corr(t_large, p_large)
+        self.assertAlmostEqual(new_corr_coeff, spearmanr(t_large, p_large).statistic)
+
+        new_corr_coeff = spearmann_corr(t_nan, p_nan)
+        t_nan_, p_nan_ = maybe_treat_arrays(True, t_nan, p_nan, 'regression', remove_nan=True)
+        self.assertAlmostEqual(new_corr_coeff, spearmanr(t_nan_, p_nan_).statistic)
+
+        # new_corr_coeff = spearmann_corr(t_neg, p_neg)
+        # self.assertAlmostEqual(new_corr_coeff, spearmanr(t_neg, p_neg).statistic)
         return
 
     def test_rmse(self):
@@ -489,39 +596,39 @@ class test_errors(unittest.TestCase):
 
     def test_mape_cls(self):
         new_mape = metrics.mape()
-        sk_mape= mean_absolute_percentage_error(t11, p11) * 100.0
+        sk_mape = mean_absolute_percentage_error(t11, p11) * 100.0
         self.assertAlmostEqual(new_mape, sk_mape)
 
         new_mape = metrics_large.mape()
-        sk_mape= mean_absolute_percentage_error(t_large, p_large) * 100.0
+        sk_mape = mean_absolute_percentage_error(t_large, p_large) * 100.0
         self.assertAlmostEqual(new_mape, sk_mape)
 
         new_mape = metrics_nan.mape()
         t_nan_, p_nan_ = maybe_treat_arrays(True, t_nan, p_nan, 'regression', remove_nan=True)
-        sk_mape= mean_absolute_percentage_error(t_nan_, p_nan_) * 100.0
+        sk_mape = mean_absolute_percentage_error(t_nan_, p_nan_) * 100.0
         self.assertAlmostEqual(new_mape, sk_mape)
 
         new_mape = metrics_neg.mape()
-        sk_mape= mean_absolute_percentage_error(t_neg, p_neg) * 100.0
+        sk_mape = mean_absolute_percentage_error(t_neg, p_neg) * 100.0
         self.assertAlmostEqual(new_mape, sk_mape)
         return
 
     def test_mape_func(self):
         new_mape = sm_mape(t11, p11)
-        sk_mape= mean_absolute_percentage_error(t11, p11) * 100.0
+        sk_mape = mean_absolute_percentage_error(t11, p11) * 100.0
         self.assertAlmostEqual(new_mape, sk_mape)
 
         new_mape = sm_mape(t_large, p_large)
-        sk_mape= mean_absolute_percentage_error(t_large, p_large) * 100.0
+        sk_mape = mean_absolute_percentage_error(t_large, p_large) * 100.0
         self.assertAlmostEqual(new_mape, sk_mape)
 
         new_mape = sm_mape(t_nan, p_nan)
         t_nan_, p_nan_ = maybe_treat_arrays(True, t_nan, p_nan, 'regression', remove_nan=True)
-        sk_mape= mean_absolute_percentage_error(t_nan_, p_nan_) * 100.0
+        sk_mape = mean_absolute_percentage_error(t_nan_, p_nan_) * 100.0
         self.assertAlmostEqual(new_mape, sk_mape)
 
         new_mape = sm_mape(t_neg, p_neg)
-        sk_mape= mean_absolute_percentage_error(t_neg, p_neg) * 100.0
+        sk_mape = mean_absolute_percentage_error(t_neg, p_neg) * 100.0
         self.assertAlmostEqual(new_mape, sk_mape)
         return
 
@@ -529,12 +636,32 @@ class test_errors(unittest.TestCase):
         new_nrmse = nrmse(t11, p11)
         # ref : reference_for_seqmetric_tests.ipynb
         assert np.allclose(new_nrmse, 0.4081874143525102)
+
+        new_nrmse = nrmse(t_large, p_large)
+        assert np.allclose(new_nrmse, 0.4236625368431997)
+
+        # new_nrmse = nrmse(t_nan, p_nan)
+        # assert np.allclose(new_nrmse, array([nan]))
+
+        new_nrmse = nrmse(t_neg, p_neg)
+        assert np.allclose(new_nrmse, 0.4033494835923339)
+
         return
 
     def test_pbias(self):
         new_pbias = pbias(t11, p11)
         # ref : reference_for_seqmetric_tests.ipynb
         assert np.allclose(new_pbias, -13.214685733697532)
+
+        new_pbias = pbias(t_large, p_large)
+        assert np.allclose(new_pbias, -2.696935472370653)
+
+        # new_pbias = pbias(t_nan, p_nan)
+        # assert np.allclose(new_pbias, array([nan]))
+
+        new_pbias = pbias(t_neg, p_neg)
+        assert np.allclose(new_pbias, 201.3011152416357)
+
         return
 
     def test_bias(self):
@@ -547,6 +674,16 @@ class test_errors(unittest.TestCase):
         new_med_seq_error = med_seq_error(t11, p11)
         # ref : reference_for_seqmetric_tests.ipynb
         assert np.allclose(new_med_seq_error, 0.06731204476856545)
+
+        new_med_seq_error = med_seq_error(t_large, p_large)
+        assert np.allclose(new_med_seq_error, 11033435538276.316)
+
+        # new_med_seq_error = med_seq_error(t_nan, p_nan)
+        # assert np.allclose(new_med_seq_error, array([nan]))
+
+        new_med_seq_error = med_seq_error(t_neg, p_neg)
+        assert np.allclose(new_med_seq_error, 3308.5)
+
         return
 
     def test_mae_cls(self):
@@ -587,33 +724,72 @@ class test_errors(unittest.TestCase):
         assert np.allclose(new_mae, sk_mae)
         return
 
-    def test_abs_pbias(self):
-        new_abs_pbias = abs_pbias(t11, p11)
-        assert np.allclose(new_abs_pbias, 62.05374050378925)
-        return
+    # def test_abs_pbias(self):
+    #     new_abs_pbias = abs_pbias(t11, p11)
+    #     assert np.allclose(new_abs_pbias, 62.05374050378925)
+    #     return
 
     def test_gmae(self):
         new_gmae = gmae(t11, p11)
         # ref : reference_for_seqmetric_tests.ipynb
         assert np.allclose(new_gmae, 0.19423992928498718)
+
+        new_gmae = gmae(t_large, p_large)
+        assert np.allclose(new_gmae, 2449891.1923250267)
+
+        # new_gmae = gmae(t_nan, p_nan)
+        # assert np.allclose(new_gmae, array([nan]))
+
+        new_gmae = gmae(t_neg, p_neg)
+        assert np.allclose(new_gmae, 0.0)
         return
 
     def test_inrse(self):
         new_inrse = inrse(t11, p11)
         # ref : reference_for_seqmetric_tests.ipynb
         assert np.allclose(new_inrse, 1.4381836641228662)
+
+        new_inrse = inrse(t_large, p_large)
+        assert np.allclose(new_inrse, 1.4005173742939512)
+
+        # new_inrse = inrse(t_nan, p_nan)
+        # assert np.allclose(new_inrse, array([nan]))
+
+        new_inrse = inrse(t_neg, p_neg)
+        assert np.allclose(new_inrse, 1.3522774442172072)
+
         return
 
     def test_irmse(self):
         new_irmse = irmse(t11, p11)
         # ref : reference_for_seqmetric_tests.ipynb
         assert np.allclose(new_irmse, 0.9954807723243245)
+
+        new_irmse = irmse(t_large, p_large)
+        self.assertAlmostEqual(new_irmse, 0.9923269981666207)
+
+        new_irmse = irmse(t_nan, p_nan)
+        self.assertAlmostEqual(new_irmse, 1.0529524887988122)
+
+        new_irmse = irmse(t_neg, p_neg)
+        self.assertAlmostEqual(new_irmse, 0.8861674491048979)
+
         return
 
     def test_mase(self):
         new_mase = mase(t11, p11)
         # ref : reference_for_seqmetric_tests.ipynb
         assert np.allclose(new_mase, 0.9609397361653512)
+
+        new_mase = mase(t_large, p_large)
+        self.assertAlmostEqual(new_mase, 1.0143742396253592)
+
+        # new_mase = mase(t_nan, p_nan)
+        # assert np.allclose(new_mase, nan)
+
+        new_mase = mase(t_neg, p_neg)
+        self.assertAlmostEqual(new_mase, 0.8253916139240506)
+
         return
 
     def test_mare_new(self):
@@ -636,16 +812,16 @@ class test_errors(unittest.TestCase):
 
     def test_msle_cls(self):
         new_msle = metrics.msle()
-        sk_msle= mean_squared_log_error(t11, p11)
+        sk_msle = mean_squared_log_error(t11, p11)
         assert np.allclose(new_msle, sk_msle)
 
         new_msle = metrics_large.msle()
-        sk_msle= mean_squared_log_error(t_large, p_large)
+        sk_msle = mean_squared_log_error(t_large, p_large)
         assert np.allclose(new_msle, sk_msle)
 
         new_msle = metrics_nan.msle()
         t_nan_, p_nan_ = maybe_treat_arrays(True, t_nan, p_nan, 'regression', remove_nan=True)
-        sk_msle= mean_squared_log_error(t_nan_, p_nan_)
+        sk_msle = mean_squared_log_error(t_nan_, p_nan_)
         assert np.allclose(new_msle, sk_msle)
 
         new_msle = metrics_neg.msle()
@@ -655,16 +831,16 @@ class test_errors(unittest.TestCase):
 
     def test_msle_func(self):
         new_msle = sm_msle(t11, p11)
-        sk_msle= mean_squared_log_error(t11, p11)
+        sk_msle = mean_squared_log_error(t11, p11)
         assert np.allclose(new_msle, sk_msle)
 
         new_msle = sm_msle(t_large, p_large)
-        sk_msle= mean_squared_log_error(t_large, p_large)
+        sk_msle = mean_squared_log_error(t_large, p_large)
         assert np.allclose(new_msle, sk_msle)
 
         new_msle = sm_msle(t_nan, p_nan)
         t_nan_, p_nan_ = maybe_treat_arrays(True, t_nan, p_nan, 'regression', remove_nan=True)
-        sk_msle= mean_squared_log_error(t_nan_, p_nan_)
+        sk_msle = mean_squared_log_error(t_nan_, p_nan_)
         assert np.allclose(new_msle, sk_msle)
 
         new_msle = sm_msle(t_neg, p_neg)
@@ -700,24 +876,34 @@ class test_errors(unittest.TestCase):
         new_bic = bic(t11, p11)
         # ref : reference_for_seqmetric_tests.ipynb
         assert np.allclose(new_bic, -177.2107529924996)
+
+        new_bic = bic(t_large, p_large)
+        assert np.allclose(new_bic, 3053.952703683164)
+
+        # new_bic = bic(t_nan, p_nan)
+        # assert np.allclose(new_bic, nan)
+
+        # new_bic = bic(t_neg, p_neg)
+        # assert np.allclose(new_bic, 0.8253916139240506)
+
         return
 
     def test_sse(self):
         new_sse = sse(t11, p11)
-        np_sse = ((t11-p11)**2).sum()  # https://stackoverflow.com/a/2284634
+        np_sse = ((t11 - p11) ** 2).sum()  # https://stackoverflow.com/a/2284634
         assert np.allclose(new_sse, np_sse)
 
         new_sse = sse(t_large, p_large)
-        np_sse = ((t_large-p_large)**2).sum()  # https://stackoverflow.com/a/2284634
+        np_sse = ((t_large - p_large) ** 2).sum()  # https://stackoverflow.com/a/2284634
         assert np.allclose(new_sse, np_sse)
 
         new_sse = sse(t_nan, p_nan)
         t_nan_, p_nan_ = maybe_treat_arrays(True, t_nan, p_nan, 'regression', remove_nan=True)
-        np_sse = ((t_nan_ - p_nan_)**2).sum()  # https://stackoverflow.com/a/2284634
+        np_sse = ((t_nan_ - p_nan_) ** 2).sum()  # https://stackoverflow.com/a/2284634
         assert np.allclose(new_sse, np_sse)
 
         new_sse = sse(t_neg, p_neg)
-        np_sse = ((t_neg - p_neg)**2).sum()  # https://stackoverflow.com/a/2284634
+        np_sse = ((t_neg - p_neg) ** 2).sum()  # https://stackoverflow.com/a/2284634
         assert np.allclose(new_sse, np_sse)
         return
 
@@ -737,18 +923,48 @@ class test_errors(unittest.TestCase):
         new_aitchison = aitchison(t11, p11)
         # ref : reference_for_seqmetric_tests.ipynb
         assert np.allclose(new_aitchison, 16.326288844358846)
+
+        new_aitchison = aitchison(t_large, p_large)
+        assert np.allclose(new_aitchison, 16.004244764764962)
+
+        # new_aitchison = aitchison(t_nan, p_nan)
+        # assert np.allclose(new_aitchison, nan)
+
+        # new_aitchison = aitchison(t_neg, p_neg)
+        # assert np.allclose(new_aitchison, nan)
+
         return
 
     def test_aic(self):
         new_aic = aic(t11, p11)
         # ref : reference_for_seqmetric_tests.ipynb
         assert np.allclose(new_aic, -179.8159231784877)
+
+        new_aic = aic(t_large, p_large)
+        assert np.allclose(new_aic, 3051.347533497176)
+
+        # new_aic = aic(t_nan, p_nan)
+        # assert np.allclose(new_aic, nan)
+        #
+        # new_aic = aic(t_neg, p_neg)
+        # assert np.allclose(new_aic, nan)
+
         return
 
     def test_acc(self):
         new_acc = acc(t11, p11)
         # ref : reference_for_seqmetric_tests.ipynb
         assert np.allclose(new_acc, 0.0179208383645756)
+
+        new_acc = acc(t_large, p_large)
+        assert np.allclose(new_acc, 0.038813542968754375)
+
+        new_acc = acc(t_nan, p_nan)
+        assert np.allclose(new_acc, 0.0048403609085283655)
+
+        new_acc = acc(t_neg, p_neg)
+        assert np.allclose(new_acc, 0.12809439248837096)
+
         return
 
     def test_cronbach_alpha(self):
@@ -759,20 +975,20 @@ class test_errors(unittest.TestCase):
 
     def test_cosine_similarity(self):
         new_cosine_similarity = cosine_similarity(t11, p11)
-        sklearn_cos_sim_val = sklearn_cos_sim(t11.reshape(1,-1), p11.reshape(1,-1))[0].item()
+        sklearn_cos_sim_val = sklearn_cos_sim(t11.reshape(1, -1), p11.reshape(1, -1))[0].item()
         assert np.allclose(new_cosine_similarity, sklearn_cos_sim_val)
 
         new_cosine_similarity = cosine_similarity(t_large, p_large)
-        sklearn_cos_sim_val = sklearn_cos_sim(t_large.reshape(1,-1), p_large.reshape(1,-1))[0].item()
+        sklearn_cos_sim_val = sklearn_cos_sim(t_large.reshape(1, -1), p_large.reshape(1, -1))[0].item()
         assert np.allclose(new_cosine_similarity, sklearn_cos_sim_val)
 
         new_cosine_similarity = cosine_similarity(t_nan, p_nan)
-        # todo sklearn_cos_sim does not allow nan
-        #sklearn_cos_sim_val = sklearn_cos_sim(t_nan.reshape(1,-1), p_nan.reshape(1,-1))[0].item()
-        #assert np.allclose(new_cosine_similarity, sklearn_cos_sim_val)
+        t_nan_, p_nan_ = maybe_treat_arrays(True, t_nan, p_nan, 'regression', remove_nan=True)
+        sklearn_cos_sim_val = sklearn_cos_sim(t_nan_.reshape(1,-1), p_nan_.reshape(1,-1))[0].item()
+        self.assertAlmostEqual(new_cosine_similarity, sklearn_cos_sim_val)
 
         new_cosine_similarity = cosine_similarity(t_neg, p_neg)
-        sklearn_cos_sim_val = sklearn_cos_sim(t_neg.reshape(1,-1), p_neg.reshape(1,-1))[0].item()
+        sklearn_cos_sim_val = sklearn_cos_sim(t_neg.reshape(1, -1), p_neg.reshape(1, -1))[0].item()
         assert np.allclose(new_cosine_similarity, sklearn_cos_sim_val)
         return
 
@@ -786,15 +1002,25 @@ class test_errors(unittest.TestCase):
         new_euclid_distance = euclid_distance(t11, p11)
         # ref : reference_for_seqmetric_tests.ipynb
         assert np.allclose(new_euclid_distance, 4.028948714751875)
+
+        new_euclid_distance = euclid_distance(t_large, p_large)
+        assert np.allclose(new_euclid_distance, 41838300.60914836)
+
+        new_euclid_distance = euclid_distance(t_nan, p_nan)
+        assert np.allclose(new_euclid_distance, 3.727612385864465)
+
+        new_euclid_distance = euclid_distance(t_neg, p_neg)
+        assert np.allclose(new_euclid_distance, 790.5649878409744)
+
         return
 
     def test_exp_var_score_cls(self):
         new_exp_var_score = metrics.exp_var_score()
-        sk_exp_var_scr= explained_variance_score(t11, p11)
+        sk_exp_var_scr = explained_variance_score(t11, p11)
         assert np.allclose(new_exp_var_score, sk_exp_var_scr)
 
         new_exp_var_score = metrics_large.exp_var_score()
-        sk_exp_var_scr= explained_variance_score(t_large, p_large)
+        sk_exp_var_scr = explained_variance_score(t_large, p_large)
         assert np.allclose(new_exp_var_score, sk_exp_var_scr)
 
         new_exp_var_score = metrics_nan.exp_var_score()
@@ -802,17 +1028,17 @@ class test_errors(unittest.TestCase):
         # assert np.allclose(new_exp_var_score, sk_exp_var_scr)
 
         new_exp_var_score = metrics_neg.exp_var_score()
-        sk_exp_var_scr= explained_variance_score(t_neg, p_neg)
+        sk_exp_var_scr = explained_variance_score(t_neg, p_neg)
         assert np.allclose(new_exp_var_score, sk_exp_var_scr)
         return
 
     def test_exp_var_score_func(self):
         new_exp_var_score = sm_exp_var_score(t11, p11)
-        sk_exp_var_scr= explained_variance_score(t11, p11)
+        sk_exp_var_scr = explained_variance_score(t11, p11)
         assert np.allclose(new_exp_var_score, sk_exp_var_scr)
 
         new_exp_var_score = sm_exp_var_score(t_large, p_large)
-        sk_exp_var_scr= explained_variance_score(t_large, p_large)
+        sk_exp_var_scr = explained_variance_score(t_large, p_large)
         assert np.allclose(new_exp_var_score, sk_exp_var_scr)
 
         new_exp_var_score = sm_exp_var_score(t_nan, p_nan)
@@ -820,7 +1046,7 @@ class test_errors(unittest.TestCase):
         # assert np.allclose(new_exp_var_score, sk_exp_var_scr)
 
         new_exp_var_score = sm_exp_var_score(t_neg, p_neg)
-        sk_exp_var_scr= explained_variance_score(t_neg, p_neg)
+        sk_exp_var_scr = explained_variance_score(t_neg, p_neg)
         assert np.allclose(new_exp_var_score, sk_exp_var_scr)
         return
 
@@ -836,24 +1062,40 @@ class test_errors(unittest.TestCase):
         new_fdc_fhv = fdc_fhv(t11, p11)
         # ref : reference_for_seqmetric_tests.ipynb
         assert np.allclose(new_fdc_fhv, 1.5933766138626262)
+
+        new_fdc_fhv = fdc_fhv(t_large, p_large)
+        assert np.allclose(new_fdc_fhv, -2.2166403701887254)
+
+        new_fdc_fhv = fdc_fhv(t_nan, p_nan)
+        assert np.allclose(new_fdc_fhv, 1.5933766138626262)
+
+        new_fdc_fhv = fdc_fhv(t_neg, p_neg)
+        assert np.allclose(new_fdc_fhv, 0.0)
+
         return
 
     def test_fdc_flv(self):
         new_fdc_flv = fdc_flv(t11, p11)
         # ref : reference_for_seqmetric_tests.ipynb
         assert np.allclose(new_fdc_flv, 32.64817835760714)
-        return
 
-    def test_gmean_diff(self):
-        new_gmean_diff = gmean_diff(t11, p11)
-        # todo : find reference for this
-        # assert np.allclose(new_gmean_diff, 1.0537636718549144)
+        new_fdc_flv = fdc_flv(t_large, p_large)
+        assert np.allclose(new_fdc_flv, -113.29167126784779)
+
+        new_fdc_flv = fdc_flv(t_nan, p_nan)
+        assert np.allclose(new_fdc_flv, -35.650939085951364)
         return
 
     def test_gmrae(self):
         new_gmrae = gmrae(t11, p11)
         # ref : reference_for_seqmetric_tests.ipynb
         assert np.allclose(new_gmrae, 0.79938390310645)
+
+        new_gmrae = gmrae(t_large, p_large)
+        assert np.allclose(new_gmrae, 1.1057529056395325)
+
+        new_gmrae = gmrae(t_neg, p_neg)
+        assert np.allclose(new_gmrae, 0.0)
         return
 
     def test_calculate_hydro_metrics(self):
@@ -866,6 +1108,15 @@ class test_errors(unittest.TestCase):
         new_JS = JS(t11, p11)
         # ref : reference_for_seqmetric_tests.ipynb
         assert np.allclose(new_JS, 7.275875413762115)
+
+        new_JS = JS(t_large, p_large)
+        assert np.allclose(new_JS, 82030912.4664884)
+
+        new_JS = JS(t_nan, p_nan)
+        assert np.allclose(new_JS, 6.109483922657932)
+
+        new_JS = JS(t_neg, p_neg)
+        assert np.allclose(new_JS, -1486.8471425886949)
         return
 
     def test_kendaull_tau(self):
@@ -887,12 +1138,24 @@ class test_errors(unittest.TestCase):
         new_kgeprime_c2m = kgeprime_bound(t11, p11)
         # ref : reference_for_seqmetric_tests.ipynb
         assert np.allclose(new_kgeprime_c2m, 0.0023118217819402547)
+
+        new_kgeprime_c2m = kgeprime_bound(t_large, p_large)
+        assert np.allclose(new_kgeprime_c2m, 0.01978411)
+
+        new_kgeprime_c2m = kgeprime_bound(t_neg, p_neg)
+        assert np.allclose(new_kgeprime_c2m, -0.4974258)
         return
 
     def test_kgenp_bound(self):
         new_kgenp_bound = kgenp_bound(t11, p11)
         # ref : reference_for_seqmetric_tests.ipynb
         assert np.allclose(new_kgenp_bound, -0.00334814)
+
+        new_kgenp_bound = kgenp_bound(t_large, p_large)
+        assert np.allclose(new_kgenp_bound, 0.02092497)
+
+        new_kgenp_bound = kgenp_bound(t_neg, p_neg)
+        self.assertAlmostEqual(new_kgenp_bound, -0.38528071)
         return
 
     def test_kl_sym(self):
@@ -904,27 +1167,48 @@ class test_errors(unittest.TestCase):
         new_lm_index = lm_index(t11, p11)
         # ref : reference_for_seqmetric_tests.ipynb
         assert np.allclose(new_lm_index, -0.32879454094431804)
+
+        new_lm_index = lm_index(t_large, p_large)
+        assert np.allclose(new_lm_index, -0.3404113246014431)
+
+        new_lm_index = lm_index(t_nan, p_nan)
+        assert np.allclose(new_lm_index, -0.30533623352042705)
+
+        new_lm_index = lm_index(t_neg, p_neg)
+        assert np.allclose(new_lm_index, -0.2510189384046788)
         return
 
     def test_maape(self):
         new_maape = maape(t11, p11)
         # ref : reference_for_seqmetric_tests.ipynb
         assert np.allclose(new_maape, 0.5828454707567975)
+
+        new_maape = maape(t_large, p_large)
+        assert np.allclose(new_maape, 0.6788115353385473)
+
+        new_maape = maape(t_neg, p_neg)
+        assert np.allclose(new_maape, 0.8399216450191015)
         return
 
     def test_mbrae(self):
         new_mbrae = mbrae(t11, p11)
         # ref : reference_for_seqmetric_tests.ipynb
         assert np.allclose(new_mbrae, 0.46659593775205116)
+
+        new_mbrae = mbrae(t_large, p_large)
+        assert np.allclose(new_mbrae, 0.5036144959534816)
+
+        new_mbrae = mbrae(t_neg, p_neg)
+        assert np.allclose(new_mbrae, 0.4330684929959228)
         return
 
     def test_max_error_cls(self):
         new_max_error = metrics.max_error()
-        sk_max_error= max_error(t11, p11)
+        sk_max_error = max_error(t11, p11)
         assert np.allclose(new_max_error, sk_max_error)
 
         new_max_error = metrics_large.max_error()
-        sk_max_error= max_error(t_large, p_large)
+        sk_max_error = max_error(t_large, p_large)
         assert np.allclose(new_max_error, sk_max_error)
 
         new_max_error = metrics_nan.max_error()
@@ -932,17 +1216,17 @@ class test_errors(unittest.TestCase):
         # assert np.allclose(new_max_error, sk_max_error)
 
         new_max_error = metrics_neg.max_error()
-        sk_max_error= max_error(t_neg, p_neg)
+        sk_max_error = max_error(t_neg, p_neg)
         assert np.allclose(new_max_error, sk_max_error)
         return
 
     def test_max_error_func(self):
         new_max_error = sm_max_error(t11, p11)
-        sk_max_error= max_error(t11, p11)
+        sk_max_error = max_error(t11, p11)
         assert np.allclose(new_max_error, sk_max_error)
 
         new_max_error = sm_max_error(t_large, p_large)
-        sk_max_error= max_error(t_large, p_large)
+        sk_max_error = max_error(t_large, p_large)
         assert np.allclose(new_max_error, sk_max_error)
 
         new_max_error = sm_max_error(t_nan, p_nan)
@@ -950,7 +1234,7 @@ class test_errors(unittest.TestCase):
         # assert np.allclose(new_max_error, sk_max_error)
 
         new_max_error = sm_max_error(t_neg, p_neg)
-        sk_max_error= max_error(t_neg, p_neg)
+        sk_max_error = max_error(t_neg, p_neg)
         assert np.allclose(new_max_error, sk_max_error)
         return
 
@@ -958,54 +1242,97 @@ class test_errors(unittest.TestCase):
         new_mb_r = mb_r(t11, p11)
         # ref : reference_for_seqmetric_tests.ipynb
         assert np.allclose(new_mb_r, 0.04444743269492335)
+
+        new_mb_r = mb_r(t_large, p_large)
+        assert np.allclose(new_mb_r, -0.0012306836021478418)
+
+        new_mb_r = mb_r(t_nan, p_nan)
+        assert np.allclose(new_mb_r, 0.03938975589826077)
+
+        new_mb_r = mb_r(t_neg, p_neg)
+        assert np.allclose(new_mb_r, 0.08496259099000014)
         return
 
     def test_mda(self):
         new_mda = mda(t11, p11)
         # ref : reference_for_seqmetric_tests.ipynb
         assert np.allclose(new_mda, 0.696969696969697)
+
+        new_mda = mda(t_large, p_large)
+        assert np.allclose(new_mda, 0.7171717171717171)
+
+        new_mda = mda(t_nan, p_nan, remove_nan=False)
+        self.assertAlmostEqual(new_mda, 0.494949494949495)
+
+        new_mda = mda(t_neg, p_neg)
+        self.assertAlmostEqual(new_mda, 0.7171717171717171)
         return
 
     def test_mde(self):
         new_mde = mde(t11, p11)
         # ref : reference_for_seqmetric_tests.ipynb
         assert np.allclose(new_mde, 0.0313854202641316)
+
+        new_mde = mde(t_large, p_large)
+        assert np.allclose(new_mde, 325158.3003595751)
+
+        new_mde = mde(t_nan, p_nan)
+        assert np.allclose(new_mde, 0.05103081484042016)
+
+        new_mde = mde(t_neg, p_neg)
+        assert np.allclose(new_mde, 13.5)
         return
 
     def test_mdape(self):
         new_mdape = mdape(t11, p11)
         # ref : reference_for_seqmetric_tests.ipynb
         assert np.allclose(new_mdape, 51.3246349701827)
+
+        new_mdape = mdape(t_large, p_large)
+        self.assertAlmostEqual(new_mdape, 75.67708188562414)
+
+        new_mdape = mdape(t_neg, p_neg)
+        self.assertAlmostEqual(new_mdape, 146.14370468057651)
         return
 
     def test_mdrae(self):
         new_mdrae = mdrae(t11, p11)
         # ref : reference_for_seqmetric_tests.ipynb
         assert np.allclose(new_mdrae, 0.9086455067666214)
+
+        new_mdrae = mdrae(t_large, p_large)
+        assert np.allclose(new_mdrae, 0.941921124439974)
+
+        new_mdrae = mdrae(t_neg, p_neg)
+        assert np.allclose(new_mdrae, 0.7777777777768176)
         return
 
     def test_me(self):
         new_me = me(t11, p11)
         # ref : reference_for_seqmetric_tests.ipynb
         assert np.allclose(new_me, -0.06738857779448111)
+
+        self.assertAlmostEqual(me(t_large, p_large), -125245.40438753393)
+
+        self.assertAlmostEqual(me(t_neg, p_neg), -10.83)
         return
 
     def test_mean_bias_error(self):
         sm_mbe = mean_bias_error(t11, p11)
-        np_mbe = np.mean(t11 - p11) # https://stackoverflow.com/q/59935155
+        np_mbe = np.mean(t11 - p11)  # https://stackoverflow.com/q/59935155
         assert np.allclose(sm_mbe, np_mbe)
 
         sm_mbe = mean_bias_error(t_large, p_large)
-        np_mbe = np.mean(t_large - p_large) # https://stackoverflow.com/q/59935155
+        np_mbe = np.mean(t_large - p_large)  # https://stackoverflow.com/q/59935155
         assert np.allclose(sm_mbe, np_mbe)
 
         sm_mbe = mean_bias_error(t_nan, p_nan)
         t_nan_, p_nan_ = maybe_treat_arrays(True, t_nan, p_nan, 'regression', remove_nan=True)
-        np_mbe = np.mean(t_nan_ - p_nan_) # https://stackoverflow.com/q/59935155
+        np_mbe = np.mean(t_nan_ - p_nan_)  # https://stackoverflow.com/q/59935155
         assert np.allclose(sm_mbe, np_mbe)
 
         sm_mbe = mean_bias_error(t_neg, p_neg)
-        np_mbe = np.mean(t_neg - p_neg) # https://stackoverflow.com/q/59935155
+        np_mbe = np.mean(t_neg - p_neg)  # https://stackoverflow.com/q/59935155
         assert np.allclose(sm_mbe, np_mbe)
         return
 
@@ -1013,6 +1340,10 @@ class test_errors(unittest.TestCase):
         new_mean_var = mean_var(t11, p11)
         # ref : reference_for_seqmetric_tests.ipynb
         assert np.allclose(new_mean_var, 0.07449144510570738)
+
+        self.assertAlmostEqual(mean_var(t_large, p_large), 2.5613322338568736)
+
+        self.assertAlmostEqual(mean_var(t_nan, p_nan), 0.0773070071169125)
         return
 
     def test_mean_poisson_deviance(self):
@@ -1047,11 +1378,11 @@ class test_errors(unittest.TestCase):
 
     def test_median_abs_error_cls(self):
         new_median_abs_error = metrics.median_abs_error()
-        sk_median_abs_error= median_absolute_error(t11, p11)
+        sk_median_abs_error = median_absolute_error(t11, p11)
         assert np.allclose(new_median_abs_error, sk_median_abs_error)
 
         new_median_abs_error = metrics_large.median_abs_error()
-        sk_median_abs_error= median_absolute_error(t_large, p_large)
+        sk_median_abs_error = median_absolute_error(t_large, p_large)
         assert np.allclose(new_median_abs_error, sk_median_abs_error)
 
         new_median_abs_error = metrics_nan.median_abs_error()
@@ -1060,17 +1391,17 @@ class test_errors(unittest.TestCase):
         assert np.allclose(new_median_abs_error, sk_median_abs_error)
 
         new_median_abs_error = metrics_neg.median_abs_error()
-        sk_median_abs_error= median_absolute_error(t_neg, p_neg)
+        sk_median_abs_error = median_absolute_error(t_neg, p_neg)
         assert np.allclose(new_median_abs_error, sk_median_abs_error)
         return
 
     def test_median_abs_error_func(self):
         new_median_abs_error = sm_median_abs_error(t11, p11)
-        sk_median_abs_error= median_absolute_error(t11, p11)
+        sk_median_abs_error = median_absolute_error(t11, p11)
         assert np.allclose(new_median_abs_error, sk_median_abs_error)
 
         new_median_abs_error = sm_median_abs_error(t_large, p_large)
-        sk_median_abs_error= median_absolute_error(t_large, p_large)
+        sk_median_abs_error = median_absolute_error(t_large, p_large)
         assert np.allclose(new_median_abs_error, sk_median_abs_error)
 
         new_median_abs_error = sm_median_abs_error(t_nan, p_nan)
@@ -1079,7 +1410,7 @@ class test_errors(unittest.TestCase):
         assert np.allclose(new_median_abs_error, sk_median_abs_error)
 
         new_median_abs_error = sm_median_abs_error(t_neg, p_neg)
-        sk_median_abs_error= median_absolute_error(t_neg, p_neg)
+        sk_median_abs_error = median_absolute_error(t_neg, p_neg)
         assert np.allclose(new_median_abs_error, sk_median_abs_error)
         return
 
@@ -1087,12 +1418,32 @@ class test_errors(unittest.TestCase):
         new_mle = mle(t11, p11)
         # ref : reference_for_seqmetric_tests.ipynb
         assert np.allclose(new_mle, 0.0438958324374804)
+
+        new_mle = mle(t_large, p_large)
+        assert np.allclose(new_mle, -0.03628518397994352)
+
+        new_mle = mle(t_nan, p_nan)
+        assert np.allclose(new_mle, 0.0549303833066667)
+
+        # new_mde = mle(t_neg, p_neg)
+        # assert np.allclose(new_mde, nan)
+
         return
 
     def test_mod_agreement_index(self):
         new_mod_agreement_index = mod_agreement_index(t11, p11)
         # ref : reference_for_seqmetric_tests.ipynb
         assert np.allclose(new_mod_agreement_index, 0.36018092524466827)
+
+        new_mod_agreement_index = mod_agreement_index(t_large, p_large)
+        assert np.allclose(new_mod_agreement_index, 0.3388950675310263)
+
+        new_mod_agreement_index = mod_agreement_index(t_nan, p_nan)
+        assert np.allclose(new_mod_agreement_index, 0.35955299749868597)
+
+        new_mod_agreement_index = mod_agreement_index(t_neg, p_neg)
+        assert np.allclose(new_mod_agreement_index, 0.40008576980295707)
+
         return
 
     def test_mpe(self):
@@ -1104,42 +1455,112 @@ class test_errors(unittest.TestCase):
         new_mrae = mrae(t11, p11)
         # ref : reference_for_seqmetric_tests.ipynb
         assert np.allclose(new_mrae, 2.5711621568850163)
+
+        new_mrae = mrae(t_large, p_large)
+        assert np.allclose(new_mrae, 17.10021183277437)
+
+        # new_mrae = mrae(t_nan, p_nan)
+        # assert np.allclose(new_mrae, nan)
+
+        new_mrae = mrae(t_neg, p_neg)
+        assert np.allclose(new_mrae, 1.6932857266200108)
+
         return
 
     def test_norm_euclid_distance(self):
         new_norm_euclid_distance = norm_euclid_distance(t11, p11)
         # ref : reference_for_seqmetric_tests.ipynb
         assert np.allclose(new_norm_euclid_distance, 7.338597737626875)
+
+        new_norm_euclid_distance = norm_euclid_distance(t_large, p_large)
+        assert np.allclose(new_norm_euclid_distance, 8.885308084386528)
+
+        new_norm_euclid_distance = norm_euclid_distance(t_nan, p_nan)
+        assert np.allclose(new_norm_euclid_distance, 6.7372058740579615)
+
+        new_norm_euclid_distance = norm_euclid_distance(t_neg, p_neg)
+        assert np.allclose(new_norm_euclid_distance, 164.68781514254727)
+
         return
 
     def test_nrmse_range(self):
         new_nrmse_range = nrmse_range(t11, p11)
         # ref : reference_for_seqmetric_tests.ipynb
         assert np.allclose(new_nrmse_range, 0.4081874143525102)
+
+        new_nrmse_range = nrmse_range(t_large, p_large)
+        assert np.allclose(new_nrmse_range, 0.4236625368431997)
+
+        # new_nrmse_range = nrmse_range(t_nan, p_nan)
+        # assert np.allclose(new_nrmse_range, nan)
+
+        new_nrmse_range = nrmse_range(t_neg, p_neg)
+        assert np.allclose(new_nrmse_range, 0.4033494835923339)
+
         return
 
     def test_nrmse_ipercentile(self):
         new_nrmse_ipercentile = nrmse_ipercentile(t11, p11)
         # ref : reference_for_seqmetric_tests.ipynb
         assert np.allclose(new_nrmse_ipercentile, 0.8187123709758822)
+
+        new_nrmse_ipercentile = nrmse_ipercentile(t_large, p_large)
+        assert np.allclose(new_nrmse_ipercentile, 0.7724872344273039)
+
+        new_nrmse_ipercentile = nrmse_ipercentile(t_nan, p_nan)
+        assert np.allclose(new_nrmse_ipercentile, 0.7918933678745431)
+
+        new_nrmse_ipercentile = nrmse_ipercentile(t_neg, p_neg)
+        assert np.allclose(new_nrmse_ipercentile, 0.7675388231465771)
+
         return
 
     def test_nrmse_mean(self):
         new_nrmse_mean = nrmse_mean(t11, p11)
         # ref : reference_for_seqmetric_tests.ipynb
         assert np.allclose(new_nrmse_mean, 0.790064026354788)
+
+        new_nrmse_mean = nrmse_mean(t_large, p_large)
+        assert np.allclose(new_nrmse_mean, 0.9009128723588501)
+
+        new_nrmse_mean = nrmse_mean(t_nan, p_nan)
+        assert np.allclose(new_nrmse_mean, 0.8193408657286905)
+
+        new_nrmse_mean = nrmse_mean(t_neg, p_neg)
+        assert np.allclose(new_nrmse_mean, -14.694516502620342)
+
         return
 
     def test_norm_ae(self):
         new_norm_ae = norm_ae(t11, p11)
         # ref : reference_for_seqmetric_tests.ipynb
         assert np.allclose(new_norm_ae, 0.5551510970200795)
+
+        new_norm_ae = norm_ae(t_large, p_large)
+        assert np.allclose(new_norm_ae, 5553104.916104561)
+
+        # new_norm_ae = norm_ae(t_nan, p_nan)
+        # assert np.allclose(new_norm_ae, nan)
+
+        new_norm_ae = norm_ae(t_neg, p_neg)
+        assert np.allclose(new_norm_ae, 108.32762082840846)
+
         return
 
     def test_norm_ape(self):
         new_norm_ape = norm_ape(t11, p11)
         # ref : reference_for_seqmetric_tests.ipynb
         assert np.allclose(new_norm_ape, 40406.322788120626)
+
+        new_norm_ape = norm_ape(t_large, p_large)
+        self.assertAlmostEqual(new_norm_ape, 1046.8496670954119)
+
+        # new_norm_ape = norm_ape(t_nan, p_nan)
+        # assert np.allclose(new_norm_ape, nan)
+
+        new_norm_ape = norm_ape(t_neg, p_neg)
+        self.assertAlmostEqual(new_norm_ape, 1109.7150018412195)
+
         return
 
     def test_log_prob(self):
@@ -1151,41 +1572,104 @@ class test_errors(unittest.TestCase):
         new_rmdspe = rmdspe(t11, p11)
         # ref : reference_for_seqmetric_tests.ipynb
         assert np.allclose(new_rmdspe, 51.33222853161395)
+
+        new_rmdspe = rmdspe(t_large, p_large)
+        assert np.allclose(new_rmdspe, 75.67716892334615)
+
+        # new_rmdspe = rmdspe(t_nan, p_nan)
+        # assert np.allclose(new_rmdspe, nan)
+
+        new_rmdspe = rmdspe(t_neg, p_neg)
+        assert np.allclose(new_rmdspe, 146.14383848209451)
+
         return
 
     def test_rse(self):
         new_rse = rse(t11, p11)
         # ref : reference_for_seqmetric_tests.ipynb
         assert np.allclose(new_rse, 2.0683722517498735)
+
+        new_rse = rse(t_large, p_large)
+        self.assertAlmostEqual(new_rse, 1.9614489156992236)
+
+        # new_rse = rse(t_nan, p_nan)
+        # assert np.allclose(new_rse, nan)
+
+        new_rse = rse(t_neg, p_neg)
+        self.assertAlmostEqual(new_rse, 1.828654286138622)
+
         return
 
     def test_rrse(self):
         new_rrse = rrse(t11, p11)
         # ref : reference_for_seqmetric_tests.ipynb
         assert np.allclose(new_rrse, 1.4381836641228662)
+
+        new_rrse = rrse(t_large, p_large)
+        assert np.allclose(new_rrse, 1.4005173742939512)
+
+        # new_rrse = rrse(t_nan, p_nan)
+        # assert np.allclose(new_rrse, nan)
+
+        new_rrse = rrse(t_neg, p_neg)
+        assert np.allclose(new_rrse, 1.3522774442172072)
+
         return
 
     def test_rae(self):
         new_rae = rae(t11, p11)
         # ref : reference_for_seqmetric_tests.ipynb
         assert np.allclose(new_rae, 1.3287945409387383)
+
+        new_rae = rae(t_large, p_large)
+        assert np.allclose(new_rae, 1.340411324601443)
+
+        # new_rae = rae(t_nan, p_nan)
+        # assert np.allclose(new_rae, nan)
+
+        new_rae = rae(t_neg, p_neg)
+        assert np.allclose(new_rae, 1.2510189384046542)
+
         return
 
     def test_ref_agreement_index(self):
         new_ref_agreement_index = ref_agreement_index(t11, p11)
         # ref : reference_for_seqmetric_tests.ipynb
         assert np.allclose(new_ref_agreement_index, 0.335602729527841)
+
+        new_ref_agreement_index = ref_agreement_index(t_large, p_large)
+        assert np.allclose(new_ref_agreement_index, 0.32979433769927846)
+
+        new_ref_agreement_index = ref_agreement_index(t_nan, p_nan)
+        assert np.allclose(new_ref_agreement_index, 0.3473318832397865)
+
+        new_ref_agreement_index = ref_agreement_index(t_neg, p_neg)
+        assert np.allclose(new_ref_agreement_index, 0.3744905307976606)
+
         return
 
     def test_rel_agreement_index(self):
         new_rel_agreement_index = rel_agreement_index(t11, p11)
         # ref : reference_for_seqmetric_tests.ipynb
         assert np.allclose(new_rel_agreement_index, -139396.49261170527)
+
+        new_rel_agreement_index = rel_agreement_index(t_large, p_large)
+        self.assertAlmostEqual(new_rel_agreement_index, -59.968928280632056)
+
+        new_rel_agreement_index = rel_agreement_index(t_nan, p_nan)
+        self.assertAlmostEqual(new_rel_agreement_index, -257.2099156747244)
+
+        new_rel_agreement_index = rel_agreement_index(t_neg, p_neg)
+        self.assertAlmostEqual(new_rel_agreement_index, 0.7644847163377675)
+
         return
 
     def test_relative_rmse(self):
         new_relative_rmse = relative_rmse(t11, p11)
-        # todo
+        # formula compared against following references
+        # https://search.r-project.org/CRAN/refmans/metrica/html/RRMSE.html
+        # https://sticsrpacks.github.io/CroPlotR/reference/predictor_assessment.html
+
         assert np.allclose(new_relative_rmse, 0.790064026354788)
         return
 
@@ -1193,6 +1677,10 @@ class test_errors(unittest.TestCase):
         new_rmspe = rmspe(t11, p11)
         # ref : reference_for_seqmetric_tests.ipynb
         assert np.allclose(new_rmspe, 39525.28325496917)
+
+        self.assertAlmostEqual(rmspe(t_large, p_large), 939.9644256990216)
+
+        self.assertAlmostEqual(rmspe(t_neg, p_neg), 1020.6148170735952)
         return
 
     def test_rsr(self):
@@ -1205,9 +1693,10 @@ class test_errors(unittest.TestCase):
         new_rsr = rsr(obs, sim)
         assert np.allclose(new_rsr, 0.3302891)
 
-        # copy paste these values to R and run rsr(sim, obs)
-        t = np.array([160, 112, 129, 116, 100,  68, 103, 87, 70, 69])
-        p = np.array([169.43952, 121.76982, 140.55871, 126.07051, 110.12929, 79.71506, 113.46092, 95.73494, 79.31315, 78.55434])
+        # copy and paste these values to R and run rsr(sim, obs)
+        t = np.array([160, 112, 129, 116, 100, 68, 103, 87, 70, 69])
+        p = np.array(
+            [169.43952, 121.76982, 140.55871, 126.07051, 110.12929, 79.71506, 113.46092, 95.73494, 79.31315, 78.55434])
         assert np.allclose(rsr(t, p), 0.3417515)
         return
 
@@ -1215,42 +1704,76 @@ class test_errors(unittest.TestCase):
         new_rmsse = rmsse(t11, p11)
         # ref : reference_for_seqmetric_tests.ipynb
         assert np.allclose(new_rmsse, 1.2234619716320643)
+
+        self.assertAlmostEqual(rmsse(t_large, p_large), 1.217492218321228)
+
+        self.assertAlmostEqual(rmsse(t_neg, p_neg), 1.0319875236848162)
         return
 
     def test_sa(self):
         new_sa = sa(t11, p11)
         # ref : reference_for_seqmetric_tests.ipynb
         assert np.allclose(new_sa, 0.6618474080345743)
+
+        self.assertAlmostEqual(sa(t_large, p_large), 0.7666906960815938)
+
+        self.assertAlmostEqual(sa(t_nan, p_nan), 0.6732143252992395)
+
+        self.assertAlmostEqual(sa(t_neg, p_neg), 1.450447074951836)
         return
 
     def test_sc(self):
         new_sc = sc(t11, p11)
         # ref : reference_for_seqmetric_tests.ipynb
         assert np.allclose(new_sc, 1.5526934811208075)
+
+        self.assertAlmostEqual(sc(t_large, p_large), 1.5315806771993858)
+
+        self.assertAlmostEqual(sc(t_nan, p_nan), 1.5658954417562418)
+
+        self.assertAlmostEqual(sc(t_neg, p_neg), 1.441044282467568)
         return
 
     def test_smape(self):
         new_smape = smape(t11, p11)
         # ref : reference_for_seqmetric_tests.ipynb
         assert np.allclose(new_smape, 70.28826490215243)
+
+        self.assertAlmostEqual(smape(t_large, p_large), 87.28058345172697)
+
+        self.assertAlmostEqual(smape(t_nan, p_nan), 71.12256546064978)
+
+        self.assertAlmostEqual(smape(t_neg, p_neg), 126.65321112176788)
         return
 
     def test_smdape(self):
         new_smdape = smdape(t11, p11)
         # ref : reference_for_seqmetric_tests.ipynb
         assert np.allclose(new_smdape, 0.5999121382638821)
+
+        self.assertAlmostEqual(smdape(t_large, p_large), 0.7801452772689506)
+
+        self.assertAlmostEqual(smdape(t_neg, p_neg), 1.4883449883428177)
         return
 
     def test_sid(self):
         new_sid = sid(t11, p11)
         # ref : reference_for_seqmetric_tests.ipynb
         assert np.allclose(new_sid, 43.71192101756139)
+
+        self.assertAlmostEqual(sid(t_large, p_large), 51.90130475363692)
+
+        self.assertAlmostEqual(sid(t_nan, p_nan), 34.09217843319721)
         return
 
     def test_skill_score_murphy(self):
         new_skill_score_murphy = skill_score_murphy(t11, p11)
         # ref : reference_for_seqmetric_tests.ipynb
         assert np.allclose(new_skill_score_murphy, -1.0476885292323743)
+
+        self.assertAlmostEqual(skill_score_murphy(t_large, p_large), -0.9418344265422312)
+
+        self.assertAlmostEqual(skill_score_murphy(t_neg, p_neg), -0.8103677432772358)
         return
 
     def test_std_ratio(self):
@@ -1262,12 +1785,23 @@ class test_errors(unittest.TestCase):
         new_umbrae = umbrae(t11, p11)
         # ref : reference_for_seqmetric_tests.ipynb
         assert np.allclose(new_umbrae, 0.8747513766311694)
+
+        self.assertAlmostEqual(umbrae(t_large, p_large), 1.014563261513547)
+
+        self.assertAlmostEqual(umbrae(t_neg, p_neg), 0.7638815053417172)
         return
 
     def test_ve(self):
         new_ve = ve(t11, p11)
         # ref : reference_for_seqmetric_tests.ipynb
         assert np.allclose(new_ve, 0.3794625949621073)
+
+        self.assertAlmostEqual(ve(t_large, p_large), 0.2493891984559775)
+
+        self.assertAlmostEqual(ve(t_nan, p_nan), 0.3563569652466473)
+
+        self.assertAlmostEqual(ve(t_neg, p_neg), 12.75278810408922)
+
         return
 
     def test_volume_error(self):
@@ -1277,20 +1811,20 @@ class test_errors(unittest.TestCase):
 
     def test_wape(self):
         new_wape = wape(t11, p11)
-        np_wape = np.abs(t11 - p11).sum() / t11.sum() # https://stackoverflow.com/a/68531393
+        np_wape = np.abs(t11 - p11).sum() / t11.sum()  # https://stackoverflow.com/a/68531393
         assert np.allclose(new_wape, np_wape)
 
         new_wape = wape(t_large, p_large)
-        np_wape = np.abs(t_large - p_large).sum() / t_large.sum() # https://stackoverflow.com/a/68531393
+        np_wape = np.abs(t_large - p_large).sum() / t_large.sum()  # https://stackoverflow.com/a/68531393
         assert np.allclose(new_wape, np_wape)
 
         new_wape = wape(t_nan, p_nan)
         t_nan_, p_nan_ = maybe_treat_arrays(True, t_nan, p_nan, 'regression', remove_nan=True)
-        np_wape = np.abs(t_nan_ - p_nan_).sum() / t_nan_.sum() # https://stackoverflow.com/a/68531393
+        np_wape = np.abs(t_nan_ - p_nan_).sum() / t_nan_.sum()  # https://stackoverflow.com/a/68531393
         assert np.allclose(new_wape, np_wape)
 
         new_wape = wape(t_neg, p_neg)
-        np_wape = np.abs(t_neg - p_neg).sum() / t_neg.sum() # https://stackoverflow.com/a/68531393
+        np_wape = np.abs(t_neg - p_neg).sum() / t_neg.sum()  # https://stackoverflow.com/a/68531393
         assert np.allclose(new_wape, np_wape)
         return
 
@@ -1298,12 +1832,22 @@ class test_errors(unittest.TestCase):
         new_watt_m = watt_m(t11, p11)
         # ref : reference_for_seqmetric_tests.ipynb
         assert np.allclose(new_watt_m, 0.017290316806567577)
+
+        self.assertAlmostEqual(watt_m(t_large, p_large), 0.03105683026117264)
+
+        self.assertAlmostEqual(watt_m(t_nan, p_nan), 0.010510101645599523)
+
+        self.assertAlmostEqual(watt_m(t_neg, p_neg), 0.08672078755135931)
         return
 
     def test_wmape(self):
         new_wmape = wmape(t11, p11)
         # ref : reference_for_seqmetric_tests.ipynb
         assert np.allclose(new_wmape, 0.6205374050378927)
+
+        self.assertAlmostEqual(wmape(t_large, p_large), 0.7506108015440225)
+
+        self.assertAlmostEqual(wmape(t_neg, p_neg), -11.75278810408922)
         return
 
     def test_vr(self):
@@ -1326,210 +1870,215 @@ class test_errors(unittest.TestCase):
     def test_mre(self):
         # ref : reference_for_seqmetric_tests.ipynb
         self.assertAlmostEqual(metrics.mre(), 0.5101139564068491)
+
+        self.assertAlmostEqual(metrics_large.mre(), -1.5538232747884768)
+
+        self.assertAlmostEqual(metrics_neg.mre(), 0.05273425381880722)
         return
 
 
-# class test_torch_metrics(unittest.TestCase):
+class test_torch_metrics(unittest.TestCase):
 
-#     def test_critical_success_index_cls(self):
-#         try:
-#             import torch
-#             from torchmetrics.regression import CriticalSuccessIndex
-#         except (ModuleNotFoundError, ImportError):
-#             print('Cant run test_torch_tensor')
-#             torch = None
+    def test_critical_success_index_cls(self):
+        try:
+            import torch
+            from torchmetrics.regression import CriticalSuccessIndex
+        except (ModuleNotFoundError, ImportError):
+            print('Cant run test_torch_tensor')
+            torch = None
 
-#         if torch is not None:
-#             new_critical_success_index = metrics.critical_success_index()
-#             csi = CriticalSuccessIndex(0.5)
-#             torch_csi = csi(torch.tensor(p11), torch.tensor(t11))
-#             self.assertAlmostEqual(new_critical_success_index, torch_csi)
-#         return
-#     def test_critical_success_index_func(self):
-#         try:
-#             import torch
-#             from torchmetrics.regression import CriticalSuccessIndex
-#         except (ModuleNotFoundError, ImportError):
-#             print('Cant run test_torch_tensor')
-#             torch = None
-#         if torch is not None:
-#             new_critical_success_index = sm_critical_success_index(t11, p11)
-#             csi = CriticalSuccessIndex(0.5)
-#             torch_csi = csi(torch.tensor(p11), torch.tensor(t11))
-#             self.assertAlmostEqual(new_critical_success_index, torch_csi)
-#         return
+        if torch is not None:
+            new_critical_success_index = metrics.critical_success_index()
+            csi = CriticalSuccessIndex(0.5)
+            torch_csi = csi(torch.tensor(p11), torch.tensor(t11))
+            self.assertAlmostEqual(new_critical_success_index, torch_csi)
+        return
+    def test_critical_success_index_func(self):
+        try:
+            import torch
+            from torchmetrics.regression import CriticalSuccessIndex
+        except (ModuleNotFoundError, ImportError):
+            print('Cant run test_torch_tensor')
+            torch = None
+        if torch is not None:
+            new_critical_success_index = sm_critical_success_index(t11, p11)
+            csi = CriticalSuccessIndex(0.5)
+            torch_csi = csi(torch.tensor(p11), torch.tensor(t11))
+            self.assertAlmostEqual(new_critical_success_index, torch_csi)
+        return
 
-#     def test_kl_divergence_cls(self):
-#         try:
-#             import torch
-#             from torchmetrics.regression import KLDivergence
-#         except (ModuleNotFoundError, ImportError):
-#             print('Cant run test_torch_tensor')
-#             torch = None
-#         if torch is not None:
-#             new_kl_divergence = metrics.kl_divergence()
-#             kl_div = KLDivergence()
-#             torch_kl_div = kl_div(torch.tensor(p11).reshape(1,-1), torch.tensor(t11).reshape(1,-1))
-#             self.assertAlmostEqual(new_kl_divergence, torch_kl_div.numpy().item())
-#         return
+    def test_kl_divergence_cls(self):
+        try:
+            import torch
+            from torchmetrics.regression import KLDivergence
+        except (ModuleNotFoundError, ImportError):
+            print('Cant run test_torch_tensor')
+            torch = None
+        if torch is not None:
+            new_kl_divergence = metrics.kl_divergence()
+            kl_div = KLDivergence()
+            torch_kl_div = kl_div(torch.tensor(p11).reshape(1,-1), torch.tensor(t11).reshape(1,-1))
+            self.assertAlmostEqual(new_kl_divergence, torch_kl_div.numpy().item())
+        return
 
-#     def test_kl_divergence_func(self):
-#         try:
-#             import torch
-#             from torchmetrics.regression import KLDivergence
-#         except (ModuleNotFoundError, ImportError):
-#             print('Cant run test_torch_tensor')
-#             torch = None
-#         if torch is not None:
-#             new_kl_divergence = sm_kl_divergence(t11, p11)
-#             kl_div = KLDivergence()
-#             torch_kl_div = kl_div(torch.tensor(p11).reshape(1,-1), torch.tensor(t11).reshape(1,-1))
-#             self.assertAlmostEqual(new_kl_divergence, torch_kl_div.numpy().item())
-#         return
+    def test_kl_divergence_func(self):
+        try:
+            import torch
+            from torchmetrics.regression import KLDivergence
+        except (ModuleNotFoundError, ImportError):
+            print('Cant run test_torch_tensor')
+            torch = None
+        if torch is not None:
+            new_kl_divergence = sm_kl_divergence(t11, p11)
+            kl_div = KLDivergence()
+            torch_kl_div = kl_div(torch.tensor(p11).reshape(1,-1), torch.tensor(t11).reshape(1,-1))
+            self.assertAlmostEqual(new_kl_divergence, torch_kl_div.numpy().item())
+        return
 
-#     def test_log_cosh_error_cls(self):
-#         try:
-#             import torch
-#             from torchmetrics.regression import LogCoshError
-#         except (ModuleNotFoundError, ImportError):
-#             print('Cant run test_torch_tensor')
-#             torch = None
-#         if torch is not None:
-#             new_log_cosh_error = metrics.log_cosh_error()
-#             lg_cosh_err = LogCoshError()
-#             torch_lg_cosh_err = lg_cosh_err(torch.tensor(p11), torch.tensor(t11))
-#             self.assertAlmostEqual(new_log_cosh_error, torch_lg_cosh_err)
-#         return
+    def test_log_cosh_error_cls(self):
+        try:
+            import torch
+            from torchmetrics.regression import LogCoshError
+        except (ModuleNotFoundError, ImportError):
+            print('Cant run test_torch_tensor')
+            torch = None
+        if torch is not None:
+            new_log_cosh_error = metrics.log_cosh_error()
+            lg_cosh_err = LogCoshError()
+            torch_lg_cosh_err = lg_cosh_err(torch.tensor(p11), torch.tensor(t11))
+            self.assertAlmostEqual(new_log_cosh_error, torch_lg_cosh_err)
+        return
 
-#     def test_log_cosh_error_func(self):
-#         try:
-#             import torch
-#             from torchmetrics.regression import LogCoshError
-#         except (ModuleNotFoundError, ImportError):
-#             print('Cant run test_torch_tensor')
-#             torch = None
-#         if torch is not None:
-#             new_log_cosh_error = sm_log_cosh_error(t11, p11)
-#             lg_cosh_err = LogCoshError()
-#             torch_lg_cosh_err = lg_cosh_err(torch.tensor(p11), torch.tensor(t11))
-#             self.assertAlmostEqual(new_log_cosh_error, torch_lg_cosh_err)
-#         return
-
-
-#     def test_minkowski_distance_cls(self):
-#         try:
-#             import torch
-#             from torchmetrics.regression import MinkowskiDistance
-#         except (ModuleNotFoundError, ImportError):
-#             print('Cant run test_torch_tensor')
-#             torch = None
-#         if torch is not None:
-#             new_minkowski_distance = metrics.minkowski_distance()
-#             mink_dist = MinkowskiDistance(1)
-#             torch_mink_dist = mink_dist(torch.tensor(p11), torch.tensor(t11))
-#             self.assertAlmostEqual(new_minkowski_distance, torch_mink_dist)
-#         return
-
-#     def test_minkowski_distance_func(self):
-#         try:
-#             import torch
-#             from torchmetrics.regression import MinkowskiDistance
-#         except (ModuleNotFoundError, ImportError):
-#             print('Cant run test_torch_tensor')
-#             torch = None
-#         if torch is not None:
-#             new_minkowski_distance = sm_minkowski_distance(t11, p11)
-#             mink_dist = MinkowskiDistance(1)
-#             torch_mink_dist = mink_dist(torch.tensor(p11), torch.tensor(t11))
-#             self.assertAlmostEqual(new_minkowski_distance, torch_mink_dist)
-#         return
-
-#     def test_tweedie_deviance_score_cls(self):
-#         try:
-#             import torch
-#             from torchmetrics.regression import TweedieDevianceScore
-#         except (ModuleNotFoundError, ImportError):
-#             print('Cant run test_torch_tensor')
-#             torch = None
-#         if torch is not None:
-#             new_tweedie_deviance_score = metrics.tweedie_deviance_score()
-#             tw_dev_score = TweedieDevianceScore(0)
-#             torch_tw_dev_score = tw_dev_score(torch.tensor(p11), torch.tensor(t11))
-#             self.assertAlmostEqual(new_tweedie_deviance_score, torch_tw_dev_score)
-#         return
-
-#     def test_tweedie_deviance_score_func(self):
-#         try:
-#             import torch
-#             from torchmetrics.regression import TweedieDevianceScore
-#         except (ModuleNotFoundError, ImportError):
-#             print('Cant run test_torch_tensor')
-#             torch = None
-#         if torch is not None:
-#             new_tweedie_deviance_score = sm_tweedie_deviance_score(t11, p11)
-#             tw_dev_score = TweedieDevianceScore(0)
-#             torch_tw_dev_score = tw_dev_score(torch.tensor(p11), torch.tensor(t11))
-#             self.assertAlmostEqual(new_tweedie_deviance_score, torch_tw_dev_score)
-#         return
+    def test_log_cosh_error_func(self):
+        try:
+            import torch
+            from torchmetrics.regression import LogCoshError
+        except (ModuleNotFoundError, ImportError):
+            print('Cant run test_torch_tensor')
+            torch = None
+        if torch is not None:
+            new_log_cosh_error = sm_log_cosh_error(t11, p11)
+            lg_cosh_err = LogCoshError()
+            torch_lg_cosh_err = lg_cosh_err(torch.tensor(p11), torch.tensor(t11))
+            self.assertAlmostEqual(new_log_cosh_error, torch_lg_cosh_err)
+        return
 
 
-# class TestTreatment(unittest.TestCase):
-#     random_state = np.random.RandomState(seed=92)
+    def test_minkowski_distance_cls(self):
+        try:
+            import torch
+            from torchmetrics.regression import MinkowskiDistance
+        except (ModuleNotFoundError, ImportError):
+            print('Cant run test_torch_tensor')
+            torch = None
+        if torch is not None:
+            new_minkowski_distance = metrics.minkowski_distance()
+            mink_dist = MinkowskiDistance(1)
+            torch_mink_dist = mink_dist(torch.tensor(p11), torch.tensor(t11))
+            self.assertAlmostEqual(new_minkowski_distance, torch_mink_dist)
+        return
 
-#     t = random_state.random(20)
-#     p = random_state.random(20)
-    
-#     def test_nan_in_true(self):
-#         t = self.t.copy()
-#         t[0] = np.nan
-#         assert not np.isnan(kge(t, self.p))
-#         assert np.isnan(kge(t, self.p, remove_nan=False))
-#         return
-    
-#     def test_nan_in_pred(self):
-#         p = self.p.copy()
-#         p[0] = np.nan
-#         assert not np.isnan(kge(self.t, p))
-#         assert np.isnan(kge(self.t, p, remove_nan=False))
-#         return
-    
-#     def test_nan_in_true_and_pred(self):
-#         t_ = self.t.copy()
-#         t_[0] = np.nan
-#         p_ = self.p.copy()
-#         p_[1] = np.nan
-#         assert not np.isnan(kge(t_, p_))
-#         assert np.isnan(kge(t_, p_, remove_nan=False))
-#         return
-    
-#     def test_inf_in_true(self):
-#         t = self.t.copy()
-#         t[0] = np.inf
-#         assert not np.isnan(kge(t, self.p))
-#         assert np.isnan(kge(t, self.p, remove_inf=False))
-#         return
-    
-#     def test_inf_in_pred(self):
-#         p = self.p.copy()
-#         p[0] = np.inf
-#         assert not np.isnan(kge(self.t, p))
-#         assert np.isnan(kge(self.t, p, remove_inf=False))
-#         return
-    
-#     def test_inf_in_true_and_pred(self):
-#         t_ = self.t.copy()
-#         t_[0] = np.inf
-#         p_ = self.p.copy()
-#         p_[1] = np.inf
-#         assert not np.isnan(kge(t_, p_))
-#         assert np.isnan(kge(t_, p_, remove_inf=False))
-#         return
-    
-#     def test_replace_nan_in_true(self):
-#         t_ = self.t.copy()
-#         t_[0] = np.nan
-#         assert not np.isnan(kge(t_, self.p, replace_nan=1.0))
-#         return
+    def test_minkowski_distance_func(self):
+        try:
+            import torch
+            from torchmetrics.regression import MinkowskiDistance
+        except (ModuleNotFoundError, ImportError):
+            print('Cant run test_torch_tensor')
+            torch = None
+        if torch is not None:
+            new_minkowski_distance = sm_minkowski_distance(t11, p11)
+            mink_dist = MinkowskiDistance(1)
+            torch_mink_dist = mink_dist(torch.tensor(p11), torch.tensor(t11))
+            self.assertAlmostEqual(new_minkowski_distance, torch_mink_dist)
+        return
+
+    def test_tweedie_deviance_score_cls(self):
+        try:
+            import torch
+            from torchmetrics.regression import TweedieDevianceScore
+        except (ModuleNotFoundError, ImportError):
+            print('Cant run test_torch_tensor')
+            torch = None
+        if torch is not None:
+            new_tweedie_deviance_score = metrics.tweedie_deviance_score()
+            tw_dev_score = TweedieDevianceScore(0)
+            torch_tw_dev_score = tw_dev_score(torch.tensor(p11), torch.tensor(t11))
+            self.assertAlmostEqual(new_tweedie_deviance_score, torch_tw_dev_score)
+        return
+
+    def test_tweedie_deviance_score_func(self):
+        try:
+            import torch
+            from torchmetrics.regression import TweedieDevianceScore
+        except (ModuleNotFoundError, ImportError):
+            print('Cant run test_torch_tensor')
+            torch = None
+        if torch is not None:
+            new_tweedie_deviance_score = sm_tweedie_deviance_score(t11, p11)
+            tw_dev_score = TweedieDevianceScore(0)
+            torch_tw_dev_score = tw_dev_score(torch.tensor(p11), torch.tensor(t11))
+            self.assertAlmostEqual(new_tweedie_deviance_score, torch_tw_dev_score)
+        return
+
+
+class TestTreatment(unittest.TestCase):
+    random_state = np.random.RandomState(seed=92)
+
+    t = random_state.random(20)
+    p = random_state.random(20)
+
+    def test_nan_in_true(self):
+        t = self.t.copy()
+        t[0] = np.nan
+        assert not np.isnan(kge(t, self.p))
+        assert np.isnan(kge(t, self.p, remove_nan=False))
+        return
+
+    def test_nan_in_pred(self):
+        p = self.p.copy()
+        p[0] = np.nan
+        assert not np.isnan(kge(self.t, p))
+        assert np.isnan(kge(self.t, p, remove_nan=False))
+        return
+
+    def test_nan_in_true_and_pred(self):
+        t_ = self.t.copy()
+        t_[0] = np.nan
+        p_ = self.p.copy()
+        p_[1] = np.nan
+        assert not np.isnan(kge(t_, p_))
+        assert np.isnan(kge(t_, p_, remove_nan=False))
+        return
+
+    def test_inf_in_true(self):
+        t = self.t.copy()
+        t[0] = np.inf
+        assert not np.isnan(kge(t, self.p))
+        assert np.isnan(kge(t, self.p, remove_inf=False))
+        return
+
+    def test_inf_in_pred(self):
+        p = self.p.copy()
+        p[0] = np.inf
+        assert not np.isnan(kge(self.t, p))
+        assert np.isnan(kge(self.t, p, remove_inf=False))
+        return
+
+    def test_inf_in_true_and_pred(self):
+        t_ = self.t.copy()
+        t_[0] = np.inf
+        p_ = self.p.copy()
+        p_[1] = np.inf
+        assert not np.isnan(kge(t_, p_))
+        assert np.isnan(kge(t_, p_, remove_inf=False))
+        return
+
+    def test_replace_nan_in_true(self):
+        t_ = self.t.copy()
+        t_[0] = np.nan
+        assert not np.isnan(kge(t_, self.p, replace_nan=1.0))
+        return
+
 
 if __name__ == "__main__":
     unittest.main()
