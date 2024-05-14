@@ -549,6 +549,7 @@ METRIC_TYPES = {
     #"coeff_of_var": "min",
     "legates_coeff_eff": "max",
     "relative_error": "min",
+    "manhattan_distance": "min",
 }
 
 

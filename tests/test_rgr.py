@@ -9,6 +9,7 @@ site.addsitedir(seqmet_dir)
 import scipy
 import numpy as np
 
+from scipy.spatial.distance import cityblock
 from scipy.stats import pearsonr, kendalltau, spearmanr
 
 from sklearn.metrics.pairwise import cosine_similarity as sklearn_cos_sim
@@ -131,6 +132,7 @@ from SeqMetrics import minkowski_distance as sm_minkowski_distance
 from SeqMetrics import tweedie_deviance_score as sm_tweedie_deviance_score
 from SeqMetrics import spearmann_corr
 from SeqMetrics import r2
+from SeqMetrics import manhattan_distance
 
 from SeqMetrics.utils import maybe_treat_arrays
 
@@ -1789,6 +1791,15 @@ class test_errors(unittest.TestCase):
         self.assertAlmostEqual(metrics_neg.mre(), 0.05273425381880722)
         return
 
+    def test_manhattan_distance(self):
+        self.assertAlmostEqual(manhattan_distance(t11, p11), cityblock(t11, p11))
+
+        self.assertAlmostEqual(manhattan_distance(t_large, p_large), cityblock(t_large, p_large))
+        t_nan_, p_nan_ = maybe_treat_arrays(True, t_nan, p_nan, 'regression', remove_nan=True)
+        self.assertAlmostEqual(manhattan_distance(t_nan, p_nan), cityblock(t_nan_, p_nan_))
+
+        self.assertAlmostEqual(manhattan_distance(t_neg, p_neg), cityblock(t_neg, p_neg))
+        return
 
 class test_torch_metrics(unittest.TestCase):
 

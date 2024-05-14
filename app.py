@@ -132,6 +132,7 @@ NAME_REG = {'calculate_all' : 'Calculate All Regression Metrics',
             'mre': "Mean Relative Error",
             "mape_for_peaks": "MAPE for peaks",
             "legates_coeff_eff": "Legates Coefficient of Efficiency",
+            "manhattan_distance": "Manhattan distance",
             }
 
 NAME_CLS = {'accuracy' : 'Accuracy',

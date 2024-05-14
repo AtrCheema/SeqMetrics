@@ -46,9 +46,9 @@ class RegressionMetrics(Metrics):
                                                                            # 'calculate_scale_independent_metrics'
                                                                            ])
 
-        if kendalltau is None:
+        if kendalltau is None and 'kendall_tau' in self.all_methods:
             self.all_methods.remove('kendall_tau')
-        if find_peaks is None:
+        if find_peaks is None and 'mape_for_peaks' in self.all_methods:
             self.all_methods.remove('mape_for_peaks')
 
         # if arrays contain negative values, following three errors can not be computed
@@ -2298,6 +2298,38 @@ class RegressionMetrics(Metrics):
     #     """
     #     return relative_error(true= self.true, predicted= self.predicted, treat_arrays=False, power= power)
 
+    def manhattan_distance(self) -> float:
+        """
+        Manhattan distance, also known as cityblock distance or taxicab norm.
+
+        See Blanco-Mallo et al., 2023 and Cha et al., 2007 and Alexei Botchkarev 2019
+        on the use of distances in performance measures.
+
+        1. Sung-Hyuk C. (2007) Comprehensive Survey on Distance/Similarity
+           Measures between Probability Density Functions. International
+           Journal of Mathematical Models and Methods in Applied Sciences.
+           1(4):300-307.
+
+        2. Eva Blanco-Mallo (2023) https://doi.org/10.1016/j.patcog.2023.109646
+
+        3. Alexei Botchkarev, 2019
+           https://www.ijikm.org/Volume14/IJIKMv14p045-076Botchkarev5064.pdf
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.array([1, 2, 3, 4, 5])
+        >>> p = np.array([1.1, 1.9, 3.1, 4.2, 4.8])
+        >>> metrics= RegressionMetrics(t, p)
+        >>> score = metrics.manhattan_distance()
+        """
+        return manhattan_distance(true= self.true, predicted= self.predicted, treat_arrays=False)
+
+#*************************************
+#        FUNCTIONAL API              #
+#*************************************
+
 def post_process_kge(cc, alpha, beta, return_all=False):
     kge_ = float(1 - np.sqrt((cc - 1) ** 2 + (alpha - 1) ** 2 + (beta - 1) ** 2))
     if return_all:
@@ -4011,8 +4043,7 @@ def cosine_similarity(true, predicted, treat_arrays: bool = True,
     >>> cosine_similarity(t, p)
     """
     true, predicted = maybe_treat_arrays(treat_arrays, true, predicted, 'regression', **treat_arrays_kws)
-    return float(np.dot(true.reshape(-1, ),
-                        predicted.reshape(-1, )) /
+    return float(np.dot(true, predicted) /
                  (np.linalg.norm(true) * np.linalg.norm(predicted)))
 
 
@@ -6806,6 +6837,51 @@ def mape_for_peaks(
 #     error = true - predicted
 #
 #     return np.abs(error / (true + EPS)) * 100
+
+def manhattan_distance(
+        true,
+        predicted,
+        treat_arrays: bool = True,
+        **treat_arrays_kws
+) -> float:
+    """
+    Manhattan distance, also known as cityblock distance or taxicab norm.
+
+    See Blanco-Mallo et al., 2023 and Cha et al., 2007 and Alexei Botchkarev 2019
+    on the use of distances in performance measures.
+
+    Parameters
+    ----------
+    true :
+        True/observed/actual/target values. It must be a numpy array,
+        pandas series/DataFrame, or a list.
+    predicted :
+        Predicted values, same format as 'true'.
+    treat_arrays :
+        treat_arrays the true and predicted array
+
+    1. Sung-Hyuk C. (2007) Comprehensive Survey on Distance/Similarity
+       Measures between Probability Density Functions. International
+       Journal of Mathematical Models and Methods in Applied Sciences.
+       1(4):300-307.
+
+    2. Eva Blanco-Mallo (2023) https://doi.org/10.1016/j.patcog.2023.109646
+
+    3. Alexei Botchkarev, 2019
+       https://www.ijikm.org/Volume14/IJIKMv14p045-076Botchkarev5064.pdf
+
+    Examples
+    ---------
+    >>> import numpy as np
+    >>> from SeqMetrics import manhattan_distance
+    >>> t = np.random.random(100)
+    >>> p = np.random.random(100)
+    >>> manhattan_distance(t, p)
+    """
+    true, predicted = maybe_treat_arrays(treat_arrays, true, predicted, 'regression', **treat_arrays_kws)
+
+    return float(np.sum(np.abs(true - predicted)))
+
 
 def drv():
     # https://rstudio-pubs-static.s3.amazonaws.com/433152_56d00c1e29724829bad5fc4fd8c8ebff.html
