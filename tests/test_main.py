@@ -3,8 +3,8 @@ import os
 import site
 import unittest
 
-ai4_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-site.addsitedir(ai4_dir)
+seqmet_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+site.addsitedir(seqmet_dir)
 
 from SeqMetrics import RegressionMetrics
 

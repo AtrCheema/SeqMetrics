@@ -130,6 +130,7 @@ NAME_REG = {'calculate_all' : 'Calculate All Regression Metrics',
             'watt_m' : 'Watterson’s M. Refrence',
             'wmape' : 'Weighted Mean Absolute Percent Error',
             'mre': "Mean Relative Error",
+            "mape_for_peaks": "MAPE for peaks"
             }
 
 NAME_CLS = {'accuracy' : 'Accuracy',

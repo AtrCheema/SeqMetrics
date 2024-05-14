@@ -16,13 +16,13 @@ from .utils import maybe_treat_arrays
 # https://www.researchgate.net/profile/Mark-Tschopp/publication/322147437_Quantifying_Similarity_and_Distance_Measures_for_Vector-Based_Datasets_Histograms_Signals_and_Probability_Distribution_Functions/links/5a48089ca6fdcce1971c8142/Quantifying-Similarity-and-Distance-Measures-for-Vector-Based-Datasets-Histograms-Signals-and-Probability-Distribution-Functions.pdf
 # Jeffreys Divergence
 # kullback-Leibler divergence
-# Peak flow ratio https://hess.copernicus.org/articles/24/869/2020/
 # Legates?s coefficient of efficiency
 # outliear percentage : pysteps
-# mean squared error skill score, mean absolute error skill score, https://doi.org/10.1016/j.ijforecast.2018.11.010
+# skill score, mean absolute error skill score, https://doi.org/10.1016/j.ijforecast.2018.11.010
 # root mean quartic error, Kolmogorov–Smirnov test integral, OVERPer, Rényi entropy,
 # 95th percentile: https://doi.org/10.1016/j.solener.2014.10.016
 # Friedman test: https://doi.org/10.1016/j.solener.2014.10.016
+# https://arjun-sarkar786.medium.com/implementation-of-all-loss-functions-deep-learning-in-numpy-tensorflow-and-pytorch-e20e72626ebd
 
 EPS = 1e-10  # epsilon
 

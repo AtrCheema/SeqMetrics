@@ -126,6 +126,7 @@ from ._rgr import minkowski_distance
 from ._rgr import tweedie_deviance_score
 from ._rgr import mre
 # from ._rgr import spearmann_rank_corr todo, find reference for the code
+from ._rgr import mape_for_peaks
 
 
 from ._cls import f1_score

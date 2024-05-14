@@ -69,7 +69,7 @@ from SeqMetrics import gmean_diff
 from SeqMetrics import gmrae
 from SeqMetrics import calculate_hydro_metrics
 from SeqMetrics import JS
-from SeqMetrics import kendaull_tau
+from SeqMetrics import kendall_tau
 from SeqMetrics import kgeprime_bound
 from SeqMetrics import kgenp_bound
 from SeqMetrics import kl_sym
@@ -1065,17 +1065,17 @@ class test_errors(unittest.TestCase):
         return
 
     def test_kendaull_tau(self):
-        new_kendaull_tau = kendaull_tau(t11, p11)
+        new_kendaull_tau = kendall_tau(t11, p11)
         assert np.allclose(new_kendaull_tau, kendalltau(t11, p11)[0])
 
-        new_kendaull_tau = kendaull_tau(t_large, p_large)
+        new_kendaull_tau = kendall_tau(t_large, p_large)
         assert np.allclose(new_kendaull_tau, kendalltau(t_large, p_large)[0])
 
-        new_kendaull_tau = kendaull_tau(t_nan, p_nan)
+        new_kendaull_tau = kendall_tau(t_nan, p_nan)
         t_nan_, p_nan_ = maybe_treat_arrays(True, t_nan, p_nan, 'regression', remove_nan=True)
         assert np.allclose(new_kendaull_tau, kendalltau(t_nan_, p_nan_)[0])
 
-        new_kendaull_tau = kendaull_tau(t_neg, p_neg)
+        new_kendaull_tau = kendall_tau(t_neg, p_neg)
         assert np.allclose(new_kendaull_tau, kendalltau(t_neg, p_neg)[0])
         return
 

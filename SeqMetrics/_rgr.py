@@ -6,8 +6,9 @@ import numpy as np
 
 try:
     from scipy.stats import kendalltau
+    from scipy.signal import find_peaks
 except (ImportError, ModuleNotFoundError):
-    kendalltau = None
+    kendalltau, find_peaks = None, None
 
 from .utils import maybe_treat_arrays
 from .utils import _geometric_mean, _mean_tweedie_deviance, _foo, list_subclass_methods
@@ -43,6 +44,8 @@ class RegressionMetrics(Metrics):
 
         if kendalltau is None:
             self.all_methods.remove('kendall_tau')
+        if find_peaks is None:
+            self.all_methods.remove('mape_for_peaks')
 
         # if arrays contain negative values, following three errors can not be computed
         for array in [self.true, self.predicted]:
@@ -2226,6 +2229,23 @@ class RegressionMetrics(Metrics):
         """
         return tweedie_deviance_score(true= self.true, predicted= self.predicted, treat_arrays=False, power= power)
 
+    # def peak_flow_ratio(self, power=0) -> float:
+    #     """
+    #     Peak flow ratio is defined the ratio of the highest simulated to the highest
+    #     observed flow rates (Broekhuizen et al., 2020).
+    #
+    #     https://doi.org/10.5194/hess-24-869-2020
+    #
+    #     Examples
+    #     ---------
+    #     >>> import numpy as np
+    #     >>> from SeqMetrics import RegressionMetrics
+    #     >>> t = np.array([1, 2, 3, 4, 5])
+    #     >>> p = np.array([1.1, 1.9, 3.1, 4.2, 4.8])
+    #     >>> metrics= RegressionMetrics(t, p)
+    #     >>> score = metrics.peak_flow_ratio()
+    #     """
+    #     return peak_flow_ratio(true= self.true, predicted= self.predicted, treat_arrays=False, power= power)
 
 
 def post_process_kge(cc, alpha, beta, return_all=False):
@@ -6580,6 +6600,87 @@ def mre(
     return float(np.mean(re))
 
 
+# def peak_flow_ratio(
+#         true,
+#         predicted,
+#         treat_arrays: bool = True,
+#         **treat_arrays_kws
+# )->float:
+#     """
+#     Peak flow ratio is defined the ratio of the highest simulated to the highest
+#     observed flow rates (Broekhuizen et al., 2020).
+#
+#     https://doi.org/10.5194/hess-24-869-2020
+#
+#     Parameters
+#     ----------
+#     true :
+#         True/observed/actual/target values. It must be a numpy array,
+#         pandas series/DataFrame, or a list.
+#     predicted :
+#         Predicted values, same format as 'true'.
+#     treat_arrays :
+#         treat_arrays the true and predicted array
+#
+#     Examples
+#     ---------
+#     >>> import numpy as np
+#     >>> from SeqMetrics import peak_flow_ratio
+#     >>> t = np.array([1, 2, 3, 4, 5])
+#     >>> p = np.array([1.1, 1.9, 3.1, 4.2, 4.8])
+#     >>> score = mre(t, p)
+#     """
+#
+#     true, predicted = maybe_treat_arrays(treat_arrays, true, predicted, 'regression', **treat_arrays_kws)
+#     o_max = np.max(true)
+#     s_max = np.max(predicted)
+#     return float(s_max/o_max)
+
+def mape_for_peaks(
+        true,
+        predicted,
+        treat_arrays: bool = True,
+        **treat_arrays_kws
+) -> float:
+    """
+    Mean Absolute Percentage Error for peaks which are found using scipy.singnal.find_peaks
+
+    .. math::
+        \text{MAPE}_\text{peak} = \frac{1}{P}\sum_{p=1}^{P} \left |\frac{Q_{s,p} - Q_{o,p}}{Q_{o,p}} \right | \times 100,
+
+    Parameters
+    ----------
+    true :
+        True/observed/actual/target values. It must be a numpy array,
+        pandas series/DataFrame, or a list.
+    predicted :
+        Predicted values, same format as 'true'.
+    treat_arrays :
+        treat_arrays the true and predicted array
+
+    https://github.com/neuralhydrology/neuralhydrology/blob/master/neuralhydrology/evaluation/metrics.py#L707
+
+    Examples
+    ---------
+    >>> import numpy as np
+    >>> from SeqMetrics import mape_for_peaks
+    >>> t = np.array([1, 2, 3, 4, 5])
+    >>> p = np.array([1.1, 1.9, 3.1, 4.2, 4.8])
+    >>> score = mre(t, p)
+    """
+    true, predicted = maybe_treat_arrays(treat_arrays, true, predicted, 'regression', **treat_arrays_kws)
+
+    peaks, _ = find_peaks(true, prominence=np.std(true))
+
+    if peaks.size == 0:
+        return np.nan
+
+    true = true[peaks].values
+    predicted = predicted[peaks].values
+
+    return mape(true, predicted, treat_arrays=False)
+
+
 def drv():
     # https://rstudio-pubs-static.s3.amazonaws.com/433152_56d00c1e29724829bad5fc4fd8c8ebff.html
     raise NotImplementedError
@@ -6614,8 +6715,4 @@ def overall_index():
 
 def resid_mass_coeff():
     # https://doi.org/10.1016/j.csite.2022.101797
-    raise NotImplementedError
-
-def mape_for_peaks():
-    # https://github.com/neuralhydrology/neuralhydrology/blob/master/neuralhydrology/evaluation/metrics.py#L707
     raise NotImplementedError

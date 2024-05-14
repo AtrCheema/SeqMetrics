@@ -7,14 +7,18 @@ from collections import OrderedDict
 
 import scipy
 import numpy as np
-from scipy.special import xlogy
-from scipy.stats import skew, kurtosis, variation, gmean
+#from scipy.special import xlogy
+#from scipy.stats import skew, kurtosis, variation, gmean
 
 try:
     import plotly.graph_objects as go
 except ModuleNotFoundError:
     go = None
 
+
+def xlogy(x, y):
+    # replicates scipy.special.xlogy
+    return np.where(x == 0, 0, x * np.log(y))
 
 def take(st, en, d):
     keys = list(d.keys())[st:en]
@@ -226,27 +230,13 @@ def _foo(denominator, numerator):
     return output_scores
 
 
-def _mean_tweedie_deviance(y_true, y_pred, power=0, weights=None):
-    # copying from
+def _mean_tweedie_deviance(y_true, y_pred, power:int=1, weights=None):
+    # modifying after
     # https://github.com/scikit-learn/scikit-learn/blob/95d4f0841d57e8b5f6b2a570312e9d832e69debc/sklearn/metrics/_regression.py#L659
 
     message = ("Mean Tweedie deviance error with power={} can only be used on "
                .format(power))
-    if power < 0:
-        # 'Extreme stable', y_true any real number, y_pred > 0
-        if (y_pred <= 0).any():
-            raise ValueError(message + "strictly positive y_pred.")
-        dev = 2 * (np.power(np.maximum(y_true, 0), 2 - power)
-                   / ((1 - power) * (2 - power))
-                   - y_true * np.power(y_pred, 1 - power) / (1 - power)
-                   + np.power(y_pred, 2 - power) / (2 - power))
-    elif power == 0:
-        # Normal distribution, y_true and y_pred any real number
-        dev = (y_true - y_pred) ** 2
-    elif power < 1:
-        raise ValueError("Tweedie deviance is only defined for power<=0 and "
-                         "power>=1.")
-    elif power == 1:
+    if power == 1:
         # Poisson distribution, y_true >= 0, y_pred > 0
         if (y_true < 0).any() or (y_pred <= 0).any():
             raise ValueError(message + "non-negative y_true and strictly "
@@ -258,19 +248,7 @@ def _mean_tweedie_deviance(y_true, y_pred, power=0, weights=None):
             raise ValueError(message + "strictly positive y_true and y_pred.")
         dev = 2 * (np.log(y_pred / y_true) + y_true / y_pred - 1)
     else:
-        if power < 2:
-            # 1 < p < 2 is Compound Poisson, y_true >= 0, y_pred > 0
-            if (y_true < 0).any() or (y_pred <= 0).any():
-                raise ValueError(message + "non-negative y_true and strictly "
-                                           "positive y_pred.")
-        else:
-            if (y_true <= 0).any() or (y_pred <= 0).any():
-                raise ValueError(message + "strictly positive y_true and "
-                                           "y_pred.")
-
-        dev = 2 * (np.power(y_true, 2 - power) / ((1 - power) * (2 - power))
-                   - y_true * np.power(y_pred, 1 - power) / (1 - power)
-                   + np.power(y_pred, 2 - power) / (2 - power))
+        raise NotImplementedError
 
     return float(np.average(dev, weights=weights))
 
@@ -332,14 +310,14 @@ def features(data: Union[np.ndarray, list],
     # information holding degree
     """
     point_features = {
-        'Skew': skew,
-        'Kurtosis': kurtosis,
+        #'Skew': skew,
+        #'Kurtosis': kurtosis,
         'Mean': np.nanmean,
-        'Geometric Mean': gmean,
-        'Standard error of mean': scipy.stats.sem,
+        #'Geometric Mean': gmean,
+        #'Standard error of mean': scipy.stats.sem,
         'Median': np.nanmedian,
         'Variance': np.nanvar,
-        'Coefficient of Variation': variation,
+        #'Coefficient of Variation': variation,
         'Std': np.nanstd,
         'Non Zeros': np.count_nonzero,
         'Min': np.nanmin,
@@ -566,7 +544,8 @@ METRIC_TYPES = {
     'log_prob': 'min',
     'rmdspe': 'min',
     'variability_ratio': 'min',
-    "mre" : 'min'
+    "mre" : 'min',
+    "mape_for_peaks": "min",
 }
 
 
@@ -768,6 +747,7 @@ def one_hot_encode(array: np.ndarray) -> np.ndarray:
     else:
         raise ValueError("Unsupported data type to convert to one hot encode.")
 
+
 def _ohe_cat(array):
     unique_labels = np.unique(array)
     label_dict = {label: idx for idx, label in enumerate(unique_labels)}
@@ -775,6 +755,8 @@ def _ohe_cat(array):
     for i, label in enumerate(array):
         encoded_array[i, label_dict[label]] = 1
     return encoded_array
+
+
 def confusion_matrix(true, pred, num_classes=None, normalize=False):
     """Computes a confusion matrix using numpy for two np.arrays
     true and pred.
