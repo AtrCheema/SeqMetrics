@@ -482,7 +482,7 @@ METRIC_TYPES = {
     'gmean_diff': 'min',
     'gmrae': 'min',
     'JS': 'min',
-    'kendaull_tau': 'max',
+    'kendall_tau': 'max',
     'kgeprime_bound': 'max',
     'kgenp_bound': 'max',
     'kl_sym': 'min',
@@ -752,3 +752,60 @@ def maybe_replace(sim_copy, obs_copy, replace_nan, replace_inf, remove_zero, rem
     sim_copy = sim_copy[all_treatment_array]
 
     return sim_copy, obs_copy
+
+
+def one_hot_encode(array: np.ndarray) -> np.ndarray:
+    """one hot encoding of an array like"""
+    if np.issubdtype(array.dtype, np.bool_):
+        return np.eye(2)[array.astype(int)]
+    elif np.issubdtype(array.dtype, np.integer):
+        return _ohe_cat(array)
+    elif np.issubdtype(array.dtype, np.floating):
+        # to match the working of pd.get_dummies
+        return _ohe_cat(array.astype(str))
+    elif np.issubdtype(array.dtype, np.character):
+        return _ohe_cat(array)
+    else:
+        raise ValueError("Unsupported data type to convert to one hot encode.")
+
+def _ohe_cat(array):
+    unique_labels = np.unique(array)
+    label_dict = {label: idx for idx, label in enumerate(unique_labels)}
+    encoded_array = np.zeros((len(array), len(unique_labels)), dtype=int)
+    for i, label in enumerate(array):
+        encoded_array[i, label_dict[label]] = 1
+    return encoded_array
+def confusion_matrix(true, pred, num_classes=None, normalize=False):
+    """Computes a confusion matrix using numpy for two np.arrays
+    true and pred.
+
+    Results are identical (and similar in computation time) to:
+    "from sklearn.metrics import confusion_matrix"
+
+    However, this function avoids the dependency on sklearn.
+    """
+
+    # label encode to cover boolean, categorical or floats
+    tp = np.stack([true, pred])
+    y_true, y_pred = np.unique(tp, return_inverse=True)[1].reshape(tp.shape)
+
+    if num_classes is None:
+        num_classes = max(np.max(y_true), np.max(y_pred)) + 1
+
+    cm = np.zeros((num_classes, num_classes), dtype=int)
+    for true_label, pred_label in zip(y_true, y_pred):
+        cm[true_label, pred_label] += 1
+
+    if normalize:
+        assert normalize in ("true", "pred", "all")
+
+        with np.errstate(all='ignore'):
+            if normalize == 'true':
+                cm = cm / cm.sum(axis=1, keepdims=True)
+            elif normalize == 'pred':
+                cm = cm / cm.sum(axis=0, keepdims=True)
+                # if denominator has zero, cm will have nan, while in sklearn nansum is performed afterward.
+                np.nan_to_num(cm, False)
+            elif normalize == 'all':
+                cm = cm / cm.sum()
+    return cm

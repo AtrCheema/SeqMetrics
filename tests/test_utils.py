@@ -9,12 +9,16 @@ site.addsitedir(ai4_dir)
 import numpy as np
 import pandas as pd
 
-from SeqMetrics import ClassificationMetrics
-from SeqMetrics import RegressionMetrics
+from sklearn.metrics import confusion_matrix as sk_confusion_matrix
+
 from SeqMetrics import plot_metrics
-from SeqMetrics.utils import list_subclass_methods
 from SeqMetrics.utils import features
+from SeqMetrics import RegressionMetrics
+from SeqMetrics.utils import one_hot_encode
+from SeqMetrics import ClassificationMetrics
+from SeqMetrics.utils import confusion_matrix
 from SeqMetrics.utils import maybe_treat_arrays
+from SeqMetrics.utils import list_subclass_methods
 
 
 t = np.random.random((20, 1))
@@ -195,6 +199,90 @@ class TestInputFromOtherLibraries(unittest.TestCase):
             assert isinstance(acc_, float)
 
         return
+
+
+class TestOneHotEncoding(unittest.TestCase):
+    """makes sure that one_hot_encode function in utils is works well
+    for differnet kinds of inputs. We expect it to be used for only
+    followign five kinds of inputs.
+    """
+    def test_boolean(self):
+        boolean = np.array([True, False, False, False])
+        np.testing.assert_array_equal(one_hot_encode(boolean), pd.get_dummies(boolean).values)
+        return
+
+    def test_binary_numerical(self):
+        binary_numerical = np.array([1, 0, 0, 0])
+        np.testing.assert_array_equal(one_hot_encode(binary_numerical), pd.get_dummies(binary_numerical))
+        return
+
+    def test_multicls_numerical(self):
+        multicls_numerical = np.array([1, 0, 0, 2, 0, 3])
+        np.testing.assert_array_equal(one_hot_encode(multicls_numerical), pd.get_dummies(multicls_numerical))
+        return
+
+    def test_multicls_numerical_large(self):
+        multicls_numerical = np.random.randint(1, 10, 100)
+        np.testing.assert_array_equal(one_hot_encode(multicls_numerical), pd.get_dummies(multicls_numerical))
+        return
+
+    def test_multicls_numerical_neg(self):
+        multicls_numerical = np.random.randint(-5, 5, 100)
+        np.testing.assert_array_equal(one_hot_encode(multicls_numerical), pd.get_dummies(multicls_numerical))
+        return
+
+    def test_binary_categorical(self):
+        binary_categorical = np.array(['a', 'b', 'b', 'b'])
+        np.testing.assert_array_equal(one_hot_encode(binary_categorical), pd.get_dummies(binary_categorical))
+        return
+
+    def test_multicls_categorical(self):
+        multicls_categorical = np.array(['a', 'b', 'b', 'b', 'c'])
+        np.testing.assert_array_equal(one_hot_encode(multicls_categorical), pd.get_dummies(multicls_categorical))
+        return
+
+    def test_floats(self):
+        floats = np.random.random(10)
+        np.testing.assert_array_equal(one_hot_encode(floats), pd.get_dummies(floats))
+        return
+
+
+class TestConfusionMatrix(unittest.TestCase):
+    """makes sure that confusion_matrix function in utils is works well
+    for differnet kinds of inputs. We expect it to be used for only
+    followign five kinds of inputs.
+    """
+    def test_boolean(self):
+        true = np.array([True, False, False, False])
+        pred = np.array([True, True, True, True])
+        np.testing.assert_array_equal(confusion_matrix(true, pred), sk_confusion_matrix(true, pred))
+        return
+
+    def test_binary_numerical(self):
+        true = np.array([1, 0, 0, 0])
+        pred = np.array([1, 1, 1, 1])
+
+        np.testing.assert_array_equal(confusion_matrix(true, pred), sk_confusion_matrix(true, pred))
+        return
+
+    def test_binary_categorical(self):
+        true = np.array(['a', 'b', 'b', 'b'])
+        pred = np.array(['a', 'a', 'a', 'a'])
+        np.testing.assert_array_equal(confusion_matrix(true, pred), sk_confusion_matrix(true, pred))
+        return
+
+    def test_multiclass_numerical(self):
+        true = np.random.randint(1, 4, 100)
+        pred = np.random.randint(1, 4, 100)
+        np.testing.assert_array_equal(confusion_matrix(true, pred), sk_confusion_matrix(true, pred))
+        return
+
+    def test_multicls_categorical(self):
+        true = np.array(['car', 'truck', 'truck', 'car', 'bike', 'truck'])
+        pred = np.array(['car', 'car', 'bike', 'car', 'bike', 'truck'])
+        np.testing.assert_array_equal(confusion_matrix(true, pred), sk_confusion_matrix(true, pred))
+        return
+
 
 if __name__ == "__main__":
     unittest.main()

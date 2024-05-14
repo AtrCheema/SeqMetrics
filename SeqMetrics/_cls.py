@@ -1,12 +1,14 @@
+
 import numbers
 import warnings
 from typing import Union
 
 import numpy as np
-from scipy.sparse import csr_matrix, coo_matrix
 
-from .utils import list_subclass_methods
 from ._main import Metrics
+from .utils import one_hot_encode
+from .utils import confusion_matrix
+from .utils import list_subclass_methods
 
 
 # confusion index
@@ -111,7 +113,7 @@ class ClassificationMetrics(Metrics):
         self.labels = np.unique(np.stack((self.true_labels, self.pred_labels)))
         self.n_labels = self.labels.size
 
-        self.cm = self._confusion_matrix()
+        self.cm = confusion_matrix(self.true_labels, self.pred_labels)
 
     @staticmethod
     def _minimal() -> list:
@@ -127,6 +129,10 @@ class ClassificationMetrics(Metrics):
         return len(self._classes())
 
     def _classes(self):
+        if self.is_categorical:
+            # can't do np.isnan on categorical
+            return np.unique(self.true_labels)
+
         array = self.true_labels
         return np.unique(array[~np.isnan(array)])
 
@@ -152,10 +158,11 @@ class ClassificationMetrics(Metrics):
         if self.multiclass:
             return self.true
 
-        # for binary if the array is 2-d, consider it to be logits
+        # it is a one-D array for binary classification
         if len(self.true) == self.true.size:
             return binarize(self.true)
 
+        # for binary if the array is 2-d, consider it to be logits
         return self.true
 
     def _pred_labels(self):
@@ -242,43 +249,19 @@ class ClassificationMetrics(Metrics):
         >>> metrics = ClassificationMetrics(true, pred)
         >>> metrics.confusion_matrix()
         """
-        return confusion_matrix(true=self.true, predicted=self.predicted, normalize=normalize)
 
-    def _confusion_matrix(self, normalize=None):
+        if self.multiclass:
+            return confusion_matrix(
+                self.true_labels,
+                self.pred_labels,
+                normalize=normalize)
 
-        pred = self.pred_labels.reshape(-1, )
-        true = self.true_labels.reshape(-1, )
-        # copying method of sklearn
-        target_shape = (len(self.labels), len(self.labels))
+        return confusion_matrix(
+            self.true_labels,
+            self.pred_labels,
+            num_classes=self._num_classes(),
+            normalize=normalize)
 
-        label_to_ind = {y: x for x, y in enumerate(self.labels)}
-        # convert yt, yp into index
-        pred = np.array([label_to_ind.get(x, self.n_labels + 1) for x in pred])
-        true = np.array([label_to_ind.get(x, self.n_labels + 1) for x in true])
-
-        # intersect y_pred, y_true with labels, eliminate items not in labels
-        ind = np.logical_and(pred < self.n_labels, true < self.n_labels)
-        y_pred = pred[ind]
-        y_true = true[ind]
-
-        cm = coo_matrix(
-            (np.ones(self.n_samples, dtype=int), (y_true, y_pred)),
-            shape=target_shape,
-            dtype=int
-        ).toarray()
-
-        if normalize:
-            assert normalize in ("true", "pred", "all")
-
-            with np.errstate(all='ignore'):
-                if normalize == 'true':
-                    cm = cm / cm.sum(axis=1, keepdims=True)
-                elif normalize == 'pred':
-                    cm = cm / cm.sum(axis=0, keepdims=True)
-                elif normalize == 'all':
-                    cm = cm / cm.sum()
-
-        return np.nan_to_num(cm)
 
     def _tp(self):
         return np.diag(self.cm)
@@ -727,29 +710,6 @@ def cross_entropy(true, predicted, epsilon=1e-12) -> float:
     return ce
 
 
-def one_hot_encode(array):
-    """one hot encoding of an array like"""
-    classes_ = np.unique(array)
-
-    y_in_classes = np.in1d(array, classes_)
-    y_seen = array[y_in_classes]
-    indices = np.searchsorted(np.sort(classes_), y_seen)
-    indptr = np.hstack((0, np.cumsum(y_in_classes)))
-
-    container = np.empty_like(indices)
-    container.fill(1)
-    Y = csr_matrix((container, indices, indptr),
-                   shape=(len(array), len(classes_)))
-
-    Y = Y.toarray()
-    Y = Y.astype(int, copy=False)
-
-    if np.any(classes_ != np.sort(classes_)):
-        indices = np.searchsorted(np.sort(classes_), classes_)
-        Y = Y[:, indices]
-    return Y
-
-
 def binarize(array):
     """must be used only for binary classification"""
     y = one_hot_encode(array)
@@ -785,43 +745,6 @@ def accuracy(true, predicted, normalize: bool = True) -> float:
     if normalize:
         return np.average(cls.true_labels == cls.pred_labels)
     return (cls.true_labels == cls.pred_labels).sum()
-
-
-def confusion_matrix(true, predicted, normalize=False):
-    """
-    calculates confusion matrix
-
-    Parameters
-    ----------
-    normalize : str, [None, 'true', 'pred', 'all']
-        If None, no normalization is done.
-    true : ture/observed/actual/target values. It must be a numpy array,
-         or pandas series/DataFrame or a list.
-    predicted : simulated values
-
-    Returns
-    -------
-    ndarray
-        confusion matrix
-
-    Examples
-    --------
-    >>> import numpy as np
-    >>> from SeqMetrics import confusion_matrix
-    >>> true = np.array([1, 0, 0, 0])
-    >>> pred = np.array([1, 1, 1, 1])
-    >>> metrics = confusion_matrix(true, pred)
-
-    multiclass classification
-
-    >>> true = np.random.randint(1, 4, 100)
-    >>> pred = np.random.randint(1, 4, 100)
-    >>> metrics = confusion_matrix(true, pred)
-
-
-    """
-    cls = ClassificationMetrics(true, predicted)
-    return cls._confusion_matrix(normalize=normalize)
 
 
 def precision(true, predicted, average=None):

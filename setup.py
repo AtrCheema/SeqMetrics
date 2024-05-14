@@ -34,8 +34,6 @@ setup(
         'Operating System :: Microsoft :: Windows',
         'Operating System :: POSIX :: Linux',
 
-
-
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
@@ -49,7 +47,6 @@ setup(
 
     install_requires=[
         'numpy<=1.26.4, >=1.17',
-        'scipy<=1.13, >=1.4',
     ],
     extras_require={
         'all': ["numpy<=1.26.4, >=1.17",

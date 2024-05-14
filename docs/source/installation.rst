@@ -12,6 +12,9 @@ choose to install all of them as well.
 ::
     pip install SeqMetrics[all]
 
+This will install scipy and easy_mpl libraries. The scipy library is used to calculate some
+additional metrics such as kendall_tau while easy_mpl is used for plotting purpose.
+
 We can also specify the seqmetrics version that we want to install as below
 ::
     pip install SeqMetrics==1.3.2

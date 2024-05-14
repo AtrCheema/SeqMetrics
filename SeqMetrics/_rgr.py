@@ -7,7 +7,7 @@ import numpy as np
 try:
     from scipy.stats import kendalltau
 except (ImportError, ModuleNotFoundError):
-    kendalltau = None, None
+    kendalltau = None
 
 from .utils import maybe_treat_arrays
 from .utils import _geometric_mean, _mean_tweedie_deviance, _foo, list_subclass_methods
@@ -40,6 +40,9 @@ class RegressionMetrics(Metrics):
                                                                            # 'calculate_scale_dependent_metrics',
                                                                            # 'calculate_scale_independent_metrics'
                                                                            ])
+
+        if kendalltau is None:
+            self.all_methods.remove('kendall_tau')
 
         # if arrays contain negative values, following three errors can not be computed
         for array in [self.true, self.predicted]:
@@ -676,7 +679,7 @@ class RegressionMetrics(Metrics):
         """
         return JS(true=self.true, predicted=self.predicted, treat_arrays=False)
 
-    def kendaull_tau(self, return_p=False) -> Union[float, tuple]:
+    def kendall_tau(self, return_p=False) -> Union[float, tuple]:
         """Kendall's tau_ .used in Probst_ et al., 2019.
 
         .. _tau:
@@ -692,12 +695,12 @@ class RegressionMetrics(Metrics):
         >>> t = np.random.random(10)
         >>> p = np.random.random(10)
         >>> metrics= RegressionMetrics(t, p)
-        >>> metrics.kendaull_tau()
+        >>> metrics.kendall_tau()
         """
         if kendalltau is None:
             raise NotImplementedError("scipy is not installed. Please install scipy to use this method")
 
-        return kendaull_tau(true=self.true, predicted=self.predicted, return_p=return_p,
+        return kendall_tau(true=self.true, predicted=self.predicted, return_p=return_p,
                             treat_arrays=False)
 
     def kge(self):
@@ -4389,7 +4392,7 @@ def JS(true, predicted, treat_arrays: bool = True,
     return float(d)
 
 
-def kendaull_tau(true, predicted, treat_arrays: bool = True, return_p=False,
+def kendall_tau(true, predicted, treat_arrays: bool = True, return_p=False,
                  **treat_arrays_kws) -> Union[float, tuple]:
     """
     Kendall's tau_ .used in Probst_ et al., 2019.
@@ -4419,10 +4422,10 @@ def kendaull_tau(true, predicted, treat_arrays: bool = True, return_p=False,
     Examples
     ---------
     >>> import numpy as np
-    >>> from SeqMetrics import kendaull_tau
+    >>> from SeqMetrics import kendall_tau
     >>> t = np.random.random(10)
     >>> p = np.random.random(10)
-    >>> kendaull_tau(t, p)
+    >>> kendall_tau(t, p)
     """
     if kendalltau is None:
         raise NotImplementedError("kendalltau function is not available. Please install scipy")
@@ -6575,3 +6578,44 @@ def mre(
     true, predicted = maybe_treat_arrays(treat_arrays, true, predicted, 'regression', **treat_arrays_kws)
     re = _relative_error(true, predicted, benchmark)
     return float(np.mean(re))
+
+
+def drv():
+    # https://rstudio-pubs-static.s3.amazonaws.com/433152_56d00c1e29724829bad5fc4fd8c8ebff.html
+    raise NotImplementedError
+
+def gini():
+    # https://github.com/benhamner/Metrics/blob/master/MATLAB/metrics/gini.m
+    raise NotImplementedError
+
+def log_likelihood():
+    # https://github.com/benhamner/Metrics/blob/master/Python/ml_metrics/elementwise.py#L202
+    raise NotImplementedError
+
+def cross_entropy():
+    # https://datascience.stackexchange.com/q/20296
+    raise NotImplementedError
+
+def vaf():
+    # https://www.dcsc.tudelft.nl/~jwvanwingerden/lti/doc/html/vaf.html
+    raise NotImplementedError
+
+def resid_std_error():
+    # https://www.statology.org/residual-standard-error-r/
+    raise NotImplementedError
+
+def eff_coeff():
+    # https://doi.org/10.1016/j.csite.2022.101797
+    raise NotImplementedError
+
+def overall_index():
+    # https://doi.org/10.1016/j.csite.2022.101797
+    raise NotImplementedError
+
+def resid_mass_coeff():
+    # https://doi.org/10.1016/j.csite.2022.101797
+    raise NotImplementedError
+
+def mape_for_peaks():
+    # https://github.com/neuralhydrology/neuralhydrology/blob/master/neuralhydrology/evaluation/metrics.py#L707
+    raise NotImplementedError

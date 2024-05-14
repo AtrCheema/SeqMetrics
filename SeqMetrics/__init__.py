@@ -57,7 +57,7 @@ from ._rgr import gmean_diff
 from ._rgr import gmrae
 from ._rgr import calculate_hydro_metrics
 from ._rgr import JS
-from ._rgr import kendaull_tau
+from ._rgr import kendall_tau
 from ._rgr import kgeprime_bound
 from ._rgr import kgenp_bound
 from ._rgr import kl_sym

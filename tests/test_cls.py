@@ -395,6 +395,11 @@ class TestBinaryLogits(unittest.TestCase):
         self.assertAlmostEqual(act_balance_accuracy, calc_balance_accuracy)
         return
 
+    def test_confusion_metrix(self):
+        cm = sm_confusion_matrix(self.t, self.p)
+        np.testing.assert_array_equal(cm, confusion_matrix(self.t, self.p))
+        return
+
 
 class TestMulticlassNumericLabels(unittest.TestCase):
     true = np.random.randint(1, 4, 100)
@@ -649,11 +654,17 @@ class TestMulticlassLogits(unittest.TestCase):
         calc_balance_accuracy = self.metrics.balanced_accuracy()
         self.assertAlmostEqual(act_balance_accuracy, calc_balance_accuracy)
         return
+
     def test_balanced_accuracy1(self):
 
         act_balance_accuracy = balanced_accuracy_score(self.t, self.p)
         calc_balance_accuracy = sm_balanced_accuracy(self.t, self.p)
         self.assertAlmostEqual(act_balance_accuracy, calc_balance_accuracy)
+        return
+
+    def test_confusion_matrix(self):
+        cm = sm_confusion_matrix(self.t, self.p)
+        np.testing.assert_array_equal(cm, confusion_matrix(self.t, self.p))
         return
 
 
