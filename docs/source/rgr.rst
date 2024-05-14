@@ -21,7 +21,6 @@ metrics.
 .. autofunction:: SeqMetrics.kge_bound
 .. autofunction:: SeqMetrics.kge_mod
 .. autofunction:: SeqMetrics.kge_np
-.. autofunction:: SeqMetrics.log_nse
 .. autofunction:: SeqMetrics.corr_coeff
 .. autofunction:: SeqMetrics.rmse
 .. autofunction:: SeqMetrics.rmsle
@@ -31,7 +30,6 @@ metrics.
 .. autofunction:: SeqMetrics.bias
 .. autofunction:: SeqMetrics.med_seq_error
 .. autofunction:: SeqMetrics.mae
-.. autofunction:: SeqMetrics.abs_pbias
 .. autofunction:: SeqMetrics.gmae
 .. autofunction:: SeqMetrics.inrse
 .. autofunction:: SeqMetrics.irmse
@@ -118,7 +116,21 @@ metrics.
 .. autofunction:: SeqMetrics.centered_rms_dev
 .. autofunction:: SeqMetrics.mapd
 .. autofunction:: SeqMetrics.sga
-.. autofunction:: SeqMetrics.RegressionMetrics
+.. autofunction:: SeqMetrics.mse
+.. autofunction:: SeqMetrics.variability_ratio
+.. autofunction:: SeqMetrics.concordance_corr_coef
+.. autofunction:: SeqMetrics.critical_success_index
+.. autofunction:: SeqMetrics.kl_divergence
+.. autofunction:: SeqMetrics.log_cosh_error
+.. autofunction:: SeqMetrics.minkowski_distance
+.. autofunction:: SeqMetrics.tweedie_deviance_score
+.. autofunction:: SeqMetrics.mre
+.. autofunction:: SeqMetrics.mape_for_peaks
+.. autofunction:: SeqMetrics.legates_coeff_eff
+.. autofunction:: SeqMetrics.relative_error
+
+
+.. autofunction:: SeqMetrics.calculate_hydro_metrics
 
 
 

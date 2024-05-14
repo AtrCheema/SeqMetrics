@@ -34,7 +34,8 @@ You can also install SeqMetrics with all of its dependencies by making use of ``
 
 This will install [scipy](https://scipy.org) and [easy_mpl](https://github/com/Sara-Iftikhar/easy_mpl) libraries. 
 The scipy library is used to calculate some
-additional metrics such as [kendall_tau]() or [mape_for_peaks]() while easy_mpl is used for plotting purpose.
+additional metrics such as [kendall_tau](https://seqmetrics.readthedocs.io/en/latest/rgr.html#SeqMetrics.RegressionMetrics.kendall_tau) 
+or [mape_for_peaks]() while easy_mpl is used for plotting purpose.
 
 ## How to Use
 SeqMetrics provides a uniform API for calculation of both regression and classification metrics.
