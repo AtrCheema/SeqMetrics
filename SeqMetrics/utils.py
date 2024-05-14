@@ -5,7 +5,7 @@ from typing import Union
 from types import FunctionType
 from collections import OrderedDict
 
-import scipy
+# import scipy
 import numpy as np
 #from scipy.special import xlogy
 #from scipy.stats import skew, kurtosis, variation, gmean
@@ -546,6 +546,9 @@ METRIC_TYPES = {
     'variability_ratio': 'min',
     "mre" : 'min',
     "mape_for_peaks": "min",
+    #"coeff_of_var": "min",
+    "legates_coeff_eff": "max",
+    "relative_error": "min",
 }
 
 

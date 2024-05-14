@@ -2174,6 +2174,9 @@ class RegressionMetrics(Metrics):
         """
         Kullback-Leibler Divergence
 
+        .. math::
+            D_{KL}(P||Q) = \sum_{x\in\mathcal{X}} P(x) \log\frac{P(x)}{Q{x}}
+
         Examples
         ---------
         >>> import numpy as np
@@ -2247,6 +2250,49 @@ class RegressionMetrics(Metrics):
     #     """
     #     return peak_flow_ratio(true= self.true, predicted= self.predicted, treat_arrays=False, power= power)
 
+    def legates_coeff_eff(self, power=0) -> float:
+        """
+        Legates Coefficient of Efficiency. Its value varies between 0 and 1.
+        It is not as sensitive to extreme values as agreement_index and coefficcient of
+        determination because of the utilization of the absolute value of the difference
+        instead of the squared difference. See Equaltion 23 in Dodo et al., 2022
+
+        https://doi.org/10.1016/j.nexus.2022.100157
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.array([1, 2, 3, 4, 5])
+        >>> p = np.array([1.1, 1.9, 3.1, 4.2, 4.8])
+        >>> metrics= RegressionMetrics(t, p)
+        >>> score = metrics.legates_coeff_eff()
+        """
+        return legates_coeff_eff(true= self.true, predicted= self.predicted, treat_arrays=False, power= power)
+
+    def relative_error(self, power=0) -> float:
+        """
+        Relative Error. It indicates the mismatch that
+        occurs between the observed and modeled values, expressed
+        in terms of percentages.
+        It quantifies the relative deviations between observed/true
+        and predicted values. This significantly reduces the influence of absolute
+        differences at peaks. The absolute lower differences during low flow
+        periods are enhanced because they are significant if looked at in a
+        relative sense. As a result, there might be a systematic over- or underprediction during low flow periods.
+        It used along with other statistics to quantify low
+        flow simulations Moriasi et al., 2007.
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.array([1, 2, 3, 4, 5])
+        >>> p = np.array([1.1, 1.9, 3.1, 4.2, 4.8])
+        >>> metrics= RegressionMetrics(t, p)
+        >>> score = metrics.relative_error()
+        """
+        return relative_error(true= self.true, predicted= self.predicted, treat_arrays=False, power= power)
 
 def post_process_kge(cc, alpha, beta, return_all=False):
     kge_ = float(1 - np.sqrt((cc - 1) ** 2 + (alpha - 1) ** 2 + (beta - 1) ** 2))
@@ -3735,7 +3781,7 @@ def agreement_index(true, predicted, treat_arrays: bool = True,
     simulated means and vari-ances Moriasi_ et al., 2015. It is overly sensitive
     to extreme values due to the squared differences_. It can also be used
     as a substitute for R2 to identify the degree to which model predic-tions
-    are error-free.
+    are error-free. Its value varies between 0 and 1 with 1 being the best.
 
     .. math::
         d = 1 - \\frac{\\sum_{i=1}^{N}(e_{i} - s_{i})^2}{\\sum_{i=1}^{N}(\\left | s_{i} - \\bar{e}
@@ -3771,6 +3817,38 @@ def agreement_index(true, predicted, treat_arrays: bool = True,
     true, predicted = maybe_treat_arrays(treat_arrays, true, predicted, 'regression', **treat_arrays_kws)
     agreement_index_ = 1 - (np.sum((true - predicted) ** 2)) / (np.sum(
         (np.abs(predicted - np.mean(true)) + np.abs(true - np.mean(true))) ** 2))
+    return float(agreement_index_)
+
+def legates_coeff_eff(true, predicted, treat_arrays: bool = True,
+                    **treat_arrays_kws) -> float:
+    """
+    Legates Coefficient of Efficiency. Its value varies between 0 and 1.
+    It is not as sensitive to extreme values as agreement_index and coefficcient of
+    determination because of the utilization of the absolute value of the difference
+    instead of the squared difference. See Equaltion 23 in Dodo et al., 2022
+
+    https://doi.org/10.1016/j.nexus.2022.100157
+
+    Parameters
+    ----------
+    true :
+         true/observed/actual/target values. It must be a numpy array,
+         or pandas series/DataFrame or a list.
+    predicted :
+         simulated values
+    treat_arrays :
+        process the true and predicted arrays using maybe_treat_arrays function
+
+    Examples
+    ---------
+    >>> import numpy as np
+    >>> from SeqMetrics import legates_coeff_eff
+    >>> t = np.random.random(10)
+    >>> p = np.random.random(10)
+    >>> agreement_index(t, p)
+    """
+    true, predicted = maybe_treat_arrays(treat_arrays, true, predicted, 'regression', **treat_arrays_kws)
+    agreement_index_ = 1 - (np.sum((true - predicted) ** 2)) / (np.sum(np.abs(predicted - np.mean(true))))
     return float(agreement_index_)
 
 
@@ -6680,6 +6758,48 @@ def mape_for_peaks(
 
     return mape(true, predicted, treat_arrays=False)
 
+
+def relative_error(
+        true,
+        predicted,
+        treat_arrays: bool = True,
+        **treat_arrays_kws
+):
+    """
+    Relative Error. It indicates the mismatch that
+    occurs between the observed and modeled values, expressed
+    in terms of percentages.
+    It quantifies the relative deviations between observed/true
+    and predicted values. This significantly reduces the influence of absolute
+    differences at peaks. The absolute lower differences during low flow
+    periods are enhanced because they are significant if looked at in a
+    relative sense. As a result, there might be a systematic over- or underprediction during low flow periods.
+    It used along with other statistics to quantify low
+    flow simulations Moriasi et al., 2007.
+
+    Parameters
+    ----------
+    true :
+         true/observed/actual/target values. It must be a numpy array,
+         or pandas series/DataFrame or a list.
+    predicted :
+         simulated/predicted values
+    treat_arrays :
+        treat_arrays the true and predicted array
+
+    Examples
+    ---------
+    >>> import numpy as np
+    >>> from SeqMetrics import relative_error
+    >>> t = np.array([1, 2, 3, 4, 5])
+    >>> p = np.array([1.1, 1.9, 3.1, 4.2, 4.8])
+    >>> score = mre(t, p)
+    """
+    true, predicted = maybe_treat_arrays(treat_arrays, true, predicted, 'regression', **treat_arrays_kws)
+
+    error = true - predicted
+
+    return np.abs(error / (true + EPS)) * 100
 
 def drv():
     # https://rstudio-pubs-static.s3.amazonaws.com/433152_56d00c1e29724829bad5fc4fd8c8ebff.html

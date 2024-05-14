@@ -15,8 +15,6 @@ from .utils import maybe_treat_arrays
 # https://arxiv.org/ftp/arxiv/papers/1809/1809.03006.pdf
 # https://www.researchgate.net/profile/Mark-Tschopp/publication/322147437_Quantifying_Similarity_and_Distance_Measures_for_Vector-Based_Datasets_Histograms_Signals_and_Probability_Distribution_Functions/links/5a48089ca6fdcce1971c8142/Quantifying-Similarity-and-Distance-Measures-for-Vector-Based-Datasets-Histograms-Signals-and-Probability-Distribution-Functions.pdf
 # Jeffreys Divergence
-# kullback-Leibler divergence
-# Legates?s coefficient of efficiency
 # outliear percentage : pysteps
 # skill score, mean absolute error skill score, https://doi.org/10.1016/j.ijforecast.2018.11.010
 # root mean quartic error, Kolmogorov–Smirnov test integral, OVERPer, Rényi entropy,
@@ -207,6 +205,7 @@ class Metrics(object):
 
         Parameters
         ----------
+        statistics :
         verbose : bool, optional
             if True, will print the calculated errors. The default is False.
         write : bool, optional
