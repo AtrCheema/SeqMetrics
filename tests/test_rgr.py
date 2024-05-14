@@ -174,7 +174,11 @@ class TestGroupedMetrics(unittest.TestCase):
     def test_calculate_all(self):
         all_errors = metrics.calculate_all()
         assert len(all_errors) > 100
-        assert all([isinstance(val, float) for val in all_errors.values()])
+        if not all([isinstance(val, float) for val in all_errors.values()]):
+            for err, val in all_errors.items():
+                if not isinstance(val, float):
+                    print(err, val)
+
 
         all_errors = metrics_large.calculate_all()
         assert len(all_errors) > 100

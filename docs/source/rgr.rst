@@ -127,7 +127,6 @@ metrics.
 .. autofunction:: SeqMetrics.mre
 .. autofunction:: SeqMetrics.mape_for_peaks
 .. autofunction:: SeqMetrics.legates_coeff_eff
-.. autofunction:: SeqMetrics.relative_error
 
 
 .. autofunction:: SeqMetrics.calculate_hydro_metrics

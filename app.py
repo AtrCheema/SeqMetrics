@@ -132,7 +132,6 @@ NAME_REG = {'calculate_all' : 'Calculate All Regression Metrics',
             'mre': "Mean Relative Error",
             "mape_for_peaks": "MAPE for peaks",
             "legates_coeff_eff": "Legates Coefficient of Efficiency",
-            "relative_error": "Relative Error",
             }
 
 NAME_CLS = {'accuracy' : 'Accuracy',

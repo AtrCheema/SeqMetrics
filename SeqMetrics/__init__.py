@@ -128,7 +128,7 @@ from ._rgr import mre
 # from ._rgr import spearmann_rank_corr todo, find reference for the code
 from ._rgr import mape_for_peaks
 from ._rgr import legates_coeff_eff
-from ._rgr import relative_error
+# from ._rgr import relative_error
 
 
 from ._cls import f1_score

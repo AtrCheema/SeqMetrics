@@ -1,3 +1,7 @@
+
+# https://github.com/aziele/statistical-distance/blob/main/distance.py
+# https://github.com/pyRiemann/pyRiemann/blob/master/pyriemann/utils/distance.py
+
 import warnings
 from math import sqrt
 from typing import Union
@@ -2270,29 +2274,29 @@ class RegressionMetrics(Metrics):
         """
         return legates_coeff_eff(true= self.true, predicted= self.predicted, treat_arrays=False, power= power)
 
-    def relative_error(self, power=0) -> float:
-        """
-        Relative Error. It indicates the mismatch that
-        occurs between the observed and modeled values, expressed
-        in terms of percentages.
-        It quantifies the relative deviations between observed/true
-        and predicted values. This significantly reduces the influence of absolute
-        differences at peaks. The absolute lower differences during low flow
-        periods are enhanced because they are significant if looked at in a
-        relative sense. As a result, there might be a systematic over- or underprediction during low flow periods.
-        It used along with other statistics to quantify low
-        flow simulations Moriasi et al., 2007.
-
-        Examples
-        ---------
-        >>> import numpy as np
-        >>> from SeqMetrics import RegressionMetrics
-        >>> t = np.array([1, 2, 3, 4, 5])
-        >>> p = np.array([1.1, 1.9, 3.1, 4.2, 4.8])
-        >>> metrics= RegressionMetrics(t, p)
-        >>> score = metrics.relative_error()
-        """
-        return relative_error(true= self.true, predicted= self.predicted, treat_arrays=False, power= power)
+    # def relative_error(self, power=0) -> float:
+    #     """
+    #     Relative Error. It indicates the mismatch that
+    #     occurs between the observed and modeled values, expressed
+    #     in terms of percentages.
+    #     It quantifies the relative deviations between observed/true
+    #     and predicted values. This significantly reduces the influence of absolute
+    #     differences at peaks. The absolute lower differences during low flow
+    #     periods are enhanced because they are significant if looked at in a
+    #     relative sense. As a result, there might be a systematic over- or underprediction during low flow periods.
+    #     It used along with other statistics to quantify low
+    #     flow simulations Moriasi et al., 2007.
+    #
+    #     Examples
+    #     ---------
+    #     >>> import numpy as np
+    #     >>> from SeqMetrics import RegressionMetrics
+    #     >>> t = np.array([1, 2, 3, 4, 5])
+    #     >>> p = np.array([1.1, 1.9, 3.1, 4.2, 4.8])
+    #     >>> metrics= RegressionMetrics(t, p)
+    #     >>> score = metrics.relative_error()
+    #     """
+    #     return relative_error(true= self.true, predicted= self.predicted, treat_arrays=False, power= power)
 
 def post_process_kge(cc, alpha, beta, return_all=False):
     kge_ = float(1 - np.sqrt((cc - 1) ** 2 + (alpha - 1) ** 2 + (beta - 1) ** 2))
@@ -6759,47 +6763,49 @@ def mape_for_peaks(
     return mape(true, predicted, treat_arrays=False)
 
 
-def relative_error(
-        true,
-        predicted,
-        treat_arrays: bool = True,
-        **treat_arrays_kws
-):
-    """
-    Relative Error. It indicates the mismatch that
-    occurs between the observed and modeled values, expressed
-    in terms of percentages.
-    It quantifies the relative deviations between observed/true
-    and predicted values. This significantly reduces the influence of absolute
-    differences at peaks. The absolute lower differences during low flow
-    periods are enhanced because they are significant if looked at in a
-    relative sense. As a result, there might be a systematic over- or underprediction during low flow periods.
-    It used along with other statistics to quantify low
-    flow simulations Moriasi et al., 2007.
-
-    Parameters
-    ----------
-    true :
-         true/observed/actual/target values. It must be a numpy array,
-         or pandas series/DataFrame or a list.
-    predicted :
-         simulated/predicted values
-    treat_arrays :
-        treat_arrays the true and predicted array
-
-    Examples
-    ---------
-    >>> import numpy as np
-    >>> from SeqMetrics import relative_error
-    >>> t = np.array([1, 2, 3, 4, 5])
-    >>> p = np.array([1.1, 1.9, 3.1, 4.2, 4.8])
-    >>> score = mre(t, p)
-    """
-    true, predicted = maybe_treat_arrays(treat_arrays, true, predicted, 'regression', **treat_arrays_kws)
-
-    error = true - predicted
-
-    return np.abs(error / (true + EPS)) * 100
+# todo, relative_error following equation from Moriasi does not return scaler value
+# it taken mean, then what will be the difference between this and mre?
+# def relative_error(
+#         true,
+#         predicted,
+#         treat_arrays: bool = True,
+#         **treat_arrays_kws
+# ):
+#     """
+#     Relative Error. It indicates the mismatch that
+#     occurs between the observed and modeled values, expressed
+#     in terms of percentages.
+#     It quantifies the relative deviations between observed/true
+#     and predicted values. This significantly reduces the influence of absolute
+#     differences at peaks. The absolute lower differences during low flow
+#     periods are enhanced because they are significant if looked at in a
+#     relative sense. As a result, there might be a systematic over- or underprediction during low flow periods.
+#     It used along with other statistics to quantify low
+#     flow simulations Moriasi et al., 2007.
+#
+#     Parameters
+#     ----------
+#     true :
+#          true/observed/actual/target values. It must be a numpy array,
+#          or pandas series/DataFrame or a list.
+#     predicted :
+#          simulated/predicted values
+#     treat_arrays :
+#         treat_arrays the true and predicted array
+#
+#     Examples
+#     ---------
+#     >>> import numpy as np
+#     >>> from SeqMetrics import relative_error
+#     >>> t = np.array([1, 2, 3, 4, 5])
+#     >>> p = np.array([1.1, 1.9, 3.1, 4.2, 4.8])
+#     >>> score = mre(t, p)
+#     """
+#     true, predicted = maybe_treat_arrays(treat_arrays, true, predicted, 'regression', **treat_arrays_kws)
+#
+#     error = true - predicted
+#
+#     return np.abs(error / (true + EPS)) * 100
 
 def drv():
     # https://rstudio-pubs-static.s3.amazonaws.com/433152_56d00c1e29724829bad5fc4fd8c8ebff.html
@@ -6835,4 +6841,8 @@ def overall_index():
 
 def resid_mass_coeff():
     # https://doi.org/10.1016/j.csite.2022.101797
+    raise NotImplementedError
+
+def log_euclid_dist():
+    #
     raise NotImplementedError
