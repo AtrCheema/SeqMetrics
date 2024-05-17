@@ -2350,6 +2350,9 @@ def r2(true, predicted, treat_arrays: bool = True,
     .. _explains:
         https://data.library.virginia.edu/is-r-squared-useless/
 
+    .. math ::
+        R^2 = \\left( \\frac{\\sum_{i=1}^{N} \\left( \\frac{true_i - \\bar{true}}{\\sigma_{true}} \\cdot \\frac{predicted_i - \\bar{predicted}}{\\sigma_{predicted}} \\right)}{N - 1} \\right)^2
+
     Parameters
     ----------
     true :
@@ -2395,6 +2398,9 @@ def nse(true, predicted, treat_arrays: bool = True,
         Performance measures and evaluation criteria. Transactions of the ASABE, 58(6), 1763-1785.
     - Krause, P., Boyle, D., & Bäse, F. (2005). Comparison of different efficiency criteria for hydrological
         model assessment. Adv. Geosci., 5, 89-97. https://dx.doi.org/10.5194/adgeo-5-89-2005.
+
+    .. math::
+        \\text{NSE} = 1 - \\frac{\\sum_{i=1}^{N} (predicted_i - true_i)^2}{\\sum_{i=1}^{N} (true_i - \\bar{true})^2}
     Parameters
     ----------
     true :
@@ -2424,6 +2430,10 @@ def nse_alpha(true, predicted, treat_arrays: bool = True,
     """
     Alpha decomposition of the NSE, see `Gupta_ et al. 2009 <https://doi.org/10.1029/97WR03495>`_
     used in `kratzert et al., 2018 <>`_
+
+    .. math::
+        \\text{NSE}_{\\text{alpha}} = \\frac{\\sigma_{\\text{predicted}}}{\\sigma_{\\text{true}}}
+
 
     Returns
     -------
@@ -2460,6 +2470,9 @@ def nse_beta(true, predicted, treat_arrays: bool = True,
     .. _Gupta:
         https://doi.org/10.1016/j.jhydrol.2009.08.003
 
+    .. math::
+        \\text{NSE}_{\\text{beta}} = \\frac{\\mu_{\\text{predicted}} - \\mu_{\\text{true}}}{\\sigma_{\\text{true}}}
+
     Returns
     -------
     float
@@ -2495,6 +2508,9 @@ def nse_mod(true, predicted, treat_arrays: bool = True,
     Gives less weightage to outliers if j=1 and if j>1 then it gives more
     weightage to outliers. Reference: Krause et al., 2005
 
+    .. math::
+        \\text{NSE}_{\\text{mod}} = 1 - \\frac{\\sum_{i=1}^{N} \\left| \\text{predicted}_i - \\text{true}_i \\right|^j}{\\sum_{i=1}^{N} \\left| \\text{true}_i - \\bar{\text{true}} \\right|^j}
+
     Parameters
     ----------
     true :
@@ -2528,6 +2544,10 @@ def nse_rel(true, predicted,
     """
     Relative NSE.
 
+    .. math::
+        \\text{NSE}_{\\text{rel}} = 1 - \\frac{\\sum_{i=1}^{N} \\left( \\frac{|\\text{predicted}_i - \\text{true}_i|}{\\text{true}_i} \\right)^2}{\\sum_{i=1}^{N} \\left( \\frac{|\\text{true}_i - \\overline{\\text{true}}|}{\\overline{\\text{true}}} \\right)^2}
+
+
     Parameters
     ----------
     true :
@@ -2558,8 +2578,13 @@ def nse_bound(true, predicted, treat_arrays: bool = True,
     """
     Bounded Version of the Nash-Sutcliffe Efficiency (nse_)
 
+    .. math::
+        \\text{NSE}_{\\text{bound}} = \\frac{\\text{NSE}}{2 - \\text{NSE}}
     .. _nse:
         https://iahs.info/uploads/dms/13614.21--211-219-41-MATHEVET.pdf
+
+
+
     Parameters
     ----------
     true :
@@ -2592,6 +2617,11 @@ def r2_score(true, predicted, treat_arrays: bool = True, weights=None,
     be the square of a quantity R).
     This metric is not well-defined for single samples and will return a NaN
     value if n_samples is less than two.
+
+    .. math::
+        \\text{R2}_{\\text{score}} = 1 - \\frac{\\sum_{i=1}^{n} w_i (\\text{true}_i - \\text{predicted}_i)^2}{\\sum_{i=1}^{n} w_i (\\text{true}_i - \\bar{\\text{true}})^2}
+
+
     Parameters
     ----------
     true :
@@ -2637,7 +2667,10 @@ def adjusted_r2(true, predicted, treat_arrays: bool = True,
                 **treat_arrays_kws) -> float:
     """Adjusted R squared.
 
-    Equation taken from https://people.duke.edu/~rnau/rsquared.htm
+    Equation taken from https://people.duke.edu/~rnau/rsquared.html
+
+    .. math::
+        \\text{Adjusted } R^2 = 1 - \\left( \\frac{(1 - R^2) \\cdot (n - 1)}{n - k - 1} \\right)
 
     Parameters
     ----------
@@ -2671,6 +2704,16 @@ def kge(true,
         **treat_arrays_kws):
     """
     Kling-Gupta Efficiency following `Gupta_ et al. 2009 <https://doi.org/10.1016/j.jhydrol.2009.08.003>`_.
+
+    .. math::
+        \\text{KGE} = 1 - \\sqrt{(r - 1)^2 + (\\alpha - 1)^2 + (\\beta - 1)^2}
+    .. math::
+        \\r = \\frac{\\sum_{i=1}^{N} ( \\text{true}_i - \\bar{\\text{true}} ) ( \\text{predicted}_i - \\bar{\\text{predicted}} )}{\\sqrt{\\sum_{i=1}^{N} ( \\text{true}_i - \\bar{\\text{true}} )^2} \\sqrt{\\sum_{i=1}^{N} ( \\text{predicted}_i - \\bar{\\text{predicted}} )^2}}
+    .. math::
+        \\alpha = \\frac{\\sigma_{\\text{predicted}}}{\\sigma_{\\text{true}}}
+    .. math::
+        \\beta = \\frac{\\mu_{\\text{predicted}}}{\\mu_{\\text{true}}}
+
 
 
     output:
@@ -2714,6 +2757,10 @@ def kge_bound(true, predicted, treat_arrays: bool = True,
     Bounded Version of the Original Kling-Gupta Efficiency after
     `Mathevet et al. 2006 <https://iahs.info/uploads/dms/13614.21--211-219-41-MATHEVET.pdf>`_.
 
+    .. math::
+        \\text{KGE}_{\\text{bound}} = \\frac{\\text{KGE}}{2 - \\text{KGE}}
+
+
     Parameters
     ----------
     true :
@@ -2743,6 +2790,11 @@ def kge_mod(true, predicted, treat_arrays: bool = True, return_all=False,
             **treat_arrays_kws):
     """
     Modified Kling-Gupta Efficiency after `Kling et al. 2012 <https://doi.org/10.1016/j.jhydrol.2012.01.011>`_.
+
+    .. math::
+        \\text{KGE}_{\\text{mod}} = 1 - \\sqrt{ \\left( \\frac{\\sum_{i=1}^{n} (true_i - \\bar{true})(predicted_i - \\bar{predicted})}{\\sqrt{\\sum_{i=1}^{n} (true_i - \\bar{true})^2} \\sqrt{\\sum_{i=1}^{n} (predicted_i - \\bar{predicted})^2}} - 1 \\right)^2 +
+        \\left( \\frac{\\frac{\\sigma_{predicted}}{\\bar{predicted}}}{\\frac{\\sigma_{true}}{\\bar{true}}} - 1 \\right)^2 +
+        \\left( \\frac{\\bar{predicted}}{\\bar{true}} - 1 \\right)^2}
 
     Parameters
     ----------
@@ -2788,6 +2840,15 @@ def kge_np(
         **treat_arrays_kws):
     """
     Non-parametric Kling-Gupta Efficiency after `Pool et al. 2018 <https://doi.org/10.1080/02626667.2018.1552002>`_.
+
+    .. math::
+        cc = \\rho(\\text{true}, \\text{predicted})
+    .. math::
+        \\alpha = 1 - 0.5 \\sum_{i=1}^{n} \\left| \\frac{\\text{sorted(predicted}_i\\text{)}}{\\text{mean(predicted)} \\cdot n} - \\frac{\\text{sorted(true}_i\\text{)}}{\\text{mean(true)} \\cdot n} \\right|
+    .. math::
+        \\beta = \\frac{\\text{mean(predicted)}}{\\text{mean(true)}}
+    .. math::
+        \\text{KGE}_{\\text{np}} = 1 - \\sqrt{(cc - 1)^2 + (\\alpha - 1)^2 + (\\beta - 1)^2}
 
     Parameters
     ----------
@@ -3002,6 +3063,10 @@ def rmse(true, predicted, treat_arrays: bool = True, weights=None,
          **treat_arrays_kws) -> float:
     """ Root mean squared error
 
+    .. math::
+        \\text{RMSE} = \\sqrt{\\frac{\\sum_{i=1}^{n} w_i (\\text{true}_i - \\text{predicted}_i)^2}{\\sum_{i=1}^{n} w_i}}
+
+
     Parameters
     ----------
     true :
@@ -3037,6 +3102,9 @@ def rmsle(true, predicted, treat_arrays: bool = True,
     This is especially useful in those studies where the underestimation
     of the target variable is not acceptable but overestimation can be
     `tolerated <https://doi.org/10.1016/j.scitotenv.2020.137894>`_ .
+
+    .. math::
+        RMSLE = \\sqrt{\\frac{1}{n} \\sum_{i=1}^{n} \\left( \\log(1 + \\text{predicted}_i) - \\log(1 + \\text{true}_i) \\right)^2}
 
     Parameters
     ----------
@@ -3084,6 +3152,9 @@ def mape(
     .. _values:
         https://doi.org/10.1016/j.ijforecast.2015.12.003
 
+    .. math::
+        MAPE = \\frac{1}{n} \\sum_{i=1}^{n} \\left| \\frac{true_i - predicted_i}{true_i} \\right| \\times 100
+
     Parameters
     ----------
     true :
@@ -3109,6 +3180,10 @@ def mape(
 def nrmse(true, predicted, treat_arrays: bool = True,
           **treat_arrays_kws) -> float:
     """ Normalized Root Mean Squared Error
+
+    .. math::
+        NRMSE = \\frac{\\sqrt{\\frac{1}{N} \\sum_{i=1}^{N} (\\text{true}_i - \\text{predicted}_i)^2}}{\\max(\\text{true}) - \\min(\text{true})}
+
     Parameters
     ----------
     true :
@@ -3146,6 +3221,10 @@ def pbias(true, predicted, treat_arrays: bool = True,
     is poor. [1]
 
     [1] Moriasi et al., 2015
+
+    .. math::
+        PBIAS = 100 \\times \\frac{\\sum_{i=1}^{N} (\\text{true}_i - \\text{predicted}_i)}{\\sum_{i=1}^{N} \\text{true}_i}
+
 
     Parameters
     ----------
@@ -3208,6 +3287,10 @@ def mae(true, predicted, treat_arrays: bool = True,
     """ Mean Absolute Error.
     It is less sensitive to outliers as compared to mse/rmse.
 
+    .. math::
+        \\text{MAE} = \\frac{1}{n} \\sum_{i=1}^{n} \\left| \\text{true}_i - \\text{predicted}_i \\right|
+
+
     Parameters
     ----------
     true :
@@ -3265,6 +3348,10 @@ def gmae(true, predicted, treat_arrays: bool = True,
          **treat_arrays_kws) -> float:
     """ Geometric Mean Absolute Error
 
+    .. math::
+        GMAE = \\left( \\prod_{i=1}^{n} \\left| \\text{true}_i - \\text{predicted}_i \\right| \\right)^{\\frac{1}{n}}
+
+
     Parameters
     ----------
     true :
@@ -3291,6 +3378,10 @@ def gmae(true, predicted, treat_arrays: bool = True,
 def inrse(true, predicted, treat_arrays: bool = True,
           **treat_arrays_kws) -> float:
     """ Integral Normalized Root Squared Error
+
+    .. math::
+        IN\\text{-}RSE = \\sqrt{\\frac{\\sum_{i=1}^{n} (\\text{true}_i - \\text{predicted}_i)^2}{\\sum_{i=1}^{n} (\\text{true}_i - \\overline{\\text{true}})^2}}
+
     Parameters
     ----------
     true :
@@ -3318,6 +3409,9 @@ def inrse(true, predicted, treat_arrays: bool = True,
 def irmse(true, predicted, treat_arrays: bool = True,
           **treat_arrays_kws) -> float:
     """Inertial RMSE. RMSE divided by standard deviation of the gradient of true.
+
+    .. math::
+        \\text{IRMSE} = \\frac{\\sqrt{\\frac{1}{n} \\sum_{i=1}^{n} \\left( \\text{true}_i - \\text{predicted}_i \\right)^2}}{\\sqrt{\\frac{1}{n-2} \\sum_{i=1}^{n-1} \\left( (\\text{true}_{i+1} - \\text{true}_i) - \\overline{(\\text{true}_{i+1} - \\text{true}_i)} \\right)^2}}
 
     Parameters
     ----------
@@ -3355,12 +3449,17 @@ def mase(true, predicted, treat_arrays: bool = True, seasonality: int = 1, **tre
     forecasting (shifted by @seasonality) modified after [11]_. It is the
     ratio of MAE of used model and MAE of naive forecast.
 
+    .. math::
+        \\text{MASE} = \\frac{\\frac{1}{n} \\sum_{i=1}^{n} \\left| \\text{true}_i - \\text{predicted}_i \\right|}{\\frac{1}{n-s} \\sum_{i=s+1}^{n} \\left| \\text{true}_i - \\text{true}_{i-s} \\right|}
+
+
     References
     ----------
     .. [11] https://gist.github.com/bshishov/5dc237f59f019b26145648e2124ca1c9
 
     Hyndman, R. J. (2006). Another look at forecast-accuracy metrics for intermittent demand.
     Foresight: The International Journal of Applied Forecasting, 4(4), 43-46.
+
     Parameters
     ----------
     true :
@@ -3388,6 +3487,10 @@ def mase(true, predicted, treat_arrays: bool = True, seasonality: int = 1, **tre
 
 def mare(true, predicted, treat_arrays: bool = True, **treat_arrays_kws) -> float:
     """ Mean Absolute Relative Error. When expressed in %age, it is also known as mape_.
+
+    .. math::
+        \\text{MARE} = \\frac{1}{n} \\sum_{i=1}^{n} \\left| \\frac{\\text{true}_i - \\text{predicted}_i}{\\text{true}_i} \\right|
+
 
     .. _mape:
         https://doi.org/10.1016/j.rser.2015.08.035
@@ -3418,6 +3521,9 @@ def mare(true, predicted, treat_arrays: bool = True, **treat_arrays_kws) -> floa
 def msle(true, predicted, treat_arrays=True, weights=None, **treat_arrays_kws) -> float:
     """
     mean square logrithmic error
+
+    .. math::
+        \\text{MSLE} = \\frac{\\sum_{i=1}^{n} w_i \\cdot \\text{sq_log_error}_i}{\\sum_{i=1}^{n} w_i}
 
     Parameters
     ----------
@@ -3457,7 +3563,7 @@ def covariance(
     """
     Covariance
 
-        .. math::
+    .. math::
         Covariance = \\frac{1}{N} \\sum_{i=1}^{N}((e_{i} - \\bar{e}) * (s_{i} - \\bar{s}))
 
     Parameters
@@ -3571,6 +3677,10 @@ def bic(
     with fewer terms. This is because the BIC penalises the number of parameters
     more heavily than the AIC.  Modified after RegscorePy_.
 
+    .. math::
+        BIC = n \\cdot \\ln\\left(\\frac{\\text{SSE}}{n}\\right) + p \\cdot \\ln(n)
+
+
     .. _BIC:
         https://otexts.com/fpp2/selecting-predictors.html#schwarzs-bayesian-information-criterion
 
@@ -3612,6 +3722,9 @@ def sse(true, predicted, treat_arrays: bool = True,
     This is also called residual sum of squares (RSS) or sum of squared residuals
     as per tutorialspoint_ .
 
+    .. math::
+        \\text{SSE} = \\sum_{i=1}^{n} (true_i - predicted_i)^2
+
     .. errors:
         https://dziganto.github.io/data%20science/linear%20regression/machine%20learning/python/Linear-Regression-101-Metrics/
 
@@ -3646,6 +3759,9 @@ def amemiya_pred_criterion(true, predicted, treat_arrays: bool = True,
 
     Equation taken from https://www.sfu.ca/sasdoc/sashtml/ets/chap30/sect19.htm#:~:text=Amemiya
 
+    .. math::
+        \\text{APC} = \\left( \\frac{n + k}{n - k} \\right) \\left( \\frac{1}{n} \\sum_{i=1}^{n} (\\text{true}_i - \\text{predicted}_i)^2 \\right)
+
     Parameters
     ----------
     true :
@@ -3674,6 +3790,9 @@ def amemiya_pred_criterion(true, predicted, treat_arrays: bool = True,
 def amemiya_adj_r2(true, predicted, treat_arrays: bool = True,
                    **treat_arrays_kws) -> float:
     """Amemiya's Adjusted R-squared
+
+    .. math::
+        R^2_{\\text{adj, Amemiya}} = 1 - \\left( \\frac{(1 - R^2) \\cdot (n + k)}{n - k - 1} \\right)
 
     Equation taken from https://www.sfu.ca/sasdoc/sashtml/ets/chap30/sect19.htm#:~:text=Amemiya
 
@@ -3705,6 +3824,9 @@ def amemiya_adj_r2(true, predicted, treat_arrays: bool = True,
 def aitchison(true, predicted, treat_arrays: bool = True, center='mean',
               **treat_arrays_kws) -> float:
     """Aitchison distance. used in Zhang_ et al., 2020
+
+    .. math::
+        d_{\\text{Aitchison}} = \\sqrt{\\sum_{i=1}^{n} \\left( \\log(\\text{true}_i) - \\text{center}(\\log(\\text{true})) - \\left(\\log(\\text{predicted}_i) - \\text{center}(\\log(\\text{predicted}))\\right) \\right)^2}
 
     .. _Zhang:
         https://doi.org/10.5194/hess-24-2505-2020
@@ -3774,6 +3896,9 @@ def acc(
         ) -> float:
     """Anomaly correction coefficient. See Langland_ et al., 2012; Miyakoda_ et al., 1972
     and Murphy_ et al., 1989.
+
+    .. math::
+        ACC = \\frac{\\sum_{i=1}^{N} \\left( (\\text{predicted}_i - \\overline{\\text{predicted}})(\\text{true}_i - \\overline{\\text{true}}) \\right)}{(N-1) \\cdot \\sigma_{\\text{true}} \\cdot \\sigma_{\\text{predicted}}}
 
     .. _Langland:
         https://doi.org/10.3402/tellusa.v64i0.17531
@@ -3863,6 +3988,9 @@ def legates_coeff_eff(true, predicted, treat_arrays: bool = True,
     determination because of the utilization of the absolute value of the difference
     instead of the squared difference. See Equaltion 23 in Dodo et al., 2022
 
+    .. math::
+        LCE = 1 - \\frac{\\sum_{i=1}^{n} |true_i - predicted_i|}{\\sum_{i=1}^{n} |true_i - \\bar{true}|}
+
     https://doi.org/10.1016/j.nexus.2022.100157
 
     Parameters
@@ -3896,6 +4024,9 @@ def aic(
         ) -> float:
     """
     Akaike_ Information Criterion. Modifying from this source_
+
+    .. math::
+        AIC = n \\cdot \\ln\\left(\\frac{\\sum_{i=1}^{n} (\\text{true}_i - \\text{predicted}_i)^2}{n}\\right) + 2p
 
     .. _Akaike:
         https://doi.org/10.1007/978-1-4612-1694-0_15
@@ -5215,6 +5346,10 @@ def med_seq_error(true, predicted, treat_arrays: bool = True,
                   **treat_arrays_kws) -> float:
     """Median Squared Error
     Same as mse, but it takes median which reduces the impact of outliers.
+
+    .. math::
+        \\text{MedSE} = \\text{median} \\left( (\\text{predicted}_i - \\text{true}_i)^2 \\right)
+
     Parameters
     ----------
     true :
