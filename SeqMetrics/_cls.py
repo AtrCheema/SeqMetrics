@@ -677,6 +677,8 @@ def cross_entropy(true, predicted, epsilon=1e-12) -> float:
     Computes cross entropy between targets (encoded as one-hot vectors)
     and predictions.
 
+    .. math::
+        CE = - \\frac{1}{N} \\sum_{i=1}^{N} \\left[ y_i \\log(\\hat{y}_i + \\epsilon) \\right]
     Returns
     -------
     scalar
@@ -720,6 +722,9 @@ def accuracy(true, predicted, normalize: bool = True) -> float:
     """
     calculates accuracy
 
+    .. math::
+        \\text{Accuracy} = \\frac{\\sum_{i=1}^{N} \\mathbb{1}(true_i = predicted_i)}{N}
+
     Parameters
     ----------
     normalize : bool
@@ -753,6 +758,15 @@ def precision(true, predicted, average=None):
     It is number of correct positive predictions divided by the total
     number of positive predictions.
     TP/(TP+FP)
+
+    .. math::
+        \\text{Precision}_{\\text{micro}} = \\frac{\\sum TP}{\\sum (TP + FP)}
+
+    .. math::
+        \\text{Precision}_{\\text{macro}} = \\frac{1}{N} \\sum_{i=1}^{N} \\frac{TP_i}{TP_i + FP_i}
+
+    .. math::
+        \\text{Precision}_{\\text{weighted}} = \\frac{\\sum_{i=1}^{N} (TP_i + FN_i) \\cdot \\frac{TP_i}{TP_i + FP_i}}{\\sum_{i=1}^{N} (TP_i + FN_i)}
 
     Parameters
     ----------
@@ -799,8 +813,18 @@ def recall(true, predicted, average=None):
     """
     It is also called sensitivity or true positive rate. It is
     number of correct positive predictions divided by the total number of positives
-    Formula :
-        True Posivitive / True Positive + False Negative
+
+    .. math::
+        \\text{Recall} = \\frac{\\text{True Positive}}{\\text{True Positive} + \\text{False Negative}}
+
+    .. math::
+        \\text{Recall}_{\\text{micro}} = \\frac{\\sum_{i=1}^{n} \\text{TP}_i}{\\sum_{i=1}^{n} (\\text{TP}_i + \\text{FN}_i)}
+
+    .. math::
+        \\text{Recall}_{\\text{macro}} = \\frac{1}{n} \\sum_{i=1}^{n} \\frac{\\text{TP}_i}{\\text{TP}_i + \\text{FN}_i}
+
+    .. math::
+        \\text{Recall}_{\\text{weighted}} = \\sum_{i=1}^{n} w_i \\cdot \\frac{\\text{TP}_i}{\\text{TP}_i + \\text{FN}_i}
 
     Parameters
     ----------
@@ -849,8 +873,8 @@ def specificity(true, predicted, average=None):
     the predictions are negative when the true labels are also negative.
     It is number of correct negative predictions divided by the total number of negatives.
 
-    Formula :
-    TN / TN+FP
+    .. math::
+        \\text{Specificity} = \\frac{TN}{TN + FP}
 
     Parameters
     ----------
@@ -893,6 +917,9 @@ def balanced_accuracy(true, predicted, average=None) -> float:
     balanced accuracy.
     It performs better on imbalanced datasets.
 
+    .. math::
+        \\text{Balanced Accuracy} = \\frac{1}{C} \\sum_{i=1}^{C} \\frac{TP_i}{TP_i + FN_i}
+
     Parameters
     ----------
     true : ture/observed/actual/target values. It must be a numpy array,
@@ -919,28 +946,30 @@ def balanced_accuracy(true, predicted, average=None) -> float:
 
 def f1_score(true, predicted, average=None) -> Union[np.ndarray, float]:
     """
-           Calculates f1 score according to following formula
-           f1_score = 2 * (precision * recall)  / (precision + recall)
+       Calculates f1 score according to following formula
 
-           Parameters
-           ----------
-           average : str, optional
-               It can be ``macro`` or ``weighted``. or ``micro``
-           true : ture/observed/actual/target values. It must be a numpy array, or pandas series/DataFrame or a list.
-           predicted : simulated values
+        .. math::
+            F1 = 2 \\cdot \\frac{\\text{precision} \\cdot \\text{recall}}{\\text{precision} + \\text{recall}}
 
-           Returns
-           -------
-           array or float
+       Parameters
+       ----------
+       average : str, optional
+           It can be ``macro`` or ``weighted``. or ``micro``
+       true : ture/observed/actual/target values. It must be a numpy array, or pandas series/DataFrame or a list.
+       predicted : simulated values
 
-           Examples
-           --------
-           >>> import numpy as np
-           >>> from SeqMetrics import f1_score
-           >>> true = np.array([1, 0, 0, 0])
-           >>> pred = np.array([1, 1, 1, 1])
-           >>> print(metrics = f1_score(true, pred, average="macro"))
-           >>> print(metrics = f1_score(true, pred, average="weighted"))
+       Returns
+       -------
+       array or float
+
+       Examples
+       --------
+       >>> import numpy as np
+       >>> from SeqMetrics import f1_score
+       >>> true = np.array([1, 0, 0, 0])
+       >>> pred = np.array([1, 1, 1, 1])
+       >>> print(metrics = f1_score(true, pred, average="macro"))
+       >>> print(metrics = f1_score(true, pred, average="weighted"))
 
            """
     cls = ClassificationMetrics(true, predicted)
@@ -951,6 +980,9 @@ def f1_score(true, predicted, average=None) -> Union[np.ndarray, float]:
 def f2_score(true, predicted, average=None):
     """
     f2 score
+
+    .. math::
+        F2 = \\left(1 + 2^2\\right) \\cdot \\frac{\\text{Precision} \\cdot \\text{Recall}}{(2^2 \\cdot \\text{Precision}) + \\text{Recall}}
 
     Parameters
     ----------
@@ -1007,7 +1039,9 @@ def false_positive_rate(true, predicted):
 def false_discovery_rate(true, predicted):
     """
     False discovery rate
-     FP / (TP + FP)
+
+    .. math::
+        FDR = \\frac{FP}{TP + FP}
 
     Parameters
     ----------
