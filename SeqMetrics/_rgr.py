@@ -2714,7 +2714,7 @@ def kge(true,
     .. math::
         \\beta = \\frac{\\mu_{\\text{predicted}}}{\\mu_{\\text{true}}}
 
-
+    10.5194/essd-12-2043-2020
 
     output:
         If return_all is True, it returns a numpy array of shape (4, ) containing
@@ -2897,6 +2897,9 @@ def spearmann_corr(
 )->float:
     """
     Spearman correlation coefficient
+
+    .. math::
+        r = \\frac{\\sum_{i=1}^{n} \\left( R_{t,i} - \\overline{R_t} \\right) \\left( R_{p,i} - \\overline{R_p} \\right)}{\\sqrt{ \\sum_{i=1}^{n} \\left( R_{t,i} - \\overline{R_t} \\right)^2 \\sum_{i=1}^{n} \\left( R_{p,i} - \\overline{R_p} \\right)^2 }}
 
     Parameters
     ----------
@@ -4068,6 +4071,11 @@ def cronbach_alpha(true, predicted, treat_arrays: bool = True,
     It is a measure of internal consitency of data. See ucla and stackoverflow_
     pages for more info.
 
+    .. math::
+        alpha = \\frac{N}{N - 1} \\left(1 - \\frac{\\sum_{i=1}^{N} \\sigma^2_{i}}{\\sigma^2_{\\text{total}}}\\right)
+
+    https://doi.org/10.1016/B0-12-369398-5/00396-0
+
     .. _ucla:
         https://stats.idre.ucla.edu/spss/faq/what-does-cronbachs-alpha-mean/
 
@@ -4110,6 +4118,10 @@ def centered_rms_dev(true, predicted, treat_arrays: bool = True,
     where p is the predicted values, r is the true values, and
     N is the total number of values in p & r.
 
+    .. math::
+        CRMSD = \\sqrt{\\frac{1}{N} \\sum_{i=1}^{N} \\left( (p_i - \\text{mean}(p)) - (r_i - \\text{mean}(r)) \\right)^2}
+
+    https://doi.org/10.1016/B0-12-227410-5/00612-8
     Output:
     CRMSDIFF : centered root-mean-square (RMS) difference (E')^2
 
@@ -4151,6 +4163,11 @@ def cosine_similarity(true, predicted, treat_arrays: bool = True,
     the same orientation have a cosine similarity of 1, two vectors oriented
     at 90° relative to each other have a similarity of 0, and two vectors diametrically
     opposed have a similarity of -1, independent of their magnitude. See_
+
+    .. math::
+        \\text{Cosine Similarity} = \\frac{\\sum_{i=1}^{n} \\text{true}_i \\cdot \\text{predicted}_i}{\\sqrt{\\sum_{i=1}^{n} (\\text{true}_i)^2} \\cdot \\sqrt{\\sum_{i=1}^{n} (\\text{predicted}_i)^2}}
+
+    https://doi.org/10.1016/B978-0-12-804452-0.00002-6
 
     .. _see:
         https://en.wikipedia.org/wiki/Cosine_similarity
@@ -4230,6 +4247,11 @@ def euclid_distance(true, predicted, treat_arrays: bool = True,
                     **treat_arrays_kws) -> float:
     """Euclidian distance
 
+    .. math::
+        D = \\sqrt{\\sum_{i=1}^{n} (\\text{true}_i - \\text{predicted}_i)^2}
+
+    https://doi.org/10.1016/B978-0-12-088735-4.50006-7
+
     Referneces: Kennard et al., 2010
     Parameters
     ----------
@@ -4258,6 +4280,10 @@ def exp_var_score(true, predicted, treat_arrays: bool = True, weights=None,
     """
     Explained variance score_ . Best value is 1, lower values are less accurate.
 
+    .. math::
+        \\text{EVS} = 1 - \\frac{\\sum_{i=1}^{n} w_i \\left( (true_i - predicted_i) - \\frac{\\sum_{j=1}^{n} w_j (true_j - predicted_j)}{\\sum_{j=1}^{n} w_j} \\right)^2}{\\sum_{i=1}^{n} w_i (true_i - \\frac{\\sum_{j=1}^{n} w_j true_j}{\\sum_{j=1}^{n} w_j})^2}
+
+    https://scikit-learn.org/stable/modules/generated/sklearn.metrics.explained_variance_score.html
     .. _score:
         https://stackoverflow.com/q/24378176/5982232
     Parameters
@@ -4302,6 +4328,10 @@ def expanded_uncertainty(true, predicted, treat_arrays: bool = True, cov_fact=1.
     indicator is used in order to show more information about the model
     deviation. Using formula from by Behar_ et al., 2015 and Gueymard_ et al., 2014.
 
+    .. math::
+        U = \\text{cov_fact} \\times \\sqrt{\\frac{1}{n-1} \\sum_{i=1}^{n} \\left( \\left(\\text{true}_i - \\text{predicted}_i\\right) - \\overline{\\left(\\text{true} - \\text{predicted}\\right)} \\right)^2 + \\frac{1}{n} \\sum_{i=1}^{n} \\left(\\text{true}_i - \\text{predicted}_i\\right)^2}
+
+
     .. _Behar:
         https://doi.org/10.1016/j.enconman.2015.03.067
 
@@ -4337,6 +4367,9 @@ def fdc_fhv(true, predicted, treat_arrays: bool = True, h: float = 0.02,
     """
     modified Kratzert2018_ code. Peak flow bias of the flow duration curve (Yilmaz 2008) doi:10.1029/2007WR006716.
     used in kratzert et al., 2018
+
+    .. math::
+         FHV = \\frac{\\sum_{i=1}^{k} (predicted_i - true_i)}{\\sum_{i=1}^{k} true_i} \\times 100
 
     Parameters
     ----------
@@ -4388,6 +4421,9 @@ def fdc_flv(true, predicted, treat_arrays: bool = True, low_flow: float = 0.3,
     """
     bias of the bottom 30 % low flows. modified Kratzert_ code
     used in kratzert et al., 2018
+
+    .. math::
+        \\text{FLV} = -1 \\times \\frac{\\sum (\\log(\\text{predicted}) - \\min(\\log(\\text{predicted}))) - \\sum (\\log(\\text{true}) - \\min(\\log(\\text{true})))}{\\sum (\\log(\\text{true}) - \\min(\\log(\\text{true}))) + 1 \\times 10^{-6}}
 
     Parameters
     ----------
@@ -4458,6 +4494,9 @@ def gmean_diff(true, predicted, treat_arrays: bool = True,
     Geometric mean difference. First geometric mean is calculated for true and
     predicted arrays and their difference is calculated.
 
+    .. math::
+        \\text{gmean_diff} = \\left( \\prod_{i=1}^{n} \\text{true}_i \\right)^{\\frac{1}{n}} - \\left( \\prod_{i=1}^{n} \\text{predicted}_i \\right)^{\\frac{1}{n}}
+
     Parameters
     ----------
     true :
@@ -4483,6 +4522,9 @@ def gmean_diff(true, predicted, treat_arrays: bool = True,
 def gmrae(true, predicted, treat_arrays: bool = True, benchmark: np.ndarray = None,
           **treat_arrays_kws) -> float:
     """ Geometric Mean Relative Absolute Error
+
+    .. math::
+        GMRAE = \\left( \\prod_{i=1}^{n} \\frac{|true_i - predicted_i|}{|true_i - benchmark_i|} \\right)^{\\frac{1}{n}}
 
     Parameters
     ----------
@@ -4627,6 +4669,10 @@ def JS(true, predicted, treat_arrays: bool = True,
        **treat_arrays_kws) -> float:
     """Jensen-shannon divergence
 
+    .. math::
+        JS(P \parallel Q) = \\frac{1}{2} \\sum_{i} \\left( P(i) \\log_2 \\left( \\frac{2P(i)}{P(i) + Q(i)} \\right) + Q(i) \\log_2 \\left( \\frac{2Q(i)}{P(i) + Q(i)} \\right) \\right)
+
+    https://datascientest.com/en/jensen-shannon-divergence-everything-you-need-to-know-about-this-ml-model#:~:text=Jensen%2DShannon%20divergence%20and%20Data,and%20expected%20or%20reference%20distributions.
     Parameters
     ----------
     true :
@@ -4666,6 +4712,10 @@ def kendall_tau(true, predicted, treat_arrays: bool = True, return_p=False,
     and direction of association between them. It ranges between -1 to 1 with 1 indicating
     strong association and -1 indicated strong disassociation.
 
+    .. math::
+        tau = \\frac{(C - D)}{\\sqrt{(C + D + T_{\\text{true}})(C + D + T_{\\text{predicted}})}}
+
+    10.1088/1742-5468/aace08
     .. _tau:
         https://machinelearningmastery.com/how-to-calculate-nonparametric-rank-correlation-in-python/
 
@@ -4706,6 +4756,10 @@ def kgeprime_bound(true, predicted, treat_arrays: bool = True,
     """
     Bounded Version of the Modified Kling-Gupta Efficiency_
 
+    .. math::
+        KGE'_{\\text{bounded}} = \\frac{1 - \\sqrt{(r - 1)^2 + (\\gamma - 1)^2 + (\\beta - 1)^2}}{2 - (1 - \\sqrt{(r - 1)^2 + (\\gamma - 1)^2 + (\\beta - 1)^2})}
+
+
     .. _Efficiency:
         https://iahs.info/uploads/dms/13614.21--211-219-41-MATHEVET.pdf
 
@@ -4739,6 +4793,10 @@ def kgenp_bound(true, predicted, treat_arrays: bool = True,
                 **treat_arrays_kws):
     """
     Bounded Version of the Non-Parametric Kling-Gupta Efficiency
+
+    .. math::
+        KGE_{np_{bound}} = \\frac{1 - \\sqrt{\\left(\\rho(t, p) - 1\\right)^2 + \\left(1 - 0.5 \\sum_{i=1}^{n} \\left| \\frac{\\text{sorted}(p_i)}{\\text{mean}(p) \\cdot n} - \\frac{\\text{sorted}(t_i)}{\\text{mean}(t) \\cdot n} \\right| - 1\\right)^2 + \\left(\\frac{\\text{mean}(p)}{\\text{mean}(t)} - 1\\right)^2}}{2 - \\left(1 - \\sqrt{\\left(\\rho(t, p) - 1\\right)^2 + \\left(1 - 0.5 \\sum_{i=1}^{n} \\left| \\frac{\\text{sorted}(p_i)}{\\text{mean}(p) \\cdot n} - \\frac{\\text{sorted}(t_i)}{\\text{mean}(t) \\cdot n} \\right| - 1\\right)^2 + \\left(\\frac{\\text{mean}(p)}{\\text{mean}(t)} - 1\\right)^2}\\right)}
+
     Parameters
     ----------
     true :
@@ -4768,6 +4826,9 @@ def kgenp_bound(true, predicted, treat_arrays: bool = True,
 def kl_sym(true, predicted, treat_arrays: bool = True,
            **treat_arrays_kws) -> Union[float, None]:
     """Symmetric kullback-leibler divergence
+
+    .. math::
+        \\text{KL}_{\\text{sym}}(P || Q) = \\frac{1}{2} \\sum_{i=1}^{n} \\left( P_i - Q_i \\right) \\left( \\log_2 \\frac{P_i}{Q_i} \\right)
 
     Parameters
     ----------
@@ -4805,6 +4866,14 @@ def lm_index(true, predicted, treat_arrays: bool = True, obs_bar_p=None,
     """Legate-McCabe Efficiency Index.
     Less sensitive to outliers in the data. The larger, the better
 
+    .. math::
+        a_i = |predicted_i - true_i|
+
+    .. math::
+        b_i = |true_i - \\text{obs\\_bar\\_p}| \\text{if } \\text{obs\\_bar\\_p} \\text{ is provided} \\|true_i - \\bar{true}| \\text{otherwise}
+
+    .. math::
+        \\text{LM Index} = 1 - \\frac{\\sum_{i=1}^{n} a_i}{\\sum_{i=1}^{n} b_i}
     Parameters
     ----------
     true :
@@ -4844,6 +4913,10 @@ def maape(true, predicted, treat_arrays: bool = True,
     """
     Mean Arctangent Absolute Percentage Error
     Note: result is NOT multiplied by 100
+
+    .. math::
+        MAAPE = \\frac{1}{n} \\sum_{i=1}^{n} \\arctan \\left( \\frac{| \\text{true}_i - \\text{predicted}_i |}{| \\text{true}_i | + \\epsilon} \\right)
+
     Parameters
     ----------
     true :
@@ -4919,6 +4992,9 @@ def mbrae(true, predicted, treat_arrays: bool = True, benchmark: np.ndarray = No
           **treat_arrays_kws) -> float:
     """ Mean Bounded Relative Absolute Error
 
+    .. math::
+        MBRAE = \\frac{1}{n} \\sum_{i=1}^{n} \\frac{| \\text{true}_i - \\text{predicted}_i |}{| \\text{true}_i - \\text{benchmark}_i |}
+
     Parameters
     ----------
     true :
@@ -4945,6 +5021,10 @@ def mbrae(true, predicted, treat_arrays: bool = True, benchmark: np.ndarray = No
 def mapd(true, predicted, treat_arrays: bool = True,
          **treat_arrays_kws) -> float:
     """Mean absolute percentage deviation.
+
+    .. math::
+        MAPD = \\frac{\\sum_{i=1}^{n} \\left| predicted_i - true_i \\right|}{\\sum_{i=1}^{n} \\left| true_i \\right|}
+
     Parameters
     ----------
     true :
@@ -4987,6 +5067,10 @@ def max_error(true, predicted, treat_arrays: bool = True,
               **treat_arrays_kws) -> float:
     """
     maximum absolute error
+
+    .. math::
+        \\text{Max Error} = \\max_{i=1}^n \\left| \\text{true}_i - \\text{predicted}_i \\right|
+
     Parameters
     ----------
     true :
@@ -5013,6 +5097,9 @@ def mb_r(true, predicted, treat_arrays: bool = True,
          **treat_arrays_kws) -> float:
     """Mielke-Berry R value.
     Berry and Mielke, 1988.
+
+    .. math::
+        R = 1 - \\frac{n^2 \\cdot \\frac{1}{n} \\sum_{i=1}^{n} \\left| \\text{predicted}_i - \\text{true}_i \\right|}{\\sum_{i=1}^{n} \\sum_{j=1}^{n} \\left| \\text{predicted}_j - \\text{true}_i \\right|}
 
     References
     ----------
@@ -5054,6 +5141,10 @@ def mda(
         treat_arrays: bool = True,
         **treat_arrays_kws) -> float:
     """Mean Directional Accuracy
+
+    .. math::
+        \\text{MDA} = \\frac{1}{n-1} \\sum_{i=1}^{n-1} \\left( \\text{sign}( \\text{true}_{i+1} - \\text{true}_i) == \\text{sign}( \\text{predicted}_{i+1} - \\text{predicted}_i) \\right)
+
     modified after_
 
     .. _after:
@@ -5085,6 +5176,9 @@ def mde(true, predicted, treat_arrays: bool = True,
         **treat_arrays_kws) -> float:
     """Median Error
 
+    .. math::
+        MDE = \\text{median}(\\text{predicted}_i - \\text{true}_i)
+
     Parameters
     ----------
     true :
@@ -5112,6 +5206,9 @@ def mdape(true, predicted, treat_arrays: bool = True,
     """
     Median Absolute Percentage Error. The value is multiplied by 100.
 
+    .. math::
+        \\text{MdAPE} = 100 \\times \\text{Median} \\left( \\left\\{ \\frac{|\\text{true}_i - \\text{predicted}_i|}{|\\text{true}_i|} \\right\\}_{i=1}^n \\right)
+
     Parameters
     ----------
     true :
@@ -5137,6 +5234,10 @@ def mdape(true, predicted, treat_arrays: bool = True,
 def mdrae(true, predicted, treat_arrays: bool = True, benchmark: np.ndarray = None,
           **treat_arrays_kws) -> float:
     """ Median Relative Absolute Error
+
+    .. math::
+        MdRAE = \\text{median} \\left( \\left| \\frac{true_i - predicted_i}{true_i - benchmark_i} \\right| \\right)
+
     Parameters
     ----------
     true :
@@ -5163,6 +5264,10 @@ def mdrae(true, predicted, treat_arrays: bool = True, benchmark: np.ndarray = No
 def me(true, predicted, treat_arrays: bool = True,
        **treat_arrays_kws):
     """Mean error
+
+    .. math::
+        ME = \\frac{1}{n} \\sum_{i=1}^{n} (\\text{true}_i - \\text{predicted}_i)
+
     Parameters
     ----------
     true :
@@ -5196,6 +5301,9 @@ def mean_bias_error(true, predicted, treat_arrays: bool = True,
     The drawback of this test is that it does not show the correct performance when the model presents
     overestimated and underestimated values at the same time, since overestimation and underestimation
     values cancel each other_.
+
+    .. math::
+        \\text{MBE} = \\frac{1}{N} \\sum_{i=1}^{N} (true_i - predicted_i)
 
     References
     ----------
@@ -5238,6 +5346,9 @@ def mean_var(true, predicted, treat_arrays: bool = True,
              **treat_arrays_kws) -> float:
     """Mean variance
 
+    .. math::
+        \\text{mean_var} = \\text{Var} \\left( \\log(1 + \\text{true}) - \\log(1 + \\text{predicted}) \\right)
+
     Parameters
     ----------
     true :
@@ -5264,6 +5375,10 @@ def mean_poisson_deviance(true, predicted, treat_arrays: bool = True, weights=No
                           **treat_arrays_kws) -> float:
     """
     mean poisson deviance
+
+    .. math::
+        \\text{MPD} = \\frac{1}{n} \\sum_{i=1}^{n} 2 \\left( \\text{true}_i \\log \\left( \\frac{\\text{true}_i}{\\text{predicted}_i} \\right) - (\\text{true}_i - \\text{predicted}_i) \\right)
+
     Parameters
     ----------
     true :
@@ -5293,6 +5408,9 @@ def mean_gamma_deviance(true, predicted, treat_arrays: bool = True, weights=None
     """
     mean gamma deviance
 
+    .. math::
+        \\text{Mean Gamma Deviance (Weighted)} = \\frac{1}{\\sum_{i=1}^{n} w_i} \\sum_{i=1}^{n} w_i \\frac{2}{\\text{true}_i} \\left( \\text{predicted}_i - \\text{true}_i - \\text{true}_i \\ln \\left( \\frac{\\text{predicted}_i}{\\text{true}_i} \\right) \\right)
+
     Parameters
     ----------
     true :
@@ -5320,6 +5438,10 @@ def median_abs_error(true, predicted, treat_arrays: bool = True,
                      **treat_arrays_kws) -> float:
     """
     median absolute error
+
+    .. math::
+        \\text{MedAE} = \\text{median} \\left( \\left| \\text{true}_i - \\text{predicted}_i \\right| \\right)
+
     Parameters
     ----------
     true :
@@ -5376,6 +5498,10 @@ def med_seq_error(true, predicted, treat_arrays: bool = True,
 def mle(true, predicted, treat_arrays=True,
         **treat_arrays_kws) -> float:
     """Mean log error
+
+    .. math::
+        \\text{MLE} = \\frac{1}{n} \\sum_{i=1}^{n} \\left( \\log(1 + \\text{predicted}_i) - \\log(1 + \\text{true}_i) \\right)
+
     Parameters
     ----------
     true :
@@ -5403,6 +5529,10 @@ def mod_agreement_index(true, predicted, treat_arrays: bool = True, j=1,
                         **treat_arrays_kws) -> float:
     """Modified agreement of index.
     j: int, when j==1, this is same as agreement_index. Higher j means more impact of outliers.
+
+    .. math::
+        MAI = 1 - \\frac{\\sum_{i=1}^{n} \\left| \\text{predicted}_i - \\text{true}_i \\right|^j}{\\sum_{i=1}^{n} \\left( \\left| \\text{predicted}_i - \\overline{\\text{true}} \\right| + \\left| \\text{true}_i - \\overline{\\text{true}} \\right| \\right)^j}
+
     Parameters
     ----------
     true :
@@ -5438,6 +5568,9 @@ def mpe(
         ) -> float:
     """Mean Percentage Error. The value is multiplied by 100 to reflect percentage.
 
+    .. math::
+        MPE = \\frac{1}{n} \\sum_{i=1}^{n} \\left( \\frac{true_i - predicted_i}{true_i} \\right) \\times 100
+
     Parameters
     ----------
     true :
@@ -5463,6 +5596,10 @@ def mpe(
 def mrae(true, predicted, treat_arrays: bool = True, benchmark: np.ndarray = None,
          **treat_arrays_kws):
     """ Mean Relative Absolute Error
+
+    .. math::
+        MRAE = \\frac{1}{n} \\sum_{i=1}^{n} \\left| \\frac{\\text{true}_i - \\text{predicted}_i}{\\text{benchmark}_i} \\right|
+
     Parameters
     ----------
     true :
@@ -5489,6 +5626,10 @@ def mrae(true, predicted, treat_arrays: bool = True, benchmark: np.ndarray = Non
 def norm_euclid_distance(true, predicted, treat_arrays: bool = True,
                          **treat_arrays_kws) -> float:
     """Normalized Euclidian distance
+
+    .. math::
+        D_{norm} = \\sqrt{\\sum_{i=1}^{n} \\left( \\frac{\\text{true}_i}{\\bar{\\text{true}}} - \\frac{\\text{predicted}_i}{\\bar{\\text{predicted}}} \\right)^2}
+
     Parameters
     ----------
     true :
@@ -5521,6 +5662,10 @@ def nrmse_range(true, predicted, treat_arrays: bool = True,
     with different scales. It is more sensitive to outliers.
 
     Reference: Pontius et al., 2008
+
+    .. math::
+        \\text{NRMSE} = \\frac{\\sqrt{\\frac{1}{n} \\sum_{i=1}^{n} (\\text{predicted}_i - \\text{true}_i)^2}}{\\max(\\text{true}) - \\min(\\text{true})}
+
     Parameters
     ----------
     true :
@@ -5558,6 +5703,9 @@ def nrmse_ipercentile(
     q2: any integer between 2 and 100. Should be greater than q1.
     Reference: Pontius et al., 2008.
 
+    .. math::
+        \\text{NRMSE}_{\\text{IP}} = \\frac{\\sqrt{\\frac{1}{n} \\sum_{i=1}^{n} (\\text{true}_i - \\text{predicted}_i)^2}}{Q_{q2} - Q_{q1}}
+
     Parameters
     ----------
     true :
@@ -5592,6 +5740,9 @@ def nrmse_mean(true, predicted, treat_arrays: bool = True,
     """Mean Normalized RMSE
     RMSE normalized by mean of true values.This allows comparison between datasets with different scales.
 
+    .. math::
+        NRMSE_{mean} = \\frac{\\sqrt{\\frac{1}{n} \\sum_{i=1}^{n} (\\text{true}_i - \\text{predicted}_i)^2}}{\\bar{\\text{true}}}
+
     Reference: Pontius et al., 2008
     Parameters
     ----------
@@ -5618,6 +5769,10 @@ def nrmse_mean(true, predicted, treat_arrays: bool = True,
 def norm_ae(true, predicted, treat_arrays: bool = True,
             **treat_arrays_kws) -> float:
     """ Normalized Absolute Error
+
+    .. math::
+        norm\\_ae = \\sqrt{\\frac{\\sum_{i=1}^{n} (error_i - MAE)^2}{n - 1}}
+
     Parameters
     ----------
     true :
@@ -5645,6 +5800,10 @@ def log_prob(true, predicted, treat_arrays: bool = True,
              **treat_arrays_kws) -> float:
     """
     Logarithmic probability distribution
+
+    .. math::
+        \\text{log_prob} = \\frac{1}{N} \\sum_{i=1}^{N} \\left( -\\frac{\\left( \\frac{\\text{true}_i - \\text{predicted}_i}{\\text{scale}} \\right)^2}{2} - \\log(\\sqrt{2\\pi}) \\right)
+
     Parameters
     ----------
     true :
@@ -5678,6 +5837,9 @@ def rmdspe(true, predicted, treat_arrays: bool = True,
     Root Median Squared Percentage Error. The percentage error is 
     calulated as percentage instead of fraction by multilying with 100.
 
+    .. math::
+        \\text{RMDSPE} = \\sqrt{\\text{median}\\left(\\left(\\frac{\\text{true}_i - \\text{predicted}_i}{\\text{true}_i} \\times 100\\right)^2\\right)}
+
     Parameters
     ----------
     true :
@@ -5708,6 +5870,9 @@ def rse(
         ) -> float:
     """Relative Squared Error
 
+    .. math::
+        \\text{RSE} = \\frac{\\sum_{i=1}^{n} (\\text{true}_i - \\text{predicted}_i)^2}{\\sum_{i=1}^{n} (\\text{true}_i - \\bar{\\text{true}})^2}
+
     Parameters
     ----------
     true :
@@ -5733,6 +5898,10 @@ def rse(
 def rrse(true, predicted, treat_arrays: bool = True,
          **treat_arrays_kws) -> float:
     """ Root Relative Squared Error
+
+    .. math::
+        RRSE = \\sqrt{\\frac{\\sum_{i=1}^{n} (\\text{true}_i - \\text{predicted}_i)^2}{\\sum_{i=1}^{n} (\\text{true}_i - \\bar{\\text{true}})^2}}
+
     Parameters
     ----------
     true :
@@ -5757,6 +5926,10 @@ def rrse(true, predicted, treat_arrays: bool = True,
 def rae(true, predicted, treat_arrays: bool = True,
         **treat_arrays_kws) -> float:
     """ Relative Absolute Error (aka Approximation Error)
+
+    .. math::
+        \\text{RAE} = \\frac{\\sum_{i=1}^{n} \\left| \\text{true}_i - \\text{predicted}_i \\right|}{\\sum_{i=1}^{n} \\left| \\text{true}_i - \\overline{\\text{true}} \\right|}
+
     Parameters
     ----------
     true :
@@ -5783,6 +5956,18 @@ def ref_agreement_index(true, predicted, treat_arrays: bool = True,
                         **treat_arrays_kws) -> float:
     """Refined Index of Agreement. From -1 to 1. Larger the better.
 
+    .. math::
+        a = \\sum_{i=1}^{n} \\left| \\text{predicted}_i - \\text{true}_i \\right|
+
+    .. math::
+        b = 2 \\sum_{i=1}^{n} \\left| \\text{true}_i - \\overline{\\text{true}} \\right|
+
+    .. math::
+        d_{\\text{ref}} =
+        \\begin{cases}
+        1 - \\frac{a}{b} & \\text{if } a \\leq b \\
+        \\frac{b}{a} - 1 & \\text{if } a > b
+        \\end{cases}
     Refrence: Willmott et al., 2012
     Parameters
     ----------
@@ -5814,6 +5999,10 @@ def ref_agreement_index(true, predicted, treat_arrays: bool = True,
 def rel_agreement_index(true, predicted, treat_arrays: bool = True,
                         **treat_arrays_kws) -> float:
     """Relative index of agreement. from 0 to 1. larger the better.
+
+    .. math::
+        \\text{rel_agreement_index} = 1 - \\frac{\\sum_{i=1}^{n} \\left( \\frac{\\text{predicted}_i - \\text{true}_i}{\\text{true}_i} \\right)^2}{\\sum_{i=1}^{n} \\left( \\frac{|\\text{predicted}_i - \\bar{\\text{true}}| + |\\text{true}_i - \\bar{\\text{true}}|}{\\bar{\\text{true}}} \\right)^2}
+
     Parameters
     ----------
     true :
@@ -5879,6 +6068,9 @@ def rmspe(true, predicted, treat_arrays: bool = True,
     """
     Root Mean Square Percentage Error_ .
 
+    .. math::
+        RMSPE = \\sqrt{\\frac{1}{n} \\sum_{i=1}^{n} \\left(PE_i\\right)^2} = \\sqrt{\\frac{1}{n} \\sum_{i=1}^{n} \\left(\\frac{\\text{true}_i - \\text{predicted}_i}{\\text{true}_i}\\right)^2}
+
     .. _Error:
         https://stackoverflow.com/a/53166790/5982232
     Parameters
@@ -5922,6 +6114,9 @@ def rsr(
     Standard deviation is calculated using np.ntd(true, ddof=1) to match the results of
     https://rdrr.io/cran/hydroGOF/man/rsr.html
 
+    .. math::
+        \\text{RSR} = \\frac{\\sqrt{\\frac{1}{n} \\sum_{i=1}^{n} (\\text{true}_i - \\text{predicted}_i)^2}}{\\sqrt{\\frac{1}{n-1} \\sum_{i=1}^{n} (\\text{true}_i - \\bar{\\text{true}})^2}}
+
     Parameters
     ----------
     true :
@@ -5947,6 +6142,9 @@ def rsr(
 def rmsse(true, predicted, treat_arrays: bool = True, seasonality: int = 1,
           **treat_arrays_kws) -> float:
     """ Root Mean Squared Scaled Error
+
+    .. math::
+        \\text{RMSSE} = \\sqrt{\\frac{1}{n} \\sum_{i=1}^{n} \\left( \\frac{\\left| \\text{true}_i - \\text{predicted}_i \\right|}{\\frac{1}{n-s} \\sum_{j=s+1}^{n} \\left| \\text{true}_j - \\text{true}_{j-s} \\right|} \\right)^2}
 
     Parameters
     ----------
@@ -5980,6 +6178,9 @@ def sa(true, predicted, treat_arrays: bool = True,
     how well the shape of two arrays match instead of their magnitude.
     Reference: Robila and Gershman, 2005.
 
+    .. math::
+        SA = \\arccos \\left( \\frac{\\sum_{i=1}^{n} (\\text{true}_i \\cdot \\text{predicted}_i)}{\\sqrt{\\sum_{i=1}^{n} (\\text{true}_i)^2} \\cdot \\sqrt{\\sum_{i=1}^{n} (\\text{predicted}_i)^2}} \\right)
+
     Parameters
     ----------
     true :
@@ -6008,6 +6209,9 @@ def sc(true, predicted, treat_arrays: bool = True,
        **treat_arrays_kws) -> float:
     """Spectral correlation.
     It varies from -pi/2 to pi/2. Closer to 0 is better.
+
+    .. math::
+        sc = \\arccos \\left( \\frac{ \\sum_{i=1}^{n} (t_i - \\bar{t}) \\cdot (p_i - \\bar{p}) }{ \\sqrt{\\sum_{i=1}^{n} (t_i - \\bar{t})^2} \\cdot \\sqrt{\\sum_{i=1}^{n} (p_i - \\bar{p})^2} } \\right)
 
     Parameters
     ----------
@@ -6040,6 +6244,9 @@ def sga(true, predicted, treat_arrays: bool = True,
     """Spectral gradient angle.
     It varies from -pi/2 to pi/2. Closer to 0 is better.
 
+    .. math::
+        \\text{SGA} = \\arccos \\left( \\frac{\\sum_{i=1}^{n-1} \\left( (true_{i+1} - true_i) \\cdot (predicted_{i+1} - predicted_i) \\right)}{\\sqrt{\\sum_{i=1}^{n-1} (true_{i+1} - true_i)^2} \\times \\sqrt{\\sum_{i=1}^{n-1} (predicted_{i+1} - predicted_i)^2}} \\right)
+
     Parameters
     ----------
     true :
@@ -6070,6 +6277,9 @@ def smape(true, predicted, treat_arrays: bool = True,
           **treat_arrays_kws) -> float:
     """
     Symmetric Mean Absolute Percentage Error_. Adoption from_ .
+
+    .. math::
+        SMAPE = \\frac{100}{n} \\sum_{i=1}^{n} \\frac{2 \\left| \\text{predicted}_i - \\text{true}_i \\right|}{\\left| \\text{true}_i \\right| + \\left| \\text{predicted}_i \\right|}
 
     .. _Error:
          https://en.wikipedia.org/wiki/Symmetric_mean_absolute_percentage_error
@@ -6109,6 +6319,10 @@ def smdape(true, predicted, treat_arrays: bool = True,
     Symmetric Median Absolute Percentage Error
     Note: result is NOT multiplied by 100
 
+    .. math::
+        \\text{smdape} = \\text{median} \\left( \\frac{2 \\cdot | \\text{predicted} - \\text{true} |}{| \\text{true} | + | \\text{predicted} | + \\epsilon} \\right)
+
+
     Parameters
     ----------
     true :
@@ -6136,7 +6350,10 @@ def sid(true, predicted, treat_arrays: bool = True,
     """Spectral Information Divergence.
     From -pi/2 to pi/2. Closer to 0 is better.
 
-     Parameters
+    .. math::
+        \\text{SID} = \\left( \\frac{\\text{t}}{\\text{mean(t)}} - \\frac{\\text{p}}{\\text{mean(p)}} \\right) \\cdot \\left( \\log_{10}(\\text{t}) - \\log_{10}(\\text{mean(t)}) - \\log_{10}(\\text{p}) + \\log_{10}(\\text{mean(p)}) \\right)
+
+    Parameters
     ----------
     true :
          true/observed/actual/target values. It must be a numpy array,
@@ -6237,6 +6454,9 @@ def std_ratio(true,
     Also known as standard ratio, it varies from 0.0 to infinity while
     1.0 being the perfect value.
 
+    .. math::
+        \\text{std_ratio} = \\frac{\\sigma_{\\text{predicted}}}{\\sigma_{\\text{true}}}
+
     Parameters
     ----------
     true :
@@ -6267,6 +6487,9 @@ def umbrae(
            **treat_arrays_kws):
     """Unscaled Mean Bounded Relative Absolute Error
 
+    .. math::
+        UMBRAE = \\frac{\\frac{1}{n} \\sum_{i=1}^{n} \\frac{|t_i - p_i|}{|t_i - b_i|}}{1 - \\frac{1}{n} \\sum_{i=1}^{n} \\frac{|t_i - p_i|}{|t_i - b_i|}}
+
     Parameters
     ----------
     true :
@@ -6295,6 +6518,9 @@ def ve(true, predicted, treat_arrays: bool = True,
     """
     Volumetric efficiency. Ranges from 0 to 1. Smaller the better.
     Reference: Criss and Winston 2008.
+
+    .. math::
+        VE = 1 - \\frac{\\sum_{i=1}^{n} \\left| \\text{predicted}_i - \\text{true}_i \\right|}{\\sum_{i=1}^{n} \\text{true}_i}
 
     Parameters
     ----------
@@ -6329,7 +6555,7 @@ def volume_error(true, predicted, treat_arrays: bool = True,
     used in Reynolds_ paper:
 
     .. math::
-        Sum(self.predicted- true)/sum(self.predicted)
+        \\text{volume_error}= Sum(self.predicted- true)/sum(self.predicted)
 
     References
     ----------
@@ -6377,6 +6603,9 @@ def wape(
     It is a variation of mape but more suitable for intermittent and low-volume
     data_.
 
+    .. math::
+        \\text{WAPE} = \\frac{\\sum_{i=1}^{n} \\left| \\text{true}_i - \\text{predicted}_i \\right|}{\\sum_{i=1}^{n} \\text{true}_i}
+
     .. _wape:
         https://mattdyor.wordpress.com/2018/05/23/calculating-wape/
 
@@ -6413,6 +6642,9 @@ def watt_m(true, predicted, treat_arrays: bool = True,
 
     Refrence: Watterson., 1996
 
+    .. math::
+        M = \\frac{2}{\\pi} \\cdot \\arcsin \\left( 1 - \\frac{\\frac{1}{n} \\sum_{i=1}^{n} ( \\text{true}_i - \\text{predicted}_i )^2}{\\sigma_{\\text{true}}^2 + \\sigma_{\\text{predicted}}^2 + (\\mu_{\\text{predicted}} - \\mu_{\\text{true}})^2} \\right)
+
     Parameters
     ----------
     true :
@@ -6443,6 +6675,9 @@ def wmape(
           **treat_arrays_kws) -> float:
     """
     Weighted Mean Absolute Percent Error_
+
+    .. math::
+        \\text{WMAPE} = \\frac{\\sum_{i=1}^{n} \\left| \\text{true}_i - \\text{predicted}_i \\right|}{\\sum_{i=1}^{n} \\text{true}_i}
 
     .. _Error:
         https://stackoverflow.com/a/54833202/5982232
@@ -6491,6 +6726,9 @@ def norm_ape(true, predicted, treat_arrays: bool = True,
              **treat_arrays_kws) -> float:
     """ Normalized Absolute Percentage Error
 
+    .. math::
+        \\text{norm_APE} = \\sqrt{ \\frac{1}{n-1} \\sum_{i=1}^{n} \\left( \\left| \\frac{\\text{true}_i - \\text{predicted}_i}{\\text{true}_i} \\right| - \\frac{1}{n} \\sum_{j=1}^{n} \\left| \\frac{\\text{true}_j - \\text{predicted}_j}{\\text{true}_j} \\right| \\right)^2 }
+
     Parameters
     ----------
     true :
@@ -6519,6 +6757,9 @@ def mse(true, predicted, treat_arrays: bool = True, weights=None,
         **treat_arrays_kws) -> float:
     """
     Mean Square Error
+
+    .. math::
+        MSE = \\frac{\\sum_{i=1}^{N} w_i (true_i - predicted_i)^2}{\\sum_{i=1}^{N} w_i}
 
     Parameters
     ----------
@@ -6550,6 +6791,9 @@ def variability_ratio(true, predicted, treat_arrays: bool = True,
     It is the ratio of the variance of the predicted values to the variance of the true values.
     It is used to measure the variability of the predicted values relative to the true values.
 
+    .. math::
+        VR = 1 - \\left| \\frac{\\frac{\\sigma_{\\text{predicted}}}{\\mu_{\\text{predicted}}}}{\\frac{\\sigma_{\\text{true}}}{\\mu_{\\text{true}}}} - 1 \\right|
+
     Parameters
     ----------
     true :
@@ -6576,6 +6820,9 @@ def concordance_corr_coef(
 ) -> float:
     """
     Concordance Correlation Coefficient (CCC)
+
+    .. math::
+        CCC = \\frac{2 \\rho \\sigma_{true} \\sigma_{predicted}}{\\sigma_{true}^2 + \\sigma_{predicted}^2 + (\\bar{true} - \\bar{predicted})^2}
 
     Parameters
     ----------
@@ -6623,6 +6870,9 @@ def critical_success_index(
     """
     Critical Success Index (CSI)
 
+    .. math::
+        CSI = \\frac{TP}{TP + FN + FP}
+
     Parameters
     ----------
     true :
@@ -6662,6 +6912,9 @@ def kl_divergence(
     """
     Kullback-Leibler Divergence
 
+    .. math::
+        D_{KL}(P \\parallel Q) = \\sum_{i} P(i) \\log \\left( \\frac{P(i)}{Q(i)} \\right)
+
     Parameters
     ----------
     true :
@@ -6699,6 +6952,9 @@ def log_cosh_error(
     """
     Log-Cosh Error
 
+    .. math::
+        \\text{Log-Cosh Error} = \\frac{1}{n} \\sum_{i=1}^{n} \\log \\left( \\cosh(\\text{predicted}_i - \\text{true}_i) \\right)
+
     Parameters
     ----------
     true :
@@ -6731,6 +6987,9 @@ def minkowski_distance(
 )->float:
     """
     Minkowski Distance
+
+    .. math::
+        D_{Minkowski} = \\left( \\sum_{i=1}^{n} \\left| \\text{true}_i - \\text{predicted}_i \\right|^p \\right)^{\\frac{1}{p}}
 
     Parameters
     ----------
@@ -6767,6 +7026,18 @@ def tweedie_deviance_score(
 )->float:
     """
     Tweedie Deviance Score
+
+    .. math::
+        D(\\text{true}, \\text{predicted}) = \\frac{1}{n} \\sum_{i=1}^{n} (\\text{true}_i - \\text{predicted}_i)^2
+
+    .. math::
+        D(\\text{true}, \\text{predicted}) = 2 \\sum_{i=1}^{n} \\left( \\text{true}_i \\log\\left(\\frac{\\text{true}_i + (\\text{true}_i = 0)}{\\text{predicted}_i}\\right) - \\text{true}_i + \\text{predicted}_i \\right)
+
+    .. math::
+        D(\\text{true}, \\text{predicted}) = 2 \\sum_{i=1}^{n} \\left( \\frac{\\text{true}_i}{\\text{predicted}_i} - \\log\\left(\\frac{\\text{true}_i}{\\text{predicted}_i}\\right) - 1 \\right)
+
+    .. math::
+        D(\\text{true}, \\text{predicted}) = 2 \\sum_{i=1}^{n} \\left( \\frac{(\\text{true}_i - \\text{predicted}_i)^2}{\\text{true}_i^2 \\text{predicted}_i} \\right)
 
     Parameters
     ----------
@@ -6822,6 +7093,9 @@ def mre(
 )->float:
     """
     mean relative error
+
+    .. math::
+        \\text{MRE} = \\frac{1}{n} \\sum_{i=1}^{n} \\left| \\frac{\\text{true}_i - \\text{predicted}_i}{\\text{true}_i} \\right|
 
     Parameters
     ----------
@@ -6894,7 +7168,7 @@ def mape_for_peaks(
     Mean Absolute Percentage Error for peaks which are found using scipy.singnal.find_peaks
 
     .. math::
-        \text{MAPE}_\text{peak} = \frac{1}{P}\sum_{p=1}^{P} \left |\frac{Q_{s,p} - Q_{o,p}}{Q_{o,p}} \right | \times 100,
+        \\text{MAPE}_\\text{peak} = \\frac{1}{P}\\sum_{p=1}^{P} \\left |\\frac{Q_{s,p} - Q_{o,p}}{Q_{o,p}} \\right | \\times 100,
 
     Parameters
     ----------
@@ -6984,6 +7258,9 @@ def manhattan_distance(
 
     See Blanco-Mallo et al., 2023 and Cha et al., 2007 and Alexei Botchkarev 2019
     on the use of distances in performance measures.
+
+    .. math::
+        D_{\\text{manhattan}} = \\sum_{i=1}^{n} \\left| \\text{true}_i - \\text{predicted}_i \\right|
 
     Parameters
     ----------
