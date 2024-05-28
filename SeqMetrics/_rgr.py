@@ -107,6 +107,9 @@ class RegressionMetrics(Metrics):
         """Anomaly correction coefficient. See Langland_ et al., 2012; Miyakoda_ et al., 1972
         and Murphy_ et al., 1989.
 
+        .. math::
+            ACC = \\frac{\\sum_{i=1}^{N} \\left( (\\text{predicted}_i - \\overline{\\text{predicted}})(\\text{true}_i - \\overline{\\text{true}}) \\right)}{(N-1) \\cdot \\sigma_{\\text{true}} \\cdot \\sigma_{\\text{predicted}}}
+
         .. _Langland:
             https://doi.org/10.3402/tellusa.v64i0.17531
 
@@ -128,6 +131,9 @@ class RegressionMetrics(Metrics):
 
     def adjusted_r2(self) -> float:
         """Adjusted R squared.
+
+        .. math::
+            \\text{Adjusted } R^2 = 1 - \\left( \\frac{(1 - R^2) \\cdot (n - 1)}{n - k - 1} \\right)
 
         Examples
         ---------
@@ -178,6 +184,9 @@ class RegressionMetrics(Metrics):
         """
         Akaike_ Information Criterion. Modifying from this source_
 
+        .. math::
+            AIC = n \\cdot \\ln\\left(\\frac{\\sum_{i=1}^{n} (\\text{true}_i - \\text{predicted}_i)^2}{n}\\right) + 2p
+
         .. _Akaike:
             https://doi.org/10.1007/978-1-4612-1694-0_15
 
@@ -198,6 +207,9 @@ class RegressionMetrics(Metrics):
     def aitchison(self, center='mean') -> float:
         """Aitchison distance. used in Zhang_ et al., 2020
 
+        .. math::
+            d_{\\text{Aitchison}} = \\sqrt{\\sum_{i=1}^{n} \\left( \\log(\\text{true}_i) - \\text{center}(\\log(\\text{true})) - \\left(\\log(\\text{predicted}_i) - \\text{center}(\\log(\\text{predicted}))\\right) \\right)^2}
+
         .. _Zhang:
             https://doi.org/10.5194/hess-24-2505-2020
 
@@ -216,6 +228,9 @@ class RegressionMetrics(Metrics):
     def amemiya_adj_r2(self) -> float:
         """Amemiya's Adjusted R-squared
 
+        .. math::
+            R^2_{\\text{adj, Amemiya}} = 1 - \\left( \\frac{(1 - R^2) \\cdot (n + k)}{n - k - 1} \\right)
+
         Examples
         ---------
         >>> import numpy as np
@@ -229,6 +244,9 @@ class RegressionMetrics(Metrics):
 
     def amemiya_pred_criterion(self) -> float:
         """Amemiya's Prediction Criterion
+
+        .. math::
+            \\text{APC} = \\left( \\frac{n + k}{n - k} \\right) \\left( \\frac{1}{n} \\sum_{i=1}^{n} (\\text{true}_i - \\text{predicted}_i)^2 \\right)
 
         Examples
         ---------
@@ -271,6 +289,9 @@ class RegressionMetrics(Metrics):
         model chosen by the BIC is either the same as that chosen by the AIC, or one
         with fewer terms. This is because the BIC penalises the number of parameters
         more heavily than the AIC.  Modified after RegscorePy_.
+
+        .. math::
+            BIC = n \\cdot \\ln\\left(\\frac{\\text{SSE}}{n}\\right) + p \\cdot \\ln(n)
 
         .. _BIC:
             https://otexts.com/fpp2/selecting-predictors.html#schwarzs-bayesian-information-criterion
@@ -380,6 +401,9 @@ class RegressionMetrics(Metrics):
         It is a measure of internal consitency of data. See ucla and stackoverflow_
         pages for more info.
 
+        .. math::
+            alpha = \\frac{N}{N - 1} \\left(1 - \\frac{\\sum_{i=1}^{N} \\sigma^2_{i}}{\\sigma^2_{\\text{total}}}\\right)
+
         .. _ucla:
             https://stats.idre.ucla.edu/spss/faq/what-does-cronbachs-alpha-mean/
 
@@ -406,6 +430,9 @@ class RegressionMetrics(Metrics):
         where p is the predicted values, r is the true values, and
         N is the total number of values in p & r.
 
+        .. math::
+            CRMSD = \\sqrt{\\frac{1}{N} \\sum_{i=1}^{N} \\left( (p_i - \\text{mean}(p)) - (r_i - \\text{mean}(r)) \\right)^2}
+
         Output:
         CRMSDIFF : centered root-mean-square (RMS) difference (E')^2
 
@@ -427,6 +454,9 @@ class RegressionMetrics(Metrics):
         at 90° relative to each other have a similarity of 0, and two vectors diametrically
         opposed have a similarity of -1, independent of their magnitude. See_
 
+        .. math::
+            \\text{Cosine Similarity} = \\frac{\\sum_{i=1}^{n} \\text{true}_i \\cdot \\text{predicted}_i}{\\sqrt{\\sum_{i=1}^{n} (\\text{true}_i)^2} \\cdot \\sqrt{\\sum_{i=1}^{n} (\\text{predicted}_i)^2}}
+
         .. _see:
             https://en.wikipedia.org/wiki/Cosine_similarity
 
@@ -447,7 +477,11 @@ class RegressionMetrics(Metrics):
 
         .. math ::
             dMSE = (\\frac{1}{N}\\sum_{i=1}^{N}(e_{i}-s_{i}))^2 + SDSD + LCS
+
+        .. math::
             SDSD = (\\sigma(e) - \\sigma(s))^2
+
+        .. math::
             LCS = 2 \\sigma(e) \\sigma(s) * (1 - \\frac{\\sum ^n _{i=1}(e_i - \\bar{e})(s_i - \\bar{s})}
             {\\sqrt{\\sum ^n _{i=1}(e_i - \\bar{e})^2} \\sqrt{\\sum ^n _{i=1}(s_i - \\bar{s})^2}})
 
@@ -465,6 +499,9 @@ class RegressionMetrics(Metrics):
     def euclid_distance(self) -> float:
         """Euclidian distance
 
+        .. math::
+            D = \\sqrt{\\sum_{i=1}^{n} (\\text{true}_i - \\text{predicted}_i)^2}
+
         Referneces: Kennard et al., 2010
 
         Examples
@@ -481,6 +518,9 @@ class RegressionMetrics(Metrics):
     def exp_var_score(self, weights=None) -> Union[float, None]:
         """
         Explained variance score_ . Best value is 1, lower values are less accurate.
+
+        .. math::
+            \\text{EVS} = 1 - \\frac{\\sum_{i=1}^{n} w_i \\left( (true_i - predicted_i) - \\frac{\\sum_{j=1}^{n} w_j (true_j - predicted_j)}{\\sum_{j=1}^{n} w_j} \\right)^2}{\\sum_{i=1}^{n} w_i (true_i - \\frac{\\sum_{j=1}^{n} w_j true_j}{\\sum_{j=1}^{n} w_j})^2}
 
         .. _score:
             https://stackoverflow.com/q/24378176/5982232
@@ -503,6 +543,10 @@ class RegressionMetrics(Metrics):
         1.96 is the coverage factor corresponding 95% confidence level .This
         indicator is used in order to show more information about the model
         deviation. Using formula from by Behar_ et al., 2015 and Gueymard_ et al., 2014.
+
+        .. math::
+            U = \\text{cov_fact} \\times \\sqrt{\\frac{1}{n-1} \\sum_{i=1}^{n} \\left( \\left(\\text{true}_i - \\text{predicted}_i\\right) - \\overline{\\left(\\text{true} - \\text{predicted}\\right)} \\right)^2 + \\frac{1}{n} \\sum_{i=1}^{n} \\left(\\text{true}_i - \\text{predicted}_i\\right)^2}
+
         .. _Behar:
             https://doi.org/10.1016/j.enconman.2015.03.067
 
@@ -526,6 +570,9 @@ class RegressionMetrics(Metrics):
         modified Kratzert2018_ code. Peak flow bias of the flow duration curve (Yilmaz 2008).
         used in kratzert et al., 2018
 
+        .. math::
+            FHV = \\frac{\\sum_{i=1}^{k} (predicted_i - true_i)}{\\sum_{i=1}^{k} true_i} \\times 100
+
         .. _Kratzert2018:
             https://github.com/kratzert/ealstm_regional_modeling/blob/64a446e9012ecd601e0a9680246d3bbf3f002f6d/papercode/metrics.py#L190
 
@@ -545,6 +592,9 @@ class RegressionMetrics(Metrics):
         bias of the bottom 30 % low flows. modified Kratzert_ code
         used in kratzert et al., 2018
 
+        .. math::
+            \\text{FLV} = -1 \\times \\frac{\\sum (\\log(\\text{predicted}) - \\min(\\log(\\text{predicted}))) - \\sum (\\log(\\text{true}) - \\min(\\log(\\text{true})))}{\\sum (\\log(\\text{true}) - \\min(\\log(\\text{true}))) + 1 \\times 10^{-6}}
+
         .. _Kratzert:
             https://github.com/kratzert/ealstm_regional_modeling/blob/64a446e9012ecd601e0a9680246d3bbf3f002f6d/papercode/metrics.py#L237
 
@@ -563,6 +613,9 @@ class RegressionMetrics(Metrics):
     def gmae(self) -> float:
         """ Geometric Mean Absolute Error
 
+        .. math::
+            GMAE = \\left( \\prod_{i=1}^{n} \\left| \\text{true}_i - \\text{predicted}_i \\right| \\right)^{\\frac{1}{n}}
+
         Examples
         ---------
         >>> import numpy as np
@@ -578,6 +631,9 @@ class RegressionMetrics(Metrics):
         """Geometric mean difference. First geometric mean is calculated for each
         of two samples and their difference is calculated.
 
+        .. math::
+            \\text{gmean_diff} = \\left( \\prod_{i=1}^{n} \\text{true}_i \\right)^{\\frac{1}{n}} - \\left( \\prod_{i=1}^{n} \\text{predicted}_i \\right)^{\\frac{1}{n}}
+
         Examples
         ---------
         >>> import numpy as np
@@ -591,6 +647,10 @@ class RegressionMetrics(Metrics):
 
     def gmrae(self, benchmark: np.ndarray = None) -> float:
         """ Geometric Mean Relative Absolute Error
+
+        .. math::
+            GMRAE = \\left( \\prod_{i=1}^{n} \\frac{|true_i - predicted_i|}{|true_i - benchmark_i|} \\right)^{\\frac{1}{n}}
+
 
         Examples
         ---------
@@ -646,6 +706,10 @@ class RegressionMetrics(Metrics):
     def inrse(self) -> float:
         """ Integral Normalized Root Squared Error
 
+        .. math::
+            IN\\text{-}RSE = \\sqrt{\\frac{\\sum_{i=1}^{n} (\\text{true}_i - \\text{predicted}_i)^2}{\\sum_{i=1}^{n} (\\text{true}_i - \\overline{\\text{true}})^2}}
+
+
         Examples
         ---------
         >>> import numpy as np
@@ -661,6 +725,9 @@ class RegressionMetrics(Metrics):
     def irmse(self) -> float:
         """Inertial RMSE. RMSE divided by standard deviation of the gradient of true.
 
+        .. math::
+            \\text{IRMSE} = \\frac{\\sqrt{\\frac{1}{n} \\sum_{i=1}^{n} \\left( \\text{true}_i - \\text{predicted}_i \\right)^2}}{\\sqrt{\\frac{1}{n-2} \\sum_{i=1}^{n-1} \\left( (\\text{true}_{i+1} - \\text{true}_i) - \\overline{(\\text{true}_{i+1} - \\text{true}_i)} \\right)^2}}
+
         Examples
         ---------
         >>> import numpy as np
@@ -675,6 +742,9 @@ class RegressionMetrics(Metrics):
     def JS(self) -> float:
         """Jensen-shannon divergence
 
+        .. math::
+            JS(P \parallel Q) = \\frac{1}{2} \\sum_{i} \\left( P(i) \\log_2 \\left( \\frac{2P(i)}{P(i) + Q(i)} \\right) + Q(i) \\log_2 \\left( \\frac{2Q(i)}{P(i) + Q(i)} \\right) \\right)
+
         Examples
         ---------
         >>> import numpy as np
@@ -688,6 +758,9 @@ class RegressionMetrics(Metrics):
 
     def kendall_tau(self, return_p=False) -> Union[float, tuple]:
         """Kendall's tau_ .used in Probst_ et al., 2019.
+
+        .. math::
+            tau = \\frac{(C - D)}{\\sqrt{(C + D + T_{\\text{true}})(C + D + T_{\\text{predicted}})}}
 
         .. _tau:
             https://machinelearningmastery.com/how-to-calculate-nonparametric-rank-correlation-in-python/
@@ -714,6 +787,15 @@ class RegressionMetrics(Metrics):
         """
         Kling-Gupta Efficiency following `Gupta_ et al. 2009 <https://doi.org/10.1016/j.jhydrol.2009.08.003>`_.
 
+        .. math::
+            \\text{KGE} = 1 - \\sqrt{(r - 1)^2 + (\\alpha - 1)^2 + (\\beta - 1)^2}
+        .. math::
+            \\r = \\frac{\\sum_{i=1}^{N} ( \\text{true}_i - \\bar{\\text{true}} ) ( \\text{predicted}_i - \\bar{\\text{predicted}} )}{\\sqrt{\\sum_{i=1}^{N} ( \\text{true}_i - \\bar{\\text{true}} )^2} \\sqrt{\\sum_{i=1}^{N} ( \\text{predicted}_i - \\bar{\\text{predicted}} )^2}}
+        .. math::
+            \\alpha = \\frac{\\sigma_{\\text{predicted}}}{\\sigma_{\\text{true}}}
+        .. math::
+            \\beta = \\frac{\\mu_{\\text{predicted}}}{\\mu_{\\text{true}}}
+
         Examples
         ---------
         >>> import numpy as np
@@ -730,6 +812,9 @@ class RegressionMetrics(Metrics):
         Bounded Version of the Original Kling-Gupta Efficiency after
         `Mathevet et al. 2006 <https://iahs.info/uploads/dms/13614.21--211-219-41-MATHEVET.pdf>`_.
 
+        .. math::
+            \\text{KGE}_{\\text{bound}} = \\frac{\\text{KGE}}{2 - \\text{KGE}}
+
         Examples
         ---------
         >>> import numpy as np
@@ -744,6 +829,12 @@ class RegressionMetrics(Metrics):
     def kge_mod(self):
         """
         Modified Kling-Gupta Efficiency after `Kling et al. 2012 <https://doi.org/10.1016/j.jhydrol.2012.01.011>`_.
+
+        .. math::
+            \\text{KGE}_{\\text{mod}} = 1 - \\sqrt{ \\left( \\frac{\\sum_{i=1}^{n} (true_i - \\bar{true})(predicted_i - \\bar{predicted})}{\\sqrt{\\sum_{i=1}^{n} (true_i - \\bar{true})^2} \\sqrt{\\sum_{i=1}^{n} (predicted_i - \\bar{predicted})^2}} - 1 \\right)^2 +
+            \\left( \\frac{\\frac{\\sigma_{predicted}}{\\bar{predicted}}}{\\frac{\\sigma_{true}}{\\bar{true}}} - 1 \\right)^2 +
+            \\left( \\frac{\\bar{predicted}}{\\bar{true}} - 1 \\right)^2}
+
 
         Examples
         ---------
@@ -761,6 +852,19 @@ class RegressionMetrics(Metrics):
         """
         Non-parametric Kling-Gupta Efficiency after `Pool et al. 2018 <https://doi.org/10.1080/02626667.2018.1552002>`_.
 
+        .. math::
+            cc = \\rho(\\text{true}, \\text{predicted})
+
+        .. math::
+            \\alpha = 1 - 0.5 \\sum_{i=1}^{n} \\left| \\frac{\\text{sorted(predicted}_i\\text{)}}{\\text{mean(predicted)} \\cdot n} - \\frac{\\text{sorted(true}_i\\text{)}}{\\text{mean(true)} \\cdot n} \\right|
+
+        .. math::
+            \\beta = \\frac{\\text{mean(predicted)}}{\\text{mean(true)}}
+
+        .. math::
+            \\text{KGE}_{\\text{np}} = 1 - \\sqrt{(cc - 1)^2 + (\\alpha - 1)^2 + (\\beta - 1)^2}
+
+
         Examples
         ---------
         >>> import numpy as np
@@ -776,6 +880,9 @@ class RegressionMetrics(Metrics):
     def kgeprime_bound(self) -> float:
         """
         Bounded Version of the Modified Kling-Gupta Efficiency_
+
+        .. math::
+            KGE'_{\\text{bounded}} = \\frac{1 - \\sqrt{(r - 1)^2 + (\\gamma - 1)^2 + (\\beta - 1)^2}}{2 - (1 - \\sqrt{(r - 1)^2 + (\\gamma - 1)^2 + (\\beta - 1)^2})}
 
         .. _Efficiency:
             https://iahs.info/uploads/dms/13614.21--211-219-41-MATHEVET.pdf
@@ -796,6 +903,9 @@ class RegressionMetrics(Metrics):
         """
         Bounded Version of the Non-Parametric Kling-Gupta Efficiency
 
+        .. math::
+            KGE_{np_{bound}} = \\frac{1 - \\sqrt{\\left(\\rho(t, p) - 1\\right)^2 + \\left(1 - 0.5 \\sum_{i=1}^{n} \\left| \\frac{\\text{sorted}(p_i)}{\\text{mean}(p) \\cdot n} - \\frac{\\text{sorted}(t_i)}{\\text{mean}(t) \\cdot n} \\right| - 1\\right)^2 + \\left(\\frac{\\text{mean}(p)}{\\text{mean}(t)} - 1\\right)^2}}{2 - \\left(1 - \\sqrt{\\left(\\rho(t, p) - 1\\right)^2 + \\left(1 - 0.5 \\sum_{i=1}^{n} \\left| \\frac{\\text{sorted}(p_i)}{\\text{mean}(p) \\cdot n} - \\frac{\\text{sorted}(t_i)}{\\text{mean}(t) \\cdot n} \\right| - 1\\right)^2 + \\left(\\frac{\\text{mean}(p)}{\\text{mean}(t)} - 1\\right)^2}\\right)}
+
         Examples
         ---------
         >>> import numpy as np
@@ -811,6 +921,9 @@ class RegressionMetrics(Metrics):
     def kl_sym(self) -> Union[float, None]:
         """Symmetric kullback-leibler divergence
 
+        .. math::
+            \\text{KL}_{\\text{sym}}(P || Q) = \\frac{1}{2} \\sum_{i=1}^{n} \\left( P_i - Q_i \\right) \\left( \\log_2 \\frac{P_i}{Q_i} \\right)
+
         Examples
         ---------
         >>> import numpy as np
@@ -825,6 +938,15 @@ class RegressionMetrics(Metrics):
     def lm_index(self, obs_bar_p=None) -> float:
         """Legate-McCabe Efficiency Index.
         Less sensitive to outliers in the data. The larger, the better
+
+        .. math::
+            a_i = |predicted_i - true_i|
+
+        .. math::
+            b_i = |true_i - \\text{obs\\_bar\\_p}| \\text{if } \\text{obs\\_bar\\_p} \\text{ is provided} \\|true_i - \\bar{true}| \\text{otherwise}
+
+        .. math::
+            \\text{LM Index} = 1 - \\frac{\\sum_{i=1}^{n} a_i}{\\sum_{i=1}^{n} b_i}
 
         Examples
         ---------
@@ -843,6 +965,9 @@ class RegressionMetrics(Metrics):
         Mean Arctangent Absolute Percentage Error
         Note: result is NOT multiplied by 100
 
+        .. math::
+            MAAPE = \\frac{1}{n} \\sum_{i=1}^{n} \\arctan \\left( \\frac{| \\text{true}_i - \\text{predicted}_i |}{| \\text{true}_i | + \\epsilon} \\right)
+
         Examples
         ---------
         >>> import numpy as np
@@ -857,6 +982,9 @@ class RegressionMetrics(Metrics):
     def mae(self) -> float:
         """ Mean Absolute Error.
         It is less sensitive to outliers as compared to mse/rmse.
+
+        .. math::
+            \\text{MAE} = \\frac{1}{n} \\sum_{i=1}^{n} \\left| \\text{true}_i - \\text{predicted}_i \\right|
 
         Examples
         ---------
@@ -877,6 +1005,9 @@ class RegressionMetrics(Metrics):
         of scale-independency and interpretability. However, it has the significant
         disadvantage that it produces infinite or undefined values for zero or
         close-to-zero actual values_.
+
+        .. math::
+            MAPE = \\frac{1}{n} \\sum_{i=1}^{n} \\left| \\frac{true_i - predicted_i}{true_i} \\right| \\times 100
 
         .. _zero:
             https://doi.org/10.1016/j.neucom.2015.12.114
@@ -901,6 +1032,9 @@ class RegressionMetrics(Metrics):
     def mbrae(self, benchmark: np.ndarray = None) -> float:
         """ Mean Bounded Relative Absolute Error
 
+        .. math::
+            MBRAE = \\frac{1}{n} \\sum_{i=1}^{n} \\frac{| \\text{true}_i - \\text{predicted}_i |}{| \\text{true}_i - \\text{benchmark}_i |}
+
         Examples
         ---------
         >>> import numpy as np
@@ -915,6 +1049,9 @@ class RegressionMetrics(Metrics):
 
     def mapd(self) -> float:
         """Mean absolute percentage deviation.
+
+        .. math::
+            MAPD = \\frac{\\sum_{i=1}^{n} \\left| predicted_i - true_i \\right|}{\\sum_{i=1}^{n} \\left| true_i \\right|}
 
         Examples
         ---------
@@ -932,6 +1069,9 @@ class RegressionMetrics(Metrics):
         Mean Absolute Scaled Error. Baseline (benchmark) is computed with naive
         forecasting (shifted by @seasonality) modified after [11]_. It is the
         ratio of MAE of used model and MAE of naive forecast.
+
+        .. math::
+            \\text{MASE} = \\frac{\\frac{1}{n} \\sum_{i=1}^{n} \\left| \\text{true}_i - \\text{predicted}_i \\right|}{\\frac{1}{n-s} \\sum_{i=s+1}^{n} \\left| \\text{true}_i - \\text{true}_{i-s} \\right|}
 
         References
         ----------
@@ -954,6 +1094,9 @@ class RegressionMetrics(Metrics):
     def mare(self) -> float:
         """ Mean Absolute Relative Error. When expressed in %age, it is also known as mape_.
 
+        .. math::
+            \\text{MARE} = \\frac{1}{n} \\sum_{i=1}^{n} \\left| \\frac{\\text{true}_i - \\text{predicted}_i}{\\text{true}_i} \\right|
+
         .. _mape:
             https://doi.org/10.1016/j.rser.2015.08.035
 
@@ -973,6 +1116,9 @@ class RegressionMetrics(Metrics):
         """
         maximum absolute error
 
+        .. math::
+            \\text{Max Error} = \\max_{i=1}^n \\left| \\text{true}_i - \\text{predicted}_i \\right|
+
         Examples
         ---------
         >>> import numpy as np
@@ -987,6 +1133,9 @@ class RegressionMetrics(Metrics):
     def mb_r(self) -> float:
         """Mielke-Berry R value.
         Berry and Mielke, 1988.
+
+        .. math::
+            R = 1 - \\frac{n^2 \\cdot \\frac{1}{n} \\sum_{i=1}^{n} \\left| \\text{predicted}_i - \\text{true}_i \\right|}{\\sum_{i=1}^{n} \\sum_{j=1}^{n} \\left| \\text{predicted}_j - \\text{true}_i \\right|}
 
         References
         ----------
@@ -1008,6 +1157,10 @@ class RegressionMetrics(Metrics):
         """ Mean Directional Accuracy
         modified after_
 
+        .. math::
+            \\text{MDA} = \\frac{1}{n-1} \\sum_{i=1}^{n-1} \\left( \\text{sign}( \\text{true}_{i+1} - \\text{true}_i) == \\text{sign}( \\text{predicted}_{i+1} - \\text{predicted}_i) \\right)
+
+
         .. _after:
              https://gist.github.com/bshishov/5dc237f59f019b26145648e2124ca1c9
 
@@ -1025,6 +1178,9 @@ class RegressionMetrics(Metrics):
     def mde(self) -> float:
         """Median Error
 
+        .. math::
+            MDE = \\text{median}(\\text{predicted}_i - \\text{true}_i)
+
         Examples
         ---------
         >>> import numpy as np
@@ -1040,6 +1196,9 @@ class RegressionMetrics(Metrics):
         """
         Median Absolute Percentage Error
 
+        .. math::
+            \\text{MdAPE} = 100 \\times \\text{Median} \\left( \\left\\{ \\frac{|\\text{true}_i - \\text{predicted}_i|}{|\\text{true}_i|} \\right\\}_{i=1}^n \\right)
+
         Examples
         ---------
         >>> import numpy as np
@@ -1053,6 +1212,9 @@ class RegressionMetrics(Metrics):
 
     def mdrae(self, benchmark: np.ndarray = None) -> float:
         """ Median Relative Absolute Error
+
+        .. math::
+            MdRAE = \\text{median} \\left( \\left| \\frac{true_i - predicted_i}{true_i - benchmark_i} \\right| \\right)
 
         Examples
         ---------
@@ -1068,6 +1230,9 @@ class RegressionMetrics(Metrics):
 
     def me(self):
         """Mean error
+
+        .. math::
+            ME = \\frac{1}{n} \\sum_{i=1}^{n} (\\text{true}_i - \\text{predicted}_i)
 
         Examples
         ---------
@@ -1089,6 +1254,9 @@ class RegressionMetrics(Metrics):
         The drawback of this test is that it does not show the correct performance when the model presents
         overestimated and underestimated values at the same time, since overestimation and underestimation
         values cancel each other.
+
+        .. math::
+            \\text{MBE} = \\frac{1}{N} \\sum_{i=1}^{N} (true_i - predicted_i)
 
         References
         ----------
@@ -1116,6 +1284,9 @@ class RegressionMetrics(Metrics):
     def mean_var(self) -> float:
         """Mean variance
 
+        .. math::
+            \\text{mean_var} = \\text{Var} \\left( \\log(1 + \\text{true}) - \\log(1 + \\text{predicted}) \\right)
+
         Examples
         ---------
         >>> import numpy as np
@@ -1130,6 +1301,9 @@ class RegressionMetrics(Metrics):
     def mean_poisson_deviance(self, weights=None) -> float:
         """
         mean poisson deviance
+
+        .. math::
+            \\text{MPD} = \\frac{1}{n} \\sum_{i=1}^{n} 2 \\left( \\text{true}_i \\log \\left( \\frac{\\text{true}_i}{\\text{predicted}_i} \\right) - (\\text{true}_i - \\text{predicted}_i) \\right)
 
         Examples
         ---------
@@ -1146,6 +1320,9 @@ class RegressionMetrics(Metrics):
     def mean_gamma_deviance(self, weights=None) -> float:
         """
         mean gamma deviance
+
+        .. math::
+            \\text{Mean Gamma Deviance (Weighted)} = \\frac{1}{\\sum_{i=1}^{n} w_i} \\sum_{i=1}^{n} w_i \\frac{2}{\\text{true}_i} \\left( \\text{predicted}_i - \\text{true}_i - \\text{true}_i \\ln \\left( \\frac{\\text{predicted}_i}{\\text{true}_i} \\right) \\right)
 
         Examples
         ---------
@@ -1164,6 +1341,9 @@ class RegressionMetrics(Metrics):
         """
         median absolute error
 
+        .. math::
+            \\text{MedAE} = \\text{median} \\left( \\left| \\text{true}_i - \\text{predicted}_i \\right| \\right)
+
         Examples
         ---------
         >>> import numpy as np
@@ -1179,6 +1359,9 @@ class RegressionMetrics(Metrics):
         """Median Squared Error
         Same as mse, but it takes median which reduces the impact of outliers.
 
+        .. math::
+            \\text{MedSE} = \\text{median} \\left( (\\text{predicted}_i - \\text{true}_i)^2 \\right)
+
         Examples
         ---------
         >>> import numpy as np
@@ -1192,6 +1375,9 @@ class RegressionMetrics(Metrics):
 
     def mle(self) -> float:
         """Mean log error
+
+        .. math::
+            \\text{MLE} = \\frac{1}{n} \\sum_{i=1}^{n} \\left( \\log(1 + \\text{predicted}_i) - \\log(1 + \\text{true}_i) \\right)
 
             Examples
         ---------
@@ -1208,6 +1394,9 @@ class RegressionMetrics(Metrics):
         """Modified agreement of index.
         j: int, when j==1, this is same as agreement_index. Higher j means more impact of outliers.
 
+        .. math::
+            MAI = 1 - \\frac{\\sum_{i=1}^{n} \\left| \\text{predicted}_i - \\text{true}_i \\right|^j}{\\sum_{i=1}^{n} \\left( \\left| \\text{predicted}_i - \\overline{\\text{true}} \\right| + \\left| \\text{true}_i - \\overline{\\text{true}} \\right| \\right)^j}
+
         Examples
         ---------
         >>> import numpy as np
@@ -1223,6 +1412,9 @@ class RegressionMetrics(Metrics):
     def mpe(self) -> float:
         """ Mean Percentage Error
 
+        .. math::
+            MPE = \\frac{1}{n} \\sum_{i=1}^{n} \\left( \\frac{true_i - predicted_i}{true_i} \\right) \\times 100
+
             Examples
         ---------
         >>> import numpy as np
@@ -1236,6 +1428,9 @@ class RegressionMetrics(Metrics):
 
     def mrae(self, benchmark: np.ndarray = None):
         """ Mean Relative Absolute Error
+
+        .. math::
+            MRAE = \\frac{1}{n} \\sum_{i=1}^{n} \\left| \\frac{\\text{true}_i - \\text{predicted}_i}{\\text{benchmark}_i} \\right|
 
         Examples
         ---------
@@ -1254,6 +1449,8 @@ class RegressionMetrics(Metrics):
         """
         mean square logrithmic error
 
+        .. math::
+            \\text{MSLE} = \\frac{\\sum_{i=1}^{n} w_i \\cdot \\text{sq_log_error}_i}{\\sum_{i=1}^{n} w_i}
         Examples
         ---------
         >>> import numpy as np
@@ -1271,6 +1468,9 @@ class RegressionMetrics(Metrics):
         """
         Mean Relative Error
 
+        .. math::
+            \\text{MRE} = \\frac{1}{n} \\sum_{i=1}^{n} \\left| \\frac{\\text{true}_i - \\text{predicted}_i}{\\text{true}_i} \\right|
+
         Examples
         ---------
         >>> import numpy as np
@@ -1285,6 +1485,9 @@ class RegressionMetrics(Metrics):
 
     def norm_euclid_distance(self) -> float:
         """Normalized Euclidian distance
+
+        .. math::
+            D_{norm} = \\sqrt{\\sum_{i=1}^{n} \\left( \\frac{\\text{true}_i}{\\bar{\\text{true}}} - \\frac{\\text{predicted}_i}{\\bar{\\text{predicted}}} \\right)^2}
 
         Examples
         ---------
@@ -1305,6 +1508,9 @@ class RegressionMetrics(Metrics):
 
         Reference: Pontius et al., 2008
 
+        .. math::
+            \\text{NRMSE} = \\frac{\\sqrt{\\frac{1}{n} \\sum_{i=1}^{n} (\\text{predicted}_i - \\text{true}_i)^2}}{\\max(\\text{true}) - \\min(\\text{true})}
+
         Examples
         ---------
         >>> import numpy as np
@@ -1323,6 +1529,9 @@ class RegressionMetrics(Metrics):
         q2: any integer between 2 and 100. Should be greater than q1.
         Reference: Pontius et al., 2008.
 
+        .. math::
+            \\text{NRMSE}_{\\text{IP}} = \\frac{\\sqrt{\\frac{1}{n} \\sum_{i=1}^{n} (\\text{true}_i - \\text{predicted}_i)^2}}{Q_{q2} - Q_{q1}}
+
         Examples
         ---------
         >>> import numpy as np
@@ -1340,6 +1549,9 @@ class RegressionMetrics(Metrics):
 
         Reference: Pontius et al., 2008
 
+        .. math::
+            NRMSE_{mean} = \\frac{\\sqrt{\\frac{1}{n} \\sum_{i=1}^{n} (\\text{true}_i - \\text{predicted}_i)^2}}{\\bar{\\text{true}}}
+
         Examples
         ---------
         >>> import numpy as np
@@ -1353,6 +1565,9 @@ class RegressionMetrics(Metrics):
 
     def norm_ae(self) -> float:
         """ Normalized Absolute Error
+
+        .. math::
+            norm\\_ae = \\sqrt{\\frac{\\sum_{i=1}^{n} (error_i - MAE)^2}{n - 1}}
 
         Examples
         ---------
@@ -1368,6 +1583,10 @@ class RegressionMetrics(Metrics):
     def norm_ape(self) -> float:
         """ Normalized Absolute Percentage Error
 
+        .. math::
+            \\text{norm_APE} = \\sqrt{ \\frac{1}{n-1} \\sum_{i=1}^{n} \\left( \\left| \\frac{\\text{true}_i - \\text{predicted}_i}{\\text{true}_i} \\right| - \\frac{1}{n} \\sum_{j=1}^{n} \\left| \\frac{\\text{true}_j - \\text{predicted}_j}{\\text{true}_j} \\right| \\right)^2 }
+
+
         Examples
         ---------
         >>> import numpy as np
@@ -1381,6 +1600,9 @@ class RegressionMetrics(Metrics):
 
     def nrmse(self) -> float:
         """ Normalized Root Mean Squared Error
+
+        .. math::
+            NRMSE = \\frac{\\sqrt{\\frac{1}{N} \\sum_{i=1}^{N} (\\text{true}_i - \\text{predicted}_i)^2}}{\\max(\\text{true}) - \\min(\text{true})}
 
             Examples
         ---------
@@ -1405,6 +1627,9 @@ class RegressionMetrics(Metrics):
         to extreme values due to the squared differ-ences [1]. To make it less sensitive
         to outliers, [2] proposed log and relative nse.
 
+        .. math::
+            \\text{NSE} = 1 - \\frac{\\sum_{i=1}^{N} (predicted_i - true_i)^2}{\\sum_{i=1}^{N} (true_i - \\bar{true})^2}
+
         References
         ----------
         - Moriasi, D. N., Gitau, M. W., Pai, N., & Daggupati, P. (2015). Hydrologic and water quality models:
@@ -1428,6 +1653,9 @@ class RegressionMetrics(Metrics):
         Alpha decomposition of the NSE, see `Gupta_ et al. 2009 <https://doi.org/10.1029/97WR03495>`_
         used in `kratzert et al., 2018 <>`_
 
+        .. math::
+            \\text{NSE}_{\\text{alpha}} = \\frac{\\sigma_{\\text{predicted}}}{\\sigma_{\\text{true}}}
+
         Examples
         ---------
         >>> import numpy as np
@@ -1443,6 +1671,9 @@ class RegressionMetrics(Metrics):
         """
         Beta decomposition of NSE. See Gupta_ et al. 2009 .
         used in kratzert et al., 2018
+
+        .. math::
+            \\text{NSE}_{\\text{beta}} = \\frac{\\mu_{\\text{predicted}} - \\mu_{\\text{true}}}{\\sigma_{\\text{true}}}
 
         .. _Gupta:
             https://doi.org/10.1016/j.jhydrol.2009.08.003
@@ -1464,6 +1695,9 @@ class RegressionMetrics(Metrics):
         Gives less weightage to outliers if j=1 and if j>1 then it gives more
         weightage to outliers. Reference: Krause et al., 2005
 
+        .. math::
+            \\text{NSE}_{\\text{mod}} = 1 - \\frac{\\sum_{i=1}^{N} \\left| \\text{predicted}_i - \\text{true}_i \\right|^j}{\\sum_{i=1}^{N} \\left| \\text{true}_i - \\bar{\text{true}} \\right|^j}
+
         Examples
         ---------
         >>> import numpy as np
@@ -1480,6 +1714,10 @@ class RegressionMetrics(Metrics):
         """
         Relative NSE.
 
+        .. math::
+            \\text{NSE}_{\\text{rel}} = 1 - \\frac{\\sum_{i=1}^{N} \\left( \\frac{|\\text{predicted}_i - \\text{true}_i|}{\\text{true}_i} \\right)^2}{\\sum_{i=1}^{N} \\left( \\frac{|\\text{true}_i - \\overline{\\text{true}}|}{\\overline{\\text{true}}} \\right)^2}
+
+
         Examples
         ---------
         >>> import numpy as np
@@ -1494,6 +1732,9 @@ class RegressionMetrics(Metrics):
     def nse_bound(self) -> float:
         """
         Bounded Version of the Nash-Sutcliffe Efficiency (nse_)
+
+        .. math::
+            \\text{NSE}_{\\text{bound}} = \\frac{\\text{NSE}}{2 - \\text{NSE}}
 
         .. _nse:
             https://iahs.info/uploads/dms/13614.21--211-219-41-MATHEVET.pdf
@@ -1532,6 +1773,9 @@ class RegressionMetrics(Metrics):
         """
         Logarithmic probability distribution
 
+        .. math::
+            \\text{log_prob} = \\frac{1}{N} \\sum_{i=1}^{N} \\left( -\\frac{\\left( \\frac{\\text{true}_i - \\text{predicted}_i}{\\text{scale}} \\right)^2}{2} - \\log(\\sqrt{2\\pi}) \\right)
+
         Examples
         ---------
         >>> import numpy as np
@@ -1555,6 +1799,9 @@ class RegressionMetrics(Metrics):
         model performance if the model overpredicts as much as it underpredicts,
         in which case PBIAS will be close to zero even though the model simulation
         is poor. [1]
+
+        .. math::
+            PBIAS = 100 \\times \\frac{\\sum_{i=1}^{N} (\\text{true}_i - \\text{predicted}_i)}{\\sum_{i=1}^{N} \\text{true}_i}
 
         [1] Moriasi et al., 2015
 
@@ -1581,6 +1828,10 @@ class RegressionMetrics(Metrics):
         of the target variable is not acceptable but overestimation can be
         `tolerated <https://doi.org/10.1016/j.scitotenv.2020.137894>`_ .
 
+        .. math::
+            RMSLE = \\sqrt{\\frac{1}{n} \\sum_{i=1}^{n} \\left( \\log(1 + \\text{predicted}_i) - \\log(1 + \\text{true}_i) \\right)^2}
+
+
         Examples
         ---------
         >>> import numpy as np
@@ -1597,6 +1848,9 @@ class RegressionMetrics(Metrics):
         """
         Root Median Squared Percentage Error
 
+        .. math::
+            \\text{RMDSPE} = \\sqrt{\\text{median}\\left(\\left(\\frac{\\text{true}_i - \\text{predicted}_i}{\\text{true}_i} \\times 100\\right)^2\\right)}
+
         Examples
         ---------
         >>> import numpy as np
@@ -1610,6 +1864,9 @@ class RegressionMetrics(Metrics):
 
     def rse(self) -> float:
         """Relative Squared Error
+
+        .. math::
+            \\text{RSE} = \\frac{\\sum_{i=1}^{n} (\\text{true}_i - \\text{predicted}_i)^2}{\\sum_{i=1}^{n} (\\text{true}_i - \\bar{\\text{true}})^2}
 
         Examples
         ---------
@@ -1625,6 +1882,9 @@ class RegressionMetrics(Metrics):
     def rrse(self) -> float:
         """ Root Relative Squared Error
 
+        .. math::
+            RRSE = \\sqrt{\\frac{\\sum_{i=1}^{n} (\\text{true}_i - \\text{predicted}_i)^2}{\\sum_{i=1}^{n} (\\text{true}_i - \\bar{\\text{true}})^2}}
+
         Examples
         ---------
         >>> import numpy as np
@@ -1638,6 +1898,9 @@ class RegressionMetrics(Metrics):
 
     def rae(self) -> float:
         """ Relative Absolute Error (aka Approximation Error)
+
+        .. math::
+            \\text{RAE} = \\frac{\\sum_{i=1}^{n} \\left| \\text{true}_i - \\text{predicted}_i \\right|}{\\sum_{i=1}^{n} \\left| \\text{true}_i - \\overline{\\text{true}} \\right|}
 
         Examples
         ---------
@@ -1654,6 +1917,19 @@ class RegressionMetrics(Metrics):
         """Refined Index of Agreement. From -1 to 1. Larger the better.
         Refrence: Willmott et al., 2012
 
+        .. math::
+            a = \\sum_{i=1}^{n} \\left| \\text{predicted}_i - \\text{true}_i \\right|
+
+        .. math::
+            b = 2 \\sum_{i=1}^{n} \\left| \\text{true}_i - \\overline{\\text{true}} \\right|
+
+        .. math::
+            d_{\\text{ref}} =
+            \\begin{cases}
+            1 - \\frac{a}{b} & \\text{if } a \\leq b \\
+            \\frac{b}{a} - 1 & \\text{if } a > b
+            \\end{cases}
+
         Examples
         ---------
         >>> import numpy as np
@@ -1668,6 +1944,9 @@ class RegressionMetrics(Metrics):
     def rel_agreement_index(self) -> float:
         """Relative index of agreement. from 0 to 1. larger the better.
 
+        .. math::
+            \\text{rel_agreement_index} = 1 - \\frac{\\sum_{i=1}^{n} \\left( \\frac{\\text{predicted}_i - \\text{true}_i}{\\text{true}_i} \\right)^2}{\\sum_{i=1}^{n} \\left( \\frac{|\\text{predicted}_i - \\bar{\\text{true}}| + |\\text{true}_i - \\bar{\\text{true}}|}{\\bar{\\text{true}}} \\right)^2}
+
         Examples
         ---------
         >>> import numpy as np
@@ -1681,6 +1960,9 @@ class RegressionMetrics(Metrics):
 
     def rmse(self, weights=None) -> float:
         """ Root mean squared error
+
+        .. math::
+            \\text{RMSE} = \\sqrt{\\frac{\\sum_{i=1}^{n} w_i (\\text{true}_i - \\text{predicted}_i)^2}{\\sum_{i=1}^{n} w_i}}
 
         Examples
         ---------
@@ -1700,6 +1982,9 @@ class RegressionMetrics(Metrics):
         explains_. The 'model' here is anything from which we obtained predicted
         array. It is also called coefficient of determination or square of pearson
         correlation coefficient. More heavily affected by outliers than pearson correlatin r.
+
+        .. math ::
+            R^2 = \\left( \\frac{\\sum_{i=1}^{N} \\left( \\frac{true_i - \\bar{true}}{\\sigma_{true}} \\cdot \\frac{predicted_i - \\bar{predicted}}{\\sigma_{predicted}} \\right)}{N - 1} \\right)^2
 
         .. _explains:
             https://data.library.virginia.edu/is-r-squared-useless/
@@ -1724,6 +2009,10 @@ class RegressionMetrics(Metrics):
         be the square of a quantity R).
         This metric is not well-defined for single samples and will return a NaN
         value if n_samples is less than two.
+
+        .. math::
+            \\text{R2}_{\\text{score}} = 1 - \\frac{\\sum_{i=1}^{n} w_i (\\text{true}_i - \\text{predicted}_i)^2}{\\sum_{i=1}^{n} w_i (\\text{true}_i - \\bar{\\text{true}})^2}
+
 
         Examples
         ---------
@@ -1759,6 +2048,9 @@ class RegressionMetrics(Metrics):
         """
         Root Mean Square Percentage Error_ .
 
+        .. math::
+            RMSPE = \\sqrt{\\frac{1}{n} \\sum_{i=1}^{n} \\left(PE_i\\right)^2} = \\sqrt{\\frac{1}{n} \\sum_{i=1}^{n} \\left(\\frac{\\text{true}_i - \\text{predicted}_i}{\\text{true}_i}\\right)^2}
+
         .. _Error:
             https://stackoverflow.com/a/53166790/5982232
 
@@ -1780,6 +2072,9 @@ class RegressionMetrics(Metrics):
         scaling/normalization factor, so that the resulting statistic and reported
         values can apply to various constitu-ents.
 
+        .. math::
+            \\text{RSR} = \\frac{\\sqrt{\\frac{1}{n} \\sum_{i=1}^{n} (\\text{true}_i - \\text{predicted}_i)^2}}{\\sqrt{\\frac{1}{n-1} \\sum_{i=1}^{n} (\\text{true}_i - \\bar{\\text{true}})^2}}
+
         Examples
         ---------
         >>> import numpy as np
@@ -1793,6 +2088,9 @@ class RegressionMetrics(Metrics):
 
     def rmsse(self) -> float:
         """ Root Mean Squared Scaled Error
+
+        .. math::
+            \\text{RMSSE} = \\sqrt{\\frac{1}{n} \\sum_{i=1}^{n} \\left( \\frac{\\left| \\text{true}_i - \\text{predicted}_i \\right|}{\\frac{1}{n-s} \\sum_{j=s+1}^{n} \\left| \\text{true}_j - \\text{true}_{j-s} \\right|} \\right)^2}
 
         Examples
         ---------
@@ -1811,6 +2109,9 @@ class RegressionMetrics(Metrics):
         how well the shape of two arrays match instead of their magnitude.
         Reference: Robila and Gershman, 2005.
 
+        .. math::
+            SA = \\arccos \\left( \\frac{\\sum_{i=1}^{n} (\\text{true}_i \\cdot \\text{predicted}_i)}{\\sqrt{\\sum_{i=1}^{n} (\\text{true}_i)^2} \\cdot \\sqrt{\\sum_{i=1}^{n} (\\text{predicted}_i)^2}} \\right)
+
         Examples
         ---------
         >>> import numpy as np
@@ -1825,6 +2126,9 @@ class RegressionMetrics(Metrics):
     def sc(self) -> float:
         """Spectral correlation.
         It varies from -pi/2 to pi/2. Closer to 0 is better.
+
+        .. math::
+            sc = \\arccos \\left( \\frac{ \\sum_{i=1}^{n} (t_i - \\bar{t}) \\cdot (p_i - \\bar{p}) }{ \\sqrt{\\sum_{i=1}^{n} (t_i - \\bar{t})^2} \\cdot \\sqrt{\\sum_{i=1}^{n} (p_i - \\bar{p})^2} } \\right)
 
         Examples
         ---------
@@ -1841,6 +2145,9 @@ class RegressionMetrics(Metrics):
         """Spectral gradient angle.
         It varies from -pi/2 to pi/2. Closer to 0 is better.
 
+        .. math::
+            \\text{SGA} = \\arccos \\left( \\frac{\\sum_{i=1}^{n-1} \\left( (true_{i+1} - true_i) \\cdot (predicted_{i+1} - predicted_i) \\right)}{\\sqrt{\\sum_{i=1}^{n-1} (true_{i+1} - true_i)^2} \\times \\sqrt{\\sum_{i=1}^{n-1} (predicted_{i+1} - predicted_i)^2}} \\right)
+
         Examples
         ---------
         >>> import numpy as np
@@ -1855,6 +2162,9 @@ class RegressionMetrics(Metrics):
     def smape(self) -> float:
         """
         Symmetric Mean Absolute Percentage Error_. Adoption from_ .
+
+        .. math::
+            SMAPE = \\frac{100}{n} \\sum_{i=1}^{n} \\frac{2 \\left| \\text{predicted}_i - \\text{true}_i \\right|}{\\left| \\text{true}_i \\right| + \\left| \\text{predicted}_i \\right|}
 
         .. _Error:
              https://en.wikipedia.org/wiki/Symmetric_mean_absolute_percentage_error
@@ -1878,6 +2188,9 @@ class RegressionMetrics(Metrics):
         Symmetric Median Absolute Percentage Error
         Note: result is NOT multiplied by 100
 
+        .. math::
+            \\text{smdape} = \\text{median} \\left( \\frac{2 \\cdot | \\text{predicted} - \\text{true} |}{| \\text{true} | + | \\text{predicted} | + \\epsilon} \\right)
+
         Examples
         ---------
         >>> import numpy as np
@@ -1892,6 +2205,9 @@ class RegressionMetrics(Metrics):
     def sid(self) -> float:
         """Spectral Information Divergence.
         From -pi/2 to pi/2. Closer to 0 is better.
+
+        .. math::
+            \\text{SID} = \\left( \\frac{\\text{t}}{\\text{mean(t)}} - \\frac{\\text{p}}{\\text{mean(p)}} \\right) \\cdot \\left( \\log_{10}(\\text{t}) - \\log_{10}(\\text{mean(t)}) - \\log_{10}(\\text{p}) + \\log_{10}(\\text{mean(p)}) \\right)
 
         Examples
         ---------
@@ -1913,8 +2229,10 @@ class RegressionMetrics(Metrics):
         .. math::
             SS = 1 - RMSE^2/SDEV^2
 
+        .. math::
             SDEV is the standard deviation of the true values
 
+        .. math::
             SDEV^2 = sum_(n=1)^N [r_n - mean(r)]^2/(N-1)
 
         where p is the predicted values, r is the reference values, and N is the total number of values in p & r.
@@ -1951,6 +2269,10 @@ class RegressionMetrics(Metrics):
         between the true and predicted data can be described using a monotonic
         function.
 
+        .. math::
+            r = \\frac{\\sum_{i=1}^{n} \\left( R_{t,i} - \\overline{R_t} \\right) \\left( R_{p,i} - \\overline{R_p} \\right)}{\\sqrt{ \\sum_{i=1}^{n} \\left( R_{t,i} - \\overline{R_t} \\right)^2 \\sum_{i=1}^{n} \\left( R_{p,i} - \\overline{R_p} \\right)^2 }}
+
+
         .. _coefficient:
             https://hess.copernicus.org/articles/24/2505/2020/hess-24-2505-2020.pdf
 
@@ -1974,6 +2296,9 @@ class RegressionMetrics(Metrics):
         This is also called residual sum of squares (RSS) or sum of squared residuals
         as per tutorialspoint_ .
 
+        .. math::
+            \\text{SSE} = \\sum_{i=1}^{n} (true_i - predicted_i)^2
+
         .. errors:
             https://dziganto.github.io/data%20science/linear%20regression/machine%20learning/python/Linear-Regression-101-Metrics/
 
@@ -1996,6 +2321,9 @@ class RegressionMetrics(Metrics):
         Also known as standard ratio, it varies from 0.0 to infinity while
         1.0 being the perfect value.
 
+        .. math::
+            \\text{std_ratio} = \\frac{\\sigma_{\\text{predicted}}}{\\sigma_{\\text{true}}}
+
         Examples
         ---------
         >>> import numpy as np
@@ -2009,6 +2337,9 @@ class RegressionMetrics(Metrics):
 
     def umbrae(self, benchmark: np.ndarray = None):
         """ Unscaled Mean Bounded Relative Absolute Error
+
+        .. math::
+            UMBRAE = \\frac{\\frac{1}{n} \\sum_{i=1}^{n} \\frac{|t_i - p_i|}{|t_i - b_i|}}{1 - \\frac{1}{n} \\sum_{i=1}^{n} \\frac{|t_i - p_i|}{|t_i - b_i|}}
 
         Examples
         ---------
@@ -2025,6 +2356,9 @@ class RegressionMetrics(Metrics):
         """
         Volumetric efficiency. from 0 to 1. Smaller the better.
         Reference: Criss and Winston 2008.
+
+        .. math::
+            VE = 1 - \\frac{\\sum_{i=1}^{n} \\left| \\text{predicted}_i - \\text{true}_i \\right|}{\\sum_{i=1}^{n} \\text{true}_i}
 
         Examples
         ---------
@@ -2045,7 +2379,7 @@ class RegressionMetrics(Metrics):
         used in Reynolds_ paper:
 
         .. math::
-            Sum(self.predicted- true)/sum(self.predicted)
+            \\text{volume_error}= Sum(self.predicted- true)/sum(self.predicted)
 
         References
         ----------
@@ -2074,6 +2408,10 @@ class RegressionMetrics(Metrics):
 
         It is a variation of mape but more suitable for intermittent and low-volume
         data_.
+
+        .. math::
+            \\text{WAPE} = \\frac{\\sum_{i=1}^{n} \\left| \\text{true}_i - \\text{predicted}_i \\right|}{\\sum_{i=1}^{n} \\text{true}_i}
+
         .. _wape:
             https://mattdyor.wordpress.com/2018/05/23/calculating-wape/
 
@@ -2097,6 +2435,9 @@ class RegressionMetrics(Metrics):
         """Watterson's M.
         Refrence: Watterson., 1996
 
+        .. math::
+            M = \\frac{2}{\\pi} \\cdot \\arcsin \\left( 1 - \\frac{\\frac{1}{n} \\sum_{i=1}^{n} ( \\text{true}_i - \\text{predicted}_i )^2}{\\sigma_{\\text{true}}^2 + \\sigma_{\\text{predicted}}^2 + (\\mu_{\\text{predicted}} - \\mu_{\\text{true}})^2} \\right)
+
         Examples
         ---------
         >>> import numpy as np
@@ -2111,6 +2452,9 @@ class RegressionMetrics(Metrics):
     def wmape(self) -> float:
         """
         Weighted Mean Absolute Percent Error_
+
+        .. math::
+            \\text{WMAPE} = \\frac{\\sum_{i=1}^{n} \\left| \\text{true}_i - \\text{predicted}_i \\right|}{\\sum_{i=1}^{n} \\text{true}_i}
 
         .. _Error:
             https://stackoverflow.com/a/54833202/5982232
@@ -2132,6 +2476,9 @@ class RegressionMetrics(Metrics):
         It is the ratio of the variance of the predicted values to the variance of the true values.
         It is used to measure the variability of the predicted values relative to the true values.
 
+        .. math::
+            VR = 1 - \\left| \\frac{\\frac{\\sigma_{\\text{predicted}}}{\\mu_{\\text{predicted}}}}{\\frac{\\sigma_{\\text{true}}}{\\mu_{\\text{true}}}} - 1 \\right|
+
         Examples
         ---------
         >>> import numpy as np
@@ -2147,6 +2494,9 @@ class RegressionMetrics(Metrics):
         """
         Concordance Correlation Coefficient (CCC)
 
+        .. math::
+            CCC = \\frac{2 \\rho \\sigma_{true} \\sigma_{predicted}}{\\sigma_{true}^2 + \\sigma_{predicted}^2 + (\\bar{true} - \\bar{predicted})^2}
+
         Examples
         ---------
         >>> import numpy as np
@@ -2161,6 +2511,9 @@ class RegressionMetrics(Metrics):
     def critical_success_index(self, threshold= 0.5) -> float:
         """
         Critical Success Index (CSI)
+
+        .. math::
+            CSI = \\frac{TP}{TP + FN + FP}
 
         Examples
         ---------
@@ -2195,6 +2548,10 @@ class RegressionMetrics(Metrics):
     def log_cosh_error(self) -> float:
         """
         Log-Cosh Error
+
+        .. math::
+            \\text{Log-Cosh Error} = \\frac{1}{n} \\sum_{i=1}^{n} \\log \\left( \\cosh(\\text{predicted}_i - \\text{true}_i) \\right)
+
         Examples
         ---------
         >>> import numpy as np
@@ -2210,6 +2567,10 @@ class RegressionMetrics(Metrics):
         """
         Minkowski Distance
 
+        .. math::
+            D_{Minkowski} = \\left( \\sum_{i=1}^{n} \\left| \\text{true}_i - \\text{predicted}_i \\right|^p \\right)^{\\frac{1}{p}}
+
+
         Examples
         ---------
         >>> import numpy as np
@@ -2224,6 +2585,18 @@ class RegressionMetrics(Metrics):
     def tweedie_deviance_score(self, power=0) -> float:
         """
         Tweedie Deviance Score
+
+        .. math::
+            D(\\text{true}, \\text{predicted}) = \\frac{1}{n} \\sum_{i=1}^{n} (\\text{true}_i - \\text{predicted}_i)^2
+
+        .. math::
+            D(\\text{true}, \\text{predicted}) = 2 \\sum_{i=1}^{n} \\left( \\text{true}_i \\log\\left(\\frac{\\text{true}_i + (\\text{true}_i = 0)}{\\text{predicted}_i}\\right) - \\text{true}_i + \\text{predicted}_i \\right)
+
+        .. math::
+            D(\\text{true}, \\text{predicted}) = 2 \\sum_{i=1}^{n} \\left( \\frac{\\text{true}_i}{\\text{predicted}_i} - \\log\\left(\\frac{\\text{true}_i}{\\text{predicted}_i}\\right) - 1 \\right)
+
+        .. math::
+            D(\\text{true}, \\text{predicted}) = 2 \\sum_{i=1}^{n} \\left( \\frac{(\\text{true}_i - \\text{predicted}_i)^2}{\\text{true}_i^2 \\text{predicted}_i} \\right)
 
         Examples
         ---------
@@ -2260,6 +2633,9 @@ class RegressionMetrics(Metrics):
         It is not as sensitive to extreme values as agreement_index and coefficcient of
         determination because of the utilization of the absolute value of the difference
         instead of the squared difference. See Equaltion 23 in Dodo et al., 2022
+
+        .. math::
+            LCE = 1 - \\frac{\\sum_{i=1}^{n} |true_i - predicted_i|}{\\sum_{i=1}^{n} |true_i - \\bar{true}|}
 
         https://doi.org/10.1016/j.nexus.2022.100157
 
@@ -2302,6 +2678,9 @@ class RegressionMetrics(Metrics):
         """
         Manhattan distance, also known as cityblock distance or taxicab norm.
 
+        .. math::
+            D_{\\text{manhattan}} = \\sum_{i=1}^{n} \\left| \\text{true}_i - \\text{predicted}_i \\right|
+
         See Blanco-Mallo et al., 2023 and Cha et al., 2007 and Alexei Botchkarev 2019
         on the use of distances in performance measures.
 
@@ -2326,6 +2705,42 @@ class RegressionMetrics(Metrics):
         """
         return manhattan_distance(true= self.true, predicted= self.predicted, treat_arrays=False)
 
+    def mse(self) -> float:
+        """
+        Mean Square Error
+
+        .. math::
+            MSE = \\frac{\\sum_{i=1}^{N} w_i (true_i - predicted_i)^2}{\\sum_{i=1}^{N} w_i}
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.mse()
+            """
+        return mse(true=self.true, predicted=self.predicted, treat_arrays=False, weights= None)
+
+
+    def mape_for_peaks(self) -> float:
+        """
+        Mean Absolute Percentage Error for peaks which are found using scipy.singnal.find_peaks
+
+        .. math::
+            \\text{MAPE}_\\text{peak} = \\frac{1}{P}\\sum_{p=1}^{P} \\left |\\frac{Q_{s,p} - Q_{o,p}}{Q_{o,p}} \\right | \\times 100,
+
+        Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.mape_for_peaks()
+            """
+        return mape_for_peaks(true=self.true, predicted=self.predicted, treat_arrays=False, weights= None)
 #*************************************
 #        FUNCTIONAL API              #
 #*************************************
@@ -3197,7 +3612,7 @@ def nrmse(true, predicted, treat_arrays: bool = True,
     treat_arrays :
         process the true and predicted arrays using maybe_treat_arrays function
 
-        Examples
+    Examples
     ---------
     >>> import numpy as np
     >>> from SeqMetrics import nrmse
@@ -3227,7 +3642,6 @@ def pbias(true, predicted, treat_arrays: bool = True,
 
     .. math::
         PBIAS = 100 \\times \\frac{\\sum_{i=1}^{N} (\\text{true}_i - \\text{predicted}_i)}{\\sum_{i=1}^{N} \\text{true}_i}
-
 
     Parameters
     ----------
@@ -3292,7 +3706,6 @@ def mae(true, predicted, treat_arrays: bool = True,
 
     .. math::
         \\text{MAE} = \\frac{1}{n} \\sum_{i=1}^{n} \\left| \\text{true}_i - \\text{predicted}_i \\right|
-
 
     Parameters
     ----------
@@ -3493,7 +3906,6 @@ def mare(true, predicted, treat_arrays: bool = True, **treat_arrays_kws) -> floa
 
     .. math::
         \\text{MARE} = \\frac{1}{n} \\sum_{i=1}^{n} \\left| \\frac{\\text{true}_i - \\text{predicted}_i}{\\text{true}_i} \\right|
-
 
     .. _mape:
         https://doi.org/10.1016/j.rser.2015.08.035
@@ -4202,7 +4614,11 @@ def decomposed_mse(true, predicted, treat_arrays: bool = True,
 
     .. math ::
         dMSE = (\\frac{1}{N}\\sum_{i=1}^{N}(e_{i}-s_{i}))^2 + SDSD + LCS
+
+    .. math::
         SDSD = (\\sigma(e) - \\sigma(s))^2
+
+    .. math::
         LCS = 2 \\sigma(e) \\sigma(s) * (1 - \\frac{\\sum ^n _{i=1}(e_i - \\bar{e})(s_i - \\bar{s})}
         {\\sqrt{\\sum ^n _{i=1}(e_i - \\bar{e})^2} \\sqrt{\\sum ^n _{i=1}(s_i - \\bar{s})^2}})
 
@@ -4330,7 +4746,6 @@ def expanded_uncertainty(true, predicted, treat_arrays: bool = True, cov_fact=1.
 
     .. math::
         U = \\text{cov_fact} \\times \\sqrt{\\frac{1}{n-1} \\sum_{i=1}^{n} \\left( \\left(\\text{true}_i - \\text{predicted}_i\\right) - \\overline{\\left(\\text{true} - \\text{predicted}\\right)} \\right)^2 + \\frac{1}{n} \\sum_{i=1}^{n} \\left(\\text{true}_i - \\text{predicted}_i\\right)^2}
-
 
     .. _Behar:
         https://doi.org/10.1016/j.enconman.2015.03.067
@@ -4759,7 +5174,6 @@ def kgeprime_bound(true, predicted, treat_arrays: bool = True,
     .. math::
         KGE'_{\\text{bounded}} = \\frac{1 - \\sqrt{(r - 1)^2 + (\\gamma - 1)^2 + (\\beta - 1)^2}}{2 - (1 - \\sqrt{(r - 1)^2 + (\\gamma - 1)^2 + (\\beta - 1)^2})}
 
-
     .. _Efficiency:
         https://iahs.info/uploads/dms/13614.21--211-219-41-MATHEVET.pdf
 
@@ -4874,6 +5288,7 @@ def lm_index(true, predicted, treat_arrays: bool = True, obs_bar_p=None,
 
     .. math::
         \\text{LM Index} = 1 - \\frac{\\sum_{i=1}^{n} a_i}{\\sum_{i=1}^{n} b_i}
+
     Parameters
     ----------
     true :
@@ -5968,6 +6383,7 @@ def ref_agreement_index(true, predicted, treat_arrays: bool = True,
         1 - \\frac{a}{b} & \\text{if } a \\leq b \\
         \\frac{b}{a} - 1 & \\text{if } a > b
         \\end{cases}
+
     Refrence: Willmott et al., 2012
     Parameters
     ----------
@@ -6322,7 +6738,6 @@ def smdape(true, predicted, treat_arrays: bool = True,
     .. math::
         \\text{smdape} = \\text{median} \\left( \\frac{2 \\cdot | \\text{predicted} - \\text{true} |}{| \\text{true} | + | \\text{predicted} | + \\epsilon} \\right)
 
-
     Parameters
     ----------
     true :
@@ -6389,8 +6804,10 @@ def skill_score_murphy(true, predicted, treat_arrays: bool = True,
     .. math::
         SS = 1 - RMSE^2/SDEV^2
 
+    .. math::
         SDEV is the standard deviation of the true values
 
+    .. math::
         SDEV^2 = sum_(n=1)^N [r_n - mean(r)]^2/(N-1)
 
     where p is the predicted values, r is the reference values, and N is the total number of values in p & r.
