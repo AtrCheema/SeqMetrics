@@ -217,6 +217,9 @@ class ClassificationMetrics(Metrics):
         """
         calculates accuracy
 
+        .. math::
+            \\text{Accuracy} = \\frac{\\sum_{i=1}^{N} \\mathbb{1}(true_i = predicted_i)}{N}
+
         Examples
         --------
         >>> import numpy as np
@@ -313,7 +316,14 @@ class ClassificationMetrics(Metrics):
         Returns precision score, also called positive predictive value.
         It is number of correct positive predictions divided by the total
         number of positive predictions.
-        TP/(TP+FP)
+        .. math::
+            \\text{Precision}_{\\text{micro}} = \\frac{\\sum TP}{\\sum (TP + FP)}
+
+        .. math::
+            \\text{Precision}_{\\text{macro}} = \\frac{1}{N} \\sum_{i=1}^{N} \\frac{TP_i}{TP_i + FP_i}
+
+        .. math::
+            \\text{Precision}_{\\text{weighted}} = \\frac{\\sum_{i=1}^{N} (TP_i + FN_i) \\cdot \\frac{TP_i}{TP_i + FP_i}}{\\sum_{i=1}^{N} (TP_i + FN_i)}
 
         Examples
         --------
@@ -333,8 +343,18 @@ class ClassificationMetrics(Metrics):
         """
         It is also called sensitivity or true positive rate. It is
         number of correct positive predictions divided by the total number of positives
-        Formula :
-            True Posivitive / True Positive + False Negative
+
+        .. math::
+            \\text{Recall} = \\frac{\\text{True Positive}}{\\text{True Positive} + \\text{False Negative}}
+
+        .. math::
+            \\text{Recall}_{\\text{micro}} = \\frac{\\sum_{i=1}^{n} \\text{TP}_i}{\\sum_{i=1}^{n} (\\text{TP}_i + \\text{FN}_i)}
+
+        .. math::
+            \\text{Recall}_{\\text{macro}} = \\frac{1}{n} \\sum_{i=1}^{n} \\frac{\\text{TP}_i}{\\text{TP}_i + \\text{FN}_i}
+
+        .. math::
+            \\text{Recall}_{\\text{weighted}} = \\sum_{i=1}^{n} w_i \\cdot \\frac{\\text{TP}_i}{\\text{TP}_i + \\text{FN}_i}
 
         Examples
         --------
@@ -354,8 +374,8 @@ class ClassificationMetrics(Metrics):
         the predictions are negative when the true labels are also negative.
         It is number of correct negative predictions divided by the total number of negatives.
 
-        Formula :
-        TN / TN+FP
+        .. math::
+            \\text{Specificity} = \\frac{TN}{TN + FP}
 
         Examples
         --------
@@ -375,6 +395,9 @@ class ClassificationMetrics(Metrics):
         """
         balanced accuracy.
         It performs better on imbalanced datasets.
+
+        .. math::
+            \\text{Balanced Accuracy} = \\frac{1}{C} \\sum_{i=1}^{C} \\frac{TP_i}{TP_i + FN_i}
 
         Examples
         --------
@@ -414,20 +437,23 @@ class ClassificationMetrics(Metrics):
 
     def f1_score(self, average=None) -> Union[np.ndarray, float]:
         """
-               Calculates f1 score according to following formula
-               f1_score = 2 * (precision * recall)  / (precision + recall)
+           Calculates f1 score according to following formula
+           f1_score = 2 * (precision * recall)  / (precision + recall)
 
-               Examples
-               --------
-               >>> import numpy as np
-               >>> from SeqMetrics import ClassificationMetrics
-               >>> true = np.array([1, 0, 0, 0])
-               >>> pred = np.array([1, 1, 1, 1])
-               >>> metrics = ClassificationMetrics(true, pred)
-               >>> calc_f1_score = metrics.f1_score()
-               ...
-               >>> print(metrics.f1_score(average="macro"))
-               >>> print(metrics.f1_score(average="weighted"))
+            .. math::
+                F1 = 2 \\cdot \\frac{\\text{precision} \\cdot \\text{recall}}{\\text{precision} + \\text{recall}}
+
+           Examples
+           --------
+           >>> import numpy as np
+           >>> from SeqMetrics import ClassificationMetrics
+           >>> true = np.array([1, 0, 0, 0])
+           >>> pred = np.array([1, 1, 1, 1])
+           >>> metrics = ClassificationMetrics(true, pred)
+           >>> calc_f1_score = metrics.f1_score()
+           ...
+           >>> print(metrics.f1_score(average="macro"))
+           >>> print(metrics.f1_score(average="weighted"))
 
                """
         return f1_score(true=self.true, predicted=self.predicted, average=average)
@@ -435,6 +461,9 @@ class ClassificationMetrics(Metrics):
     def f2_score(self, average=None):
         """
         f2 score
+
+        .. math::
+            F2 = \\left(1 + 2^2\\right) \\cdot \\frac{\\text{Precision} \\cdot \\text{Recall}}{(2^2 \\cdot \\text{Precision}) + \\text{Recall}}
 
         Examples
        --------
@@ -456,7 +485,8 @@ class ClassificationMetrics(Metrics):
         by the total number of negatives. Its best value is 0.0 and worst value is 1.0.
         It is also called probability of false alarm or fall-out.
 
-         TP / (TP + TN)
+        .. math::
+            \\text{FPR} = \\frac{\\text{FP}}{\\text{FP} + \\text{TN}}S
 
         Examples
        --------
@@ -472,7 +502,9 @@ class ClassificationMetrics(Metrics):
     def false_discovery_rate(self):
         """
         False discovery rate
-         FP / (TP + FP)
+
+        .. math::
+            FDR = \\frac{FP}{TP + FP}
 
         Examples
        --------
@@ -489,7 +521,8 @@ class ClassificationMetrics(Metrics):
         """
         False Negative Rate or miss rate.
 
-        FN / (FN + TP)
+        .. math::
+            \\text{FNR} = \\frac{\\text{FN}}{\\text{FN} + \\text{TP}}
 
         Examples
        --------
@@ -505,7 +538,9 @@ class ClassificationMetrics(Metrics):
     def negative_predictive_value(self):
         """
         Negative Predictive Value
-        TN/(TN+FN)
+
+        .. math::
+            \\text{NPV} = \\frac{TN}{TN + FN}
 
         Examples
        --------
@@ -523,6 +558,9 @@ class ClassificationMetrics(Metrics):
         Error rate is the number of all incorrect predictions divided by the total
         number of samples in data.
 
+        .. math::
+            \\text{Error Rate} = \\frac{\\text{FP} + \\text{FN}}{n}
+
         Examples
        --------
        >>> import numpy as np
@@ -538,6 +576,9 @@ class ClassificationMetrics(Metrics):
         """
         Methew's correlation coefficient
 
+        .. math::
+            \\text{MCC} = \\frac{TP \\cdot TN - FP \\cdot FN}{\\sqrt{(TP + FP)(TP + FN)(TN + FP)(TN + FN)}}
+
         Examples
        --------
        >>> import numpy as np
@@ -552,7 +593,9 @@ class ClassificationMetrics(Metrics):
     def positive_likelihood_ratio(self, average=None):
         """
         Positive likelihood ratio
-        sensitivity / 1-specificity
+
+        .. math::
+            LR+ = \\frac{\\text{Sensitivity}}{1 - \\text{Specificity}}
 
         Examples
        --------
@@ -570,7 +613,8 @@ class ClassificationMetrics(Metrics):
         """
         Negative likelihood ratio
 
-        1 - sensitivity / specificity
+        .. math::
+            \\text{NLR} = 1 - \\frac{\\text{Sensitivity}}{\\text{Specificity}}
 
         https://en.wikipedia.org/wiki/Likelihood_ratios_in_diagnostic_testing#positive_likelihood_ratio
 
@@ -591,7 +635,8 @@ class ClassificationMetrics(Metrics):
         """
         Youden index, also known as informedness
 
-        j = TPR + TNR − 1 =   sensitivity +  specificity - 1
+        .. math::
+            J = \\text{TPR} + \\text{TNR} - 1 = \\text{sensitivity} + \\text{specificity} - 1
 
         https://en.wikipedia.org/wiki/Youden%27s_J_statistic
 
@@ -612,7 +657,9 @@ class ClassificationMetrics(Metrics):
         """
         Fowlkes–Mallows index
 
-        sqrt(PPV * TPR)
+        .. math::
+            \\text{FMI} = \\sqrt{\\text{PPV} \\times \\text{TPR}}
+
 
         PPV is positive predictive value or precision.
         TPR is true positive rate or recall or sensitivity
@@ -636,7 +683,8 @@ class ClassificationMetrics(Metrics):
         """
         Prevalence threshold
 
-        sqrt(FPR) / (sqrt(TPR) + sqrt(FPR))
+        .. math::
+            PT = \\frac{\\sqrt{FPR}}{\\sqrt{TPR} + \\sqrt{FPR}}
 
         TPR is true positive rate or recall
 
@@ -657,7 +705,8 @@ class ClassificationMetrics(Metrics):
         """
         False omission rate
 
-        FN / (FN + TN)
+        .. math::
+            \\text{FOR} = \\frac{\\text{FN}}{\\text{FN} + \\text{TN}}
 
         Examples
        --------
@@ -1011,7 +1060,8 @@ def false_positive_rate(true, predicted):
     by the total number of negatives. Its best value is 0.0 and worst value is 1.0.
     It is also called probability of false alarm or fall-out.
 
-     TP / (TP + TN)
+    .. math::
+        \\text{FPR} = \\frac{\\text{FP}}{\\text{FP} + \\text{TN}}S
 
     Parameters
     ----------
@@ -1028,8 +1078,8 @@ def false_positive_rate(true, predicted):
     >>> print(false_positive_rate(true, pred))
     """
     cls = ClassificationMetrics(true, predicted)
-    TP = cls._tp()
-    fpr = TP / (TP + cls._tn())
+    FP = cls._fp()
+    fpr = FP / (FP + cls._tn())
 
     fpr = np.nan_to_num(fpr)
 
@@ -1071,7 +1121,8 @@ def false_negative_rate(true, predicted):
     """
     False Negative Rate or miss rate.
 
-    FN / (FN + TP)
+    .. math::
+        \\text{FNR} = \\frac{\\text{FN}}{\\text{FN} + \\text{TP}}
 
     Parameters
     ----------
@@ -1099,7 +1150,9 @@ def false_negative_rate(true, predicted):
 def negative_predictive_value(true, predicted):
     """
     Negative Predictive Value
-    TN/(TN+FN)
+
+    .. math::
+        \\text{NPV} = \\frac{TN}{TN + FN}
 
     Parameters
     ----------
@@ -1128,6 +1181,9 @@ def error_rate(true, predicted):
     Error rate is the number of all incorrect predictions divided by the total
     number of samples in data.
 
+    .. math::
+        \\text{Error Rate} = \\frac{\\text{FP} + \\text{FN}}{n}
+
     Parameters
     ----------
     true : ture/observed/actual/target values. It must be a numpy array,
@@ -1150,6 +1206,9 @@ def error_rate(true, predicted):
 def mathews_corr_coeff(true, predicted):
     """
     Methew's correlation coefficient
+
+    .. math::
+        \\text{MCC} = \\frac{TP \\cdot TN - FP \\cdot FN}{\\sqrt{(TP + FP)(TP + FN)(TN + FP)(TN + FN)}}
 
     Parameters
     ----------
@@ -1177,7 +1236,9 @@ def mathews_corr_coeff(true, predicted):
 def positive_likelihood_ratio(true, predicted, average=None):
     """
     Positive likelihood ratio
-    sensitivity / 1-specificity
+
+    .. math::
+        LR+ = \\frac{\\text{Sensitivity}}{1 - \\text{Specificity}}
 
     Parameters
     ----------
@@ -1204,7 +1265,8 @@ def negative_likelihood_ratio(true, predicted, average=None):
     """
     Negative likelihood ratio
 
-    1 - sensitivity / specificity
+    .. math::
+        \\text{NLR} = 1 - \\frac{\\text{Sensitivity}}{\\text{Specificity}}
 
     https://en.wikipedia.org/wiki/Likelihood_ratios_in_diagnostic_testing#positive_likelihood_ratio
 
@@ -1234,7 +1296,8 @@ def youden_index(true, predicted, average=None):
     """
     Youden index, also known as informedness
 
-    j = TPR + TNR − 1 =   sensitivity +  specificity - 1
+    .. math::
+        J = \\text{TPR} + \\text{TNR} - 1 = \\text{sensitivity} + \\text{specificity} - 1
 
     https://en.wikipedia.org/wiki/Youden%27s_J_statistic
 
@@ -1263,7 +1326,8 @@ def fowlkes_mallows_index(true, predicted, average=None):
     """
     Fowlkes–Mallows index
 
-    sqrt(PPV * TPR)
+    .. math::
+        \\text{FMI} = \\sqrt{\\text{PPV} \\times \\text{TPR}}
 
     PPV is positive predictive value or precision.
     TPR is true positive rate or recall or sensitivity
@@ -1295,7 +1359,8 @@ def prevalence_threshold(true, predicted, average=None):
     """
     Prevalence threshold
 
-    sqrt(FPR) / (sqrt(TPR) + sqrt(FPR))
+    .. math::
+        PT = \\frac{\\sqrt{FPR}}{\\sqrt{TPR} + \\sqrt{FPR}}
 
     TPR is true positive rate or recall
 
@@ -1326,7 +1391,8 @@ def false_omission_rate(true, predicted):
     """
     False omission rate
 
-    FN / (FN + TN)
+    .. math::
+        \\text{FOR} = \\frac{\\text{FN}}{\\text{FN} + \\text{TN}}
 
     Parameters
     ----------
