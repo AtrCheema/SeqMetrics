@@ -2741,6 +2741,7 @@ class RegressionMetrics(Metrics):
         >>> metrics.mape_for_peaks()
             """
         return mape_for_peaks(true=self.true, predicted=self.predicted, treat_arrays=False, weights= None)
+
 #*************************************
 #        FUNCTIONAL API              #
 #*************************************
@@ -7614,8 +7615,8 @@ def mape_for_peaks(
     if peaks.size == 0:
         return np.nan
 
-    true = true[peaks].values
-    predicted = predicted[peaks].values
+    # true = true[peaks].values
+    # predicted = predicted[peaks].values
 
     return mape(true, predicted, treat_arrays=False)
 
