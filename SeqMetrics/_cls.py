@@ -220,6 +220,9 @@ class ClassificationMetrics(Metrics):
         .. math::
             \\text{Accuracy} = \\frac{\\sum_{i=1}^{N} \\mathbb{1}(true_i = predicted_i)}{N}
 
+        References
+        ----------
+        https://scikit-learn.org/stable/modules/generated/sklearn.metrics.accuracy_score.html
         Examples
         --------
         >>> import numpy as np
@@ -235,6 +238,10 @@ class ClassificationMetrics(Metrics):
     def confusion_matrix(self, normalize=False):
         """
         calculates confusion matrix
+
+        References
+        --------
+        https://scikit-learn.org/stable/modules/generated/sklearn.metrics.confusion_matrix.html
 
         Examples
         --------
@@ -325,6 +332,10 @@ class ClassificationMetrics(Metrics):
         .. math::
             \\text{Precision}_{\\text{weighted}} = \\frac{\\sum_{i=1}^{N} (TP_i + FN_i) \\cdot \\frac{TP_i}{TP_i + FP_i}}{\\sum_{i=1}^{N} (TP_i + FN_i)}
 
+        References
+        --------
+        https://scikit-learn.org/stable/modules/generated/sklearn.metrics.precision_score.html
+
         Examples
         --------
         >>> import numpy as np
@@ -355,6 +366,10 @@ class ClassificationMetrics(Metrics):
 
         .. math::
             \\text{Recall}_{\\text{weighted}} = \\sum_{i=1}^{n} w_i \\cdot \\frac{\\text{TP}_i}{\\text{TP}_i + \\text{FN}_i}
+
+        References
+        --------
+        https://scikit-learn.org/stable/modules/generated/sklearn.metrics.recall_score.html
 
         Examples
         --------
@@ -398,6 +413,10 @@ class ClassificationMetrics(Metrics):
 
         .. math::
             \\text{Balanced Accuracy} = \\frac{1}{C} \\sum_{i=1}^{C} \\frac{TP_i}{TP_i + FN_i}
+
+        References
+        --------
+        https://scikit-learn.org/stable/modules/generated/sklearn.metrics.balanced_accuracy_score.html
 
         Examples
         --------
@@ -660,6 +679,9 @@ class ClassificationMetrics(Metrics):
         .. math::
             \\text{FMI} = \\sqrt{\\text{PPV} \\times \\text{TPR}}
 
+        References
+        ----------
+        https://scikit-learn.org/stable/modules/generated/sklearn.metrics.fowlkes_mallows_score.html
 
         PPV is positive predictive value or precision.
         TPR is true positive rate or recall or sensitivity
@@ -774,6 +796,10 @@ def accuracy(true, predicted, normalize: bool = True) -> float:
     .. math::
         \\text{Accuracy} = \\frac{\\sum_{i=1}^{N} \\mathbb{1}(true_i = predicted_i)}{N}
 
+    References
+    ----------
+    https://scikit-learn.org/stable/modules/generated/sklearn.metrics.accuracy_score.html
+
     Parameters
     ----------
     normalize : bool
@@ -816,6 +842,10 @@ def precision(true, predicted, average=None):
 
     .. math::
         \\text{Precision}_{\\text{weighted}} = \\frac{\\sum_{i=1}^{N} (TP_i + FN_i) \\cdot \\frac{TP_i}{TP_i + FP_i}}{\\sum_{i=1}^{N} (TP_i + FN_i)}
+
+    References
+    --------
+    https://scikit-learn.org/stable/modules/generated/sklearn.metrics.precision_score.html
 
     Parameters
     ----------
@@ -874,6 +904,10 @@ def recall(true, predicted, average=None):
 
     .. math::
         \\text{Recall}_{\\text{weighted}} = \\sum_{i=1}^{n} w_i \\cdot \\frac{\\text{TP}_i}{\\text{TP}_i + \\text{FN}_i}
+
+    References
+    --------
+    https://scikit-learn.org/stable/modules/generated/sklearn.metrics.recall_score.html
 
     Parameters
     ----------
@@ -969,6 +1003,10 @@ def balanced_accuracy(true, predicted, average=None) -> float:
     .. math::
         \\text{Balanced Accuracy} = \\frac{1}{C} \\sum_{i=1}^{C} \\frac{TP_i}{TP_i + FN_i}
 
+    References
+    --------
+    https://scikit-learn.org/stable/modules/generated/sklearn.metrics.balanced_accuracy_score.html
+
     Parameters
     ----------
     true : ture/observed/actual/target values. It must be a numpy array,
@@ -999,6 +1037,10 @@ def f1_score(true, predicted, average=None) -> Union[np.ndarray, float]:
 
         .. math::
             F1 = 2 \\cdot \\frac{\\text{precision} \\cdot \\text{recall}}{\\text{precision} + \\text{recall}}
+
+       References
+       ----------
+        https://scikit-learn.org/stable/modules/generated/sklearn.metrics.f1_score.html
 
        Parameters
        ----------
@@ -1331,6 +1373,10 @@ def fowlkes_mallows_index(true, predicted, average=None):
 
     PPV is positive predictive value or precision.
     TPR is true positive rate or recall or sensitivity
+
+    References
+    ----------
+    https://scikit-learn.org/stable/modules/generated/sklearn.metrics.fowlkes_mallows_score.html
 
     https://en.wikipedia.org/wiki/Fowlkes%E2%80%93Mallows_index
 
