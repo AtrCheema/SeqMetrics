@@ -194,6 +194,10 @@ class ClassificationMetrics(Metrics):
 
     def cross_entropy(self, epsilon=1e-12) -> float:
         """
+        References
+        ----------
+        https://doi.org/10.1007/s10479-005-5724-z
+
         Examples
         --------
         >>> import numpy as np
@@ -392,6 +396,10 @@ class ClassificationMetrics(Metrics):
         .. math::
             \\text{Specificity} = \\frac{TN}{TN + FP}
 
+        References
+        ----------
+        https://towardsdatascience.com/understanding-common-classification-metrics-titanic-style-8b8a562d3e32
+
         Examples
         --------
         >>> import numpy as np
@@ -484,6 +492,10 @@ class ClassificationMetrics(Metrics):
         .. math::
             F2 = \\left(1 + 2^2\\right) \\cdot \\frac{\\text{Precision} \\cdot \\text{Recall}}{(2^2 \\cdot \\text{Precision}) + \\text{Recall}}
 
+        References
+        ----------
+        https://scikit-learn.org/stable/modules/generated/sklearn.metrics.fbeta_score.html
+
         Examples
        --------
        >>> import numpy as np
@@ -506,6 +518,10 @@ class ClassificationMetrics(Metrics):
 
         .. math::
             \\text{FPR} = \\frac{\\text{FP}}{\\text{FP} + \\text{TN}}S
+
+        References
+        --------
+        https://www.iguazio.com/glossary/false-positive-rate/
 
         Examples
        --------
@@ -754,6 +770,10 @@ def cross_entropy(true, predicted, epsilon=1e-12) -> float:
     -------
     scalar
 
+    References
+    ----------
+    https://doi.org/10.1007/s10479-005-5724-z
+
     Parameters
     ----------
     true :
@@ -959,6 +979,10 @@ def specificity(true, predicted, average=None):
     .. math::
         \\text{Specificity} = \\frac{TN}{TN + FP}
 
+    References
+    ----------
+    https://towardsdatascience.com/understanding-common-classification-metrics-titanic-style-8b8a562d3e32
+
     Parameters
     ----------
     true : ture/observed/actual/target values. It must be a numpy array,
@@ -1075,6 +1099,10 @@ def f2_score(true, predicted, average=None):
     .. math::
         F2 = \\left(1 + 2^2\\right) \\cdot \\frac{\\text{Precision} \\cdot \\text{Recall}}{(2^2 \\cdot \\text{Precision}) + \\text{Recall}}
 
+    References
+    ----------
+    https://scikit-learn.org/stable/modules/generated/sklearn.metrics.fbeta_score.html
+
     Parameters
     ----------
     average : str (default=None)
@@ -1105,6 +1133,10 @@ def false_positive_rate(true, predicted):
     .. math::
         \\text{FPR} = \\frac{\\text{FP}}{\\text{FP} + \\text{TN}}S
 
+    References
+    --------
+    https://www.iguazio.com/glossary/false-positive-rate/
+    
     Parameters
     ----------
     true : ture/observed/actual/target values. It must be a numpy array,

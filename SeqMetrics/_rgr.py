@@ -460,6 +460,10 @@ class RegressionMetrics(Metrics):
         .. _see:
             https://en.wikipedia.org/wiki/Cosine_similarity
 
+        References
+        ----------
+        https://scikit-learn.org/stable/modules/generated/sklearn.metrics.pairwise.cosine_similarity.html
+
         Examples
         ---------
         >>> import numpy as np
@@ -986,6 +990,10 @@ class RegressionMetrics(Metrics):
         .. math::
             \\text{MAE} = \\frac{1}{n} \\sum_{i=1}^{n} \\left| \\text{true}_i - \\text{predicted}_i \\right|
 
+        References
+        ----------
+        https://scikit-learn.org/stable/modules/generated/sklearn.metrics.mean_absolute_error.html
+
         Examples
         ---------
         >>> import numpy as np
@@ -1017,6 +1025,10 @@ class RegressionMetrics(Metrics):
 
         .. _values:
             https://doi.org/10.1016/j.ijforecast.2015.12.003
+
+        References
+        ---------
+        https://scikit-learn.org/stable/modules/generated/sklearn.metrics.mean_absolute_percentage_error.html
 
         Examples
         ---------
@@ -1305,6 +1317,10 @@ class RegressionMetrics(Metrics):
         .. math::
             \\text{MPD} = \\frac{1}{n} \\sum_{i=1}^{n} 2 \\left( \\text{true}_i \\log \\left( \\frac{\\text{true}_i}{\\text{predicted}_i} \\right) - (\\text{true}_i - \\text{predicted}_i) \\right)
 
+        References
+        ---------
+        https://scikit-learn.org/stable/modules/generated/sklearn.metrics.mean_poisson_deviance.html
+
         Examples
         ---------
         >>> import numpy as np
@@ -1343,6 +1359,10 @@ class RegressionMetrics(Metrics):
 
         .. math::
             \\text{MedAE} = \\text{median} \\left( \\left| \\text{true}_i - \\text{predicted}_i \\right| \\right)
+
+        References
+        ----------
+        https://scikit-learn.org/stable/modules/generated/sklearn.metrics.median_absolute_error.html
 
         Examples
         ---------
@@ -1831,6 +1851,9 @@ class RegressionMetrics(Metrics):
         .. math::
             RMSLE = \\sqrt{\\frac{1}{n} \\sum_{i=1}^{n} \\left( \\log(1 + \\text{predicted}_i) - \\log(1 + \\text{true}_i) \\right)^2}
 
+        References
+        ----------
+        https://scikit-learn.org/stable/modules/generated/sklearn.metrics.root_mean_squared_log_error.html
 
         Examples
         ---------
@@ -1963,6 +1986,10 @@ class RegressionMetrics(Metrics):
 
         .. math::
             \\text{RMSE} = \\sqrt{\\frac{\\sum_{i=1}^{n} w_i (\\text{true}_i - \\text{predicted}_i)^2}{\\sum_{i=1}^{n} w_i}}
+
+        References
+        ----------
+        https://scikit-learn.org/stable/modules/generated/sklearn.metrics.root_mean_squared_error.html
 
         Examples
         ---------
@@ -3485,6 +3512,9 @@ def rmse(true, predicted, treat_arrays: bool = True, weights=None,
     .. math::
         \\text{RMSE} = \\sqrt{\\frac{\\sum_{i=1}^{n} w_i (\\text{true}_i - \\text{predicted}_i)^2}{\\sum_{i=1}^{n} w_i}}
 
+    References
+    ----------
+    https://scikit-learn.org/stable/modules/generated/sklearn.metrics.root_mean_squared_error.html
 
     Parameters
     ----------
@@ -3524,6 +3554,10 @@ def rmsle(true, predicted, treat_arrays: bool = True,
 
     .. math::
         RMSLE = \\sqrt{\\frac{1}{n} \\sum_{i=1}^{n} \\left( \\log(1 + \\text{predicted}_i) - \\log(1 + \\text{true}_i) \\right)^2}
+
+    References
+    ----------
+    https://scikit-learn.org/stable/modules/generated/sklearn.metrics.root_mean_squared_log_error.html
 
     Parameters
     ----------
@@ -3573,6 +3607,10 @@ def mape(
 
     .. math::
         MAPE = \\frac{1}{n} \\sum_{i=1}^{n} \\left| \\frac{true_i - predicted_i}{true_i} \\right| \\times 100
+
+    References
+    ---------
+    https://scikit-learn.org/stable/modules/generated/sklearn.metrics.mean_absolute_percentage_error.html
 
     Parameters
     ----------
@@ -3707,6 +3745,10 @@ def mae(true, predicted, treat_arrays: bool = True,
 
     .. math::
         \\text{MAE} = \\frac{1}{n} \\sum_{i=1}^{n} \\left| \\text{true}_i - \\text{predicted}_i \\right|
+
+    References
+    ----------
+    https://scikit-learn.org/stable/modules/generated/sklearn.metrics.mean_absolute_error.html
 
     Parameters
     ----------
@@ -4584,6 +4626,10 @@ def cosine_similarity(true, predicted, treat_arrays: bool = True,
 
     .. _see:
         https://en.wikipedia.org/wiki/Cosine_similarity
+
+    References
+    ----------
+    https://scikit-learn.org/stable/modules/generated/sklearn.metrics.pairwise.cosine_similarity.html
 
     Parameters
     ----------
@@ -5795,6 +5841,10 @@ def mean_poisson_deviance(true, predicted, treat_arrays: bool = True, weights=No
     .. math::
         \\text{MPD} = \\frac{1}{n} \\sum_{i=1}^{n} 2 \\left( \\text{true}_i \\log \\left( \\frac{\\text{true}_i}{\\text{predicted}_i} \\right) - (\\text{true}_i - \\text{predicted}_i) \\right)
 
+    References
+    ---------
+    https://scikit-learn.org/stable/modules/generated/sklearn.metrics.mean_poisson_deviance.html
+
     Parameters
     ----------
     true :
@@ -5857,6 +5907,10 @@ def median_abs_error(true, predicted, treat_arrays: bool = True,
 
     .. math::
         \\text{MedAE} = \\text{median} \\left( \\left| \\text{true}_i - \\text{predicted}_i \\right| \\right)
+
+    References
+    ----------
+    https://scikit-learn.org/stable/modules/generated/sklearn.metrics.median_absolute_error.html
 
     Parameters
     ----------
