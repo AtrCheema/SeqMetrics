@@ -58,7 +58,7 @@ and a more simpler functional API does not cover all metrics.
 There are also some subject-specific
 libraries. These include NeuralHydrology [@Kratzert2022], hydroeval [@hydroeval2021] and HydroErr [@wade2018hydroerr],
 which address the needs of hydrology and water sciences. However, these resources
-lack more general set of metrics which the experts in these demoains often require. 
+lack more general set of metrics which the experts in these domains often require. 
 Another limitation of these otherwise valuable libraries is their wide range of dependencies. 
 For example torchmetrics depends upon Pytorch [@paszke2019pytorch] which itself upon several other libraries. This 
 can lead to dependency conflicts due to version constraints complicating the maintenance 
@@ -82,11 +82,11 @@ modeling in complex and dynamic systems.
 # API design
 The SeqMetrics library offers a comprehensive suite of 112 regression metrics 
 and 22 classification metrics to facilitate a detailed assessment of model performance. 
-The regression metrics are for the data with continuous values such as R-squared, 
-Mean Squared Error, and Root Mean Squared Error etc. On the other hand, the 
-classification metrics are for categorical data which include accuracy, 
-precision, recall, F1 score, and the area under the ROC curve among others. 
-From programming perspective, the SeqMetrics library employs a modular architecture, 
+Regression metrics such as R-squared, Mean Squared Error (MSE), and Root MSE are 
+provided for use with continuous variables. On the other hand, for categorical 
+data, there are classification metrics including accuracy, precision, recall, F1 
+score, and the area under the ROC curve, among others. 
+From a programming perspective, the SeqMetrics library employs a modular architecture, 
 offering a functional and class-based APIs for smooth integration across diverse 
 coding environments. The class-based API, consists of ‘RegressionMetrics’ and 
 ‘ClassificationMetrics’ classes (Figure 1a), which provide users with a structured 
@@ -95,7 +95,7 @@ providing the data and then all the performance metrics are available from the
 respect instances of the classes. Conversely, the functional API, offers a more 
 simplified approach to access these metrics without initializing the classes 
 initially (Fig. 1b). All the functions which calculate performance metrics 
-receive two arrays as obligatory input arguments and return a scaler value 
+receive two arrays as obligatory input arguments and return a scalar value 
 as output. With a unified API design and minimal dependency only on NumPy, 
 the library prioritizes efficiency in computational tasks. It ensures 
 straightforward installation via pip from the Python Package Index (PyPI), 
@@ -128,7 +128,7 @@ well as for those with limited programming knowledge.
 The streamlit-based GUI can also be launched locally without having to upload
 the data on streamlit servers. This can be useful for users with data-privacy
 concerns or those without internet connection. The steps to launch streamlit GUI
-locally involve cloning the respository, isntalling the requirements and streamlit
+locally involve cloning the respository, installing the requirements and streamlit
 python package and then launching the streamlit app. These steps are given below
 
 ```markdown
@@ -142,7 +142,7 @@ python package and then launching the streamlit app. These steps are given below
 ```
 
 # Testing and documentation
-Following the ‘unit test’ protocol the library undergoes comprehensive testing 
+Following the ‘unit test’ protocol, the library undergoes comprehensive testing 
 of all regression and classification metrics. The library is tested for multiple 
 scenarios especially for classification case which includes numerical and logits 
 inputs, ensuring robustness in various classification contexts such as binary, 
