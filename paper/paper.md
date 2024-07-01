@@ -52,14 +52,21 @@ for one-dimensional numerical data.
 Existing Python libraries for performance evaluation offer only a limited number of metrics. 
 For instance, the metrics sub-module from Keras [@chollet2015keras] contains only 24 metrics, 
 while scikit-learn's [@pedregosa2011scikit] metrics module covers 45 metrics. Torchmetrics library, [@detlefsen2022torchmetrics] 
-offers over 100 metrics. However, it provides only 48 which are intended
-for 1-dimensional numerical data. There are also some subject-specific
-libraries such as NeuralHydrology [@Kratzert2022], hydroeval [@hydroeval2021] and HydroErr [@wade2018hydroerr], however these resources
+offers a comprehensive list of over 100 metrics from diverse fields. However, it provides only 48 which are intended
+for 1-dimensional numerical data. Morevoer, the libarary's module based API requires understand of Object Oriented Programming
+and a more simpler functional API does not cover all metrics.
+There are also some subject-specific
+libraries. These include NeuralHydrology [@Kratzert2022], hydroeval [@hydroeval2021] and HydroErr [@wade2018hydroerr],
+which address the needs of hydrology and water sciences. However, these resources
 lack more general set of metrics which the experts in these demoains often require. 
+Another limitation of these otherwise valuable libraries is their wide range of dependencies. 
+For example torchmetrics depends upon Pytorch [@paszke2019pytorch] which itself upon several other libraries. This 
+can lead to dependency conflicts due to version constraints complicating the maintenance 
+of multiple libraries within a single Python environment [@Wang2020].
 Addressing this gap is imperative to provide 
 researchers a unified platform for 
-comprehensive model evaluation, streamlining their computational workflows and 
-enhancing accuracy across various domains. The SeqMetrics application addresses 
+comprehensive model evaluation and with minimal requirements, streamlining their computational workflows and 
+enhancing accuracy and reproducibility across various domains [@Mukherjee2021]. The SeqMetrics application addresses 
 the critical need for a robust and versatile toolkit for assessing and comparing 
 regression and classification models performance across a spectrum of domains. 
 With a comprehensive suite of performance metrics for sequential (tabular and 
