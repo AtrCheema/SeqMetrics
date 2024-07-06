@@ -580,7 +580,7 @@ class RegressionMetrics(Metrics):
         .. _Kratzert2018:
             https://github.com/kratzert/ealstm_regional_modeling/blob/64a446e9012ecd601e0a9680246d3bbf3f002f6d/papercode/metrics.py#L190
 
-        .. _kratzert
+        .. _kratzert:
             https://hess.copernicus.org/articles/23/5089/2019/hess-23-5089-2019.html
 
         Examples
