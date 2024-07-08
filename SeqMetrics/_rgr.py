@@ -572,16 +572,13 @@ class RegressionMetrics(Metrics):
     def fdc_fhv(self, h: float = 0.02) -> float:
         """
         modified Kratzert2018_ code. Peak flow bias of the flow duration curve (Yilmaz 2008).
-        used in kratzert_ et al., 2019
+        used in 'kratzert_ et al., 2019 <https://hess.copernicus.org/articles/23/5089/2019/hess-23-5089-2019.html>'
 
         .. math::
             FHV = \\frac{\\sum_{i=1}^{k} (predicted_i - true_i)}{\\sum_{i=1}^{k} true_i} \\times 100
 
         .. _Kratzert2018:
             https://github.com/kratzert/ealstm_regional_modeling/blob/64a446e9012ecd601e0a9680246d3bbf3f002f6d/papercode/metrics.py#L190
-
-        .. _kratzert:
-            https://hess.copernicus.org/articles/23/5089/2019/hess-23-5089-2019.html
 
         Examples
         ---------
@@ -597,16 +594,13 @@ class RegressionMetrics(Metrics):
     def fdc_flv(self, low_flow: float = 0.3) -> float:
         """
         bias of the bottom 30 % low flows. modified Kratzert_ code
-        used in kratzert_ et al., 2019
+        used in `kratzert et al., 2019 <https://hess.copernicus.org/articles/23/5089/2019/hess-23-5089-2019.html>.`
 
         .. math::
             \\text{FLV} = -1 \\times \\frac{\\sum (\\log(\\text{predicted}) - \\min(\\log(\\text{predicted}))) - \\sum (\\log(\\text{true}) - \\min(\\log(\\text{true})))}{\\sum (\\log(\\text{true}) - \\min(\\log(\\text{true}))) + 1 \\times 10^{-6}}
 
         .. _Kratzert:
             https://github.com/kratzert/ealstm_regional_modeling/blob/64a446e9012ecd601e0a9680246d3bbf3f002f6d/papercode/metrics.py#L237
-
-        .. _kratzert
-            https://hess.copernicus.org/articles/23/5089/2019/hess-23-5089-2019.html
 
         Examples
         ---------
@@ -1676,17 +1670,11 @@ class RegressionMetrics(Metrics):
 
     def nse_alpha(self) -> float:
         """
-        Alpha decomposition of the NSE, see Gupta_ et al. 2009
-        used in kratzert_ et al., 2019 .
+        Alpha decomposition of the NSE, see Gupta et al. 2009 <https://doi.org/10.1029/97WR03495>`
+        used in `kratzert et al., 2019 <https://hess.copernicus.org/articles/23/5089/2019/hess-23-5089-2019.html>.`
 
         .. math::
             \\text{NSE}_{\\text{alpha}} = \\frac{\\sigma_{\\text{predicted}}}{\\sigma_{\\text{true}}}
-
-        .. _Gupta:
-            https://doi.org/10.1016/j.jhydrol.2009.08.003
-
-        .. _kratzert:
-            https://hess.copernicus.org/articles/23/5089/2019/hess-23-5089-2019.html
 
         Examples
         ---------
@@ -1701,17 +1689,11 @@ class RegressionMetrics(Metrics):
 
     def nse_beta(self) -> float:
         """
-        Beta decomposition of NSE. See Gupta_ et al. 2009
-        used in kratzert_ et al., 2019 .
+        Beta decomposition of NSE. Gupta et al. 2009 <https://doi.org/10.1029/97WR03495>`
+        used in `kratzert et al., 2019 <https://hess.copernicus.org/articles/23/5089/2019/hess-23-5089-2019.html>.`
 
         .. math::
             \\text{NSE}_{\\text{beta}} = \\frac{\\mu_{\\text{predicted}} - \\mu_{\\text{true}}}{\\sigma_{\\text{true}}}
-
-        .. _Gupta:
-            https://doi.org/10.1016/j.jhydrol.2009.08.003
-
-        .. _kratzert:
-            https://hess.copernicus.org/articles/23/5089/2019/hess-23-5089-2019.html
 
         Examples
         ---------
@@ -1728,13 +1710,10 @@ class RegressionMetrics(Metrics):
     def nse_mod(self, j=1) -> float:
         """
         Gives less weightage to outliers if j=1 and if j>1 then it gives more
-        weightage to outliers. Reference: Krause_ et al., 2005
+        weightage to outliers. Reference: `Krause_ et al., 2005 <https://adgeo.copernicus.org/articles/5/89/2005/adgeo-5-89-2005.html>`
 
         .. math::
             \\text{NSE}_{\\text{mod}} = 1 - \\frac{\\sum_{i=1}^{N} \\left| \\text{predicted}_i - \\text{true}_i \\right|^j}{\\sum_{i=1}^{N} \\left| \\text{true}_i - \\bar{\text{true}} \\right|^j}
-
-        .. _Krause
-           https://adgeo.copernicus.org/articles/5/89/2005/adgeo-5-89-2005.html
 
         Examples
         ---------
@@ -2889,8 +2868,8 @@ def nse(true, predicted, treat_arrays: bool = True,
 def nse_alpha(true, predicted, treat_arrays: bool = True,
               **treat_arrays_kws) -> float:
     """
-    Alpha decomposition of the NSE, see Gupta_ et al. 2009
-    used in kratzert_ et al., 2019 .
+    Alpha decomposition of the NSE, see Gupta et al. 2009 <https://doi.org/10.1029/97WR03495>`
+    used in `kratzert et al., 2019 <https://hess.copernicus.org/articles/23/5089/2019/hess-23-5089-2019.html>.`
 
     .. math::
         \\text{NSE}_{\\text{alpha}} = \\frac{\\sigma_{\\text{predicted}}}{\\sigma_{\\text{true}}}
@@ -2931,14 +2910,8 @@ def nse_alpha(true, predicted, treat_arrays: bool = True,
 def nse_beta(true, predicted, treat_arrays: bool = True,
              **treat_arrays_kws) -> float:
     """
-    Beta decomposition of NSE. See Gupta_ et al. 2009 .
-    used in kratzert_ et al., 2018
-
-    .. _Gupta:
-        https://doi.org/10.1029/97WR03495
-
-    .. _kratzert:
-        https://hess.copernicus.org/articles/23/5089/2019/hess-23-5089-2019.html
+    Beta decomposition of NSE. See `Gupta et al. 2009 <https://doi.org/10.1029/97WR03495>`
+    used in `kratzert et al., 2019 <https://hess.copernicus.org/articles/23/5089/2019/hess-23-5089-2019.html>.`
 
     .. math::
         \\text{NSE}_{\\text{beta}} = \\frac{\\mu_{\\text{predicted}} - \\mu_{\\text{true}}}{\\sigma_{\\text{true}}}
@@ -2976,13 +2949,10 @@ def nse_mod(true, predicted, treat_arrays: bool = True,
             ) -> float:
     """
     Gives less weightage to outliers if j=1 and if j>1 then it gives more
-    weightage to outliers. Reference: Krause_ et al., 2005
+    weightage to outliers. Reference: `Krause_ et al., 2005 <https://adgeo.copernicus.org/articles/5/89/2005/adgeo-5-89-2005.html>`
 
     .. math::
         \\text{NSE}_{\\text{mod}} = 1 - \\frac{\\sum_{i=1}^{N} \\left| \\text{predicted}_i - \\text{true}_i \\right|^j}{\\sum_{i=1}^{N} \\left| \\text{true}_i - \\bar{\text{true}} \\right|^j}
-
-    .. _Krause
-       https://adgeo.copernicus.org/articles/5/89/2005/adgeo-5-89-2005.html
 
     Parameters
     ----------
@@ -4858,13 +4828,10 @@ def fdc_fhv(true, predicted, treat_arrays: bool = True, h: float = 0.02,
             **treat_arrays_kws) -> float:
     """
     modified Kratzert2018_ code. Peak flow bias of the flow duration curve (Yilmaz 2008) doi:10.1029/2007WR006716.
-    used in kratzert_ et al., 2019
+    used in `kratzert et al., 2019 <https://hess.copernicus.org/articles/23/5089/2019/hess-23-5089-2019.html>.`
 
     .. math::
          FHV = \\frac{\\sum_{i=1}^{k} (predicted_i - true_i)}{\\sum_{i=1}^{k} true_i} \\times 100
-
-    .. _kratzert:
-        https://hess.copernicus.org/articles/23/5089/2019/hess-23-5089-2019.html
 
     Parameters
     ----------
@@ -4915,13 +4882,11 @@ def fdc_flv(true, predicted, treat_arrays: bool = True, low_flow: float = 0.3,
             **treat_arrays_kws) -> float:
     """
     bias of the bottom 30 % low flows. modified Kratzert_ code
-    used in kratzert_ et al., 2010
+    used in `kratzert et al., 2019 <https://hess.copernicus.org/articles/23/5089/2019/hess-23-5089-2019.html>.`
 
     .. math::
         \\text{FLV} = -1 \\times \\frac{\\sum (\\log(\\text{predicted}) - \\min(\\log(\\text{predicted}))) - \\sum (\\log(\\text{true}) - \\min(\\log(\\text{true})))}{\\sum (\\log(\\text{true}) - \\min(\\log(\\text{true}))) + 1 \\times 10^{-6}}
 
-    .. _kratzert:
-        https://hess.copernicus.org/articles/23/5089/2019/hess-23-5089-2019.html
     Parameters
     ----------
     low_flow : float, optional
