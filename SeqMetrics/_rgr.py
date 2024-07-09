@@ -104,19 +104,12 @@ class RegressionMetrics(Metrics):
     #     return abs_pbias(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def acc(self) -> float:
-        """Anomaly correction coefficient. See Langland_ et al., 2012; Miyakoda_ et al., 1972
+        """Anomaly correction coefficient. See `Langland et al., 2012 <https://doi.org/10.3402/tellusa.v64i0.17531>`_;
+        `Miyakoda_ et al., 1972 <https://doi.org/10.1080/02723646.1972.10642213>`_
         and Murphy_ et al., 1989.
 
         .. math::
             ACC = \\frac{\\sum_{i=1}^{N} \\left( (\\text{predicted}_i - \\overline{\\text{predicted}})(\\text{true}_i - \\overline{\\text{true}}) \\right)}{(N-1) \\cdot \\sigma_{\\text{true}} \\cdot \\sigma_{\\text{predicted}}}
-
-        .. _Langland:
-            https://doi.org/10.3402/tellusa.v64i0.17531
-
-        .. _Miyakoda:
-
-        .. _Murphy:
-            https://doi.org/10.1080/02723646.1972.10642213
 
         Examples
         ---------
@@ -152,16 +145,13 @@ class RegressionMetrics(Metrics):
 
         It detects additive and pro-portional differences in the observed and
         simulated means and vari-ances Moriasi_ et al., 2015. It is overly sensitive
-        to extreme values due to the squared differences_. It can also be used
+        to extreme values due to the squared differences. It can also be used
         as a substitute for R2 to identify the degree to which model predic-tions
         are error-free.
 
         .. math::
             d = 1 - \\frac{\\sum_{i=1}^{N}(e_{i} - s_{i})^2}{\\sum_{i=1}^{N}(\\left | s_{i} - \\bar{e}
              \\right | + \\left | e_{i} - \\bar{e} \\right |)^2}
-
-        .. _differences:
-            Legates and McCabe, 199
 
         .. _Willmott:
             https://doi.org/10.1080/02723646.1981.10642213
@@ -182,16 +172,10 @@ class RegressionMetrics(Metrics):
 
     def aic(self, p=1) -> float:
         """
-        Akaike_ Information Criterion. Modifying from this source_
+        `Akaike_ Information Criterion <https://doi.org/10.1007/978-1-4612-1694-0_15>`_. Modifying from this `source <https://github.com/UBC-MDS/RegscorePy/blob/master/RegscorePy/aic.py>`_
 
         .. math::
             AIC = n \\cdot \\ln\\left(\\frac{\\sum_{i=1}^{n} (\\text{true}_i - \\text{predicted}_i)^2}{n}\\right) + 2p
-
-        .. _Akaike:
-            https://doi.org/10.1007/978-1-4612-1694-0_15
-
-        .. _source:
-            https://github.com/UBC-MDS/RegscorePy/blob/master/RegscorePy/aic.py
 
         Examples
         ---------
@@ -205,13 +189,10 @@ class RegressionMetrics(Metrics):
         return aic(true=self.true, predicted=self.predicted, treat_arrays=False, p=p)
 
     def aitchison(self, center='mean') -> float:
-        """Aitchison distance. used in Zhang_ et al., 2020
+        """Aitchison distance. used in `Zhang et al., 2020 <https://doi.org/10.5194/hess-24-2505-2020>`_
 
         .. math::
             d_{\\text{Aitchison}} = \\sqrt{\\sum_{i=1}^{n} \\left( \\log(\\text{true}_i) - \\text{center}(\\log(\\text{true})) - \\left(\\log(\\text{predicted}_i) - \\text{center}(\\log(\\text{predicted}))\\right) \\right)^2}
-
-        .. _Zhang:
-            https://doi.org/10.5194/hess-24-2505-2020
 
         Examples
         ---------
@@ -262,13 +243,10 @@ class RegressionMetrics(Metrics):
 
     def bias(self) -> float:
         """
-        Bias as and given by Gupta1998_ et al., 1998
+        Bias as and given by `Gupta1998 et al., 1998 <https://doi.org/10.1029/97WR03495>`_
 
         .. math::
             Bias=\\frac{1}{N}\\sum_{i=1}^{N}(e_{i}-s_{i})
-
-        .. _Gupta1998:
-            https://doi.org/10.1029/97WR03495
 
         Examples
         ---------
@@ -333,10 +311,10 @@ class RegressionMetrics(Metrics):
 
         References
         ---------
-        Glenn W. Brier, 1950: Verification of forecasts expressed in terms
+        `Glenn W. Brier, 1950: Verification of forecasts expressed in terms
         of probabilities. Mon. We. Rev., 78, 1-23.
         D. S. Wilks, 1995: Statistical Methods in the Atmospheric Sciences.
-        Cambridge Press. 547 pp.
+        Cambridge Press. 547 pp. <https://viterbi-web.usc.edu/~shaddin/teaching/cs699fa17/docs/Brier50.pdf>`_
 
         .. _SkillMetrics:
             https://github.com/PeterRochford/SkillMetrics/blob/master/skill_metrics/brier_score.py
@@ -358,10 +336,9 @@ class RegressionMetrics(Metrics):
 
     def corr_coeff(self) -> float:
         """
-        Pearson correlation coefficient.
+        `Pearson correlation coefficient <https://royalsocietypublishing.org/doi/abs/10.1098/rsta.1895.0010>`_.
         It measures linear correlatin between true and predicted arrays.
         It is sensitive to outliers.
-        Reference: Pearson, K 1895.
 
         .. math::
             r = \\frac{\\sum ^n _{i=1}(e_i - \\bar{e})(s_i - \\bar{s})}{\\sqrt{\\sum ^n _{i=1}(e_i - \\bar{e})^2}
@@ -452,13 +429,10 @@ class RegressionMetrics(Metrics):
         It is a judgment of orientation and not magnitude: two vectors with
         the same orientation have a cosine similarity of 1, two vectors oriented
         at 90° relative to each other have a similarity of 0, and two vectors diametrically
-        opposed have a similarity of -1, independent of their magnitude. See_
+        opposed have a similarity of -1, independent of their magnitude. `See <https://en.wikipedia.org/wiki/Cosine_similarity>`_
 
         .. math::
             \\text{Cosine Similarity} = \\frac{\\sum_{i=1}^{n} \\text{true}_i \\cdot \\text{predicted}_i}{\\sqrt{\\sum_{i=1}^{n} (\\text{true}_i)^2} \\cdot \\sqrt{\\sum_{i=1}^{n} (\\text{predicted}_i)^2}}
-
-        .. _see:
-            https://en.wikipedia.org/wiki/Cosine_similarity
 
         References
         ----------
@@ -521,13 +495,10 @@ class RegressionMetrics(Metrics):
 
     def exp_var_score(self, weights=None) -> Union[float, None]:
         """
-        Explained variance score_ . Best value is 1, lower values are less accurate.
+        Explained variance `score <https://stackoverflow.com/q/24378176/5982232>`_ . Best value is 1, lower values are less accurate.
 
         .. math::
             \\text{EVS} = 1 - \\frac{\\sum_{i=1}^{n} w_i \\left( (true_i - predicted_i) - \\frac{\\sum_{j=1}^{n} w_j (true_j - predicted_j)}{\\sum_{j=1}^{n} w_j} \\right)^2}{\\sum_{i=1}^{n} w_i (true_i - \\frac{\\sum_{j=1}^{n} w_j true_j}{\\sum_{j=1}^{n} w_j})^2}
-
-        .. _score:
-            https://stackoverflow.com/q/24378176/5982232
 
         Examples
         ---------
@@ -571,14 +542,13 @@ class RegressionMetrics(Metrics):
 
     def fdc_fhv(self, h: float = 0.02) -> float:
         """
-        modified Kratzert2018_ code. Peak flow bias of the flow duration curve (Yilmaz 2008).
-        used in 'kratzert_ et al., 2019 <https://hess.copernicus.org/articles/23/5089/2019/hess-23-5089-2019.html>'
+        modified `Kratzert2018 <https://github.com/kratzert/ealstm_regional_modeling/blob/64a446e9012ecd601e0a9680246d3bbf3f002f6d/papercode/metrics.py#L190>`_
+        code. Peak flow bias of the flow duration curve (Yilmaz 2008).
+        used in `kratzert et al., 2019 <https://hess.copernicus.org/articles/23/5089/2019/hess-23-5089-2019.html>`_.
+
 
         .. math::
             FHV = \\frac{\\sum_{i=1}^{k} (predicted_i - true_i)}{\\sum_{i=1}^{k} true_i} \\times 100
-
-        .. _Kratzert2018:
-            https://github.com/kratzert/ealstm_regional_modeling/blob/64a446e9012ecd601e0a9680246d3bbf3f002f6d/papercode/metrics.py#L190
 
         Examples
         ---------
@@ -594,13 +564,10 @@ class RegressionMetrics(Metrics):
     def fdc_flv(self, low_flow: float = 0.3) -> float:
         """
         bias of the bottom 30 % low flows. modified Kratzert_ code
-        used in `kratzert et al., 2019 <https://hess.copernicus.org/articles/23/5089/2019/hess-23-5089-2019.html>.`
+        used in `kratzert et al., 2019 <https://hess.copernicus.org/articles/23/5089/2019/hess-23-5089-2019.html>`_.
 
         .. math::
             \\text{FLV} = -1 \\times \\frac{\\sum (\\log(\\text{predicted}) - \\min(\\log(\\text{predicted}))) - \\sum (\\log(\\text{true}) - \\min(\\log(\\text{true})))}{\\sum (\\log(\\text{true}) - \\min(\\log(\\text{true}))) + 1 \\times 10^{-6}}
-
-        .. _Kratzert:
-            https://github.com/kratzert/ealstm_regional_modeling/blob/64a446e9012ecd601e0a9680246d3bbf3f002f6d/papercode/metrics.py#L237
 
         Examples
         ---------
@@ -883,13 +850,10 @@ class RegressionMetrics(Metrics):
 
     def kgeprime_bound(self) -> float:
         """
-        Bounded Version of the Modified Kling-Gupta Efficiency_
+        `Bounded Version of the Modified Kling-Gupta Efficiency <https://iahs.info/uploads/dms/13614.21--211-219-41-MATHEVET.pdf>`_
 
         .. math::
             KGE'_{\\text{bounded}} = \\frac{1 - \\sqrt{(r - 1)^2 + (\\gamma - 1)^2 + (\\beta - 1)^2}}{2 - (1 - \\sqrt{(r - 1)^2 + (\\gamma - 1)^2 + (\\beta - 1)^2})}
-
-        .. _Efficiency:
-            https://iahs.info/uploads/dms/13614.21--211-219-41-MATHEVET.pdf
 
         Examples
         ---------
@@ -984,15 +948,11 @@ class RegressionMetrics(Metrics):
         return maape(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def mae(self) -> float:
-        """ Mean Absolute Error.
+        """ `Mean Absolute Error <https://scikit-learn.org/stable/modules/generated/sklearn.metrics.mean_absolute_error.html>`_.
         It is less sensitive to outliers as compared to mse/rmse.
 
         .. math::
             \\text{MAE} = \\frac{1}{n} \\sum_{i=1}^{n} \\left| \\text{true}_i - \\text{predicted}_i \\right|
-
-        References
-        ----------
-        https://scikit-learn.org/stable/modules/generated/sklearn.metrics.mean_absolute_error.html
 
         Examples
         ---------
@@ -1079,15 +1039,11 @@ class RegressionMetrics(Metrics):
     def mase(self, seasonality: int = 1):
         """
         Mean Absolute Scaled Error. Baseline (benchmark) is computed with naive
-        forecasting (shifted by @seasonality) modified after [11]_. It is the
+        forecasting (shifted by @seasonality) modified after `this <https://gist.github.com/bshishov/5dc237f59f019b26145648e2124ca1c9>`_. It is the
         ratio of MAE of used model and MAE of naive forecast.
 
         .. math::
             \\text{MASE} = \\frac{\\frac{1}{n} \\sum_{i=1}^{n} \\left| \\text{true}_i - \\text{predicted}_i \\right|}{\\frac{1}{n-s} \\sum_{i=s+1}^{n} \\left| \\text{true}_i - \\text{true}_{i-s} \\right|}
-
-        References
-        ----------
-        .. [11] https://gist.github.com/bshishov/5dc237f59f019b26145648e2124ca1c9
 
         Hyndman, R. J. (2006). Another look at forecast-accuracy metrics for intermittent demand.
         Foresight: The International Journal of Applied Forecasting, 4(4), 43-46.
@@ -1143,16 +1099,12 @@ class RegressionMetrics(Metrics):
         return max_error(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def mb_r(self) -> float:
-        """Mielke-Berry R value.
+        """
+        `Mielke-Berry R value <https://link.springer.com/book/10.1007/978-1-4757-3449-2>`_.
         Berry and Mielke, 1988.
 
         .. math::
             R = 1 - \\frac{n^2 \\cdot \\frac{1}{n} \\sum_{i=1}^{n} \\left| \\text{predicted}_i - \\text{true}_i \\right|}{\\sum_{i=1}^{n} \\sum_{j=1}^{n} \\left| \\text{predicted}_j - \\text{true}_i \\right|}
-
-        References
-        ----------
-        Mielke, P. W., & Berry, K. J. (2007). Permutation methods: a distance function approach.
-        Springer Science & Business Media.
 
         Examples
         ---------
@@ -1167,14 +1119,11 @@ class RegressionMetrics(Metrics):
 
     def mda(self) -> float:
         """ Mean Directional Accuracy
-        modified after_
+        modified `after <https://gist.github.com/bshishov/5dc237f59f019b26145648e2124ca1c9>`_
 
         .. math::
             \\text{MDA} = \\frac{1}{n-1} \\sum_{i=1}^{n-1} \\left( \\text{sign}( \\text{true}_{i+1} - \\text{true}_i) == \\text{sign}( \\text{predicted}_{i+1} - \\text{predicted}_i) \\right)
 
-
-        .. _after:
-             https://gist.github.com/bshishov/5dc237f59f019b26145648e2124ca1c9
 
         Examples
         ---------
@@ -1273,14 +1222,13 @@ class RegressionMetrics(Metrics):
         References
         ----------
 
-        - Willmott, C. J., & Matsuura, K. (2006). On the use of dimensioned measures of error to evaluate the performance
+        - `Willmott, C. J., & Matsuura, K. (2006). On the use of dimensioned measures of error to evaluate the performance
             of spatial interpolators. International Journal of Geographical Information Science, 20(1), 89-102.
-            https://doi.org/10.1080/1365881050028697
+            <https://doi.org/10.1080/1365881050028697>`_
 
-        - Valipour, M. (2015). Retracted: Comparative Evaluation of Radiation-Based Methods for Estimation of Potential
+        - `Valipour, M. (2015). Retracted: Comparative Evaluation of Radiation-Based Methods for Estimation of Potential
             Evapotranspiration. Journal of Hydrologic Engineering, 20(5), 04014068.
-            https://dx.doi.org/10.1061/(ASCE)HE.1943-5584.0001066
-        -  https://doi.org/10.1016/j.rser.2015.08.035
+            <https://dx.doi.org/10.1061/(ASCE)HE.1943-5584.0001066>`_
 
         Examples
         ---------
@@ -1312,14 +1260,10 @@ class RegressionMetrics(Metrics):
 
     def mean_poisson_deviance(self, weights=None) -> float:
         """
-        mean poisson deviance
+        `mean poisson deviance <https://scikit-learn.org/stable/modules/generated/sklearn.metrics.mean_poisson_deviance.html>`_
 
         .. math::
             \\text{MPD} = \\frac{1}{n} \\sum_{i=1}^{n} 2 \\left( \\text{true}_i \\log \\left( \\frac{\\text{true}_i}{\\text{predicted}_i} \\right) - (\\text{true}_i - \\text{predicted}_i) \\right)
-
-        References
-        ---------
-        https://scikit-learn.org/stable/modules/generated/sklearn.metrics.mean_poisson_deviance.html
 
         Examples
         ---------
@@ -1526,7 +1470,7 @@ class RegressionMetrics(Metrics):
         RMSE normalized by true values. This allows comparison between data sets
         with different scales. It is more sensitive to outliers.
 
-        Reference: Pontius et al., 2008
+        Reference: `Pontius et al., 2008 <https://link.springer.com/article/10.1007/s10651-007-0043-y>`_
 
         .. math::
             \\text{NRMSE} = \\frac{\\sqrt{\\frac{1}{n} \\sum_{i=1}^{n} (\\text{predicted}_i - \\text{true}_i)^2}}{\\max(\\text{true}) - \\min(\\text{true})}
@@ -1547,7 +1491,7 @@ class RegressionMetrics(Metrics):
         RMSE normalized by inter percentile range of true. This is the least sensitive to outliers.
         q1: any interger between 1 and 99
         q2: any integer between 2 and 100. Should be greater than q1.
-        Reference: Pontius et al., 2008.
+        Reference: `Pontius et al., 2008 <https://link.springer.com/article/10.1007/s10651-007-0043-y>`_
 
         .. math::
             \\text{NRMSE}_{\\text{IP}} = \\frac{\\sqrt{\\frac{1}{n} \\sum_{i=1}^{n} (\\text{true}_i - \\text{predicted}_i)^2}}{Q_{q2} - Q_{q1}}
@@ -1567,7 +1511,7 @@ class RegressionMetrics(Metrics):
         """Mean Normalized RMSE
         RMSE normalized by mean of true values.This allows comparison between datasets with different scales.
 
-        Reference: Pontius et al., 2008
+        Reference: `Pontius et al., 2008 <https://link.springer.com/article/10.1007/s10651-007-0043-y>`_
 
         .. math::
             NRMSE_{mean} = \\frac{\\sqrt{\\frac{1}{n} \\sum_{i=1}^{n} (\\text{true}_i - \\text{predicted}_i)^2}}{\\bar{\\text{true}}}
@@ -1644,8 +1588,8 @@ class RegressionMetrics(Metrics):
         of concern. But cannot help identify model bias and cannot be used to identify
         differences in timing and magnitude of peak flows and shape of recession curves;
         in other words, it cannot be used for single-event simulations. It is sensitive
-        to extreme values due to the squared differ-ences [1]. To make it less sensitive
-        to outliers, [2] proposed log and relative nse.
+        to extreme values due to the squared differ-ences `[1] <https://elibrary.asabe.org/abstract.asp?aid=46548>`_. To make it less sensitive
+        to outliers, `[2] <https://dx.doi.org/10.5194/adgeo-5-89-2005>`_ proposed log and relative nse.
 
         .. math::
             \\text{NSE} = 1 - \\frac{\\sum_{i=1}^{N} (predicted_i - true_i)^2}{\\sum_{i=1}^{N} (true_i - \\bar{true})^2}
@@ -1670,8 +1614,9 @@ class RegressionMetrics(Metrics):
 
     def nse_alpha(self) -> float:
         """
-        Alpha decomposition of the NSE, see Gupta et al. 2009 <https://doi.org/10.1029/97WR03495>`
-        used in `kratzert et al., 2019 <https://hess.copernicus.org/articles/23/5089/2019/hess-23-5089-2019.html>.`
+
+        Alpha decomposition of the NSE, see `Gupta et al., 2009 <https://doi.org/10.1029/97WR03495>`_
+        used in `Kratzert et al., 2019 <https://hess.copernicus.org/articles/23/5089/2019/hess-23-5089-2019.html>`_.
 
         .. math::
             \\text{NSE}_{\\text{alpha}} = \\frac{\\sigma_{\\text{predicted}}}{\\sigma_{\\text{true}}}
@@ -1689,9 +1634,8 @@ class RegressionMetrics(Metrics):
 
     def nse_beta(self) -> float:
         """
-        Beta decomposition of NSE. Gupta et al. 2009 <https://doi.org/10.1029/97WR03495>`
-        used in `kratzert et al., 2019 <https://hess.copernicus.org/articles/23/5089/2019/hess-23-5089-2019.html>.`
-
+        Beta decomposition of NSE. `Gupta et al. 2009 <https://doi.org/10.1029/97WR03495>`_
+        used in `kratzert et al., 2019 <https://hess.copernicus.org/articles/23/5089/2019/hess-23-5089-2019.html>`_.
         .. math::
             \\text{NSE}_{\\text{beta}} = \\frac{\\mu_{\\text{predicted}} - \\mu_{\\text{true}}}{\\sigma_{\\text{true}}}
 
@@ -1710,7 +1654,7 @@ class RegressionMetrics(Metrics):
     def nse_mod(self, j=1) -> float:
         """
         Gives less weightage to outliers if j=1 and if j>1 then it gives more
-        weightage to outliers. Reference: `Krause_ et al., 2005 <https://adgeo.copernicus.org/articles/5/89/2005/adgeo-5-89-2005.html>`
+        weightage to outliers. Reference: `Krause_ et al., 2005 <https://adgeo.copernicus.org/articles/5/89/2005/adgeo-5-89-2005.html>`_.
 
         .. math::
             \\text{NSE}_{\\text{mod}} = 1 - \\frac{\\sum_{i=1}^{N} \\left| \\text{predicted}_i - \\text{true}_i \\right|^j}{\\sum_{i=1}^{N} \\left| \\text{true}_i - \\bar{\text{true}} \\right|^j}
@@ -1815,12 +1759,10 @@ class RegressionMetrics(Metrics):
         for the output response of interest. It can  give a deceiving rating of
         model performance if the model overpredicts as much as it underpredicts,
         in which case PBIAS will be close to zero even though the model simulation
-        is poor. [1]
+        is poor. `[1] <https://elibrary.asabe.org/abstract.asp?aid=46548>`_
 
         .. math::
             PBIAS = 100 \\times \\frac{\\sum_{i=1}^{N} (\\text{true}_i - \\text{predicted}_i)}{\\sum_{i=1}^{N} \\text{true}_i}
-
-        [1] Moriasi et al., 2015
 
         Examples
         ---------
@@ -1835,7 +1777,7 @@ class RegressionMetrics(Metrics):
         return pbias(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def rmsle(self) -> float:
-        """Root mean square log error.
+        """`Root mean square log error <https://scikit-learn.org/stable/modules/generated/sklearn.metrics.root_mean_squared_log_error.html>`_.
 
         This error is less sensitive to `outliers <https://stats.stackexchange.com/q/56658/314919>`_ .
         Compared to RMSE, RMSLE only considers the relative error between predicted
@@ -1847,10 +1789,6 @@ class RegressionMetrics(Metrics):
 
         .. math::
             RMSLE = \\sqrt{\\frac{1}{n} \\sum_{i=1}^{n} \\left( \\log(1 + \\text{predicted}_i) - \\log(1 + \\text{true}_i) \\right)^2}
-
-        References
-        ----------
-        https://scikit-learn.org/stable/modules/generated/sklearn.metrics.root_mean_squared_log_error.html
 
         Examples
         ---------
@@ -1934,8 +1872,8 @@ class RegressionMetrics(Metrics):
         return rae(true=self.true, treat_arrays=False, predicted=self.predicted)
 
     def ref_agreement_index(self) -> float:
-        """Refined Index of Agreement. From -1 to 1. Larger the better.
-        Refrence: Willmott et al., 2012
+        """`Refined Index of Agreement <https://www.researchgate.net/profile/Scott-Robeson/publication/235961403_A_refined_index_of_model_performance/links/5a6114254585158bca49f8e4/A-refined-index-of-model-performance.pdf>`_
+        . From -1 to 1. Larger the better.
 
         .. math::
             a = \\sum_{i=1}^{n} \\left| \\text{predicted}_i - \\text{true}_i \\right|
@@ -1979,14 +1917,10 @@ class RegressionMetrics(Metrics):
         return rel_agreement_index(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def rmse(self, weights=None) -> float:
-        """ Root mean squared error
+        """ `Root mean squared error <https://scikit-learn.org/stable/modules/generated/sklearn.metrics.root_mean_squared_error.html>`_
 
         .. math::
             \\text{RMSE} = \\sqrt{\\frac{\\sum_{i=1}^{n} w_i (\\text{true}_i - \\text{predicted}_i)^2}{\\sum_{i=1}^{n} w_i}}
-
-        References
-        ----------
-        https://scikit-learn.org/stable/modules/generated/sklearn.metrics.root_mean_squared_error.html
 
         Examples
         ---------
@@ -2070,13 +2004,10 @@ class RegressionMetrics(Metrics):
 
     def rmspe(self) -> float:
         """
-        Root Mean Square Percentage Error_ .
+        `Root Mean Square Percentage Error <https://stackoverflow.com/a/53166790/5982232>`_ .
 
         .. math::
             RMSPE = \\sqrt{\\frac{1}{n} \\sum_{i=1}^{n} \\left(PE_i\\right)^2} = \\sqrt{\\frac{1}{n} \\sum_{i=1}^{n} \\left(\\frac{\\text{true}_i - \\text{predicted}_i}{\\text{true}_i}\\right)^2}
-
-        .. _Error:
-            https://stackoverflow.com/a/53166790/5982232
 
         Examples
         ---------
@@ -2091,7 +2022,8 @@ class RegressionMetrics(Metrics):
 
     def rsr(self) -> float:
         """
-        Moriasi et al., 2007.
+        ratio of the root mean square error to the standard deviation of measured data `(RSR) <https://elibrary.asabe.org/abstract.asp?aid=23153>`_,
+
         It incorporates the benefits of error index statistics andincludes a
         scaling/normalization factor, so that the resulting statistic and reported
         values can apply to various constitu-ents.
@@ -2185,16 +2117,11 @@ class RegressionMetrics(Metrics):
 
     def smape(self) -> float:
         """
-        Symmetric Mean Absolute Percentage Error_. Adoption from_ .
+        `Symmetric Mean Absolute Percentage Error <https://en.wikipedia.org/wiki/Symmetric_mean_absolute_percentage_error>`_.
+        Adoption from `this <https://stackoverflow.com/a/51440114/5982232>`_.
 
         .. math::
             SMAPE = \\frac{100}{n} \\sum_{i=1}^{n} \\frac{2 \\left| \\text{predicted}_i - \\text{true}_i \\right|}{\\left| \\text{true}_i \\right| + \\left| \\text{predicted}_i \\right|}
-
-        .. _Error:
-             https://en.wikipedia.org/wiki/Symmetric_mean_absolute_percentage_error
-
-        .. _from:
-            https://stackoverflow.com/a/51440114/5982232
 
         Examples
         ---------
@@ -2246,7 +2173,7 @@ class RegressionMetrics(Metrics):
 
     def skill_score_murphy(self) -> float:
         """
-        Adopted from here_ .
+        Adopted from `here <https://github.com/PeterRochford/SkillMetrics/blob/278b2f58c7d73566f25f10c9c16a15dc204f5869/skill_metrics/skill_score_murphy.py>`_ .
         Calculate non-dimensional skill score (SS) between two variables using
         definition of Murphy (1988) using the formula:
 
@@ -2267,13 +2194,10 @@ class RegressionMetrics(Metrics):
 
         References
         ---------
-            Allan H. Murphy, 1988: Skill Scores Based on the Mean Square Error
+            `Allan H. Murphy, 1988: Skill Scores Based on the Mean Square Error
             and Their Relationships to the Correlation Coefficient. Mon. Wea.
             Rev., 116, 2417-2424.
-            doi: http//dx.doi.org/10.1175/1520-0493(1988)<2417:SSBOTM>2.0.CO;2
-
-        .. _here:
-            https://github.com/PeterRochford/SkillMetrics/blob/278b2f58c7d73566f25f10c9c16a15dc204f5869/skill_metrics/skill_score_murphy.py
+            <doi: http//dx.doi.org/10.1175/1520-0493(1988)<2417:SSBOTM>2.0.CO;2>`_
 
         Examples
         ---------
@@ -2323,7 +2247,7 @@ class RegressionMetrics(Metrics):
         .. math::
             \\text{SSE} = \\sum_{i=1}^{n} (true_i - predicted_i)^2
 
-        .. errors:
+        .. _errors:
             https://dziganto.github.io/data%20science/linear%20regression/machine%20learning/python/Linear-Regression-101-Metrics/
 
         .. _tutorialspoint:
@@ -2378,8 +2302,7 @@ class RegressionMetrics(Metrics):
 
     def ve(self) -> float:
         """
-        Volumetric efficiency. from 0 to 1. Smaller the better.
-        Reference: Criss and Winston 2008.
+        `Volumetric efficiency <https://agupubs.onlinelibrary.wiley.com/doi/full/10.1029/2007WR006415>`_. from 0 to 1. Smaller the better.
 
         .. math::
             VE = 1 - \\frac{\\sum_{i=1}^{n} \\left| \\text{predicted}_i - \\text{true}_i \\right|}{\\sum_{i=1}^{n} \\text{true}_i}
@@ -2400,20 +2323,10 @@ class RegressionMetrics(Metrics):
         Returns the Volume Error (Ve).
         It is an indicator of the agreement between the averages of the simulated
         and observed runoff (i.e. long-term water balance).
-        used in Reynolds_ paper:
+        used in `Reynolds <https://doi.org/10.1016/j.jhydrol.2017.05.012>`_ paper:
 
         .. math::
             \\text{volume_error}= Sum(self.predicted- true)/sum(self.predicted)
-
-        References
-        ----------
-        Reynolds_, J.E., S. Halldin, C.Y. Xu, J. Seibert, and A. Kauffeldt. 2017.
-        "Sub-Daily Runoff Predictions Using Parameters Calibrated on the Basis of Data with a
-        Daily Temporal Resolution."  Journal of Hydrology 550 (July):399?411.
-
-
-        .. _Reynolds:
-            https://doi.org/10.1016/j.jhydrol.2017.05.012.
 
         Examples
         ---------
@@ -2456,8 +2369,7 @@ class RegressionMetrics(Metrics):
         return wape(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def watt_m(self) -> float:
-        """Watterson's M.
-        Refrence: Watterson., 1996
+        """`Watterson's M. <https://rmets.onlinelibrary.wiley.com/doi/abs/10.1002/(SICI)1097-0088(199604)16:4%3C379::AID-JOC18%3E3.0.CO;2-U>`_
 
         .. math::
             M = \\frac{2}{\\pi} \\cdot \\arcsin \\left( 1 - \\frac{\\frac{1}{n} \\sum_{i=1}^{n} ( \\text{true}_i - \\text{predicted}_i )^2}{\\sigma_{\\text{true}}^2 + \\sigma_{\\text{predicted}}^2 + (\\mu_{\\text{predicted}} - \\mu_{\\text{true}})^2} \\right)
@@ -2475,13 +2387,10 @@ class RegressionMetrics(Metrics):
 
     def wmape(self) -> float:
         """
-        Weighted Mean Absolute Percent Error_
+        `Weighted Mean Absolute Percent Error <https://stackoverflow.com/a/54833202/5982232>`_
 
         .. math::
             \\text{WMAPE} = \\frac{\\sum_{i=1}^{n} \\left| \\text{true}_i - \\text{predicted}_i \\right|}{\\sum_{i=1}^{n} \\text{true}_i}
-
-        .. _Error:
-            https://stackoverflow.com/a/54833202/5982232
 
         Examples
         ---------
@@ -2656,12 +2565,10 @@ class RegressionMetrics(Metrics):
         Legates Coefficient of Efficiency. Its value varies between 0 and 1.
         It is not as sensitive to extreme values as agreement_index and coefficcient of
         determination because of the utilization of the absolute value of the difference
-        instead of the squared difference. See Equaltion 23 in Dodo et al., 2022
+        instead of the squared difference. See Equaltion 23 in `Dodo et al., 2022 <https://doi.org/10.1016/j.nexus.2022.100157>`_
 
         .. math::
             LCE = 1 - \\frac{\\sum_{i=1}^{n} |true_i - predicted_i|}{\\sum_{i=1}^{n} |true_i - \\bar{true}|}
-
-        https://doi.org/10.1016/j.nexus.2022.100157
 
         Examples
         ---------
@@ -2705,18 +2612,9 @@ class RegressionMetrics(Metrics):
         .. math::
             D_{\\text{manhattan}} = \\sum_{i=1}^{n} \\left| \\text{true}_i - \\text{predicted}_i \\right|
 
-        See Blanco-Mallo et al., 2023 and Cha et al., 2007 and Alexei Botchkarev 2019
-        on the use of distances in performance measures.
+        See `Blanco-Mallo et al., 2023 <https://doi.org/10.1016/j.patcog.2023.109646>`_ and `Cha et al., 2007 <https://pdodds.w3.uvm.edu/research/papers/others/everything/cha2007a.pdf>`_
+         and `Alexei Botchkarev 2019 <https://www.ijikm.org/Volume14/IJIKMv14p045-076Botchkarev5064.pdf>`_ on the use of distances in performance measures.
 
-        1. Sung-Hyuk C. (2007) Comprehensive Survey on Distance/Similarity
-           Measures between Probability Density Functions. International
-           Journal of Mathematical Models and Methods in Applied Sciences.
-           1(4):300-307.
-
-        2. Eva Blanco-Mallo (2023) https://doi.org/10.1016/j.patcog.2023.109646
-
-        3. Alexei Botchkarev, 2019
-           https://www.ijikm.org/Volume14/IJIKMv14p045-076Botchkarev5064.pdf
 
         Examples
         ---------
@@ -2829,15 +2727,8 @@ def nse(true, predicted, treat_arrays: bool = True,
     of concern. But cannot help identify model bias and cannot be used to identify
     differences in timing and magnitude of peak flows and shape of recession curves;
     in other words, it cannot be used for single-event simulations. It is sensitive
-    to extreme values due to the squared differ-ences [1]. To make it less sensitive
-    to outliers, [2] proposed log and relative nse.
-
-    References
-    ----------
-    - Moriasi, D. N., Gitau, M. W., Pai, N., & Daggupati, P. (2015). Hydrologic and water quality models:
-        Performance measures and evaluation criteria. Transactions of the ASABE, 58(6), 1763-1785.
-    - Krause, P., Boyle, D., & Bäse, F. (2005). Comparison of different efficiency criteria for hydrological
-        model assessment. Adv. Geosci., 5, 89-97. https://dx.doi.org/10.5194/adgeo-5-89-2005.
+    to extreme values due to the squared differ-ences `[1] <https://elibrary.asabe.org/abstract.asp?aid=46548>`_. To make it less sensitive
+    to outliers, `[2] <https://dx.doi.org/10.5194/adgeo-5-89-2005>`_ proposed log and relative nse.
 
     .. math::
         \\text{NSE} = 1 - \\frac{\\sum_{i=1}^{N} (predicted_i - true_i)^2}{\\sum_{i=1}^{N} (true_i - \\bar{true})^2}
@@ -2868,18 +2759,11 @@ def nse(true, predicted, treat_arrays: bool = True,
 def nse_alpha(true, predicted, treat_arrays: bool = True,
               **treat_arrays_kws) -> float:
     """
-    Alpha decomposition of the NSE, see Gupta et al. 2009 <https://doi.org/10.1029/97WR03495>`
-    used in `kratzert et al., 2019 <https://hess.copernicus.org/articles/23/5089/2019/hess-23-5089-2019.html>.`
+    Alpha decomposition of the NSE, see `Gupta et al. 2009 <https://doi.org/10.1029/97WR03495>`_
+    used in `kratzert et al., 2019 <https://hess.copernicus.org/articles/23/5089/2019/hess-23-5089-2019.html>`_.
 
     .. math::
         \\text{NSE}_{\\text{alpha}} = \\frac{\\sigma_{\\text{predicted}}}{\\sigma_{\\text{true}}}
-
-    .. _Gupta:
-        https://doi.org/10.1029/97WR03495
-
-    .. _kratzert:
-        https://hess.copernicus.org/articles/23/5089/2019/hess-23-5089-2019.html
-
 
     Returns
     -------
@@ -2910,8 +2794,8 @@ def nse_alpha(true, predicted, treat_arrays: bool = True,
 def nse_beta(true, predicted, treat_arrays: bool = True,
              **treat_arrays_kws) -> float:
     """
-    Beta decomposition of NSE. See `Gupta et al. 2009 <https://doi.org/10.1029/97WR03495>`
-    used in `kratzert et al., 2019 <https://hess.copernicus.org/articles/23/5089/2019/hess-23-5089-2019.html>.`
+    Beta decomposition of NSE. See `Gupta et al. 2009 <https://doi.org/10.1029/97WR03495>`_
+    used in `kratzert et al., 2019 <https://hess.copernicus.org/articles/23/5089/2019/hess-23-5089-2019.html>`_.
 
     .. math::
         \\text{NSE}_{\\text{beta}} = \\frac{\\mu_{\\text{predicted}} - \\mu_{\\text{true}}}{\\sigma_{\\text{true}}}
@@ -2949,7 +2833,7 @@ def nse_mod(true, predicted, treat_arrays: bool = True,
             ) -> float:
     """
     Gives less weightage to outliers if j=1 and if j>1 then it gives more
-    weightage to outliers. Reference: `Krause_ et al., 2005 <https://adgeo.copernicus.org/articles/5/89/2005/adgeo-5-89-2005.html>`
+    weightage to outliers. Reference: `Krause_ et al., 2005 <https://adgeo.copernicus.org/articles/5/89/2005/adgeo-5-89-2005.html>`_.
 
     .. math::
         \\text{NSE}_{\\text{mod}} = 1 - \\frac{\\sum_{i=1}^{N} \\left| \\text{predicted}_i - \\text{true}_i \\right|^j}{\\sum_{i=1}^{N} \\left| \\text{true}_i - \\bar{\text{true}} \\right|^j}
@@ -3108,9 +2992,7 @@ def r2_score(true, predicted, treat_arrays: bool = True, weights=None,
 
 def adjusted_r2(true, predicted, treat_arrays: bool = True,
                 **treat_arrays_kws) -> float:
-    """Adjusted R squared.
-
-    Equation taken from https://people.duke.edu/~rnau/rsquared.html
+    """`Adjusted R squared <https://people.duke.edu/~rnau/rsquared.html>`_.
 
     .. math::
         \\text{Adjusted } R^2 = 1 - \\left( \\frac{(1 - R^2) \\cdot (n - 1)}{n - k - 1} \\right)
@@ -3156,8 +3038,6 @@ def kge(true,
         \\alpha = \\frac{\\sigma_{\\text{predicted}}}{\\sigma_{\\text{true}}}
     .. math::
         \\beta = \\frac{\\mu_{\\text{predicted}}}{\\mu_{\\text{true}}}
-
-    10.5194/essd-12-2043-2020
 
     output:
         If return_all is True, it returns a numpy array of shape (4, ) containing
@@ -3471,11 +3351,9 @@ def spearmann_corr(
 def corr_coeff(true, predicted, treat_arrays: bool = True,
                **treat_arrays_kws) -> float:
     """
-    Pearson correlation coefficient.
+    `Pearson correlation coefficient <https://royalsocietypublishing.org/doi/abs/10.1098/rsta.1895.0010>`_.
     It measures linear correlatin between true and predicted arrays.
     It is sensitive to outliers.
-
-    Reference: Pearson, K 1895.
 
     .. math::
         r = \\frac{\\sum ^n _{i=1}(e_i - \\bar{e})(s_i - \\bar{s})}{\\sqrt{\\sum ^n _{i=1}(e_i - \\bar{e})^2}
@@ -3507,14 +3385,10 @@ def corr_coeff(true, predicted, treat_arrays: bool = True,
 
 def rmse(true, predicted, treat_arrays: bool = True, weights=None,
          **treat_arrays_kws) -> float:
-    """ Root mean squared error
+    """ `Root mean squared error <https://scikit-learn.org/stable/modules/generated/sklearn.metrics.root_mean_squared_error.html>`_
 
     .. math::
         \\text{RMSE} = \\sqrt{\\frac{\\sum_{i=1}^{n} w_i (\\text{true}_i - \\text{predicted}_i)^2}{\\sum_{i=1}^{n} w_i}}
-
-    References
-    ----------
-    https://scikit-learn.org/stable/modules/generated/sklearn.metrics.root_mean_squared_error.html
 
     Parameters
     ----------
@@ -3675,9 +3549,7 @@ def pbias(true, predicted, treat_arrays: bool = True,
     for the output response of interest. It can  give a deceiving rating of
     model performance if the model overpredicts as much as it underpredicts,
     in which case PBIAS will be close to zero even though the model simulation
-    is poor. [1]
-
-    [1] Moriasi et al., 2015
+    is poor. `[1] <https://elibrary.asabe.org/abstract.asp?aid=46548>`_
 
     .. math::
         PBIAS = 100 \\times \\frac{\\sum_{i=1}^{N} (\\text{true}_i - \\text{predicted}_i)}{\\sum_{i=1}^{N} \\text{true}_i}
@@ -3740,15 +3612,11 @@ def bias(true, predicted, treat_arrays: bool = True,
 
 def mae(true, predicted, treat_arrays: bool = True,
         **treat_arrays_kws) -> float:
-    """ Mean Absolute Error.
+    """ `Mean Absolute Error <https://scikit-learn.org/stable/modules/generated/sklearn.metrics.mean_absolute_error.html>`_.
     It is less sensitive to outliers as compared to mse/rmse.
 
     .. math::
         \\text{MAE} = \\frac{1}{n} \\sum_{i=1}^{n} \\left| \\text{true}_i - \\text{predicted}_i \\right|
-
-    References
-    ----------
-    https://scikit-learn.org/stable/modules/generated/sklearn.metrics.mean_absolute_error.html
 
     Parameters
     ----------
@@ -3905,7 +3773,7 @@ def irmse(true, predicted, treat_arrays: bool = True,
 def mase(true, predicted, treat_arrays: bool = True, seasonality: int = 1, **treat_arrays_kws):
     """
     Mean Absolute Scaled Error. Baseline (benchmark) is computed with naive
-    forecasting (shifted by @seasonality) modified after [11]_. It is the
+    forecasting (shifted by @seasonality) modified after `this <https://gist.github.com/bshishov/5dc237f59f019b26145648e2124ca1c9>`_. It is the
     ratio of MAE of used model and MAE of naive forecast.
 
     .. math::
@@ -3914,10 +3782,9 @@ def mase(true, predicted, treat_arrays: bool = True, seasonality: int = 1, **tre
 
     References
     ----------
-    .. [11] https://gist.github.com/bshishov/5dc237f59f019b26145648e2124ca1c9
 
-    Hyndman, R. J. (2006). Another look at forecast-accuracy metrics for intermittent demand.
-    Foresight: The International Journal of Applied Forecasting, 4(4), 43-46.
+    `Hyndman, R. J. (2006). Another look at forecast-accuracy metrics for intermittent demand.
+    Foresight: The International Journal of Applied Forecasting, 4(4), 43-46. <http://datascienceassn.org/sites/default/files/Another%20Look%20at%20Measures%20of%20Forecast%20Accuracy.pdf>`_
 
     Parameters
     ----------
@@ -4073,10 +3940,10 @@ def brier_score(true, predicted, treat_arrays: bool = True,
 
     References
     ---------
-    Glenn W. Brier, 1950: Verification of forecasts expressed in terms
+    `Glenn W. Brier, 1950: Verification of forecasts expressed in terms
     of probabilities. Mon. We. Rev., 78, 1-23.
     D. S. Wilks, 1995: Statistical Methods in the Atmospheric Sciences.
-    Cambridge Press. 547 pp.
+    Cambridge Press. 547 pp <https://viterbi-web.usc.edu/~shaddin/teaching/cs699fa17/docs/Brier50.pdf>`_
 
     .. _SkillMetrics:
         https://github.com/PeterRochford/SkillMetrics/blob/master/skill_metrics/brier_score.py
@@ -4175,7 +4042,7 @@ def sse(true, predicted, treat_arrays: bool = True,
     """
     Sum of squared errors_ (model vs actual). It is measure of how far off
     our model's predictions are from the observed values. A value of 0 indicates
-    that all predications are spot on. A non-zero value indicates errors.
+    that all predications are spot on. A non-zero value indicates errors_.
 
     This is also called residual sum of squares (RSS) or sum of squared residuals
     as per tutorialspoint_ .
@@ -4183,7 +4050,7 @@ def sse(true, predicted, treat_arrays: bool = True,
     .. math::
         \\text{SSE} = \\sum_{i=1}^{n} (true_i - predicted_i)^2
 
-    .. errors:
+    .. _errors:
         https://dziganto.github.io/data%20science/linear%20regression/machine%20learning/python/Linear-Regression-101-Metrics/
 
     .. _tutorialspoint:
@@ -4213,9 +4080,7 @@ def sse(true, predicted, treat_arrays: bool = True,
 
 def amemiya_pred_criterion(true, predicted, treat_arrays: bool = True,
                            **treat_arrays_kws) -> float:
-    """Amemiya's Prediction Criterion
-
-    Equation taken from https://www.sfu.ca/sasdoc/sashtml/ets/chap30/sect19.htm#:~:text=Amemiya
+    """`Amemiya's Prediction Criterion <https://www.sfu.ca/sasdoc/sashtml/ets/chap30/sect19.htm#:~:text=Amemiya>`_
 
     .. math::
         \\text{APC} = \\left( \\frac{n + k}{n - k} \\right) \\left( \\frac{1}{n} \\sum_{i=1}^{n} (\\text{true}_i - \\text{predicted}_i)^2 \\right)
@@ -4247,12 +4112,10 @@ def amemiya_pred_criterion(true, predicted, treat_arrays: bool = True,
 
 def amemiya_adj_r2(true, predicted, treat_arrays: bool = True,
                    **treat_arrays_kws) -> float:
-    """Amemiya's Adjusted R-squared
+    """`Amemiya's Adjusted R-squared <https://www.sfu.ca/sasdoc/sashtml/ets/chap30/sect19.htm#:~:text=Amemiya>`_
 
     .. math::
         R^2_{\\text{adj, Amemiya}} = 1 - \\left( \\frac{(1 - R^2) \\cdot (n + k)}{n - k - 1} \\right)
-
-    Equation taken from https://www.sfu.ca/sasdoc/sashtml/ets/chap30/sect19.htm#:~:text=Amemiya
 
     Parameters
     ----------
@@ -4398,16 +4261,14 @@ def agreement_index(true, predicted, treat_arrays: bool = True,
 
     It detects additive and pro-portional differences in the observed and
     simulated means and vari-ances Moriasi_ et al., 2015. It is overly sensitive
-    to extreme values due to the squared differences_. It can also be used
+    to extreme values due to the squared `differences <https://www.tandfonline.com/doi/abs/10.2747/0272-3646.26.6.467>`_.
+    It can also be used
     as a substitute for R2 to identify the degree to which model predic-tions
     are error-free. Its value varies between 0 and 1 with 1 being the best.
 
     .. math::
         d = 1 - \\frac{\\sum_{i=1}^{N}(e_{i} - s_{i})^2}{\\sum_{i=1}^{N}(\\left | s_{i} - \\bar{e}
          \\right | + \\left | e_{i} - \\bar{e} \\right |)^2}
-
-    .. _differences:
-        Legates and McCabe, 199
 
     .. _Willmott:
         https://doi.org/10.1080/02723646.1981.10642213
@@ -4444,12 +4305,10 @@ def legates_coeff_eff(true, predicted, treat_arrays: bool = True,
     Legates Coefficient of Efficiency. Its value varies between 0 and 1.
     It is not as sensitive to extreme values as agreement_index and coefficcient of
     determination because of the utilization of the absolute value of the difference
-    instead of the squared difference. See Equaltion 23 in Dodo et al., 2022
+    instead of the squared difference. See Equaltion 23 in `Dodo et al., 2022 <https://doi.org/10.1016/j.nexus.2022.100157>`_
 
     .. math::
         LCE = 1 - \\frac{\\sum_{i=1}^{n} |true_i - predicted_i|}{\\sum_{i=1}^{n} |true_i - \\bar{true}|}
-
-    https://doi.org/10.1016/j.nexus.2022.100157
 
     Parameters
     ----------
@@ -4481,7 +4340,7 @@ def aic(
         **treat_arrays_kws
         ) -> float:
     """
-    Akaike_ Information Criterion. Modifying from this source_
+    Akaike_ Information Criterion. Modifying from this sourcee_
 
     .. math::
         AIC = n \\cdot \\ln\\left(\\frac{\\sum_{i=1}^{n} (\\text{true}_i - \\text{predicted}_i)^2}{n}\\right) + 2p
@@ -4489,7 +4348,7 @@ def aic(
     .. _Akaike:
         https://doi.org/10.1007/978-1-4612-1694-0_15
 
-    .. _source:
+    .. _sourcee:
         https://github.com/UBC-MDS/RegscorePy/blob/master/RegscorePy/aic.py
     Parameters
     ----------
@@ -4523,7 +4382,7 @@ def aic(
 def cronbach_alpha(true, predicted, treat_arrays: bool = True,
                    **treat_arrays_kws) -> float:
     """
-    It is a measure of internal consitency of data. See ucla and stackoverflow_
+    It is a measure of internal consitency of data. See ucla_ and stackoverflow_
     pages for more info.
 
     .. math::
@@ -4566,7 +4425,7 @@ def cronbach_alpha(true, predicted, treat_arrays: bool = True,
 def centered_rms_dev(true, predicted, treat_arrays: bool = True,
                      **treat_arrays_kws) -> float:
     """
-    Modified after SkillMetrics_.
+    `Modified after SkillMetrics <https://doi.org/10.1016/B0-12-227410-5/00612-8>`_.
     Calculates the centered root-mean-square (RMS) difference between true and predicted
     using the formula:
     (E')^2 = sum_(n=1)^N [(p_n - mean(p))(r_n - mean(r))]^2/N
@@ -4576,7 +4435,6 @@ def centered_rms_dev(true, predicted, treat_arrays: bool = True,
     .. math::
         CRMSD = \\sqrt{\\frac{1}{N} \\sum_{i=1}^{N} \\left( (p_i - \\text{mean}(p)) - (r_i - \\text{mean}(r)) \\right)^2}
 
-    https://doi.org/10.1016/B0-12-227410-5/00612-8
     Output:
     CRMSDIFF : centered root-mean-square (RMS) difference (E')^2
 
@@ -4617,15 +4475,11 @@ def cosine_similarity(true, predicted, treat_arrays: bool = True,
     It is a judgment of orientation and not magnitude: two vectors with
     the same orientation have a cosine similarity of 1, two vectors oriented
     at 90° relative to each other have a similarity of 0, and two vectors diametrically
-    opposed have a similarity of -1, independent of their magnitude. See_
+    opposed have a similarity of -1, independent of their magnitude. `See <https://doi.org/10.1016/B978-0-12-804452-0.00002-6>`_
 
     .. math::
         \\text{Cosine Similarity} = \\frac{\\sum_{i=1}^{n} \\text{true}_i \\cdot \\text{predicted}_i}{\\sqrt{\\sum_{i=1}^{n} (\\text{true}_i)^2} \\cdot \\sqrt{\\sum_{i=1}^{n} (\\text{predicted}_i)^2}}
 
-    https://doi.org/10.1016/B978-0-12-804452-0.00002-6
-
-    .. _see:
-        https://en.wikipedia.org/wiki/Cosine_similarity
 
     References
     ----------
@@ -4657,7 +4511,7 @@ def cosine_similarity(true, predicted, treat_arrays: bool = True,
 def decomposed_mse(true, predicted, treat_arrays: bool = True,
                    **treat_arrays_kws) -> float:
     """
-    Decomposed MSE developed by Kobayashi and Salam (2000) Equation 24
+    Decomposed MSE developed by `Kobayashi and Salam (2000) <https://doi.org/10.2134/agronj2000.922345x>`_ Equation 24
 
     .. math ::
         dMSE = (\\frac{1}{N}\\sum_{i=1}^{N}(e_{i}-s_{i}))^2 + SDSD + LCS
@@ -4669,7 +4523,6 @@ def decomposed_mse(true, predicted, treat_arrays: bool = True,
         LCS = 2 \\sigma(e) \\sigma(s) * (1 - \\frac{\\sum ^n _{i=1}(e_i - \\bar{e})(s_i - \\bar{s})}
         {\\sqrt{\\sum ^n _{i=1}(e_i - \\bar{e})^2} \\sqrt{\\sum ^n _{i=1}(s_i - \\bar{s})^2}})
 
-    https://doi.org/10.2134/agronj2000.922345x
 
     Parameters
     ----------
@@ -4708,14 +4561,10 @@ def decomposed_mse(true, predicted, treat_arrays: bool = True,
 
 def euclid_distance(true, predicted, treat_arrays: bool = True,
                     **treat_arrays_kws) -> float:
-    """Euclidian distance
+    """`Euclidian distance <https://doi.org/10.1016/B978-0-12-088735-4.50006-7>`_
 
     .. math::
         D = \\sqrt{\\sum_{i=1}^{n} (\\text{true}_i - \\text{predicted}_i)^2}
-
-    https://doi.org/10.1016/B978-0-12-088735-4.50006-7
-
-    Referneces: Kennard et al., 2010
     Parameters
     ----------
     true :
@@ -4741,14 +4590,12 @@ def euclid_distance(true, predicted, treat_arrays: bool = True,
 def exp_var_score(true, predicted, treat_arrays: bool = True, weights=None,
                   **treat_arrays_kws) -> Union[float, None]:
     """
-    Explained variance score_ . Best value is 1, lower values are less accurate.
+    Explained variance `score <https://scikit-learn.org/stable/modules/generated/sklearn.metrics.explained_variance_score.html>`_ .
+    Best value is 1, lower values are less accurate.
 
     .. math::
         \\text{EVS} = 1 - \\frac{\\sum_{i=1}^{n} w_i \\left( (true_i - predicted_i) - \\frac{\\sum_{j=1}^{n} w_j (true_j - predicted_j)}{\\sum_{j=1}^{n} w_j} \\right)^2}{\\sum_{i=1}^{n} w_i (true_i - \\frac{\\sum_{j=1}^{n} w_j true_j}{\\sum_{j=1}^{n} w_j})^2}
 
-    https://scikit-learn.org/stable/modules/generated/sklearn.metrics.explained_variance_score.html
-    .. _score:
-        https://stackoverflow.com/q/24378176/5982232
     Parameters
     ----------
     true :
@@ -4827,8 +4674,9 @@ def expanded_uncertainty(true, predicted, treat_arrays: bool = True, cov_fact=1.
 def fdc_fhv(true, predicted, treat_arrays: bool = True, h: float = 0.02,
             **treat_arrays_kws) -> float:
     """
-    modified Kratzert2018_ code. Peak flow bias of the flow duration curve (Yilmaz 2008) doi:10.1029/2007WR006716.
-    used in `kratzert et al., 2019 <https://hess.copernicus.org/articles/23/5089/2019/hess-23-5089-2019.html>.`
+    modified `Kratzert2018 <https://github.com/kratzert/ealstm_regional_modeling/blob/64a446e9012ecd601e0a9680246d3bbf3f002f6d/papercode/metrics.py#L190>`_
+    code. Peak flow bias of the flow duration curve `(Yilmaz 2008) <doi:10.1029/2007WR006716>`_
+    used in `kratzert et al., 2019 <https://hess.copernicus.org/articles/23/5089/2019/hess-23-5089-2019.html>`_.
 
     .. math::
          FHV = \\frac{\\sum_{i=1}^{k} (predicted_i - true_i)}{\\sum_{i=1}^{k} true_i} \\times 100
@@ -4848,9 +4696,6 @@ def fdc_fhv(true, predicted, treat_arrays: bool = True, h: float = 0.02,
     Returns
     -------
         Bias of the peak flows
-
-    .. _Kratzert2018:
-        https://github.com/kratzert/ealstm_regional_modeling/blob/64a446e9012ecd601e0a9680246d3bbf3f002f6d/papercode/metrics.py#L190
 
     Examples
     ---------
@@ -4882,7 +4727,7 @@ def fdc_flv(true, predicted, treat_arrays: bool = True, low_flow: float = 0.3,
             **treat_arrays_kws) -> float:
     """
     bias of the bottom 30 % low flows. modified Kratzert_ code
-    used in `kratzert et al., 2019 <https://hess.copernicus.org/articles/23/5089/2019/hess-23-5089-2019.html>.`
+    used in `kratzert et al., 2019 <https://hess.copernicus.org/articles/23/5089/2019/hess-23-5089-2019.html>`_.
 
     .. math::
         \\text{FLV} = -1 \\times \\frac{\\sum (\\log(\\text{predicted}) - \\min(\\log(\\text{predicted}))) - \\sum (\\log(\\text{true}) - \\min(\\log(\\text{true})))}{\\sum (\\log(\\text{true}) - \\min(\\log(\\text{true}))) + 1 \\times 10^{-6}}
@@ -4903,9 +4748,6 @@ def fdc_flv(true, predicted, treat_arrays: bool = True, low_flow: float = 0.3,
     Returns
     -------
         float
-
-    .. _Kratzert:
-        https://github.com/kratzert/ealstm_regional_modeling/blob/64a446e9012ecd601e0a9680246d3bbf3f002f6d/papercode/metrics.py#L237
 
     Examples
     ---------
@@ -5129,12 +4971,11 @@ def calculate_hydro_metrics(true, predicted, treat_arrays: bool = True,
 
 def JS(true, predicted, treat_arrays: bool = True,
        **treat_arrays_kws) -> float:
-    """Jensen-shannon divergence
+    """`Jensen-shannon divergence <https://datascientest.com/en/jensen-shannon-divergence-everything-you-need-to-know-about-this-ml-model#:~:text=Jensen%2DShannon%20divergence%20and%20Data,and%20expected%20or%20reference%20distributions>`_
 
     .. math::
         JS(P \parallel Q) = \\frac{1}{2} \\sum_{i} \\left( P(i) \\log_2 \\left( \\frac{2P(i)}{P(i) + Q(i)} \\right) + Q(i) \\log_2 \\left( \\frac{2Q(i)}{P(i) + Q(i)} \\right) \\right)
 
-    https://datascientest.com/en/jensen-shannon-divergence-everything-you-need-to-know-about-this-ml-model#:~:text=Jensen%2DShannon%20divergence%20and%20Data,and%20expected%20or%20reference%20distributions.
     Parameters
     ----------
     true :
@@ -5216,13 +5057,10 @@ def kendall_tau(true, predicted, treat_arrays: bool = True, return_p=False,
 def kgeprime_bound(true, predicted, treat_arrays: bool = True,
                  **treat_arrays_kws) -> float:
     """
-    Bounded Version of the Modified Kling-Gupta Efficiency_
+    `Bounded Version of the Modified Kling-Gupta Efficiency <https://iahs.info/uploads/dms/13614.21--211-219-41-MATHEVET.pdf>`_
 
     .. math::
         KGE'_{\\text{bounded}} = \\frac{1 - \\sqrt{(r - 1)^2 + (\\gamma - 1)^2 + (\\beta - 1)^2}}{2 - (1 - \\sqrt{(r - 1)^2 + (\\gamma - 1)^2 + (\\beta - 1)^2})}
-
-    .. _Efficiency:
-        https://iahs.info/uploads/dms/13614.21--211-219-41-MATHEVET.pdf
 
     Parameters
     ----------
@@ -5557,16 +5395,15 @@ def max_error(true, predicted, treat_arrays: bool = True,
 
 def mb_r(true, predicted, treat_arrays: bool = True,
          **treat_arrays_kws) -> float:
-    """Mielke-Berry R value.
-    Berry and Mielke, 1988.
+    """
+    `Mielke-Berry R value <https://psycnet.apa.org/buy/1988-15790-001>`_.
 
     .. math::
         R = 1 - \\frac{n^2 \\cdot \\frac{1}{n} \\sum_{i=1}^{n} \\left| \\text{predicted}_i - \\text{true}_i \\right|}{\\sum_{i=1}^{n} \\sum_{j=1}^{n} \\left| \\text{predicted}_j - \\text{true}_i \\right|}
 
     References
     ----------
-    Mielke, P. W., & Berry, K. J. (2007). Permutation methods: a distance function approach.
-    Springer Science & Business Media.
+    `Mielke, P. W., & Berry, K. J. (2007). Permutation methods: a distance function approach. Springer Science & Business Media <https://link.springer.com/book/10.1007/978-1-4757-3449-2>`_
     Parameters
     ----------
     true :
@@ -5607,10 +5444,8 @@ def mda(
     .. math::
         \\text{MDA} = \\frac{1}{n-1} \\sum_{i=1}^{n-1} \\left( \\text{sign}( \\text{true}_{i+1} - \\text{true}_i) == \\text{sign}( \\text{predicted}_{i+1} - \\text{predicted}_i) \\right)
 
-    modified after_
+    modified `after <https://gist.github.com/bshishov/5dc237f59f019b26145648e2124ca1c9>`_.
 
-    .. _after:
-         https://gist.github.com/bshishov/5dc237f59f019b26145648e2124ca1c9
     Parameters
     ----------
     true :
@@ -5762,7 +5597,7 @@ def mean_bias_error(true, predicted, treat_arrays: bool = True,
     or overestimate (positive value) global radiation, while the MBE values closest to zero are desirable.
     The drawback of this test is that it does not show the correct performance when the model presents
     overestimated and underestimated values at the same time, since overestimation and underestimation
-    values cancel each other_.
+    values cancel each `other <https://doi.org/10.1016/j.rser.2015.08.035>`_.
 
     .. math::
         \\text{MBE} = \\frac{1}{N} \\sum_{i=1}^{N} (true_i - predicted_i)
@@ -5770,17 +5605,15 @@ def mean_bias_error(true, predicted, treat_arrays: bool = True,
     References
     ----------
 
-    - Willmott, C. J., & Matsuura, K. (2006). On the use of dimensioned measures of error to evaluate the performance
+    - `Willmott, C. J., & Matsuura, K. (2006). On the use of dimensioned measures of error to evaluate the performance
         of spatial interpolators. International Journal of Geographical Information Science, 20(1), 89-102.
-        https://doi.org/10.1080/1365881050028697
+        <https://doi.org/10.1080/1365881050028697>`_
 
-    - Valipour, M. (2015). Retracted: Comparative Evaluation of Radiation-Based Methods for Estimation of Potential
+    - `Valipour, M. (2015). Retracted: Comparative Evaluation of Radiation-Based Methods for Estimation of Potential
         Evapotranspiration. Journal of Hydrologic Engineering, 20(5), 04014068.
-        https://dx.doi.org/10.1061/(ASCE)HE.1943-5584.0001066
-    -  https://doi.org/10.1016/j.rser.2015.08.035
+        <https://dx.doi.org/10.1061/(ASCE)HE.1943-5584.0001066>`_
 
-    .. _other:
-        https://doi.org/10.1016/j.rser.2015.08.035
+    -  `<https://doi.org/10.1016/j.rser.2015.08.035>`_
 
     Parameters
     ----------
@@ -5843,7 +5676,7 @@ def mean_poisson_deviance(true, predicted, treat_arrays: bool = True, weights=No
 
     References
     ---------
-    https://scikit-learn.org/stable/modules/generated/sklearn.metrics.mean_poisson_deviance.html
+    `<https://scikit-learn.org/stable/modules/generated/sklearn.metrics.mean_poisson_deviance.html>`_
 
     Parameters
     ----------
@@ -5910,7 +5743,7 @@ def median_abs_error(true, predicted, treat_arrays: bool = True,
 
     References
     ----------
-    https://scikit-learn.org/stable/modules/generated/sklearn.metrics.median_absolute_error.html
+    `<https://scikit-learn.org/stable/modules/generated/sklearn.metrics.median_absolute_error.html>`_
 
     Parameters
     ----------
@@ -6131,7 +5964,7 @@ def nrmse_range(true, predicted, treat_arrays: bool = True,
     RMSE normalized by true values. This allows comparison between data sets
     with different scales. It is more sensitive to outliers.
 
-    Reference: Pontius et al., 2008
+    Reference: `Pontius et al., 2008 <https://link.springer.com/article/10.1007/s10651-007-0043-y>`_
 
     .. math::
         \\text{NRMSE} = \\frac{\\sqrt{\\frac{1}{n} \\sum_{i=1}^{n} (\\text{predicted}_i - \\text{true}_i)^2}}{\\max(\\text{true}) - \\min(\\text{true})}
@@ -6171,7 +6004,7 @@ def nrmse_ipercentile(
     RMSE normalized by inter percentile range of true. This is the least sensitive to outliers.
     q1: any interger between 1 and 99
     q2: any integer between 2 and 100. Should be greater than q1.
-    Reference: Pontius et al., 2008.
+    Reference: `Pontius et al., 2008. <https://link.springer.com/article/10.1007/s10651-007-0043-y>`_
 
     .. math::
         \\text{NRMSE}_{\\text{IP}} = \\frac{\\sqrt{\\frac{1}{n} \\sum_{i=1}^{n} (\\text{true}_i - \\text{predicted}_i)^2}}{Q_{q2} - Q_{q1}}
@@ -6208,12 +6041,13 @@ def nrmse_ipercentile(
 def nrmse_mean(true, predicted, treat_arrays: bool = True,
                **treat_arrays_kws) -> float:
     """Mean Normalized RMSE
+
     RMSE normalized by mean of true values.This allows comparison between datasets with different scales.
 
     .. math::
         NRMSE_{mean} = \\frac{\\sqrt{\\frac{1}{n} \\sum_{i=1}^{n} (\\text{true}_i - \\text{predicted}_i)^2}}{\\bar{\\text{true}}}
 
-    Reference: Pontius et al., 2008
+    Reference: `Pontius et al., 2008 <https://link.springer.com/article/10.1007/s10651-007-0043-y>`_
     Parameters
     ----------
     true :
@@ -6439,7 +6273,7 @@ def ref_agreement_index(true, predicted, treat_arrays: bool = True,
         \\frac{b}{a} - 1 & \\text{if } a > b
         \\end{cases}
 
-    Refrence: Willmott et al., 2012
+    Refrence: `Willmott et al., 2012 <https://www.researchgate.net/profile/Scott-Robeson/publication/235961403_A_refined_index_of_model_performance/links/5a6114254585158bca49f8e4/A-refined-index-of-model-performance.pdf>`_
     Parameters
     ----------
     true :
@@ -6504,12 +6338,12 @@ def relative_rmse(
         true, predicted, treat_arrays: bool = True,
                   **treat_arrays_kws) -> float:
     """
-    Relative Root Mean Squared Error. It normalizes teh rmse by mean of true values.
+    `Relative Root Mean Squared Error <https://search.r-project.org/CRAN/refmans/metrica/html/RRMSE.html>`_. It normalizes teh rmse by mean of true values.
 
     .. math::
         RRMSE=\\frac{\\sqrt{\\frac{1}{N}\\sum_{i=1}^{N}(e_{i}-s_{i})^2}}{\\bar{e}}
 
-    https://search.r-project.org/CRAN/refmans/metrica/html/RRMSE.html
+
 
     Parameters
     ----------
@@ -6537,13 +6371,11 @@ def relative_rmse(
 def rmspe(true, predicted, treat_arrays: bool = True,
           **treat_arrays_kws) -> float:
     """
-    Root Mean Square Percentage Error_ .
+    `Root Mean Square Percentage Error <https://stackoverflow.com/a/53166790/5982232>`_.
 
     .. math::
         RMSPE = \\sqrt{\\frac{1}{n} \\sum_{i=1}^{n} \\left(PE_i\\right)^2} = \\sqrt{\\frac{1}{n} \\sum_{i=1}^{n} \\left(\\frac{\\text{true}_i - \\text{predicted}_i}{\\text{true}_i}\\right)^2}
 
-    .. _Error:
-        https://stackoverflow.com/a/53166790/5982232
     Parameters
     ----------
     true :
@@ -6574,7 +6406,7 @@ def rsr(
         ) -> float:
     """
     It is MSE normalized by standard deviation of true values. 
-    Following Moriasi et al., 2007. https://swat.tamu.edu/media/1312/moriasimodeleval.pdf
+    Following `Moriasi et al., 2007. <https://swat.tamu.edu/media/1312/moriasimodeleval.pdf>`_.
 
     It incorporates the benefits of error index statistics andincludes a
     scaling/normalization factor, so that the resulting statistic and reported
@@ -6582,8 +6414,7 @@ def rsr(
     0-0.5 indicating very good model performance, 0.5-0.8 indicating good model
     performance. 
 
-    Standard deviation is calculated using np.ntd(true, ddof=1) to match the results of
-    https://rdrr.io/cran/hydroGOF/man/rsr.html
+    Standard deviation is calculated using np.ntd(true, ddof=1) to match the results of `this <https://rdrr.io/cran/hydroGOF/man/rsr.html>`_.
 
     .. math::
         \\text{RSR} = \\frac{\\sqrt{\\frac{1}{n} \\sum_{i=1}^{n} (\\text{true}_i - \\text{predicted}_i)^2}}{\\sqrt{\\frac{1}{n-1} \\sum_{i=1}^{n} (\\text{true}_i - \\bar{\\text{true}})^2}}
@@ -6647,7 +6478,7 @@ def sa(true, predicted, treat_arrays: bool = True,
     """Spectral angle. From -pi/2 to pi/2. Closer to 0 is better.
     It measures angle between two vectors in hyperspace indicating
     how well the shape of two arrays match instead of their magnitude.
-    Reference: Robila and Gershman, 2005.
+    Reference: `Robila and Gershman, 2005 <https://ieeexplore.ieee.org/abstract/document/1509878>`_.
 
     .. math::
         SA = \\arccos \\left( \\frac{\\sum_{i=1}^{n} (\\text{true}_i \\cdot \\text{predicted}_i)}{\\sqrt{\\sum_{i=1}^{n} (\\text{true}_i)^2} \\cdot \\sqrt{\\sum_{i=1}^{n} (\\text{predicted}_i)^2}} \\right)
@@ -6747,16 +6578,11 @@ def sga(true, predicted, treat_arrays: bool = True,
 def smape(true, predicted, treat_arrays: bool = True,
           **treat_arrays_kws) -> float:
     """
-    Symmetric Mean Absolute Percentage Error_. Adoption from_ .
+    `Symmetric Mean Absolute Percentage Error <https://en.wikipedia.org/wiki/Symmetric_mean_absolute_percentage_error>`_.
+    Adoption from `this <https://stackoverflow.com/a/51440114/5982232>`_.
 
     .. math::
         SMAPE = \\frac{100}{n} \\sum_{i=1}^{n} \\frac{2 \\left| \\text{predicted}_i - \\text{true}_i \\right|}{\\left| \\text{true}_i \\right| + \\left| \\text{predicted}_i \\right|}
-
-    .. _Error:
-         https://en.wikipedia.org/wiki/Symmetric_mean_absolute_percentage_error
-
-    .. _from:
-        https://stackoverflow.com/a/51440114/5982232
 
     Goodwin and Lawton, 1999 : https://doi.org/10.1016/S0169-2070(99)00007-2
     Flores et al., 1986 : https://doi.org/10.1016/0305-0483(86)90013-7
@@ -6988,8 +6814,7 @@ def umbrae(
 def ve(true, predicted, treat_arrays: bool = True,
        **treat_arrays_kws) -> float:
     """
-    Volumetric efficiency. Ranges from 0 to 1. Smaller the better.
-    Reference: Criss and Winston 2008.
+    `Volumetric efficiency <https://agupubs.onlinelibrary.wiley.com/doi/full/10.1029/2007WR006415>`_. Ranges from 0 to 1. Smaller the better.
 
     .. math::
         VE = 1 - \\frac{\\sum_{i=1}^{n} \\left| \\text{predicted}_i - \\text{true}_i \\right|}{\\sum_{i=1}^{n} \\text{true}_i}
@@ -7024,20 +6849,10 @@ def volume_error(true, predicted, treat_arrays: bool = True,
     Returns the Volume Error (Ve).
     It is an indicator of the agreement between the averages of the simulated
     and observed runoff (i.e. long-term water balance).
-    used in Reynolds_ paper:
+    used in `Reynolds <https://doi.org/10.1016/j.jhydrol.2017.05.012>`_ paper:
 
     .. math::
         \\text{volume_error}= Sum(self.predicted- true)/sum(self.predicted)
-
-    References
-    ----------
-    Reynolds_, J.E., S. Halldin, C.Y. Xu, J. Seibert, and A. Kauffeldt. 2017.
-    "Sub-Daily Runoff Predictions Using Parameters Calibrated on the Basis of Data with a
-    Daily Temporal Resolution."  Journal of Hydrology 550 (July):399?411.
-
-
-    .. _Reynolds:
-        https://doi.org/10.1016/j.jhydrol.2017.05.012.
 
     Parameters
     ----------
@@ -7070,19 +6885,12 @@ def wape(
          **treat_arrays_kws
 ) -> float:
     """
-    weighted absolute percentage error (wape_). The lower the better.
+    `weighted absolute percentage error <https://mattdyor.wordpress.com/2018/05/23/calculating-wape/>`_. The lower the better.
 
-    It is a variation of mape but more suitable for intermittent and low-volume
-    data_.
+    It is a variation of mape but more suitable for intermittent and low-volume `data <https://arxiv.org/pdf/2103.12057v1.pdf>`_.
 
     .. math::
         \\text{WAPE} = \\frac{\\sum_{i=1}^{n} \\left| \\text{true}_i - \\text{predicted}_i \\right|}{\\sum_{i=1}^{n} \\text{true}_i}
-
-    .. _wape:
-        https://mattdyor.wordpress.com/2018/05/23/calculating-wape/
-
-    .. _data:
-        https://arxiv.org/pdf/2103.12057v1.pdf
 
     Parameters
     ----------
@@ -7110,9 +6918,8 @@ def wape(
 
 def watt_m(true, predicted, treat_arrays: bool = True,
            **treat_arrays_kws) -> float:
-    """Watterson's M.
-
-    Refrence: Watterson., 1996
+    """
+    `Watterson's M. <https://rmets.onlinelibrary.wiley.com/doi/abs/10.1002/(SICI)1097-0088(199604)16:4%3C379::AID-JOC18%3E3.0.CO;2-U>`_
 
     .. math::
         M = \\frac{2}{\\pi} \\cdot \\arcsin \\left( 1 - \\frac{\\frac{1}{n} \\sum_{i=1}^{n} ( \\text{true}_i - \\text{predicted}_i )^2}{\\sigma_{\\text{true}}^2 + \\sigma_{\\text{predicted}}^2 + (\\mu_{\\text{predicted}} - \\mu_{\\text{true}})^2} \\right)
@@ -7146,13 +6953,11 @@ def wmape(
         true, predicted, treat_arrays: bool = True,
           **treat_arrays_kws) -> float:
     """
-    Weighted Mean Absolute Percent Error_
+    `Weighted Mean Absolute Percent Error <https://stackoverflow.com/a/54833202/5982232>`_.
 
     .. math::
         \\text{WMAPE} = \\frac{\\sum_{i=1}^{n} \\left| \\text{true}_i - \\text{predicted}_i \\right|}{\\sum_{i=1}^{n} \\text{true}_i}
 
-    .. _Error:
-        https://stackoverflow.com/a/54833202/5982232
 
     Parameters
     ----------
@@ -7728,7 +7533,8 @@ def manhattan_distance(
     """
     Manhattan distance, also known as cityblock distance or taxicab norm.
 
-    See Blanco-Mallo et al., 2023 and Cha et al., 2007 and Alexei Botchkarev 2019
+    See `Blanco-Mallo et al., 2023 <https://doi.org/10.1016/j.patcog.2023.109646>`_
+    and `Alexei Botchkarev 2019 <https://www.ijikm.org/Volume14/IJIKMv14p045-076Botchkarev5064.pdf>`_
     on the use of distances in performance measures.
 
     .. math::
@@ -7743,16 +7549,6 @@ def manhattan_distance(
         Predicted values, same format as 'true'.
     treat_arrays :
         treat_arrays the true and predicted array
-
-    1. Sung-Hyuk C. (2007) Comprehensive Survey on Distance/Similarity
-       Measures between Probability Density Functions. International
-       Journal of Mathematical Models and Methods in Applied Sciences.
-       1(4):300-307.
-
-    2. Eva Blanco-Mallo (2023) https://doi.org/10.1016/j.patcog.2023.109646
-
-    3. Alexei Botchkarev, 2019
-       https://www.ijikm.org/Volume14/IJIKMv14p045-076Botchkarev5064.pdf
 
     Examples
     ---------

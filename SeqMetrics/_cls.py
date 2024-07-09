@@ -194,9 +194,7 @@ class ClassificationMetrics(Metrics):
 
     def cross_entropy(self, epsilon=1e-12) -> float:
         """
-        References
-        ----------
-        https://doi.org/10.1007/s10479-005-5724-z
+        calculates `cross entropy <https://doi.org/10.1007/s10479-005-5724-z>`_
 
         Examples
         --------
@@ -219,14 +217,11 @@ class ClassificationMetrics(Metrics):
 
     def accuracy(self, normalize: bool = True) -> float:
         """
-        calculates accuracy
+        calculates `accuracy <https://scikit-learn.org/stable/modules/generated/sklearn.metrics.accuracy_score.html>`_
 
         .. math::
             \\text{Accuracy} = \\frac{\\sum_{i=1}^{N} \\mathbb{1}(true_i = predicted_i)}{N}
 
-        References
-        ----------
-        https://scikit-learn.org/stable/modules/generated/sklearn.metrics.accuracy_score.html
         Examples
         --------
         >>> import numpy as np
@@ -241,11 +236,7 @@ class ClassificationMetrics(Metrics):
 
     def confusion_matrix(self, normalize=False):
         """
-        calculates confusion matrix
-
-        References
-        --------
-        https://scikit-learn.org/stable/modules/generated/sklearn.metrics.confusion_matrix.html
+        calculates `confusion matrix <https://scikit-learn.org/stable/modules/generated/sklearn.metrics.confusion_matrix.html>`_
 
         Examples
         --------
@@ -324,7 +315,8 @@ class ClassificationMetrics(Metrics):
 
     def precision(self, average=None):
         """
-        Returns precision score, also called positive predictive value.
+        Returns `precision <https://scikit-learn.org/stable/modules/generated/sklearn.metrics.precision_score.html>`_ score,
+        also called positive predictive value.
         It is number of correct positive predictions divided by the total
         number of positive predictions.
         .. math::
@@ -335,10 +327,6 @@ class ClassificationMetrics(Metrics):
 
         .. math::
             \\text{Precision}_{\\text{weighted}} = \\frac{\\sum_{i=1}^{N} (TP_i + FN_i) \\cdot \\frac{TP_i}{TP_i + FP_i}}{\\sum_{i=1}^{N} (TP_i + FN_i)}
-
-        References
-        --------
-        https://scikit-learn.org/stable/modules/generated/sklearn.metrics.precision_score.html
 
         Examples
         --------
@@ -356,7 +344,8 @@ class ClassificationMetrics(Metrics):
 
     def recall(self, average=None):
         """
-        It is also called sensitivity or true positive rate. It is
+        It is also called `sensitivity <https://scikit-learn.org/stable/modules/generated/sklearn.metrics.recall_score.html>`_
+        or true positive rate. It is
         number of correct positive predictions divided by the total number of positives
 
         .. math::
@@ -370,10 +359,6 @@ class ClassificationMetrics(Metrics):
 
         .. math::
             \\text{Recall}_{\\text{weighted}} = \\sum_{i=1}^{n} w_i \\cdot \\frac{\\text{TP}_i}{\\text{TP}_i + \\text{FN}_i}
-
-        References
-        --------
-        https://scikit-learn.org/stable/modules/generated/sklearn.metrics.recall_score.html
 
         Examples
         --------
@@ -389,16 +374,13 @@ class ClassificationMetrics(Metrics):
 
     def specificity(self, average=None):
         """
-        It is also called true negative rate or selectivity. It is the probability that
+        It is also called true negative rate or `selectivity <https://towardsdatascience.com/understanding-common-classification-metrics-titanic-style-8b8a562d3e32>`_.
+        It is the probability that
         the predictions are negative when the true labels are also negative.
         It is number of correct negative predictions divided by the total number of negatives.
 
         .. math::
             \\text{Specificity} = \\frac{TN}{TN + FP}
-
-        References
-        ----------
-        https://towardsdatascience.com/understanding-common-classification-metrics-titanic-style-8b8a562d3e32
 
         Examples
         --------
@@ -416,15 +398,11 @@ class ClassificationMetrics(Metrics):
 
     def balanced_accuracy(self, average=None) -> float:
         """
-        balanced accuracy.
+        `balanced accuracy <https://scikit-learn.org/stable/modules/generated/sklearn.metrics.balanced_accuracy_score.html>`_
         It performs better on imbalanced datasets.
 
         .. math::
             \\text{Balanced Accuracy} = \\frac{1}{C} \\sum_{i=1}^{C} \\frac{TP_i}{TP_i + FN_i}
-
-        References
-        --------
-        https://scikit-learn.org/stable/modules/generated/sklearn.metrics.balanced_accuracy_score.html
 
         Examples
         --------
@@ -465,7 +443,6 @@ class ClassificationMetrics(Metrics):
     def f1_score(self, average=None) -> Union[np.ndarray, float]:
         """
            Calculates f1 score according to following formula
-           f1_score = 2 * (precision * recall)  / (precision + recall)
 
             .. math::
                 F1 = 2 \\cdot \\frac{\\text{precision} \\cdot \\text{recall}}{\\text{precision} + \\text{recall}}
@@ -487,14 +464,10 @@ class ClassificationMetrics(Metrics):
 
     def f2_score(self, average=None):
         """
-        f2 score
+        `f2 score <https://scikit-learn.org/stable/modules/generated/sklearn.metrics.fbeta_score.html>`_
 
         .. math::
             F2 = \\left(1 + 2^2\\right) \\cdot \\frac{\\text{Precision} \\cdot \\text{Recall}}{(2^2 \\cdot \\text{Precision}) + \\text{Recall}}
-
-        References
-        ----------
-        https://scikit-learn.org/stable/modules/generated/sklearn.metrics.fbeta_score.html
 
         Examples
        --------
@@ -512,16 +485,12 @@ class ClassificationMetrics(Metrics):
 
     def false_positive_rate(self):
         """
-        False positive rate is the number of incorrect positive predictions divided
+        `False positive rate <https://www.iguazio.com/glossary/false-positive-rate/>`_ is the number of incorrect positive predictions divided
         by the total number of negatives. Its best value is 0.0 and worst value is 1.0.
         It is also called probability of false alarm or fall-out.
 
         .. math::
             \\text{FPR} = \\frac{\\text{FP}}{\\text{FP} + \\text{TN}}S
-
-        References
-        --------
-        https://www.iguazio.com/glossary/false-positive-rate/
 
         Examples
        --------
@@ -646,12 +615,10 @@ class ClassificationMetrics(Metrics):
 
     def negative_likelihood_ratio(self, average=None):
         """
-        Negative likelihood ratio
+        `Negative likelihood ratio <https://en.wikipedia.org/wiki/Likelihood_ratios_in_diagnostic_testing#positive_likelihood_ratio>`_
 
         .. math::
             \\text{NLR} = 1 - \\frac{\\text{Sensitivity}}{\\text{Specificity}}
-
-        https://en.wikipedia.org/wiki/Likelihood_ratios_in_diagnostic_testing#positive_likelihood_ratio
 
         Examples
        --------
@@ -668,12 +635,10 @@ class ClassificationMetrics(Metrics):
 
     def youden_index(self, average=None):
         """
-        Youden index, also known as informedness
+        `Youden index <https://en.wikipedia.org/wiki/Youden%27s_J_statistic>`_, also known as informedness
 
         .. math::
             J = \\text{TPR} + \\text{TNR} - 1 = \\text{sensitivity} + \\text{specificity} - 1
-
-        https://en.wikipedia.org/wiki/Youden%27s_J_statistic
 
         Examples
        --------
@@ -690,19 +655,13 @@ class ClassificationMetrics(Metrics):
 
     def fowlkes_mallows_index(self, average=None):
         """
-        Fowlkes–Mallows index
+        `Fowlkes–Mallows index <https://scikit-learn.org/stable/modules/generated/sklearn.metrics.fowlkes_mallows_score.html>`_
 
         .. math::
             \\text{FMI} = \\sqrt{\\text{PPV} \\times \\text{TPR}}
 
-        References
-        ----------
-        https://scikit-learn.org/stable/modules/generated/sklearn.metrics.fowlkes_mallows_score.html
-
         PPV is positive predictive value or precision.
         TPR is true positive rate or recall or sensitivity
-
-        https://en.wikipedia.org/wiki/Fowlkes%E2%80%93Mallows_index
 
         Examples
        --------
@@ -761,7 +720,7 @@ class ClassificationMetrics(Metrics):
 
 def cross_entropy(true, predicted, epsilon=1e-12) -> float:
     """
-    Computes cross entropy between targets (encoded as one-hot vectors)
+    Computes `cross entropy <https://doi.org/10.1007/s10479-005-5724-z>`_ between targets (encoded as one-hot vectors)
     and predictions.
 
     .. math::
@@ -769,10 +728,6 @@ def cross_entropy(true, predicted, epsilon=1e-12) -> float:
     Returns
     -------
     scalar
-
-    References
-    ----------
-    https://doi.org/10.1007/s10479-005-5724-z
 
     Parameters
     ----------
@@ -811,14 +766,10 @@ def binarize(array):
 
 def accuracy(true, predicted, normalize: bool = True) -> float:
     """
-    calculates accuracy
+    calculates `accuracy <https://scikit-learn.org/stable/modules/generated/sklearn.metrics.accuracy_score.html>`_
 
     .. math::
         \\text{Accuracy} = \\frac{\\sum_{i=1}^{N} \\mathbb{1}(true_i = predicted_i)}{N}
-
-    References
-    ----------
-    https://scikit-learn.org/stable/modules/generated/sklearn.metrics.accuracy_score.html
 
     Parameters
     ----------
@@ -849,7 +800,8 @@ def accuracy(true, predicted, normalize: bool = True) -> float:
 
 def precision(true, predicted, average=None):
     """
-    Returns precision score, also called positive predictive value.
+    Returns `precision <https://scikit-learn.org/stable/modules/generated/sklearn.metrics.precision_score.html>`_ score,
+    also called positive predictive value.
     It is number of correct positive predictions divided by the total
     number of positive predictions.
     TP/(TP+FP)
@@ -862,10 +814,6 @@ def precision(true, predicted, average=None):
 
     .. math::
         \\text{Precision}_{\\text{weighted}} = \\frac{\\sum_{i=1}^{N} (TP_i + FN_i) \\cdot \\frac{TP_i}{TP_i + FP_i}}{\\sum_{i=1}^{N} (TP_i + FN_i)}
-
-    References
-    --------
-    https://scikit-learn.org/stable/modules/generated/sklearn.metrics.precision_score.html
 
     Parameters
     ----------
@@ -910,7 +858,8 @@ def precision(true, predicted, average=None):
 
 def recall(true, predicted, average=None):
     """
-    It is also called sensitivity or true positive rate. It is
+    It is also called `sensitivity <https://scikit-learn.org/stable/modules/generated/sklearn.metrics.recall_score.html>`_
+    or true positive rate. It is
     number of correct positive predictions divided by the total number of positives
 
     .. math::
@@ -924,10 +873,6 @@ def recall(true, predicted, average=None):
 
     .. math::
         \\text{Recall}_{\\text{weighted}} = \\sum_{i=1}^{n} w_i \\cdot \\frac{\\text{TP}_i}{\\text{TP}_i + \\text{FN}_i}
-
-    References
-    --------
-    https://scikit-learn.org/stable/modules/generated/sklearn.metrics.recall_score.html
 
     Parameters
     ----------
@@ -972,16 +917,13 @@ def recall(true, predicted, average=None):
 
 def specificity(true, predicted, average=None):
     """
-    It is also called true negative rate or selectivity. It is the probability that
+    It is also called true negative rate or `selectivity <https://towardsdatascience.com/understanding-common-classification-metrics-titanic-style-8b8a562d3e32>`_.
+    It is the probability that
     the predictions are negative when the true labels are also negative.
     It is number of correct negative predictions divided by the total number of negatives.
 
     .. math::
         \\text{Specificity} = \\frac{TN}{TN + FP}
-
-    References
-    ----------
-    https://towardsdatascience.com/understanding-common-classification-metrics-titanic-style-8b8a562d3e32
 
     Parameters
     ----------
@@ -1021,15 +963,11 @@ def specificity(true, predicted, average=None):
 
 def balanced_accuracy(true, predicted, average=None) -> float:
     """
-    balanced accuracy.
+    `balanced accuracy <https://scikit-learn.org/stable/modules/generated/sklearn.metrics.balanced_accuracy_score.html>`_.
     It performs better on imbalanced datasets.
 
     .. math::
         \\text{Balanced Accuracy} = \\frac{1}{C} \\sum_{i=1}^{C} \\frac{TP_i}{TP_i + FN_i}
-
-    References
-    --------
-    https://scikit-learn.org/stable/modules/generated/sklearn.metrics.balanced_accuracy_score.html
 
     Parameters
     ----------
@@ -1057,14 +995,10 @@ def balanced_accuracy(true, predicted, average=None) -> float:
 
 def f1_score(true, predicted, average=None) -> Union[np.ndarray, float]:
     """
-       Calculates f1 score according to following formula
+       Calculates `f1 score <https://scikit-learn.org/stable/modules/generated/sklearn.metrics.f1_score.html>`_ according to following formula
 
         .. math::
             F1 = 2 \\cdot \\frac{\\text{precision} \\cdot \\text{recall}}{\\text{precision} + \\text{recall}}
-
-       References
-       ----------
-        https://scikit-learn.org/stable/modules/generated/sklearn.metrics.f1_score.html
 
        Parameters
        ----------
@@ -1094,14 +1028,10 @@ def f1_score(true, predicted, average=None) -> Union[np.ndarray, float]:
 
 def f2_score(true, predicted, average=None):
     """
-    f2 score
+    `f2 score <https://scikit-learn.org/stable/modules/generated/sklearn.metrics.fbeta_score.html>`_
 
     .. math::
         F2 = \\left(1 + 2^2\\right) \\cdot \\frac{\\text{Precision} \\cdot \\text{Recall}}{(2^2 \\cdot \\text{Precision}) + \\text{Recall}}
-
-    References
-    ----------
-    https://scikit-learn.org/stable/modules/generated/sklearn.metrics.fbeta_score.html
 
     Parameters
     ----------
@@ -1126,17 +1056,13 @@ def f2_score(true, predicted, average=None):
 
 def false_positive_rate(true, predicted):
     """
-    False positive rate is the number of incorrect positive predictions divided
+    `False positive rate <https://www.iguazio.com/glossary/false-positive-rate/>`_ is the number of incorrect positive predictions divided
     by the total number of negatives. Its best value is 0.0 and worst value is 1.0.
     It is also called probability of false alarm or fall-out.
 
     .. math::
         \\text{FPR} = \\frac{\\text{FP}}{\\text{FP} + \\text{TN}}S
 
-    References
-    --------
-    https://www.iguazio.com/glossary/false-positive-rate/
-    
     Parameters
     ----------
     true : ture/observed/actual/target values. It must be a numpy array,
@@ -1337,12 +1263,10 @@ def positive_likelihood_ratio(true, predicted, average=None):
 
 def negative_likelihood_ratio(true, predicted, average=None):
     """
-    Negative likelihood ratio
+    `Negative likelihood ratio <https://en.wikipedia.org/wiki/Likelihood_ratios_in_diagnostic_testing#positive_likelihood_ratio>`_
 
     .. math::
         \\text{NLR} = 1 - \\frac{\\text{Sensitivity}}{\\text{Specificity}}
-
-    https://en.wikipedia.org/wiki/Likelihood_ratios_in_diagnostic_testing#positive_likelihood_ratio
 
     Parameters
     ----------
@@ -1368,12 +1292,10 @@ def negative_likelihood_ratio(true, predicted, average=None):
 
 def youden_index(true, predicted, average=None):
     """
-    Youden index, also known as informedness
+    `Youden index <https://en.wikipedia.org/wiki/Youden%27s_J_statistic>`_, also known as informedness
 
     .. math::
         J = \\text{TPR} + \\text{TNR} - 1 = \\text{sensitivity} + \\text{specificity} - 1
-
-    https://en.wikipedia.org/wiki/Youden%27s_J_statistic
 
     Parameters
     ----------
@@ -1398,7 +1320,7 @@ def youden_index(true, predicted, average=None):
 
 def fowlkes_mallows_index(true, predicted, average=None):
     """
-    Fowlkes–Mallows index
+    `Fowlkes–Mallows index <https://en.wikipedia.org/wiki/Fowlkes%E2%80%93Mallows_index>`_
 
     .. math::
         \\text{FMI} = \\sqrt{\\text{PPV} \\times \\text{TPR}}
@@ -1408,9 +1330,7 @@ def fowlkes_mallows_index(true, predicted, average=None):
 
     References
     ----------
-    https://scikit-learn.org/stable/modules/generated/sklearn.metrics.fowlkes_mallows_score.html
-
-    https://en.wikipedia.org/wiki/Fowlkes%E2%80%93Mallows_index
+    `fowlkes_mallows_score <https://scikit-learn.org/stable/modules/generated/sklearn.metrics.fowlkes_mallows_score.html>`_
 
     Parameters
     ----------
