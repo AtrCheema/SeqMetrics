@@ -358,7 +358,7 @@ class RegressionMetrics(Metrics):
 
     def covariance(self) -> float:
         """
-        Covariance
+        `Covariance <https://scikit-learn.org/stable/api/sklearn.covariance.html>`_
             .. math::
             Covariance = \\frac{1}{N} \\sum_{i=1}^{N}((e_{i} - \\bar{e}) * (s_{i} - \\bar{s}))
 
@@ -582,7 +582,7 @@ class RegressionMetrics(Metrics):
                        low_flow=low_flow)
 
     def gmae(self) -> float:
-        """ Geometric Mean Absolute Error
+        """ `Geometric Mean Absolute Error <https://doi.org/10.1016/j.isprsjprs.2024.04.015>`_
 
         .. math::
             GMAE = \\left( \\prod_{i=1}^{n} \\left| \\text{true}_i - \\text{predicted}_i \\right| \\right)^{\\frac{1}{n}}
@@ -599,7 +599,9 @@ class RegressionMetrics(Metrics):
         return gmae(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def gmean_diff(self) -> float:
-        """Geometric mean difference. First geometric mean is calculated for each
+        """
+        `Geometric mean difference <https://www.sciencedirect.com/science/article/abs/pii/S0022316624002281>`_.
+         First geometric mean is calculated for each
         of two samples and their difference is calculated.
 
         .. math::
@@ -675,7 +677,7 @@ class RegressionMetrics(Metrics):
                                        treat_arrays=False)
 
     def inrse(self) -> float:
-        """ Integral Normalized Root Squared Error
+        """ `Integral Normalized Root Squared Error <https://doi.org/10.1016/j.engappai.2023.107559>`_
 
         .. math::
             IN\\text{-}RSE = \\sqrt{\\frac{\\sum_{i=1}^{n} (\\text{true}_i - \\text{predicted}_i)^2}{\\sum_{i=1}^{n} (\\text{true}_i - \\overline{\\text{true}})^2}}
@@ -694,7 +696,8 @@ class RegressionMetrics(Metrics):
         return inrse(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def irmse(self) -> float:
-        """Inertial RMSE. RMSE divided by standard deviation of the gradient of true.
+        """ `Inertial RMSE <https://link.springer.com/article/10.1007/s11069-008-9299-2>`_.
+        RMSE divided by standard deviation of the gradient of true.
 
         .. math::
             \\text{IRMSE} = \\frac{\\sqrt{\\frac{1}{n} \\sum_{i=1}^{n} \\left( \\text{true}_i - \\text{predicted}_i \\right)^2}}{\\sqrt{\\frac{1}{n-2} \\sum_{i=1}^{n-1} \\left( (\\text{true}_{i+1} - \\text{true}_i) - \\overline{(\\text{true}_{i+1} - \\text{true}_i)} \\right)^2}}
@@ -1320,7 +1323,7 @@ class RegressionMetrics(Metrics):
         return median_abs_error(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def med_seq_error(self) -> float:
-        """Median Squared Error
+        """`Median Squared Error <https://www.sciencedirect.com/science/article/pii/S2468227620301757>`_
         Same as mse, but it takes median which reduces the impact of outliers.
 
         .. math::
@@ -1411,7 +1414,7 @@ class RegressionMetrics(Metrics):
 
     def msle(self, weights=None) -> float:
         """
-        mean square logrithmic error
+        `Mean square logrithmic error <https://scikit-learn.org/stable/modules/generated/sklearn.metrics.mean_squared_log_error.html>`_
 
         .. math::
             \\text{MSLE} = \\frac{\\sum_{i=1}^{n} w_i \\cdot \\text{sq_log_error}_i}{\\sum_{i=1}^{n} w_i}
@@ -1563,7 +1566,7 @@ class RegressionMetrics(Metrics):
         return norm_ape(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def nrmse(self) -> float:
-        """ Normalized Root Mean Squared Error
+        """ `Normalized Root Mean Squared Error <https://www.sciencedirect.com/science/article/pii/S0957417411003289>`_
 
         .. math::
             NRMSE = \\frac{\\sqrt{\\frac{1}{N} \\sum_{i=1}^{N} (\\text{true}_i - \\text{predicted}_i)^2}}{\\max(\\text{true}) - \\min(\text{true})}
@@ -1673,7 +1676,7 @@ class RegressionMetrics(Metrics):
 
     def nse_rel(self) -> float:
         """
-        Relative NSE.
+        `Relative Nash-Sutcliff Efficiency <https://doi.org/10.5194/adgeo-5-89-2005> `_.
 
         .. math::
             \\text{NSE}_{\\text{rel}} = 1 - \\frac{\\sum_{i=1}^{N} \\left( \\frac{|\\text{predicted}_i - \\text{true}_i|}{\\text{true}_i} \\right)^2}{\\sum_{i=1}^{N} \\left( \\frac{|\\text{true}_i - \\overline{\\text{true}}|}{\\overline{\\text{true}}} \\right)^2}
@@ -1963,7 +1966,8 @@ class RegressionMetrics(Metrics):
     def r2_score(self, weights=None):
         """
         This is not a symmetric function.
-        Unlike most other scores, R^2 score may be negative (it need not actually
+        Unlike most other scores, `R^2 score <https://scikit-learn.org/stable/modules/generated/sklearn.metrics.r2_score.html>`_
+        may be negative (it need not actually
         be the square of a quantity R).
         This metric is not well-defined for single samples and will return a NaN
         value if n_samples is less than two.
@@ -2196,8 +2200,7 @@ class RegressionMetrics(Metrics):
         ---------
             `Allan H. Murphy, 1988: Skill Scores Based on the Mean Square Error
             and Their Relationships to the Correlation Coefficient. Mon. Wea.
-            Rev., 116, 2417-2424.
-            <doi: http//dx.doi.org/10.1175/1520-0493(1988)<2417:SSBOTM>2.0.CO;2>`_
+            Rev., 116, 2417-2424 <doi: http//dx.doi.org/10.1175/1520-0493(1988)<2417:SSBOTM>2.0.CO;2>`_.
 
         Examples
         ---------
@@ -2869,7 +2872,7 @@ def nse_rel(true, predicted,
             **treat_arrays_kws
             ) -> float:
     """
-    Relative NSE.
+    `Relative Nash-Sutcliff Efficiency <https://doi.org/10.5194/adgeo-5-89-2005> `_.
 
     .. math::
         \\text{NSE}_{\\text{rel}} = 1 - \\frac{\\sum_{i=1}^{N} \\left( \\frac{|\\text{predicted}_i - \\text{true}_i|}{\\text{true}_i} \\right)^2}{\\sum_{i=1}^{N} \\left( \\frac{|\\text{true}_i - \\overline{\\text{true}}|}{\\overline{\\text{true}}} \\right)^2}
@@ -2940,7 +2943,8 @@ def r2_score(true, predicted, treat_arrays: bool = True, weights=None,
              **treat_arrays_kws):
     """
     This is not a symmetric function.
-    Unlike most other scores, R^2 score may be negative (it need not actually
+    Unlike most other scores, `R^2 score <https://scikit-learn.org/stable/modules/generated/sklearn.metrics.r2_score.html>`_
+    score may be negative (it need not actually
     be the square of a quantity R).
     This metric is not well-defined for single samples and will return a NaN
     value if n_samples is less than two.
@@ -3510,7 +3514,7 @@ def mape(
 
 def nrmse(true, predicted, treat_arrays: bool = True,
           **treat_arrays_kws) -> float:
-    """ Normalized Root Mean Squared Error
+    """ `Normalized Root Mean Squared Error <https://www.sciencedirect.com/science/article/pii/S0957417411003289>`_
 
     .. math::
         NRMSE = \\frac{\\sqrt{\\frac{1}{N} \\sum_{i=1}^{N} (\\text{true}_i - \\text{predicted}_i)^2}}{\\max(\\text{true}) - \\min(\text{true})}
@@ -3673,8 +3677,7 @@ def mae(true, predicted, treat_arrays: bool = True,
 
 def gmae(true, predicted, treat_arrays: bool = True,
          **treat_arrays_kws) -> float:
-    """ Geometric Mean Absolute Error
-
+    """ `Geometric Mean Absolute Error <https://doi.org/10.1016/j.isprsjprs.2024.04.015>`_
     .. math::
         GMAE = \\left( \\prod_{i=1}^{n} \\left| \\text{true}_i - \\text{predicted}_i \\right| \\right)^{\\frac{1}{n}}
 
@@ -3704,7 +3707,7 @@ def gmae(true, predicted, treat_arrays: bool = True,
 
 def inrse(true, predicted, treat_arrays: bool = True,
           **treat_arrays_kws) -> float:
-    """ Integral Normalized Root Squared Error
+    """ `Integral Normalized Root Squared Error <https://doi.org/10.1016/j.engappai.2023.107559>`_
 
     .. math::
         IN\\text{-}RSE = \\sqrt{\\frac{\\sum_{i=1}^{n} (\\text{true}_i - \\text{predicted}_i)^2}{\\sum_{i=1}^{n} (\\text{true}_i - \\overline{\\text{true}})^2}}
@@ -3735,7 +3738,8 @@ def inrse(true, predicted, treat_arrays: bool = True,
 
 def irmse(true, predicted, treat_arrays: bool = True,
           **treat_arrays_kws) -> float:
-    """Inertial RMSE. RMSE divided by standard deviation of the gradient of true.
+    """ `Inertial RMSE <https://link.springer.com/article/10.1007/s11069-008-9299-2>`_.
+    RMSE divided by standard deviation of the gradient of true.
 
     .. math::
         \\text{IRMSE} = \\frac{\\sqrt{\\frac{1}{n} \\sum_{i=1}^{n} \\left( \\text{true}_i - \\text{predicted}_i \\right)^2}}{\\sqrt{\\frac{1}{n-2} \\sum_{i=1}^{n-1} \\left( (\\text{true}_{i+1} - \\text{true}_i) - \\overline{(\\text{true}_{i+1} - \\text{true}_i)} \\right)^2}}
@@ -3845,7 +3849,7 @@ def mare(true, predicted, treat_arrays: bool = True, **treat_arrays_kws) -> floa
 
 def msle(true, predicted, treat_arrays=True, weights=None, **treat_arrays_kws) -> float:
     """
-    mean square logrithmic error
+    `Mean square logrithmic error <https://scikit-learn.org/stable/modules/generated/sklearn.metrics.mean_squared_log_error.html>`_
 
     .. math::
         \\text{MSLE} = \\frac{\\sum_{i=1}^{n} w_i \\cdot \\text{sq_log_error}_i}{\\sum_{i=1}^{n} w_i}
@@ -3886,7 +3890,7 @@ def covariance(
         **treat_arrays_kws
         ) -> float:
     """
-    Covariance
+    `Covariance <https://scikit-learn.org/stable/api/sklearn.covariance.html>`_
 
     .. math::
         Covariance = \\frac{1}{N} \\sum_{i=1}^{N}((e_{i} - \\bar{e}) * (s_{i} - \\bar{s}))
@@ -4795,7 +4799,8 @@ def fdc_flv(true, predicted, treat_arrays: bool = True, low_flow: float = 0.3,
 def gmean_diff(true, predicted, treat_arrays: bool = True,
                **treat_arrays_kws) -> float:
     """
-    Geometric mean difference. First geometric mean is calculated for true and
+    `Geometric mean difference<https://www.sciencedirect.com/science/article/abs/pii/S0022316624002281>`_.
+    First geometric mean is calculated for true and
     predicted arrays and their difference is calculated.
 
     .. math::
@@ -5769,7 +5774,7 @@ def median_abs_error(true, predicted, treat_arrays: bool = True,
 
 def med_seq_error(true, predicted, treat_arrays: bool = True,
                   **treat_arrays_kws) -> float:
-    """Median Squared Error
+    """ `Median Squared Error <https://www.sciencedirect.com/science/article/pii/S2468227620301757>`_
     Same as mse, but it takes median which reduces the impact of outliers.
 
     .. math::
@@ -6702,10 +6707,10 @@ def skill_score_murphy(true, predicted, treat_arrays: bool = True,
 
     References
     ---------
-        Allan H. Murphy, 1988: Skill Scores Based on the Mean Square Error
+        `Allan H. Murphy, 1988: Skill Scores Based on the Mean Square Error
         and Their Relationships to the Correlation Coefficient. Mon. Wea.
-        Rev., 116, 2417-2424.
-        doi: http//dx.doi.org/10.1175/1520-0493(1988)<2417:SSBOTM>2.0.CO;2
+        Rev., 116, 2417-2424
+        <doi: http//dx.doi.org/10.1175/1520-0493(1988)<2417:SSBOTM>2.0.CO;2>`_.
 
     .. _here:
         https://github.com/PeterRochford/SkillMetrics/blob/278b2f58c7d73566f25f10c9c16a15dc204f5869/skill_metrics/skill_score_murphy.py
