@@ -475,7 +475,8 @@ class RegressionMetrics(Metrics):
         return decomposed_mse(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def euclid_distance(self) -> float:
-        """Euclidian distance
+        """ `Euclidian distance <https://scikit-learn.org/stable/modules/generated/sklearn.metrics.pairwise.euclidean_distances.html>`_
+        taken from `this book <https://doi.org/10.1016/B978-0-12-088735-4.50006-7`_.
 
         .. math::
             D = \\sqrt{\\sum_{i=1}^{n} (\\text{true}_i - \\text{predicted}_i)^2}
@@ -890,7 +891,8 @@ class RegressionMetrics(Metrics):
         return kgenp_bound(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def kl_sym(self) -> Union[float, None]:
-        """Symmetric kullback-leibler divergence
+        """
+        `Symmetric kullback-leibler divergence <https://doi.org/10.1016/j.procs.2018.10.144>`_
 
         .. math::
             \\text{KL}_{\\text{sym}}(P || Q) = \\frac{1}{2} \\sum_{i=1}^{n} \\left( P_i - Q_i \\right) \\left( \\log_2 \\frac{P_i}{Q_i} \\right)
@@ -907,7 +909,8 @@ class RegressionMetrics(Metrics):
         return kl_sym(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def lm_index(self, obs_bar_p=None) -> float:
-        """Legate-McCabe Efficiency Index.
+        """
+        `Legate-McCabe Efficiency Index <https://doi.org/10.1016/j.cmpb.2023.107737>`_.
         Less sensitive to outliers in the data. The larger, the better
 
         .. math::
@@ -933,7 +936,7 @@ class RegressionMetrics(Metrics):
 
     def maape(self) -> float:
         """
-        Mean Arctangent Absolute Percentage Error
+        `Mean Arctangent Absolute Percentage Error <https://doi.org/10.1016/j.ijforecast.2015.12.003>`_
         Note: result is NOT multiplied by 100
 
         .. math::
@@ -1005,7 +1008,7 @@ class RegressionMetrics(Metrics):
         return mape(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def mbrae(self, benchmark: np.ndarray = None) -> float:
-        """ Mean Bounded Relative Absolute Error
+        """ `Mean Bounded Relative Absolute Error <https://doi.org/10.1371/journal.pone.0174202>`_
 
         .. math::
             MBRAE = \\frac{1}{n} \\sum_{i=1}^{n} \\frac{| \\text{true}_i - \\text{predicted}_i |}{| \\text{true}_i - \\text{benchmark}_i |}
@@ -1022,8 +1025,8 @@ class RegressionMetrics(Metrics):
         return mbrae(true=self.true, predicted=self.predicted, benchmark=benchmark,
                      treat_arrays=False)
 
-    def mapd(self) -> float:
-        """Mean absolute percentage deviation.
+    def mapd(self) -> float: #ToDo equation not multiplied by 100
+        """ `Mean absolute percentage deviation <https://doi.org/10.1016/j.rinma.2022.100347>`_
 
         .. math::
             MAPD = \\frac{\\sum_{i=1}^{n} \\left| predicted_i - true_i \\right|}{\\sum_{i=1}^{n} \\left| true_i \\right|}
@@ -1085,7 +1088,8 @@ class RegressionMetrics(Metrics):
 
     def max_error(self) -> float:
         """
-        maximum absolute error
+        `maximum absolute error <https://scikit-learn.org/stable/modules/generated/sklearn.metrics.max_error.html>`_
+        In Sklearn, there is "absolute" in equation but not in name of metric.
 
         .. math::
             \\text{Max Error} = \\max_{i=1}^n \\left| \\text{true}_i - \\text{predicted}_i \\right|
@@ -1140,7 +1144,8 @@ class RegressionMetrics(Metrics):
         return mda(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def mde(self) -> float:
-        """Median Error
+        """
+        `Median Error <https://doi.org/10.1016/j.cma.2024.116842>`_
 
         .. math::
             MDE = \\text{median}(\\text{predicted}_i - \\text{true}_i)
@@ -1158,7 +1163,7 @@ class RegressionMetrics(Metrics):
 
     def mdape(self) -> float:
         """
-        Median Absolute Percentage Error
+        `Median Absolute Percentage Error <https://doi.org/10.1016/j.petrol.2021.109265>`_. The value is multiplied by 100.
 
         .. math::
             \\text{MdAPE} = 100 \\times \\text{Median} \\left( \\left\\{ \\frac{|\\text{true}_i - \\text{predicted}_i|}{|\\text{true}_i|} \\right\\}_{i=1}^n \\right)
@@ -1175,7 +1180,8 @@ class RegressionMetrics(Metrics):
         return mdape(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def mdrae(self, benchmark: np.ndarray = None) -> float:
-        """ Median Relative Absolute Error
+        """ `Median Relative Absolute Error <https://scikit-learn.org/stable/modules/generated/sklearn.metrics.median_absolute_error.html>`_
+        In Sklearn, there is "absolute" in equation but not in name of metric.
 
         .. math::
             MdRAE = \\text{median} \\left( \\left| \\frac{true_i - predicted_i}{true_i - benchmark_i} \\right| \\right)
@@ -1193,7 +1199,7 @@ class RegressionMetrics(Metrics):
                      benchmark=benchmark)
 
     def me(self):
-        """Mean error
+        """ `Mean error <https://doi.org/10.1016/j.scitotenv.2024.174533>`_
 
         .. math::
             ME = \\frac{1}{n} \\sum_{i=1}^{n} (\\text{true}_i - \\text{predicted}_i)
@@ -1282,7 +1288,7 @@ class RegressionMetrics(Metrics):
 
     def mean_gamma_deviance(self, weights=None) -> float:
         """
-        mean gamma deviance
+        `mean gamma deviance <https://scikit-learn.org/stable/modules/generated/sklearn.metrics.mean_gamma_deviance.html>`_
 
         .. math::
             \\text{Mean Gamma Deviance (Weighted)} = \\frac{1}{\\sum_{i=1}^{n} w_i} \\sum_{i=1}^{n} w_i \\frac{2}{\\text{true}_i} \\left( \\text{predicted}_i - \\text{true}_i - \\text{true}_i \\ln \\left( \\frac{\\text{predicted}_i}{\\text{true}_i} \\right) \\right)
@@ -1335,24 +1341,24 @@ class RegressionMetrics(Metrics):
         >>> from SeqMetrics import RegressionMetrics
         >>> t = np.random.random(10)
         >>> p = np.random.random(10)
-        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics = RegressionMetrics(t, p)
         >>> metrics.med_seq_error()
         """
         return med_seq_error(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def mle(self) -> float:
-        """Mean log error
+        """ `Mean log error <https://doi.org/10.1038/s41598-023-29871-8>`_
 
         .. math::
             \\text{MLE} = \\frac{1}{n} \\sum_{i=1}^{n} \\left( \\log(1 + \\text{predicted}_i) - \\log(1 + \\text{true}_i) \\right)
 
-            Examples
+        Examples
         ---------
         >>> import numpy as np
         >>> from SeqMetrics import RegressionMetrics
         >>> t = np.random.random(10)
         >>> p = np.random.random(10)
-        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics = RegressionMetrics(t, p)
         >>> metrics.mle()
         """
         return mle(true=self.true, predicted=self.predicted, treat_arrays=False)
@@ -1370,19 +1376,20 @@ class RegressionMetrics(Metrics):
         >>> from SeqMetrics import RegressionMetrics
         >>> t = np.random.random(10)
         >>> p = np.random.random(10)
-        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics = RegressionMetrics(t, p)
         >>> metrics.mod_agreement_index()
         """
         return mod_agreement_index(true=self.true, predicted=self.predicted,
                                    treat_arrays=False, j=j)
 
     def mpe(self) -> float:
-        """ Mean Percentage Error
+        """ `Mean Percentage Error <https://doi.org/10.1016/j.molliq.2023.123378>`_
+        The value is multiplied by 100 to reflect percentage.
 
         .. math::
             MPE = \\frac{1}{n} \\sum_{i=1}^{n} \\left( \\frac{true_i - predicted_i}{true_i} \\right) \\times 100
 
-            Examples
+        Examples
         ---------
         >>> import numpy as np
         >>> from SeqMetrics import RegressionMetrics
@@ -1394,7 +1401,7 @@ class RegressionMetrics(Metrics):
         return mpe(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def mrae(self, benchmark: np.ndarray = None):
-        """ Mean Relative Absolute Error
+        """ `Mean Relative Absolute Error <https://doi.org/10.1016/j.comnet.2024.110237>`_
 
         .. math::
             MRAE = \\frac{1}{n} \\sum_{i=1}^{n} \\left| \\frac{\\text{true}_i - \\text{predicted}_i}{\\text{benchmark}_i} \\right|
@@ -1433,7 +1440,7 @@ class RegressionMetrics(Metrics):
 
     def mre(self, benchmark:np.ndarray=None):
         """
-        Mean Relative Error
+        `mean relative error <https://doi.org/10.1016/j.trd.2022.103505>`_
 
         .. math::
             \\text{MRE} = \\frac{1}{n} \\sum_{i=1}^{n} \\left| \\frac{\\text{true}_i - \\text{predicted}_i}{\\text{true}_i} \\right|
@@ -1451,7 +1458,7 @@ class RegressionMetrics(Metrics):
         return mre(self.true, self.predicted, treat_arrays=False, benchmark=benchmark)
 
     def norm_euclid_distance(self) -> float:
-        """Normalized Euclidian distance
+        """ `Normalized Euclidian distance <https://scikit-learn.org/stable/modules/generated/sklearn.metrics.pairwise.euclidean_distances.html>`_
 
         .. math::
             D_{norm} = \\sqrt{\\sum_{i=1}^{n} \\left( \\frac{\\text{true}_i}{\\bar{\\text{true}}} - \\frac{\\text{predicted}_i}{\\bar{\\text{predicted}}} \\right)^2}
@@ -1531,7 +1538,7 @@ class RegressionMetrics(Metrics):
         return nrmse_mean(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def norm_ae(self) -> float:
-        """ Normalized Absolute Error
+        """ `Normalized Absolute Error <https://doi.org/10.1016/j.apor.2024.104042>`_
 
         .. math::
             norm\\_ae = \\sqrt{\\frac{\\sum_{i=1}^{n} (error_i - MAE)^2}{n - 1}}
@@ -1807,7 +1814,8 @@ class RegressionMetrics(Metrics):
 
     def rmdspe(self) -> float:
         """
-        Root Median Squared Percentage Error
+        `Root Median Squared Percentage Error <https://scikit-learn.org/stable/modules/generated/sklearn.metrics.root_mean_squared_error.html>`_.
+        The value is multiplied by 100 to reflect percentage.
 
         .. math::
             \\text{RMDSPE} = \\sqrt{\\text{median}\\left(\\left(\\frac{\\text{true}_i - \\text{predicted}_i}{\\text{true}_i} \\times 100\\right)^2\\right)}
@@ -1841,7 +1849,7 @@ class RegressionMetrics(Metrics):
         return rse(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def rrse(self) -> float:
-        """ Root Relative Squared Error
+        """ `Root Relative Squared Error <https://www.sciencedirect.com/science/article/pii/S0360319923031798>`_
 
         .. math::
             RRSE = \\sqrt{\\frac{\\sum_{i=1}^{n} (\\text{true}_i - \\text{predicted}_i)^2}{\\sum_{i=1}^{n} (\\text{true}_i - \\bar{\\text{true}})^2}}
@@ -1858,7 +1866,7 @@ class RegressionMetrics(Metrics):
         return rrse(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def rae(self) -> float:
-        """ Relative Absolute Error (aka Approximation Error)
+        """ `Relative Absolute Error <https://doi.org/10.1016/j.compbiomed.2017.02.010>`_ (aka Approximation Error)
 
         .. math::
             \\text{RAE} = \\frac{\\sum_{i=1}^{n} \\left| \\text{true}_i - \\text{predicted}_i \\right|}{\\sum_{i=1}^{n} \\left| \\text{true}_i - \\overline{\\text{true}} \\right|}
@@ -1903,7 +1911,7 @@ class RegressionMetrics(Metrics):
         return ref_agreement_index(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def rel_agreement_index(self) -> float:
-        """Relative index of agreement. from 0 to 1. larger the better.
+        """ `Relative index of agreement <https://doi.org/10.1007/s10661-022-10844-9>`_. from 0 to 1. larger the better.
 
         .. math::
             \\text{rel_agreement_index} = 1 - \\frac{\\sum_{i=1}^{n} \\left( \\frac{\\text{predicted}_i - \\text{true}_i}{\\text{true}_i} \\right)^2}{\\sum_{i=1}^{n} \\left( \\frac{|\\text{predicted}_i - \\bar{\\text{true}}| + |\\text{true}_i - \\bar{\\text{true}}|}{\\bar{\\text{true}}} \\right)^2}
@@ -2214,7 +2222,7 @@ class RegressionMetrics(Metrics):
         return skill_score_murphy(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def spearmann_corr(self) -> float:
-        """Separmann correlation coefficient_.
+        """ `Separmann correlation coefficient <https://hess.copernicus.org/articles/24/2505/2020/hess-24-2505-2020.pdf>`_.
 
         This is a nonparametric metric and assesses how well the relationship
         between the true and predicted data can be described using a monotonic
@@ -2222,10 +2230,6 @@ class RegressionMetrics(Metrics):
 
         .. math::
             r = \\frac{\\sum_{i=1}^{n} \\left( R_{t,i} - \\overline{R_t} \\right) \\left( R_{p,i} - \\overline{R_p} \\right)}{\\sqrt{ \\sum_{i=1}^{n} \\left( R_{t,i} - \\overline{R_t} \\right)^2 \\sum_{i=1}^{n} \\left( R_{p,i} - \\overline{R_p} \\right)^2 }}
-
-
-        .. _coefficient:
-            https://hess.copernicus.org/articles/24/2505/2020/hess-24-2505-2020.pdf
 
         Examples
         ---------
@@ -2268,7 +2272,7 @@ class RegressionMetrics(Metrics):
         return sse(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def std_ratio(self, **kwargs) -> float:
-        """ratio of standard deviations of predictions and trues.
+        """ `Ratio of standard deviations of predictions and trues <https://doi.org/10.1016/j.engfracmech.2024.110057>`_.
         Also known as standard ratio, it varies from 0.0 to infinity while
         1.0 being the perfect value.
 
@@ -2287,7 +2291,7 @@ class RegressionMetrics(Metrics):
         return std_ratio(true=self.true, predicted=self.predicted, treat_arrays=False, **kwargs)
 
     def umbrae(self, benchmark: np.ndarray = None):
-        """ Unscaled Mean Bounded Relative Absolute Error
+        """ `Unscaled Mean Bounded Relative Absolute Error <https://doi.org/10.1016/j.jclepro.2022.135414>`_
 
         .. math::
             UMBRAE = \\frac{\\frac{1}{n} \\sum_{i=1}^{n} \\frac{|t_i - p_i|}{|t_i - b_i|}}{1 - \\frac{1}{n} \\sum_{i=1}^{n} \\frac{|t_i - p_i|}{|t_i - b_i|}}
@@ -2428,7 +2432,8 @@ class RegressionMetrics(Metrics):
 
     def concordance_corr_coef(self) -> float:
         """
-        Concordance Correlation Coefficient (CCC)
+        `Concordance Correlation Coefficient (CCC) <https://en.wikipedia.org/wiki/Concordance_correlation_coefficient>`_
+        taken from this `paper <https://doi.org/10.2307/2532051>`_.
 
         .. math::
             CCC = \\frac{2 \\rho \\sigma_{true} \\sigma_{predicted}}{\\sigma_{true}^2 + \\sigma_{predicted}^2 + (\\bar{true} - \\bar{predicted})^2}
@@ -2446,7 +2451,7 @@ class RegressionMetrics(Metrics):
 
     def critical_success_index(self, threshold= 0.5) -> float:
         """
-        Critical Success Index (CSI)
+        `Critical Success Index (CSI) <https://doi.org/10.1016/j.heliyon.2024.e26371>`_
 
         .. math::
             CSI = \\frac{TP}{TP + FN + FP}
@@ -2465,7 +2470,7 @@ class RegressionMetrics(Metrics):
 
     def kl_divergence(self) -> float:
         """
-        Kullback-Leibler Divergence
+        `Kullback-Leibler Divergence <https://doi.org/10.1016/j.imu.2024.101510>`_
 
         .. math::
             D_{KL}(P||Q) = \sum_{x\in\mathcal{X}} P(x) \log\frac{P(x)}{Q{x}}
@@ -2483,7 +2488,7 @@ class RegressionMetrics(Metrics):
 
     def log_cosh_error(self) -> float:
         """
-        Log-Cosh Error
+        `Log-Cosh Error <https://doi.org/10.1016/j.compchemeng.2022.107933>`_
 
         .. math::
             \\text{Log-Cosh Error} = \\frac{1}{n} \\sum_{i=1}^{n} \\log \\left( \\cosh(\\text{predicted}_i - \\text{true}_i) \\right)
@@ -2501,7 +2506,7 @@ class RegressionMetrics(Metrics):
 
     def minkowski_distance(self, order= 1) -> float:
         """
-        Minkowski Distance
+        `Minkowski Distance <https://doi.org/10.1016/j.imu.2024.101492>`_
 
         .. math::
             D_{Minkowski} = \\left( \\sum_{i=1}^{n} \\left| \\text{true}_i - \\text{predicted}_i \\right|^p \\right)^{\\frac{1}{p}}
@@ -2520,7 +2525,7 @@ class RegressionMetrics(Metrics):
 
     def tweedie_deviance_score(self, power=0) -> float:
         """
-        Tweedie Deviance Score
+        `Tweedie Deviance Score <https://scikit-learn.org/stable/modules/generated/sklearn.metrics.mean_tweedie_deviance.html>`_
 
         .. math::
             D(\\text{true}, \\text{predicted}) = \\frac{1}{n} \\sum_{i=1}^{n} (\\text{true}_i - \\text{predicted}_i)^2
@@ -2632,7 +2637,7 @@ class RegressionMetrics(Metrics):
 
     def mse(self) -> float:
         """
-        Mean Square Error
+        `Mean Square Error <https://scikit-learn.org/stable/modules/generated/sklearn.metrics.mean_squared_error.html>`_
 
         .. math::
             MSE = \\frac{\\sum_{i=1}^{N} w_i (true_i - predicted_i)^2}{\\sum_{i=1}^{N} w_i}
@@ -2651,7 +2656,8 @@ class RegressionMetrics(Metrics):
 
     def mape_for_peaks(self) -> float:
         """
-        Mean Absolute Percentage Error for peaks which are found using scipy.singnal.find_peaks
+        Mean Absolute Percentage Error for peaks which are found using
+        `scipy.singnal.find_peaks <https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.find_peaks.html>`_
 
         .. math::
             \\text{MAPE}_\\text{peak} = \\frac{1}{P}\\sum_{p=1}^{P} \\left |\\frac{Q_{s,p} - Q_{o,p}}{Q_{o,p}} \\right | \\times 100,
@@ -3223,7 +3229,7 @@ def spearmann_corr(
         **treat_arrays_kws
 )->float:
     """
-    Spearman correlation coefficient
+    `Separmann correlation coefficient <https://hess.copernicus.org/articles/24/2505/2020/hess-24-2505-2020.pdf>`_.
 
     .. math::
         r = \\frac{\\sum_{i=1}^{n} \\left( R_{t,i} - \\overline{R_t} \\right) \\left( R_{p,i} - \\overline{R_p} \\right)}{\\sqrt{ \\sum_{i=1}^{n} \\left( R_{t,i} - \\overline{R_t} \\right)^2 \\sum_{i=1}^{n} \\left( R_{p,i} - \\overline{R_p} \\right)^2 }}
@@ -4565,7 +4571,8 @@ def decomposed_mse(true, predicted, treat_arrays: bool = True,
 
 def euclid_distance(true, predicted, treat_arrays: bool = True,
                     **treat_arrays_kws) -> float:
-    """`Euclidian distance <https://doi.org/10.1016/B978-0-12-088735-4.50006-7>`_
+    """ `Euclidian distance <https://scikit-learn.org/stable/modules/generated/sklearn.metrics.pairwise.euclidean_distances.html>`_
+    taken from `this book <https://doi.org/10.1016/B978-0-12-088735-4.50006-7`_.
 
     .. math::
         D = \\sqrt{\\sum_{i=1}^{n} (\\text{true}_i - \\text{predicted}_i)^2}
@@ -4799,7 +4806,7 @@ def fdc_flv(true, predicted, treat_arrays: bool = True, low_flow: float = 0.3,
 def gmean_diff(true, predicted, treat_arrays: bool = True,
                **treat_arrays_kws) -> float:
     """
-    `Geometric mean difference<https://www.sciencedirect.com/science/article/abs/pii/S0022316624002281>`_.
+    `Geometric mean difference <https://www.sciencedirect.com/science/article/abs/pii/S0022316624002281>`_.
     First geometric mean is calculated for true and
     predicted arrays and their difference is calculated.
 
@@ -5129,7 +5136,8 @@ def kgenp_bound(true, predicted, treat_arrays: bool = True,
 
 def kl_sym(true, predicted, treat_arrays: bool = True,
            **treat_arrays_kws) -> Union[float, None]:
-    """Symmetric kullback-leibler divergence
+    """
+    `Symmetric kullback-leibler divergence <https://doi.org/10.1016/j.procs.2018.10.144>`_
 
     .. math::
         \\text{KL}_{\\text{sym}}(P || Q) = \\frac{1}{2} \\sum_{i=1}^{n} \\left( P_i - Q_i \\right) \\left( \\log_2 \\frac{P_i}{Q_i} \\right)
@@ -5167,7 +5175,8 @@ def kl_sym(true, predicted, treat_arrays: bool = True,
 
 def lm_index(true, predicted, treat_arrays: bool = True, obs_bar_p=None,
              **treat_arrays_kws) -> float:
-    """Legate-McCabe Efficiency Index.
+    """
+    `Legate-McCabe Efficiency Index <https://doi.org/10.1016/j.cmpb.2023.107737>`_.
     Less sensitive to outliers in the data. The larger, the better
 
     .. math::
@@ -5216,7 +5225,7 @@ def lm_index(true, predicted, treat_arrays: bool = True, obs_bar_p=None,
 def maape(true, predicted, treat_arrays: bool = True,
           **treat_arrays_kws) -> float:
     """
-    Mean Arctangent Absolute Percentage Error
+    `Mean Arctangent Absolute Percentage Error <https://doi.org/10.1016/j.ijforecast.2015.12.003>`_
     Note: result is NOT multiplied by 100
 
     .. math::
@@ -5295,7 +5304,7 @@ def _bounded_relative_error(
 
 def mbrae(true, predicted, treat_arrays: bool = True, benchmark: np.ndarray = None,
           **treat_arrays_kws) -> float:
-    """ Mean Bounded Relative Absolute Error
+    """ `Mean Bounded Relative Absolute Error <https://doi.org/10.1371/journal.pone.0174202>`_
 
     .. math::
         MBRAE = \\frac{1}{n} \\sum_{i=1}^{n} \\frac{| \\text{true}_i - \\text{predicted}_i |}{| \\text{true}_i - \\text{benchmark}_i |}
@@ -5323,9 +5332,9 @@ def mbrae(true, predicted, treat_arrays: bool = True, benchmark: np.ndarray = No
     return float(np.mean(_bounded_relative_error(true, predicted, benchmark=benchmark)))
 
 
-def mapd(true, predicted, treat_arrays: bool = True,
+def mapd(true, predicted, treat_arrays: bool = True, #ToDo equation not multiplied by 100
          **treat_arrays_kws) -> float:
-    """Mean absolute percentage deviation.
+    """ `Mean absolute percentage deviation <https://doi.org/10.1016/j.rinma.2022.100347>`_
 
     .. math::
         MAPD = \\frac{\\sum_{i=1}^{n} \\left| predicted_i - true_i \\right|}{\\sum_{i=1}^{n} \\left| true_i \\right|}
@@ -5371,7 +5380,8 @@ def _ae(true, predicted):
 def max_error(true, predicted, treat_arrays: bool = True,
               **treat_arrays_kws) -> float:
     """
-    maximum absolute error
+    `maximum absolute error <https://scikit-learn.org/stable/modules/generated/sklearn.metrics.max_error.html>`_
+    In Sklearn, there is "absolute" in equation but not in name of metric.
 
     .. math::
         \\text{Max Error} = \\max_{i=1}^n \\left| \\text{true}_i - \\text{predicted}_i \\right|
@@ -5476,7 +5486,8 @@ def mda(
 
 def mde(true, predicted, treat_arrays: bool = True,
         **treat_arrays_kws) -> float:
-    """Median Error
+    """
+    `Median Error <https://doi.org/10.1016/j.cma.2024.116842>`_
 
     .. math::
         MDE = \\text{median}(\\text{predicted}_i - \\text{true}_i)
@@ -5506,7 +5517,7 @@ def mde(true, predicted, treat_arrays: bool = True,
 def mdape(true, predicted, treat_arrays: bool = True,
           **treat_arrays_kws) -> float:
     """
-    Median Absolute Percentage Error. The value is multiplied by 100.
+    `Median Absolute Percentage Error <https://doi.org/10.1016/j.petrol.2021.109265>`_. The value is multiplied by 100.
 
     .. math::
         \\text{MdAPE} = 100 \\times \\text{Median} \\left( \\left\\{ \\frac{|\\text{true}_i - \\text{predicted}_i|}{|\\text{true}_i|} \\right\\}_{i=1}^n \\right)
@@ -5535,7 +5546,9 @@ def mdape(true, predicted, treat_arrays: bool = True,
 
 def mdrae(true, predicted, treat_arrays: bool = True, benchmark: np.ndarray = None,
           **treat_arrays_kws) -> float:
-    """ Median Relative Absolute Error
+    """
+    `Median Relative Absolute Error <https://scikit-learn.org/stable/modules/generated/sklearn.metrics.median_absolute_error.html>`_
+    In Sklearn, there is "absolute" in equation but not in name of metric.
 
     .. math::
         MdRAE = \\text{median} \\left( \\left| \\frac{true_i - predicted_i}{true_i - benchmark_i} \\right| \\right)
@@ -5565,7 +5578,7 @@ def mdrae(true, predicted, treat_arrays: bool = True, benchmark: np.ndarray = No
 
 def me(true, predicted, treat_arrays: bool = True,
        **treat_arrays_kws):
-    """Mean error
+    """ `Mean error <https://doi.org/10.1016/j.scitotenv.2024.174533>`_
 
     .. math::
         ME = \\frac{1}{n} \\sum_{i=1}^{n} (\\text{true}_i - \\text{predicted}_i)
@@ -5580,7 +5593,7 @@ def me(true, predicted, treat_arrays: bool = True,
     treat_arrays :
         process the true and predicted arrays using maybe_treat_arrays function
 
-        Examples
+    Examples
     ---------
     >>> import numpy as np
     >>> from SeqMetrics import me
@@ -5710,7 +5723,7 @@ def mean_poisson_deviance(true, predicted, treat_arrays: bool = True, weights=No
 def mean_gamma_deviance(true, predicted, treat_arrays: bool = True, weights=None,
                         **treat_arrays_kws) -> float:
     """
-    mean gamma deviance
+    `mean gamma deviance <https://scikit-learn.org/stable/modules/generated/sklearn.metrics.mean_gamma_deviance.html>`_
 
     .. math::
         \\text{Mean Gamma Deviance (Weighted)} = \\frac{1}{\\sum_{i=1}^{n} w_i} \\sum_{i=1}^{n} w_i \\frac{2}{\\text{true}_i} \\left( \\text{predicted}_i - \\text{true}_i - \\text{true}_i \\ln \\left( \\frac{\\text{predicted}_i}{\\text{true}_i} \\right) \\right)
@@ -5805,7 +5818,7 @@ def med_seq_error(true, predicted, treat_arrays: bool = True,
 
 def mle(true, predicted, treat_arrays=True,
         **treat_arrays_kws) -> float:
-    """Mean log error
+    """ `Mean log error <https://doi.org/10.1038/s41598-023-29871-8>`_
 
     .. math::
         \\text{MLE} = \\frac{1}{n} \\sum_{i=1}^{n} \\left( \\log(1 + \\text{predicted}_i) - \\log(1 + \\text{true}_i) \\right)
@@ -5820,7 +5833,7 @@ def mle(true, predicted, treat_arrays=True,
     treat_arrays :
         process the true and predicted arrays using maybe_treat_arrays function
 
-        Examples
+    Examples
     ---------
     >>> import numpy as np
     >>> from SeqMetrics import mle
@@ -5874,7 +5887,9 @@ def mpe(
         treat_arrays: bool = True,
         **treat_arrays_kws
         ) -> float:
-    """Mean Percentage Error. The value is multiplied by 100 to reflect percentage.
+    """
+    `Mean Percentage Error <https://doi.org/10.1016/j.molliq.2023.123378>`_.
+    The value is multiplied by 100 to reflect percentage.
 
     .. math::
         MPE = \\frac{1}{n} \\sum_{i=1}^{n} \\left( \\frac{true_i - predicted_i}{true_i} \\right) \\times 100
@@ -5889,7 +5904,7 @@ def mpe(
     treat_arrays :
         process the true and predicted arrays using maybe_treat_arrays function
 
-        Examples
+    Examples
     ---------
     >>> import numpy as np
     >>> from SeqMetrics import mpe
@@ -5903,7 +5918,7 @@ def mpe(
 
 def mrae(true, predicted, treat_arrays: bool = True, benchmark: np.ndarray = None,
          **treat_arrays_kws):
-    """ Mean Relative Absolute Error
+    """ `Mean Relative Absolute Error <https://doi.org/10.1016/j.comnet.2024.110237>`_
 
     .. math::
         MRAE = \\frac{1}{n} \\sum_{i=1}^{n} \\left| \\frac{\\text{true}_i - \\text{predicted}_i}{\\text{benchmark}_i} \\right|
@@ -5933,7 +5948,7 @@ def mrae(true, predicted, treat_arrays: bool = True, benchmark: np.ndarray = Non
 
 def norm_euclid_distance(true, predicted, treat_arrays: bool = True,
                          **treat_arrays_kws) -> float:
-    """Normalized Euclidian distance
+    """ `Normalized Euclidian distance <https://scikit-learn.org/stable/modules/generated/sklearn.metrics.pairwise.euclidean_distances.html>`_
 
     .. math::
         D_{norm} = \\sqrt{\\sum_{i=1}^{n} \\left( \\frac{\\text{true}_i}{\\bar{\\text{true}}} - \\frac{\\text{predicted}_i}{\\bar{\\text{predicted}}} \\right)^2}
@@ -6077,7 +6092,7 @@ def nrmse_mean(true, predicted, treat_arrays: bool = True,
 
 def norm_ae(true, predicted, treat_arrays: bool = True,
             **treat_arrays_kws) -> float:
-    """ Normalized Absolute Error
+    """ `Normalized Absolute Error <https://doi.org/10.1016/j.apor.2024.104042>`_
 
     .. math::
         norm\\_ae = \\sqrt{\\frac{\\sum_{i=1}^{n} (error_i - MAE)^2}{n - 1}}
@@ -6143,8 +6158,8 @@ def log_prob(true, predicted, treat_arrays: bool = True,
 def rmdspe(true, predicted, treat_arrays: bool = True,
            **treat_arrays_kws) -> float:
     """
-    Root Median Squared Percentage Error. The percentage error is 
-    calulated as percentage instead of fraction by multilying with 100.
+    `Root Median Squared Percentage Error <https://scikit-learn.org/stable/modules/generated/sklearn.metrics.root_mean_squared_error.html>`_.
+    The value is multiplied by 100 to reflect percentage.
 
     .. math::
         \\text{RMDSPE} = \\sqrt{\\text{median}\\left(\\left(\\frac{\\text{true}_i - \\text{predicted}_i}{\\text{true}_i} \\times 100\\right)^2\\right)}
@@ -6206,7 +6221,7 @@ def rse(
 
 def rrse(true, predicted, treat_arrays: bool = True,
          **treat_arrays_kws) -> float:
-    """ Root Relative Squared Error
+    """ `Root Relative Squared Error <https://www.sciencedirect.com/science/article/pii/S0360319923031798>`_
 
     .. math::
         RRSE = \\sqrt{\\frac{\\sum_{i=1}^{n} (\\text{true}_i - \\text{predicted}_i)^2}{\\sum_{i=1}^{n} (\\text{true}_i - \\bar{\\text{true}})^2}}
@@ -6234,7 +6249,7 @@ def rrse(true, predicted, treat_arrays: bool = True,
 
 def rae(true, predicted, treat_arrays: bool = True,
         **treat_arrays_kws) -> float:
-    """ Relative Absolute Error (aka Approximation Error)
+    """ `Relative Absolute Error <https://doi.org/10.1016/j.compbiomed.2017.02.010>`_ (aka Approximation Error)
 
     .. math::
         \\text{RAE} = \\frac{\\sum_{i=1}^{n} \\left| \\text{true}_i - \\text{predicted}_i \\right|}{\\sum_{i=1}^{n} \\left| \\text{true}_i - \\overline{\\text{true}} \\right|}
@@ -6308,7 +6323,7 @@ def ref_agreement_index(true, predicted, treat_arrays: bool = True,
 
 def rel_agreement_index(true, predicted, treat_arrays: bool = True,
                         **treat_arrays_kws) -> float:
-    """Relative index of agreement. from 0 to 1. larger the better.
+    """ `Relative index of agreement <https://doi.org/10.1007/s10661-022-10844-9>`_. from 0 to 1. larger the better.
 
     .. math::
         \\text{rel_agreement_index} = 1 - \\frac{\\sum_{i=1}^{n} \\left( \\frac{\\text{predicted}_i - \\text{true}_i}{\\text{true}_i} \\right)^2}{\\sum_{i=1}^{n} \\left( \\frac{|\\text{predicted}_i - \\bar{\\text{true}}| + |\\text{true}_i - \\bar{\\text{true}}|}{\\bar{\\text{true}}} \\right)^2}
@@ -6753,7 +6768,7 @@ def std_ratio(true,
               **treat_arrays_kws
               ) -> float:
     """
-    Ratio of standard deviations of predictions and trues.
+    `Ratio of standard deviations of predictions and trues <https://doi.org/10.1016/j.engfracmech.2024.110057>`_.
     Also known as standard ratio, it varies from 0.0 to infinity while
     1.0 being the perfect value.
 
@@ -6788,7 +6803,7 @@ def std_ratio(true,
 def umbrae(
         true, predicted, treat_arrays: bool = True, benchmark: np.ndarray = None,
            **treat_arrays_kws):
-    """Unscaled Mean Bounded Relative Absolute Error
+    """ `Unscaled Mean Bounded Relative Absolute Error <https://doi.org/10.1016/j.jclepro.2022.135414>`_
 
     .. math::
         UMBRAE = \\frac{\\frac{1}{n} \\sum_{i=1}^{n} \\frac{|t_i - p_i|}{|t_i - b_i|}}{1 - \\frac{1}{n} \\sum_{i=1}^{n} \\frac{|t_i - p_i|}{|t_i - b_i|}}
@@ -7038,7 +7053,7 @@ def norm_ape(true, predicted, treat_arrays: bool = True,
 def mse(true, predicted, treat_arrays: bool = True, weights=None,
         **treat_arrays_kws) -> float:
     """
-    Mean Square Error
+    `Mean Square Error <https://scikit-learn.org/stable/modules/generated/sklearn.metrics.mean_squared_error.html>`_
 
     .. math::
         MSE = \\frac{\\sum_{i=1}^{N} w_i (true_i - predicted_i)^2}{\\sum_{i=1}^{N} w_i}
@@ -7101,7 +7116,8 @@ def concordance_corr_coef(
         true, predicted, treat_arrays: bool = True, **treat_arrays_kws
 ) -> float:
     """
-    Concordance Correlation Coefficient (CCC)
+    `Concordance Correlation Coefficient (CCC) <https://en.wikipedia.org/wiki/Concordance_correlation_coefficient>`_
+    taken from this `paper <https://doi.org/10.2307/2532051>`_.
 
     .. math::
         CCC = \\frac{2 \\rho \\sigma_{true} \\sigma_{predicted}}{\\sigma_{true}^2 + \\sigma_{predicted}^2 + (\\bar{true} - \\bar{predicted})^2}
@@ -7150,7 +7166,7 @@ def critical_success_index(
         true, predicted,treat_arrays: bool = True, threshold=0.5, **treat_arrays_kws
 )->float:
     """
-    Critical Success Index (CSI)
+    `Critical Success Index (CSI) <https://doi.org/10.1016/j.heliyon.2024.e26371>`_
 
     .. math::
         CSI = \\frac{TP}{TP + FN + FP}
@@ -7171,8 +7187,8 @@ def critical_success_index(
     ---------
     >>> import numpy as np
     >>> from SeqMetrics import critical_success_index
-    >>> t = np.array([0, 1, 1, 0, 0, 1])
-    >>> p = np.array([0, 1, 0, 1, 1, 1])
+    >>> t = np.array([0.4, 0.1, 0.1, 0.3, 0.7, 0.1])
+    >>> p = np.array([0.8, 0.11, 0.5, 0.1, 0.1, 0.1])
     >>> critical_success_index(t, p)
     """
     true, predicted = maybe_treat_arrays(treat_arrays, true, predicted, 'regression', **treat_arrays_kws)
@@ -7192,7 +7208,7 @@ def kl_divergence(
         true, predicted, treat_arrays: bool = True, **treat_arrays_kws
 )->float:
     """
-    Kullback-Leibler Divergence
+    `Kullback-Leibler Divergence <https://doi.org/10.1016/j.imu.2024.101510>`_
 
     .. math::
         D_{KL}(P \\parallel Q) = \\sum_{i} P(i) \\log \\left( \\frac{P(i)}{Q(i)} \\right)
@@ -7232,7 +7248,7 @@ def log_cosh_error(
         true, predicted, treat_arrays: bool = True, **treat_arrays_kws
 )->float:
     """
-    Log-Cosh Error
+    `Log-Cosh Error <https://doi.org/10.1016/j.compchemeng.2022.107933>`_
 
     .. math::
         \\text{Log-Cosh Error} = \\frac{1}{n} \\sum_{i=1}^{n} \\log \\left( \\cosh(\\text{predicted}_i - \\text{true}_i) \\right)
@@ -7268,7 +7284,7 @@ def minkowski_distance(
         true, predicted, order =1, treat_arrays: bool = True, **treat_arrays_kws
 )->float:
     """
-    Minkowski Distance
+    `Minkowski Distance <https://doi.org/10.1016/j.imu.2024.101492>`_
 
     .. math::
         D_{Minkowski} = \\left( \\sum_{i=1}^{n} \\left| \\text{true}_i - \\text{predicted}_i \\right|^p \\right)^{\\frac{1}{p}}
@@ -7307,7 +7323,7 @@ def tweedie_deviance_score(
         true, predicted, power=0, treat_arrays: bool = True, **treat_arrays_kws
 )->float:
     """
-    Tweedie Deviance Score
+    `Tweedie Deviance Score <https://scikit-learn.org/stable/modules/generated/sklearn.metrics.mean_tweedie_deviance.html>`_
 
     .. math::
         D(\\text{true}, \\text{predicted}) = \\frac{1}{n} \\sum_{i=1}^{n} (\\text{true}_i - \\text{predicted}_i)^2
@@ -7374,7 +7390,7 @@ def mre(
         **treat_arrays_kws
 )->float:
     """
-    mean relative error
+    `mean relative error <https://doi.org/10.1016/j.trd.2022.103505>`_
 
     .. math::
         \\text{MRE} = \\frac{1}{n} \\sum_{i=1}^{n} \\left| \\frac{\\text{true}_i - \\text{predicted}_i}{\\text{true}_i} \\right|
@@ -7447,7 +7463,8 @@ def mape_for_peaks(
         **treat_arrays_kws
 ) -> float:
     """
-    Mean Absolute Percentage Error for peaks which are found using scipy.singnal.find_peaks
+    Mean Absolute Percentage Error for peaks which are found using
+    `scipy.singnal.find_peaks <https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.find_peaks.html>`_
 
     .. math::
         \\text{MAPE}_\\text{peak} = \\frac{1}{P}\\sum_{p=1}^{P} \\left |\\frac{Q_{s,p} - Q_{o,p}}{Q_{o,p}} \\right | \\times 100,
