@@ -620,7 +620,7 @@ class RegressionMetrics(Metrics):
         return gmean_diff(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def gmrae(self, benchmark: np.ndarray = None) -> float:
-        """ Geometric Mean Relative Absolute Error
+        """ `Geometric Mean Relative Absolute Error <https://doi.org/10.1016/0169-2070(92)90008-W>`_
 
         .. math::
             GMRAE = \\left( \\prod_{i=1}^{n} \\frac{|true_i - predicted_i|}{|true_i - benchmark_i|} \\right)^{\\frac{1}{n}}
@@ -873,7 +873,7 @@ class RegressionMetrics(Metrics):
 
     def kgenp_bound(self):
         """
-        Bounded Version of the Non-Parametric Kling-Gupta Efficiency
+        `Bounded Version of the Non-Parametric Kling-Gupta Efficiency <https://thibhlln.github.io/hydroeval/functions/hydroeval.kgenp_c2m.html#hydroeval.kgenp_c2m>`_
 
         .. math::
             KGE_{np_{bound}} = \\frac{1 - \\sqrt{\\left(\\rho(t, p) - 1\\right)^2 + \\left(1 - 0.5 \\sum_{i=1}^{n} \\left| \\frac{\\text{sorted}(p_i)}{\\text{mean}(p) \\cdot n} - \\frac{\\text{sorted}(t_i)}{\\text{mean}(t) \\cdot n} \\right| - 1\\right)^2 + \\left(\\frac{\\text{mean}(p)}{\\text{mean}(t)} - 1\\right)^2}}{2 - \\left(1 - \\sqrt{\\left(\\rho(t, p) - 1\\right)^2 + \\left(1 - 0.5 \\sum_{i=1}^{n} \\left| \\frac{\\text{sorted}(p_i)}{\\text{mean}(p) \\cdot n} - \\frac{\\text{sorted}(t_i)}{\\text{mean}(t) \\cdot n} \\right| - 1\\right)^2 + \\left(\\frac{\\text{mean}(p)}{\\text{mean}(t)} - 1\\right)^2}\\right)}
@@ -1364,7 +1364,7 @@ class RegressionMetrics(Metrics):
         return mle(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def mod_agreement_index(self, j=1) -> float:
-        """Modified agreement of index.
+        """ `Modified agreement of index <https://search.r-project.org/CRAN/refmans/hydroGOF/html/md.html>`_.
         j: int, when j==1, this is same as agreement_index. Higher j means more impact of outliers.
 
         .. math::
@@ -4838,7 +4838,7 @@ def gmean_diff(true, predicted, treat_arrays: bool = True,
 
 def gmrae(true, predicted, treat_arrays: bool = True, benchmark: np.ndarray = None,
           **treat_arrays_kws) -> float:
-    """ Geometric Mean Relative Absolute Error
+    """ `Geometric Mean Relative Absolute Error <https://doi.org/10.1016/0169-2070(92)90008-W>`_
 
     .. math::
         GMRAE = \\left( \\prod_{i=1}^{n} \\frac{|true_i - predicted_i|}{|true_i - benchmark_i|} \\right)^{\\frac{1}{n}}
@@ -5104,7 +5104,7 @@ def kgeprime_bound(true, predicted, treat_arrays: bool = True,
 def kgenp_bound(true, predicted, treat_arrays: bool = True,
                 **treat_arrays_kws):
     """
-    Bounded Version of the Non-Parametric Kling-Gupta Efficiency
+    `Bounded Version of the Non-Parametric Kling-Gupta Efficiency <https://thibhlln.github.io/hydroeval/functions/hydroeval.kgenp_c2m.html#hydroeval.kgenp_c2m>`_
 
     .. math::
         KGE_{np_{bound}} = \\frac{1 - \\sqrt{\\left(\\rho(t, p) - 1\\right)^2 + \\left(1 - 0.5 \\sum_{i=1}^{n} \\left| \\frac{\\text{sorted}(p_i)}{\\text{mean}(p) \\cdot n} - \\frac{\\text{sorted}(t_i)}{\\text{mean}(t) \\cdot n} \\right| - 1\\right)^2 + \\left(\\frac{\\text{mean}(p)}{\\text{mean}(t)} - 1\\right)^2}}{2 - \\left(1 - \\sqrt{\\left(\\rho(t, p) - 1\\right)^2 + \\left(1 - 0.5 \\sum_{i=1}^{n} \\left| \\frac{\\text{sorted}(p_i)}{\\text{mean}(p) \\cdot n} - \\frac{\\text{sorted}(t_i)}{\\text{mean}(t) \\cdot n} \\right| - 1\\right)^2 + \\left(\\frac{\\text{mean}(p)}{\\text{mean}(t)} - 1\\right)^2}\\right)}
@@ -5849,7 +5849,7 @@ def mle(true, predicted, treat_arrays=True,
 
 def mod_agreement_index(true, predicted, treat_arrays: bool = True, j=1,
                         **treat_arrays_kws) -> float:
-    """Modified agreement of index.
+    """ `Modified agreement of index <https://search.r-project.org/CRAN/refmans/hydroGOF/html/md.html>`_.
     j: int, when j==1, this is same as agreement_index. Higher j means more impact of outliers.
 
     .. math::

@@ -1478,7 +1478,7 @@ class test_errors(unittest.TestCase):
 
         return
 
-    def test_log_prob(self):
+    def test_log_prob(self):  # todo reference
         new_log_prob = log_prob(t11, p11)
         assert np.allclose(new_log_prob, -32.128996820201635)
         return
