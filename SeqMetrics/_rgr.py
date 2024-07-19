@@ -1683,7 +1683,7 @@ class RegressionMetrics(Metrics):
 
     def nse_rel(self) -> float:
         """
-        `Relative Nash-Sutcliff Efficiency <https://doi.org/10.5194/adgeo-5-89-2005> `_.
+        `Relative Nash-Sutcliff Efficiency <https://doi.org/10.5194/adgeo-5-89-2005>`_.
 
         .. math::
             \\text{NSE}_{\\text{rel}} = 1 - \\frac{\\sum_{i=1}^{N} \\left( \\frac{|\\text{predicted}_i - \\text{true}_i|}{\\text{true}_i} \\right)^2}{\\sum_{i=1}^{N} \\left( \\frac{|\\text{true}_i - \\overline{\\text{true}}|}{\\overline{\\text{true}}} \\right)^2}
@@ -2878,7 +2878,7 @@ def nse_rel(true, predicted,
             **treat_arrays_kws
             ) -> float:
     """
-    `Relative Nash-Sutcliff Efficiency <https://doi.org/10.5194/adgeo-5-89-2005> `_.
+    `Relative Nash-Sutcliff Efficiency <https://doi.org/10.5194/adgeo-5-89-2005>`_.
 
     .. math::
         \\text{NSE}_{\\text{rel}} = 1 - \\frac{\\sum_{i=1}^{N} \\left( \\frac{|\\text{predicted}_i - \\text{true}_i|}{\\text{true}_i} \\right)^2}{\\sum_{i=1}^{N} \\left( \\frac{|\\text{true}_i - \\overline{\\text{true}}|}{\\overline{\\text{true}}} \\right)^2}
@@ -3684,6 +3684,7 @@ def mae(true, predicted, treat_arrays: bool = True,
 def gmae(true, predicted, treat_arrays: bool = True,
          **treat_arrays_kws) -> float:
     """ `Geometric Mean Absolute Error <https://doi.org/10.1016/j.isprsjprs.2024.04.015>`_
+
     .. math::
         GMAE = \\left( \\prod_{i=1}^{n} \\left| \\text{true}_i - \\text{predicted}_i \\right| \\right)^{\\frac{1}{n}}
 
