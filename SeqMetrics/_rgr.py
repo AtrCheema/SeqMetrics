@@ -2762,7 +2762,7 @@ def nse(true, predicted, treat_arrays: bool = True,
     true, predicted = maybe_treat_arrays(treat_arrays, true, predicted, 'regression', **treat_arrays_kws)
 
     _nse = 1 - sum((predicted - true) ** 2) / sum((true - np.mean(true)) ** 2)
-    return float(_nse)
+    return float(_nse.item())
 
 
 def nse_alpha(true, predicted, treat_arrays: bool = True,
@@ -2797,7 +2797,7 @@ def nse_alpha(true, predicted, treat_arrays: bool = True,
     >>> nse_alpha(t, p)
     """
     true, predicted = maybe_treat_arrays(treat_arrays, true, predicted, 'regression', **treat_arrays_kws)
-    return float(np.std(predicted) / np.std(true))
+    return float(np.std(predicted) / np.std(true).item())
 
 
 def nse_beta(true, predicted, treat_arrays: bool = True,
@@ -2833,7 +2833,7 @@ def nse_beta(true, predicted, treat_arrays: bool = True,
 
     """
     true, predicted = maybe_treat_arrays(treat_arrays, true, predicted, 'regression', **treat_arrays_kws)
-    return float((np.mean(predicted) - np.mean(true)) / np.std(true))
+    return float((np.mean(predicted) - np.mean(true)) / np.std(true).item())
 
 
 def nse_mod(true, predicted, treat_arrays: bool = True,
@@ -3116,7 +3116,7 @@ def kge_bound(true, predicted, treat_arrays: bool = True,
     kge_ = kge(true, predicted, return_all=True, treat_arrays=False)[0, :]
     kge_c2m_ = kge_ / (2 - kge_)
 
-    return float(kge_c2m_)
+    return float(kge_c2m_.item())
 
 
 def kge_mod(true, predicted, treat_arrays: bool = True, return_all=False,
@@ -5098,7 +5098,7 @@ def kgeprime_bound(true, predicted, treat_arrays: bool = True,
     kgeprime_ = kge_mod(true, predicted, return_all=True, treat_arrays=False)[0, :]
     kgeprime_c2m_ = kgeprime_ / (2 - kgeprime_)
 
-    return float(kgeprime_c2m_)
+    return float(kgeprime_c2m_.item())
 
 
 def kgenp_bound(true, predicted, treat_arrays: bool = True,
@@ -5132,7 +5132,7 @@ def kgenp_bound(true, predicted, treat_arrays: bool = True,
     kgenp_ = kge_np(return_all=True, true=true, predicted=predicted, treat_arrays=False)[0, :]
     kgenp_c2m_ = kgenp_ / (2 - kgenp_)
 
-    return float(kgenp_c2m_)
+    return float(kgenp_c2m_.item())
 
 
 def kl_sym(true, predicted, treat_arrays: bool = True,
@@ -7279,7 +7279,7 @@ def log_cosh_error(
 
     # Calculation of Log-Cosh Error
     error = np.log(np.cosh(predicted - true))
-    return float(np.mean(error))
+    return float(np.mean(error).item())
 
 def minkowski_distance(
         true, predicted, order =1, treat_arrays: bool = True, **treat_arrays_kws
@@ -7418,7 +7418,7 @@ def mre(
 
     true, predicted = maybe_treat_arrays(treat_arrays, true, predicted, 'regression', **treat_arrays_kws)
     re = _relative_error(true, predicted, benchmark)
-    return float(np.mean(re))
+    return float(np.mean(re).item())
 
 
 # def peak_flow_ratio(
@@ -7583,7 +7583,7 @@ def manhattan_distance(
     """
     true, predicted = maybe_treat_arrays(treat_arrays, true, predicted, 'regression', **treat_arrays_kws)
 
-    return float(np.sum(np.abs(true - predicted)))
+    return float(np.sum(np.abs(true - predicted)).item())
 
 
 def drv():

@@ -539,7 +539,7 @@ class test_errors(unittest.TestCase):
         # assert np.allclose(new_kge_np, array([nan]))
 
         new_kge_np = kge_np(t_neg, p_neg)
-        self.assertAlmostEqual(new_kge_np, -1.25351754)
+        self.assertAlmostEqual(new_kge_np, -1.25351754, msg=f"true: {t_neg.sum()} pred: {p_neg.sum()}")
 
         return
 
@@ -1106,7 +1106,7 @@ class test_errors(unittest.TestCase):
         assert np.allclose(new_kgenp_bound, 0.02092497)
 
         new_kgenp_bound = kgenp_bound(t_neg, p_neg)
-        self.assertAlmostEqual(new_kgenp_bound, -0.38528071)
+        self.assertAlmostEqual(new_kgenp_bound, -0.38528071, msg=f"true: {t_neg.sum()} pred: {p_neg.sum()}")
         return
 
     def test_kl_sym(self):
