@@ -49,7 +49,7 @@ setup(
         'numpy<=2.0.1, >=1.17',
     ],
     extras_require={
-        'all': ["numpy<=1.26.4, >=1.17",
+        'all': ["numpy<=2.0.1, >=1.17",
                 "scipy<=1.13, >=1.4",
                 "easy_mpl"],
     }

@@ -1,4 +1,4 @@
-name: py3
+name: macos
 on:
   push:
     branches: [ master ]

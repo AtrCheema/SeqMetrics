@@ -1,4 +1,4 @@
-name: np264
+name: np_latest
 # checks on latest numpy version
 on:
   push:
@@ -26,7 +26,7 @@ jobs:
         python -m pip install --upgrade pip
         python -m pip install flake8 pytest
         pip install -r dev_requirements.txt
-        pip install numpy==1.26.4
+        pip install numpy==2.0.1
     - name: Test with unittest
       run: |
         pip install pytest
