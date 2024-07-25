@@ -3328,7 +3328,9 @@ def spearmann_corr(
 # def log_nse(true, predicted, treat_arrays: bool = True, epsilon=0.0,
 #             **treat_arrays_kws) -> float:
 #     """
-#     log Nash-Sutcliffe model efficiency
+#     log Nash-Sutcliffe model efficiency <https://doi.org/10.1002/2016WR019605>`_.
+#     It is especially useful for capturing prediction performance for the lowest flows 
+#     due to the logarithmic transform.
 #
 #     .. math::
 #         NSE = 1-\\frac{\\sum_{i=1}^{N}(log(e_{i})-log(s_{i}))^2}{\\sum_{i=1}^{N}(log(e_{i})-log(\\bar{e})^2}-1)*-1

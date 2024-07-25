@@ -539,7 +539,7 @@ class test_errors(unittest.TestCase):
         # assert np.allclose(new_kge_np, array([nan]))
 
         new_kge_np = kge_np(t_neg, p_neg)
-        if np.__version__ < "2.0.0" or os.name == "posix":
+        if np.__version__ < "2.0.0" or os.name not in ["posix", "nt"]:
             target = -1.25351754
         
         # for numpy >= 2 np.argsort is platform dependent
@@ -549,7 +549,7 @@ class test_errors(unittest.TestCase):
         else:
             target = -1.25317275
 
-        self.assertAlmostEqual(new_kge_np, target, msg=f"true: {t_neg.sum()} pred: {p_neg.sum()}")
+        self.assertAlmostEqual(new_kge_np, target, msg=f"true: {t_neg.sum()} pred: {p_neg.sum()} {os.name} {np.__version__}")
 
         return
 
@@ -1116,7 +1116,7 @@ class test_errors(unittest.TestCase):
         assert np.allclose(new_kgenp_bound, 0.02092497)
 
         new_kgenp_bound = kgenp_bound(t_neg, p_neg)
-        if np.__version__ < "2.0.0" or os.name == "posix":
+        if np.__version__ < "2.0.0" or os.name not in ["posix", "nt"]:
             target = -0.38528071
         
         # for numpy >= 2 np.argsort is platform dependent
@@ -1126,7 +1126,8 @@ class test_errors(unittest.TestCase):
         else:
             target = -0.3852155564
 
-        self.assertAlmostEqual(new_kgenp_bound, target, msg=f"true: {t_neg.sum()} {t_neg.mean()} pred: {p_neg.sum()} {p_neg.mean()}")
+        self.assertAlmostEqual(new_kgenp_bound, target, 
+                               msg=f"true: {t_neg.sum()} {t_neg.mean()} pred: {p_neg.sum()} {p_neg.mean()} {os.name} {np.__version__}")
         return
 
     def test_kl_sym(self):
