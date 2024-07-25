@@ -539,14 +539,14 @@ class test_errors(unittest.TestCase):
         # assert np.allclose(new_kge_np, array([nan]))
 
         new_kge_np = kge_np(t_neg, p_neg)
-        if np.__version__ < "2.0.0":
+        if np.__version__ < "2.0.0" or os.name == "posix":
             target = -1.25351754
         
         # for numpy >= 2 np.argsort is platform dependent
         # so the target value is different for different platforms
         # todo not a good test, we can have t_neg and p_neg without same values
         # check if it is not macos
-        elif os.name != "posix":
+        else:
             target = -1.25317275
 
         self.assertAlmostEqual(new_kge_np, target, msg=f"true: {t_neg.sum()} pred: {p_neg.sum()}")
@@ -1116,14 +1116,14 @@ class test_errors(unittest.TestCase):
         assert np.allclose(new_kgenp_bound, 0.02092497)
 
         new_kgenp_bound = kgenp_bound(t_neg, p_neg)
-        if np.__version__ < "2.0.0":
+        if np.__version__ < "2.0.0" or os.name == "posix":
             target = -0.38528071
         
         # for numpy >= 2 np.argsort is platform dependent
         # so the target value is different for different platforms
         # todo not a good test, we can have t_neg and p_neg without same values
         # check if it is not macos
-        elif os.name != "posix":
+        else:
             target = -0.3852155564
 
         self.assertAlmostEqual(new_kgenp_bound, target, msg=f"true: {t_neg.sum()} {t_neg.mean()} pred: {p_neg.sum()} {p_neg.mean()}")
