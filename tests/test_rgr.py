@@ -1824,7 +1824,8 @@ class test_errors(unittest.TestCase):
         self.assertAlmostEqual(manhattan_distance(t_neg, p_neg), cityblock(t_neg, p_neg))
         return
 
-class test_torch_metrics(unittest.TestCase):
+
+class Test_Torch_metrics(unittest.TestCase):
 
     def test_critical_success_index_cls(self):
         try:
@@ -1837,7 +1838,7 @@ class test_torch_metrics(unittest.TestCase):
         if torch is not None:
             new_critical_success_index = metrics.critical_success_index()
             csi = CriticalSuccessIndex(0.5)
-            torch_csi = csi(torch.tensor(p11), torch.tensor(t11))
+            torch_csi = tensor_to_float(csi(torch.tensor(p11), torch.tensor(t11)))
             self.assertAlmostEqual(new_critical_success_index, torch_csi)
         return
     def test_critical_success_index_func(self):
@@ -1850,7 +1851,7 @@ class test_torch_metrics(unittest.TestCase):
         if torch is not None:
             new_critical_success_index = sm_critical_success_index(t11, p11)
             csi = CriticalSuccessIndex(0.5)
-            torch_csi = csi(torch.tensor(p11), torch.tensor(t11))
+            torch_csi = tensor_to_float(csi(torch.tensor(p11), torch.tensor(t11)))
             self.assertAlmostEqual(new_critical_success_index, torch_csi)
         return
 
@@ -1864,7 +1865,7 @@ class test_torch_metrics(unittest.TestCase):
         if torch is not None:
             new_kl_divergence = metrics.kl_divergence()
             kl_div = KLDivergence()
-            torch_kl_div = kl_div(torch.tensor(p11).reshape(1,-1), torch.tensor(t11).reshape(1,-1))
+            torch_kl_div = tensor_to_float(kl_div(torch.tensor(p11).reshape(1,-1), torch.tensor(t11).reshape(1,-1)))
             self.assertAlmostEqual(new_kl_divergence, torch_kl_div.numpy().item())
         return
 
@@ -1878,7 +1879,7 @@ class test_torch_metrics(unittest.TestCase):
         if torch is not None:
             new_kl_divergence = sm_kl_divergence(t11, p11)
             kl_div = KLDivergence()
-            torch_kl_div = kl_div(torch.tensor(p11).reshape(1,-1), torch.tensor(t11).reshape(1,-1))
+            torch_kl_div = tensor_to_float(kl_div(torch.tensor(p11).reshape(1,-1), torch.tensor(t11).reshape(1,-1)))
             self.assertAlmostEqual(new_kl_divergence, torch_kl_div.numpy().item())
         return
 
@@ -1892,7 +1893,7 @@ class test_torch_metrics(unittest.TestCase):
         if torch is not None:
             new_log_cosh_error = metrics.log_cosh_error()
             lg_cosh_err = LogCoshError()
-            torch_lg_cosh_err = lg_cosh_err(torch.tensor(p11), torch.tensor(t11))
+            torch_lg_cosh_err = tensor_to_float(lg_cosh_err(torch.tensor(p11), torch.tensor(t11)))
             self.assertAlmostEqual(new_log_cosh_error, torch_lg_cosh_err)
         return
 
@@ -1906,7 +1907,8 @@ class test_torch_metrics(unittest.TestCase):
         if torch is not None:
             new_log_cosh_error = sm_log_cosh_error(t11, p11)
             lg_cosh_err = LogCoshError()
-            torch_lg_cosh_err = lg_cosh_err(torch.tensor(p11), torch.tensor(t11))
+            torch_lg_cosh_err = tensor_to_float(lg_cosh_err(torch.tensor(p11), torch.tensor(t11)))
+
             self.assertAlmostEqual(new_log_cosh_error, torch_lg_cosh_err)
         return
 
@@ -1921,7 +1923,7 @@ class test_torch_metrics(unittest.TestCase):
         if torch is not None:
             new_minkowski_distance = metrics.minkowski_distance()
             mink_dist = MinkowskiDistance(1)
-            torch_mink_dist = mink_dist(torch.tensor(p11), torch.tensor(t11))
+            torch_mink_dist = tensor_to_float(mink_dist(torch.tensor(p11), torch.tensor(t11)))
             self.assertAlmostEqual(new_minkowski_distance, torch_mink_dist)
         return
 
@@ -1935,7 +1937,7 @@ class test_torch_metrics(unittest.TestCase):
         if torch is not None:
             new_minkowski_distance = sm_minkowski_distance(t11, p11)
             mink_dist = MinkowskiDistance(1)
-            torch_mink_dist = mink_dist(torch.tensor(p11), torch.tensor(t11))
+            torch_mink_dist = tensor_to_float(mink_dist(torch.tensor(p11), torch.tensor(t11)))
             self.assertAlmostEqual(new_minkowski_distance, torch_mink_dist)
         return
 
@@ -1949,7 +1951,7 @@ class test_torch_metrics(unittest.TestCase):
         if torch is not None:
             new_tweedie_deviance_score = metrics.tweedie_deviance_score()
             tw_dev_score = TweedieDevianceScore(0)
-            torch_tw_dev_score = tw_dev_score(torch.tensor(p11), torch.tensor(t11))
+            torch_tw_dev_score = tensor_to_float(tw_dev_score(torch.tensor(p11), torch.tensor(t11)))
             self.assertAlmostEqual(new_tweedie_deviance_score, torch_tw_dev_score)
         return
 
@@ -1963,9 +1965,16 @@ class test_torch_metrics(unittest.TestCase):
         if torch is not None:
             new_tweedie_deviance_score = sm_tweedie_deviance_score(t11, p11)
             tw_dev_score = TweedieDevianceScore(0)
-            torch_tw_dev_score = tw_dev_score(torch.tensor(p11), torch.tensor(t11))
+            torch_tw_dev_score = tensor_to_float(tw_dev_score(torch.tensor(p11), torch.tensor(t11)))
             self.assertAlmostEqual(new_tweedie_deviance_score, torch_tw_dev_score)
         return
+
+
+def tensor_to_float(tensor)->float:
+    if hasattr(tensor, 'item'):
+        return tensor.item()
+    else:
+        return tensor().numpy().item()
 
 
 class TestTreatment(unittest.TestCase):
