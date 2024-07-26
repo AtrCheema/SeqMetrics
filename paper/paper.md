@@ -89,12 +89,12 @@ score, and the area under the ROC curve, among others.
 From a programming perspective, the SeqMetrics library employs a modular architecture, 
 offering functional and class-based APIs for smooth integration across diverse 
 coding environments. The class-based API consists of ‘RegressionMetrics’ and 
-‘ClassificationMetrics’ classes (Figure 1a), which provide users with a structured 
+‘ClassificationMetrics’ classes (\autoref{fig1}a), which provide users with a structured
 approach for model evaluation. The user has to first initialize these classes by 
 providing the data and then all the performance metrics are available from the 
 respect instances of the classes. Conversely, the functional API offers a more 
 simplified approach to access these metrics without initializing the classes 
-initially (Fig. 1b). All the functions which calculate performance metrics 
+initially (\autoref{fig1}b). All the functions which calculate performance metrics
 receive two arrays as obligatory input arguments and return a scalar value 
 as output. With a unified API design and minimal dependency only on NumPy, 
 the library prioritizes efficiency in computational tasks. It ensures 
@@ -103,7 +103,7 @@ a widely adopted standard, which not only streamlines the process but also
 contributes to the overall efficiency of the application for the broader 
 scientific community.
 
-![**Comparison of class-based and functional API**](fig1.jpg)
+![Comparison of class-based and functional API\label{fig1}](fig1.jpg)
 
 # Graphical User Interface
 The SeqMetrics GUI offers a user-friendly and intuitive 
@@ -111,8 +111,8 @@ platform for seamless error calculation. This interface is built and deployed us
 streamlit at https://seqmetrics.streamlit.app . There are two ways of providing input 
 in this web-based GUI. The first method consists of 
 providing the input data arrays by copying and pasting the true and predicted 
-arrays (Fig. 2). Another way is by importing CSV or Excel files into the 
-interface (Fig 3). This streamlines the process of entering true and predicted 
+arrays (\autoref{fig2}). Another way is by importing CSV or Excel files into the
+interface (\autoref{fig3}). This streamlines the process of entering true and predicted
 values for evaluation. The GUI provides a clean and organized layout, guiding 
 users through the evaluation workflow with clear instructions. With its simplicity 
 and ease of use, the GUI empowers users to perform regression and classification 
@@ -122,14 +122,15 @@ model performance without compromising on robustness and precision. Therefore,
 the design of the SeqMetrics is equally beneficial for advanced programmers as 
 well as for those with limited programming knowledge. 
 
-![**Method of copying and pasting arrays in SeqMetrics GUI**](fig2.jpg)
-![**Method of reading data from files in SeqMetrics GUI**](fig3.jpg)
+![Method of copying and pasting arrays in SeqMetrics GUI\label{fig2}](fig2.jpg)
+
+![Method of reading data from files in SeqMetrics GUI\label{fig3}](fig3.jpg)
 
 The streamlit-based GUI can also be launched locally without having to upload
 the data on streamlit servers. This can be useful for users with data-privacy
 concerns or those without internet connection. The steps to launch streamlit GUI
 locally involve cloning the respository, installing the requirements and streamlit
-Python package and then launching the streamlit app. These steps are given below
+Python package and then launching the streamlit app. These steps are given below:
 
 ```
     git clone https://github.com/AtrCheema/SeqMetrics.git
