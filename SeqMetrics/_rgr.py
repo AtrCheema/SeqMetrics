@@ -1723,24 +1723,28 @@ class RegressionMetrics(Metrics):
         """
         return nse_bound(true=self.true, predicted=self.predicted, treat_arrays=False)
 
-    # def log_nse(self, epsilon=0.0) -> float:
-    #     """
-    #     log Nash-Sutcliffe model efficiency
-    #
-    #     .. math::
-    #         NSE = 1-\\frac{\\sum_{i=1}^{N}(log(e_{i})-log(s_{i}))^2}{\\sum_{i=1}^{N}(log(e_{i})-log(\\bar{e})^2}-1)*-1
-    #
-    #         Examples
-    #     ---------
-    #     >>> import numpy as np
-    #     >>> from SeqMetrics import RegressionMetrics
-    #     >>> t = np.random.random(10)
-    #     >>> p = np.random.random(10)
-    #     >>> metrics= RegressionMetrics(t, p)
-    #     >>> metrics.log_nse()
-    #
-    #     """
-    #     return log_nse(true=self.true, predicted=self.predicted, epsilon=epsilon, treat_arrays=False)
+    def log_nse(
+            self, 
+            epsilon:float=0.0,
+            log_base:str = 'e'
+            ) -> float:
+        """
+        log Nash-Sutcliffe model efficiency
+    
+        .. math::
+            NSE = 1-\\frac{\\sum_{i=1}^{N}(log(e_{i})-log(s_{i}))^2}{\\sum_{i=1}^{N}(log(e_{i})-log(\\bar{e})^2}-1)*-1
+    
+            Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.log_nse()
+    
+        """
+        return log_nse(true=self.true, predicted=self.predicted, epsilon=epsilon, log_base=log_base, treat_arrays=False)
 
     def log_prob(self) -> float:
         """
@@ -3336,39 +3340,64 @@ def spearmann_corr(
 #     return float(numerator / (denominator1 * denominator2))
 
 
-# def log_nse(true, predicted, treat_arrays: bool = True, epsilon=0.0,
-#             **treat_arrays_kws) -> float:
-#     """
-#     log Nash-Sutcliffe model efficiency <https://doi.org/10.1002/2016WR019605>`_.
-#     It is especially useful for capturing prediction performance for the lowest flows 
-#     due to the logarithmic transform.
-#
-#     .. math::
-#         NSE = 1-\\frac{\\sum_{i=1}^{N}(log(e_{i})-log(s_{i}))^2}{\\sum_{i=1}^{N}(log(e_{i})-log(\\bar{e})^2}-1)*-1
-#
-#     Parameters
-#     ----------
-#     true :
-#          true/observed/actual/target values. It must be a numpy array,
-#          or pandas series/DataFrame or a list.
-#     predicted :
-#          simulated values
-#     treat_arrays :
-#         process the true and predicted arrays using maybe_treat_arrays function
-#     epsilon :
-#
-#         Examples
-#     ---------
-#     >>> import numpy as np
-#     >>> from SeqMetrics import log_nse
-#     >>> t = np.random.random(10)
-#     >>> p = np.random.random(10)
-#     >>> log_nse(t, p)
-#
-#     """
-#     true, predicted = maybe_treat_arrays(treat_arrays, true, predicted, 'regression', **treat_arrays_kws)
-#     s, o = predicted + epsilon, true + epsilon  # todo, check why s is here
-#     return float(1 - sum((np.log(o) - np.log(o)) ** 2) / sum((np.log(o) - np.mean(np.log(o))) ** 2))
+def log_nse(true, 
+            predicted, 
+            treat_arrays: bool = True, 
+            epsilon:float=0.0,
+            log_base:str='e',
+            **treat_arrays_kws) -> float:
+    """
+    log transformed Nash-Sutcliffe model efficiency <https://doi.org/10.1002/2016WR019605>`_.
+
+    It is especially useful for capturing prediction performance for the lowest flows 
+    due to the logarithmic transform.
+
+    .. math::
+        NSE = 1-\\frac{\\sum_{i=1}^{N}(log(e_{i})-log(s_{i}))^2}{\\sum_{i=1}^{N}(log(e_{i})-log(\\bar{e})^2}-1)*-1
+
+    Parameters
+    ----------
+    true :
+         true/observed/actual/target values. It must be a numpy array,
+         or pandas series/DataFrame or a list.
+    predicted :
+         simulated values
+    treat_arrays :
+        process the true and predicted arrays using maybe_treat_arrays function
+    epsilon :
+        A small value to be added to true and predicted values to avoid log(0)
+
+    References
+    ----------
+    Pushpalatha, R.; Perrin, C.; le Moine, N. and Andréassian V. (2012). "A
+    review of efficiency criteria suitable for evaluating low-flow
+    simulations". Journal of Hydrology. 420-421, 171-182.
+    doi:10.1016/j.jhydrol.2011.11.055    
+
+    https://doi.org/10.1029/2012WR012005
+
+    Examples
+    ---------
+    >>> import numpy as np
+    >>> from SeqMetrics import log_nse
+    >>> t = np.random.random(10)
+    >>> p = np.random.random(10)
+    >>> log_nse(t, p)
+
+    """
+    true, predicted = maybe_treat_arrays(treat_arrays, true, predicted, 'regression', **treat_arrays_kws)
+
+    if log_base == 'e':
+        func = np.log
+    elif log_base == '10':
+        func = np.log10
+    elif log_base == '2':
+        func = np.log2
+    else:
+        raise ValueError('log_base must be e, 10 or 2')
+
+    true, predicted = func(true + epsilon), func(predicted + epsilon)
+    return nse(true, predicted, treat_arrays=False)
 
 
 def corr_coeff(true, predicted, treat_arrays: bool = True,

@@ -19,7 +19,7 @@ from ._rgr import kge
 from ._rgr import kge_bound
 from ._rgr import kge_mod
 from ._rgr import kge_np
-# from ._rgr import log_nse todo, find reference for the code
+from ._rgr import log_nse 
 from ._rgr import corr_coeff
 from ._rgr import rmse
 from ._rgr import rmsle

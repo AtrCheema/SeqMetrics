@@ -88,6 +88,7 @@ metrics.
 .. autofunction:: SeqMetrics.norm_ae
 .. autofunction:: SeqMetrics.norm_ape
 .. autofunction:: SeqMetrics.log_prob
+.. autofunction:: SeqMetrics.log_nse
 .. autofunction:: SeqMetrics.rmdspe
 .. autofunction:: SeqMetrics.rse
 .. autofunction:: SeqMetrics.rrse
