@@ -1,5 +1,6 @@
 
 import os
+import platform
 import unittest
 import site  # so that SeqMetrics directory is in path
 
@@ -539,7 +540,8 @@ class test_errors(unittest.TestCase):
         # assert np.allclose(new_kge_np, array([nan]))
 
         new_kge_np = kge_np(t_neg, p_neg)
-        if np.__version__ < "2.0.0" or os.name not in ["posix", "nt"]:
+
+        if np.__version__ < "2.0.0" or platform.system() == "Darwin":
             target = -1.25351754
         
         # for numpy >= 2 np.argsort is platform dependent
@@ -1116,7 +1118,7 @@ class test_errors(unittest.TestCase):
         assert np.allclose(new_kgenp_bound, 0.02092497)
 
         new_kgenp_bound = kgenp_bound(t_neg, p_neg)
-        if np.__version__ < "2.0.0" or os.name not in ["posix", "nt"]:
+        if np.__version__ < "2.0.0" or platform.system() == "Darwin":
             target = -0.38528071
         
         # for numpy >= 2 np.argsort is platform dependent
