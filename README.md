@@ -1,4 +1,6 @@
 
+# SeqMetrics: a unified library for performance metrics calculation in Python
+
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/d11c4520bf514a3094dc2c13659d0bc5)](https://www.codacy.com/gh/AtrCheema/SeqMetrics/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=AtrCheema/SeqMetrics&amp;utm_campaign=Badge_Grade)
 [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![HitCount](http://hits.dwyl.com/AtrCheema/SeqMetrics.svg)](http://hits.dwyl.com/AtrCheema/SeqMetrics)
