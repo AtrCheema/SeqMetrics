@@ -135,7 +135,7 @@ Python package and then launching the streamlit app. These steps are given below
 ```
     git clone https://github.com/AtrCheema/SeqMetrics.git
     cd SeqMetrics
-    pip install requirements.txt
+    pip install -r requirements.txt
     pip install streamlit
     streamlit run app.py
 
