@@ -1045,7 +1045,7 @@ class RegressionMetrics(Metrics):
     def mase(self, seasonality: int = 1):
         """
         Mean Absolute Scaled Error. Baseline (benchmark) is computed with naive
-        forecasting (shifted by @seasonality) modified after `this <https://gist.github.com/bshishov/5dc237f59f019b26145648e2124ca1c9>`_. It is the
+        forecasting (shifted by seasonality) modified after `this <https://gist.github.com/bshishov/5dc237f59f019b26145648e2124ca1c9>`_. It is the
         ratio of MAE of used model and MAE of naive forecast.
 
         .. math::
@@ -1604,6 +1604,8 @@ class RegressionMetrics(Metrics):
         .. math::
             \\text{NSE} = 1 - \\frac{\\sum_{i=1}^{N} (predicted_i - true_i)^2}{\\sum_{i=1}^{N} (true_i - \\bar{true})^2}
 
+        where the bar above predicted and true indicates the mean of the array.            
+            
         References
         ----------
         - Moriasi, D. N., Gitau, M. W., Pai, N., & Daggupati, P. (2015). Hydrologic and water quality models:
@@ -1955,6 +1957,8 @@ class RegressionMetrics(Metrics):
         .. math ::
             R^2 = \\left( \\frac{\\sum_{i=1}^{N} \\left( \\frac{true_i - \\bar{true}}{\\sigma_{true}} \\cdot \\frac{predicted_i - \\bar{predicted}}{\\sigma_{predicted}} \\right)}{N - 1} \\right)^2
 
+        where the bar above predicted and true indicates the mean of the array.
+            
         .. _explains:
             https://data.library.virginia.edu/is-r-squared-useless/
 
@@ -2700,6 +2704,8 @@ def r2(true, predicted, treat_arrays: bool = True,
     .. math ::
         R^2 = \\left( \\frac{\\sum_{i=1}^{N} \\left( \\frac{true_i - \\bar{true}}{\\sigma_{true}} \\cdot \\frac{predicted_i - \\bar{predicted}}{\\sigma_{predicted}} \\right)}{N - 1} \\right)^2
 
+    where the bar above predicted and true indicates the mean of the array.
+
     Parameters
     ----------
     true :
@@ -2726,7 +2732,9 @@ def r2(true, predicted, treat_arrays: bool = True,
     return float(r ** 2)
 
 
-def nse(true, predicted, treat_arrays: bool = True,
+def nse(true, 
+        predicted, 
+        treat_arrays: bool = True,
         **treat_arrays_kws) -> float:
     """Nash-Sutcliff Efficiency.
 
@@ -2741,6 +2749,9 @@ def nse(true, predicted, treat_arrays: bool = True,
 
     .. math::
         \\text{NSE} = 1 - \\frac{\\sum_{i=1}^{N} (predicted_i - true_i)^2}{\\sum_{i=1}^{N} (true_i - \\bar{true})^2}
+
+    where the bar above predicted and true indicates the mean of the array.
+        
     Parameters
     ----------
     true :
@@ -3786,7 +3797,7 @@ def irmse(true, predicted, treat_arrays: bool = True,
 def mase(true, predicted, treat_arrays: bool = True, seasonality: int = 1, **treat_arrays_kws):
     """
     Mean Absolute Scaled Error. Baseline (benchmark) is computed with naive
-    forecasting (shifted by @seasonality) modified after `this <https://gist.github.com/bshishov/5dc237f59f019b26145648e2124ca1c9>`_. It is the
+    forecasting (shifted by seasonality) modified after `this <https://gist.github.com/bshishov/5dc237f59f019b26145648e2124ca1c9>`_. It is the
     ratio of MAE of used model and MAE of naive forecast.
 
     .. math::

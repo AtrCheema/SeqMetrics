@@ -1866,7 +1866,7 @@ class Test_Torch_metrics(unittest.TestCase):
             new_kl_divergence = metrics.kl_divergence()
             kl_div = KLDivergence()
             torch_kl_div = tensor_to_float(kl_div(torch.tensor(p11).reshape(1,-1), torch.tensor(t11).reshape(1,-1)))
-            self.assertAlmostEqual(new_kl_divergence, torch_kl_div.numpy().item())
+            self.assertAlmostEqual(new_kl_divergence, torch_kl_div)
         return
 
     def test_kl_divergence_func(self):
@@ -1880,7 +1880,7 @@ class Test_Torch_metrics(unittest.TestCase):
             new_kl_divergence = sm_kl_divergence(t11, p11)
             kl_div = KLDivergence()
             torch_kl_div = tensor_to_float(kl_div(torch.tensor(p11).reshape(1,-1), torch.tensor(t11).reshape(1,-1)))
-            self.assertAlmostEqual(new_kl_divergence, torch_kl_div.numpy().item())
+            self.assertAlmostEqual(new_kl_divergence, torch_kl_div)
         return
 
     def test_log_cosh_error_cls(self):
@@ -1971,10 +1971,11 @@ class Test_Torch_metrics(unittest.TestCase):
 
 
 def tensor_to_float(tensor)->float:
+    if hasattr(tensor, 'numpy'):
+        return tensor.numpy().item()
     if hasattr(tensor, 'item'):
         return tensor.item()
-    else:
-        return tensor().numpy().item()
+    return tensor
 
 
 class TestTreatment(unittest.TestCase):
