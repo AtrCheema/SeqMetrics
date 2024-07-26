@@ -17,7 +17,7 @@ authors:
     orcid: 0000-0002-0031-745X
     affiliation: 2
 affiliations:
- - name: Environmental AI Research Group, National Univsersity of Sciences and Technology, Islamabad, Pakistan
+ - name: Environmental AI Research Group, Islamabad, Pakistan
    index: 1
  - name: King Abdullah University of Science and Technology, Thuwal, Saudi Arabia
    index: 2

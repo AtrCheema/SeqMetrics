@@ -11,6 +11,7 @@
 ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/AtrCheema/SeqMetrics)
 ![GitHub contributors](https://img.shields.io/github/contributors/AtrCheema/SeqMetrics)
 ![GitHub last commit (branch)](https://img.shields.io/github/last-commit/AtrCheema/SeqMetrics/master)
+[![Zenodo](https://zenodo.org/badge/251072512.svg)](https://zenodo.org/doi/10.5281/zenodo.12958901)
 
 The purpose of this repository to collect various classification and regression 
 performance metrics or errors which can be calculated for time-series/sequential/tabular data, 
