@@ -7726,6 +7726,48 @@ def coeff_of_persistence(
     return 1.0 - numerator/denominator
 
 
+def reciprocal_nse(
+        true,
+        predicted,
+        treat_arrays: bool = True,
+        **treat_arrays_kws
+)->float:
+    """
+    The reciprocal NSE focuses the error metric on low flows `Pushpalatha et al., 2012 <https://doi.org/10.1016/j.jhydrol.2011.11.055>`_
+    by comparing the reciprocals of the observed and modelled
+    flows. Formula taken from `Clark et al., 2024 <https://doi.org/10.5194/hess-28-1191-2024>`_
+    """
+    true, predicted = maybe_treat_arrays(treat_arrays, true, predicted, 'regression', **treat_arrays_kws)
+
+    recip_pred = 1.0 / (predicted+1.0)
+    recip_true = 1.0 / (true+1.0)
+    recip_true_mean = 1.0 / (np.mean(true)+1.0)
+
+    numerator = sum((recip_pred - recip_true) ** 2) 
+    denominator = sum((true - recip_true_mean) ** 2)
+    _nse = 1 -  numerator / denominator
+    return float(_nse.item())
+
+
+def coeff_of_extrapolation():
+    # https://github.com/NOAA-OWP/hydrotools/blob/main/python/metrics/src/hydrotools/metrics/metrics.py#L303
+    raise NotImplementedError
+
+
+def roce():
+    """
+    `KOllat et al., 2012 <https://doi.org/10.1029/2011WR011534>`_
+    """
+    raise NotImplementedError
+
+
+def trmse():
+    # `KOllat et al., 2012 <https://doi.org/10.1029/2011WR011534>`_
+    # Mirirli et al., 2003 https://doi.org/10.1029/WS006p0113
+    # Tang et al., 2006 https://doi.org/10.5194/hess-10-289-2006
+    raise NotImplementedError
+
+
 def drv():
     # https://rstudio-pubs-static.s3.amazonaws.com/433152_56d00c1e29724829bad5fc4fd8c8ebff.html
     raise NotImplementedError

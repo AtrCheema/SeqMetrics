@@ -39,8 +39,27 @@ or [mape_for_peaks]() while easy_mpl is used for plotting purpose.
 
 ## How to Use
 SeqMetrics provides a uniform API for calculation of both regression and classification metrics.
+It has a functional API and a class based API.
 
-### RegressionMetrics
+### Regression Metrics
+
+The use of the functional API is as straightforward as calling the required function 
+and providing it with true and predicted arrays or array-like objects (lists, tuples, DataFrames, Series, tensors).
+
+```python
+import numpy as np
+from SeqMetrics import nse
+
+true = np.random.random((20, 1))
+pred = np.random.random((20, 1))
+
+nse(true, pred)   # calculate Nash Sutcliff efficiency
+
+```
+
+The method for calling functions is consistent across all 100+ metrics. 
+
+Alternatively, the same outcome can be achieved using a class-based API.
 
 ```python
 import numpy as np
@@ -183,7 +202,7 @@ plot_metrics(er.calculate_all(),  color="Blues")
 | Weighted Mean Absolute Percent Errors | `wmape` |
 | Weighted Absolute Percentage Error | `wape` |
 
-### ClassificationMetrics
+### Classification Metrics
 
 The API is same for performance metrics of classification problem.
 
