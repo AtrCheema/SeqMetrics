@@ -116,9 +116,9 @@ interface (\autoref{fig3}). This streamlines the process of entering true and pr
 values for evaluation. The GUI provides a clean and organized layout, guiding 
 users through the evaluation workflow with clear instructions. With its simplicity 
 and ease of use, the GUI empowers users to perform regression and classification 
-model assessments effortlessly. Whether you are a seasoned data scientist or a 
-beginner, the SeqMetrics GUI enhances accessibility and efficiency in evaluating 
-model performance without compromising on robustness and precision. Therefore, 
+model assessments effortlessly. The SeqMetrics GUI enhances accessibility and 
+efficiency in evaluating model performance for both seasoned data scientists 
+and beginners, without compromising on robustness and precision. Therefore, 
 the design of the SeqMetrics is equally beneficial for advanced programmers as 
 well as for those with limited programming knowledge. 
 
