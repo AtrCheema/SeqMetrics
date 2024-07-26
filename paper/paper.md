@@ -25,7 +25,7 @@ bibliography: paper.bib
 ---
 
 # Summary
-Current python infrastructure lacks a robust, unified and simplified library for 
+Current Python infrastructure lacks a robust, unified and simplified library for
 error and performance metrics calculations. The SeqMetrics application responds 
 to this critical need, providing a robust toolkit for evaluating regression and 
 classification models with a comprehensive suite of performance metrics suitable 
@@ -129,7 +129,7 @@ The streamlit-based GUI can also be launched locally without having to upload
 the data on streamlit servers. This can be useful for users with data-privacy
 concerns or those without internet connection. The steps to launch streamlit GUI
 locally involve cloning the respository, installing the requirements and streamlit
-python package and then launching the streamlit app. These steps are given below
+Python package and then launching the streamlit app. These steps are given below
 
 ```markdown
 
