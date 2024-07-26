@@ -130,6 +130,7 @@ metrics.
 .. autofunction:: SeqMetrics.legates_coeff_eff
 .. autofunction:: SeqMetrics.manhattan_distance
 .. autofunction:: SeqMetrics.norm_nse
+.. autofunction:: SeqMetrics.coeff_of_persistence   
 
 
 .. autofunction:: SeqMetrics.calculate_hydro_metrics

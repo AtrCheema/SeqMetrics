@@ -552,6 +552,7 @@ METRIC_TYPES = {
     "manhattan_distance": "min",
     "log_nse": "max",
     "norm_nse": "max",
+    "coeff_of_persistence": "max",
 }
 
 

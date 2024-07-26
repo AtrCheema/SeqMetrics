@@ -134,6 +134,7 @@ NAME_REG = {'calculate_all' : 'Calculate All Regression Metrics',
             "legates_coeff_eff": "Legates Coefficient of Efficiency",
             "manhattan_distance": "Manhattan distance",
             'norm_nse': "Normalized Nash-Sutcliffe Efficiency",
+            "coeff_of_persistence": "Coefficient of Persistence",
             }
 
 NAME_CLS = {'accuracy' : 'Accuracy',

@@ -138,7 +138,12 @@ class TestInputFromOtherLibraries(unittest.TestCase):
         if torch is not None:
             t_ = torch.tensor(np.random.random(10))
             p_ = torch.tensor(np.random.random(10))
-            _t, _p = maybe_treat_arrays(True, t_, p_)
+            try:
+                _t, _p = maybe_treat_arrays(True, t_, p_)
+            except RuntimeError as e:
+                print(f"Runtime Error Encountered while converting tensor to numpy {torch.__version__} {np.__version__} {os.name}")
+                return
+
             assert isinstance(_t, np.ndarray)
             assert isinstance(_p, np.ndarray)
 

@@ -134,8 +134,10 @@ from SeqMetrics import tweedie_deviance_score as sm_tweedie_deviance_score
 from SeqMetrics import spearmann_corr
 from SeqMetrics import r2
 from SeqMetrics import manhattan_distance
+from SeqMetrics import coeff_of_persistence
 
 from SeqMetrics.utils import maybe_treat_arrays
+
 
 not_metrics = ['calculate_all',
                "treat_arrays",
@@ -1481,7 +1483,7 @@ class test_errors(unittest.TestCase):
         # assert np.allclose(new_norm_ae, nan)
 
         new_norm_ae = norm_ae(t_neg, p_neg)
-        assert np.allclose(new_norm_ae, 108.32762082840846)
+        assert np.allclose(new_norm_ae, 108.32762082840846)  # todo, from where does reference value comes?
 
         return
 
@@ -1822,6 +1824,11 @@ class test_errors(unittest.TestCase):
         self.assertAlmostEqual(manhattan_distance(t_nan, p_nan), cityblock(t_nan_, p_nan_))
 
         self.assertAlmostEqual(manhattan_distance(t_neg, p_neg), cityblock(t_neg, p_neg))
+        return
+
+    def test_coeff_of_persistence(self):
+        # https://github.com/NOAA-OWP/hydrotools/blob/main/python/metrics/src/hydrotools/metrics/metrics.py#L231
+        new_coeff_of_persistence = coeff_of_persistence(t11, p11)
         return
 
 

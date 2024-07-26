@@ -761,16 +761,23 @@ class RegressionMetrics(Metrics):
     def kge(self):
         """
         Kling-Gupta Efficiency following `Gupta_ et al. 2009 <https://doi.org/10.1016/j.jhydrol.2009.08.003>`_.
+        This error considers `correlation`, `variability` and `mean` difference/error.
 
         .. math::
             \\text{KGE} = 1 - \\sqrt{(r - 1)^2 + (\\alpha - 1)^2 + (\\beta - 1)^2}
         .. math::
-            \\r = \\frac{\\sum_{i=1}^{N} ( \\text{true}_i - \\bar{\\text{true}} ) ( \\text{predicted}_i - \\bar{\\text{predicted}} )}{\\sqrt{\\sum_{i=1}^{N} ( \\text{true}_i - \\bar{\\text{true}} )^2} \\sqrt{\\sum_{i=1}^{N} ( \\text{predicted}_i - \\bar{\\text{predicted}} )^2}}
-        .. math::
             \\alpha = \\frac{\\sigma_{\\text{predicted}}}{\\sigma_{\\text{true}}}
         .. math::
-            \\beta = \\frac{\\mu_{\\text{predicted}}}{\\mu_{\\text{true}}}
+            \\beta = \\frac{\\mu_{\\text{predicted}}}{\\mu_{\\text{true}}}            
+            
+        In this equation, alpha accounts for the variability (standard deviation), beta accounts for 
+        the mean difference and r accounts for the correlation between the true and predicted values.
+        This equation can also be written as belowS            
+            
+        .. math::
+            \\text{KGE} = \\frac{\\sum_{i=1}^{N} ( \\text{true}_i - \\bar{\\text{true}} ) ( \\text{predicted}_i - \\bar{\\text{predicted}} )}{\\sqrt{\\sum_{i=1}^{N} ( \\text{true}_i - \\bar{\\text{true}} )^2} \\sqrt{\\sum_{i=1}^{N} ( \\text{predicted}_i - \\bar{\\text{predicted}} )^2}}
 
+            
         Examples
         ---------
         >>> import numpy as np
@@ -3056,15 +3063,23 @@ def kge(true,
         **treat_arrays_kws):
     """
     Kling-Gupta Efficiency following `Gupta_ et al. 2009 <https://doi.org/10.1016/j.jhydrol.2009.08.003>`_.
+    This error considers `correlation`, `variability` and `mean` difference/error.
 
     .. math::
         \\text{KGE} = 1 - \\sqrt{(r - 1)^2 + (\\alpha - 1)^2 + (\\beta - 1)^2}
-    .. math::
-        \\r = \\frac{\\sum_{i=1}^{N} ( \\text{true}_i - \\bar{\\text{true}} ) ( \\text{predicted}_i - \\bar{\\text{predicted}} )}{\\sqrt{\\sum_{i=1}^{N} ( \\text{true}_i - \\bar{\\text{true}} )^2} \\sqrt{\\sum_{i=1}^{N} ( \\text{predicted}_i - \\bar{\\text{predicted}} )^2}}
+
     .. math::
         \\alpha = \\frac{\\sigma_{\\text{predicted}}}{\\sigma_{\\text{true}}}
     .. math::
-        \\beta = \\frac{\\mu_{\\text{predicted}}}{\\mu_{\\text{true}}}
+        \\beta = \\frac{\\mu_{\\text{predicted}}}{\\mu_{\\text{true}}}        
+        
+    In this equation, alpha accounts for the variability (standard deviation), beta accounts for 
+    the mean difference and r accounts for the correlation between the true and predicted values.
+    This equation can also be written as belowS        
+        
+    .. math::
+        \\text{KGE} = \\frac{\\sum_{i=1}^{N} ( \\text{true}_i - \\bar{\\text{true}} ) ( \\text{predicted}_i - \\bar{\\text{predicted}} )}{\\sqrt{\\sum_{i=1}^{N} ( \\text{true}_i - \\bar{\\text{true}} )^2} \\sqrt{\\sum_{i=1}^{N} ( \\text{predicted}_i - \\bar{\\text{predicted}} )^2}}
+
 
     output:
         If return_all is True, it returns a numpy array of shape (4, ) containing
@@ -3095,9 +3110,9 @@ def kge(true,
     >>> kge(t, p)
     """
     true, predicted = maybe_treat_arrays(treat_arrays, true, predicted, 'regression', **treat_arrays_kws)
-    cc = np.corrcoef(true, predicted)[0, 1]
-    alpha = np.std(predicted) / np.std(true)
-    beta = np.sum(predicted) / np.sum(true)
+    cc = np.corrcoef(true, predicted)[0, 1]   # correlation
+    alpha = np.std(predicted) / np.std(true)  # variability
+    beta = np.sum(predicted) / np.sum(true)   # mean
     return post_process_kge(cc, alpha, beta, return_all)
 
 
@@ -6163,7 +6178,8 @@ def nrmse_mean(true, predicted, treat_arrays: bool = True,
 
 def norm_ae(true, predicted, treat_arrays: bool = True,
             **treat_arrays_kws) -> float:
-    """ `Normalized Absolute Error <https://doi.org/10.1016/j.apor.2024.104042>`_
+    """ 
+    `Normalized Absolute Error <https://doi.org/10.1016/j.apor.2024.104042>`_
 
     .. math::
         norm\\_ae = \\sqrt{\\frac{\\sum_{i=1}^{n} (error_i - MAE)^2}{n - 1}}
@@ -7654,6 +7670,60 @@ def manhattan_distance(
     true, predicted = maybe_treat_arrays(treat_arrays, true, predicted, 'regression', **treat_arrays_kws)
 
     return float(np.sum(np.abs(true - predicted)).item())
+
+
+def coeff_of_persistence(
+        true,
+        predicted,
+        lag: int = 1,
+        treat_arrays: bool = True,
+        **treat_arrays_kws
+) -> float:
+    """
+    Coefficient of Persistence. Varies between -inf to 1. The higher the better.
+
+    Parameters
+    ----------
+    true :
+        True/observed/actual/target values. It must be a numpy array,
+        pandas series/DataFrame, or a list.
+    predicted :
+        Predicted values, same format as 'true'.
+    lag :
+        The lag for the baseline
+    treat_arrays :
+        treat_arrays the true and predicted array
+    
+    References
+    ----------
+    Kitanidis, P. K., & Bras, R. L. (1980). Real-time forecasting with a conceptual 
+        hydrologic model: 2. Applications and results. Water Resources Research, 
+        16(6), 1034-1044.
+    Nossent, J., & Bauwens, W. (2012, April). Application of a normalized 
+        Nash-Sutcliffe efficiency to improve the accuracy of the Sobol'sensitivity 
+        analysis of a hydrological model. In EGU General Assembly Conference 
+        Abstracts (p. 237).    
+
+
+    Examples
+    ---------
+    >>> import numpy as np
+    >>> from SeqMetrics import manhattan_distance
+    >>> t = np.random.random(100)
+    >>> p = np.random.random(100)
+    >>> coeff_of_persistence(t, p)
+
+    """
+
+    true, predicted = maybe_treat_arrays(treat_arrays, true, predicted, 'regression', **treat_arrays_kws)
+
+    baseline = np.roll(true, lag)
+
+    true, predicted, baseline = true[lag:], predicted[lag:], baseline[lag:]
+
+    numerator = np.sum(np.abs(np.subtract(true, predicted)) ** 2.0) / len(true)
+    denominator = np.sum(np.abs(np.subtract(true, baseline)) ** 2.0) / len(true)   
+    return 1.0 - numerator/denominator
 
 
 def drv():

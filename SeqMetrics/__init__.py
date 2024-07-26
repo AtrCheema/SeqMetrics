@@ -131,6 +131,7 @@ from ._rgr import legates_coeff_eff
 # from ._rgr import relative_error
 from ._rgr import  manhattan_distance
 from ._rgr import norm_nse
+from ._rgr import coeff_of_persistence
 
 
 from ._cls import f1_score
