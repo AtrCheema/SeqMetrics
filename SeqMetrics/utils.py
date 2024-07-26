@@ -551,6 +551,7 @@ METRIC_TYPES = {
     "relative_error": "min",
     "manhattan_distance": "min",
     "log_nse": "max",
+    "norm_nse": "max",
 }
 
 

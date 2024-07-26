@@ -129,6 +129,7 @@ metrics.
 .. autofunction:: SeqMetrics.mape_for_peaks
 .. autofunction:: SeqMetrics.legates_coeff_eff
 .. autofunction:: SeqMetrics.manhattan_distance
+.. autofunction:: SeqMetrics.norm_nse
 
 
 .. autofunction:: SeqMetrics.calculate_hydro_metrics

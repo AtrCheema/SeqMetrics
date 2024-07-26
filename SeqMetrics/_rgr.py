@@ -1729,8 +1729,10 @@ class RegressionMetrics(Metrics):
             log_base:str = 'e'
             ) -> float:
         """
-        log Nash-Sutcliffe model efficiency
-    
+        `log transformed Nash-Sutcliffe Efficiency <https://doi.org/10.1002/2016WR019605>`_.
+        It is especially useful for capturing prediction performance for the lowest flows 
+        due to the logarithmic transform.
+            
         .. math::
             NSE = 1-\\frac{\\sum_{i=1}^{N}(log(e_{i})-log(s_{i}))^2}{\\sum_{i=1}^{N}(log(e_{i})-log(\\bar{e})^2}-1)*-1
     
@@ -3347,7 +3349,7 @@ def log_nse(true,
             log_base:str='e',
             **treat_arrays_kws) -> float:
     """
-    log transformed Nash-Sutcliffe model efficiency <https://doi.org/10.1002/2016WR019605>`_.
+    `log transformed Nash-Sutcliffe Efficiency <https://doi.org/10.1002/2016WR019605>`_.
 
     It is especially useful for capturing prediction performance for the lowest flows 
     due to the logarithmic transform.
@@ -6019,6 +6021,32 @@ def norm_euclid_distance(true, predicted, treat_arrays: bool = True,
     a = true / np.mean(true)
     b = predicted / np.mean(predicted)
     return float(np.linalg.norm(a - b))
+
+
+def norm_nse(
+        true,
+        predicted, 
+        treat_arrays: bool = True,
+        **treat_arrays_kws
+        ) -> float:
+    """
+    `Normalized Nash-Sutcliffe Efficiency <https://doi.org/10.1029/2021WR030138>`_. 
+    It ranges from 0 to 1. A value of 1 indicates perfect fit.
+
+        Parameters
+    ----------
+    true :
+         true/observed/actual/target values. It must be a numpy array,
+         or pandas series/DataFrame or a list.
+    predicted :
+         simulated values
+    treat_arrays :
+        process the true and predicted arrays using maybe_treat_arrays function
+    
+    """
+    true, predicted = maybe_treat_arrays(treat_arrays, true, predicted, 'regression', **treat_arrays_kws)
+    nse_ = nse(true, predicted, treat_arrays=False)
+    return 1 / (2 - nse_)
 
 
 def nrmse_range(true, predicted, treat_arrays: bool = True,

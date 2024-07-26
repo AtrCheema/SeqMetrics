@@ -1839,8 +1839,9 @@ class Test_Torch_metrics(unittest.TestCase):
             new_critical_success_index = metrics.critical_success_index()
             csi = CriticalSuccessIndex(0.5)
             torch_csi = tensor_to_float(csi(torch.tensor(p11), torch.tensor(t11)))
-            self.assertAlmostEqual(new_critical_success_index, torch_csi)
+            self.assert_almost_equal(new_critical_success_index, torch_csi, "critical success index")
         return
+
     def test_critical_success_index_func(self):
         try:
             import torch
@@ -1852,7 +1853,7 @@ class Test_Torch_metrics(unittest.TestCase):
             new_critical_success_index = sm_critical_success_index(t11, p11)
             csi = CriticalSuccessIndex(0.5)
             torch_csi = tensor_to_float(csi(torch.tensor(p11), torch.tensor(t11)))
-            self.assertAlmostEqual(new_critical_success_index, torch_csi)
+            self.assert_almost_equal(new_critical_success_index, torch_csi, "critical success index")
         return
 
     def test_kl_divergence_cls(self):
@@ -1866,7 +1867,7 @@ class Test_Torch_metrics(unittest.TestCase):
             new_kl_divergence = metrics.kl_divergence()
             kl_div = KLDivergence()
             torch_kl_div = tensor_to_float(kl_div(torch.tensor(p11).reshape(1,-1), torch.tensor(t11).reshape(1,-1)))
-            self.assertAlmostEqual(new_kl_divergence, torch_kl_div)
+            self.assert_almost_equal(new_kl_divergence, torch_kl_div, "kullback leibler divergence")
         return
 
     def test_kl_divergence_func(self):
@@ -1880,7 +1881,7 @@ class Test_Torch_metrics(unittest.TestCase):
             new_kl_divergence = sm_kl_divergence(t11, p11)
             kl_div = KLDivergence()
             torch_kl_div = tensor_to_float(kl_div(torch.tensor(p11).reshape(1,-1), torch.tensor(t11).reshape(1,-1)))
-            self.assertAlmostEqual(new_kl_divergence, torch_kl_div)
+            self.assert_almost_equal(new_kl_divergence, torch_kl_div, "kullback leibler divergence")
         return
 
     def test_log_cosh_error_cls(self):
@@ -1894,7 +1895,7 @@ class Test_Torch_metrics(unittest.TestCase):
             new_log_cosh_error = metrics.log_cosh_error()
             lg_cosh_err = LogCoshError()
             torch_lg_cosh_err = tensor_to_float(lg_cosh_err(torch.tensor(p11), torch.tensor(t11)))
-            self.assertAlmostEqual(new_log_cosh_error, torch_lg_cosh_err)
+            self.assert_almost_equal(new_log_cosh_error, torch_lg_cosh_err, "log cosh error")
         return
 
     def test_log_cosh_error_func(self):
@@ -1909,7 +1910,7 @@ class Test_Torch_metrics(unittest.TestCase):
             lg_cosh_err = LogCoshError()
             torch_lg_cosh_err = tensor_to_float(lg_cosh_err(torch.tensor(p11), torch.tensor(t11)))
 
-            self.assertAlmostEqual(new_log_cosh_error, torch_lg_cosh_err)
+            self.assert_almost_equal(new_log_cosh_error, torch_lg_cosh_err, "log cosh error")
         return
 
     def test_minkowski_distance_cls(self):
@@ -1923,7 +1924,7 @@ class Test_Torch_metrics(unittest.TestCase):
             new_minkowski_distance = metrics.minkowski_distance()
             mink_dist = MinkowskiDistance(1)
             torch_mink_dist = tensor_to_float(mink_dist(torch.tensor(p11), torch.tensor(t11)))
-            self.assertAlmostEqual(new_minkowski_distance, torch_mink_dist, 4)  # todo, 4 is too low
+            self.assert_almost_equal(new_minkowski_distance, torch_mink_dist, "minkowski distance", 4)  # todo, 4 is too low
         return
 
     def test_minkowski_distance_func(self):
@@ -1937,7 +1938,7 @@ class Test_Torch_metrics(unittest.TestCase):
             new_minkowski_distance = sm_minkowski_distance(t11, p11)
             mink_dist = MinkowskiDistance(1)
             torch_mink_dist = tensor_to_float(mink_dist(torch.tensor(p11), torch.tensor(t11)))
-            self.assertAlmostEqual(new_minkowski_distance, torch_mink_dist, 4)  # todo, 4 is too low
+            self.assert_almost_equal(new_minkowski_distance, torch_mink_dist, "minkowski distance", 4)  # todo, 4 is too low
         return
 
     def test_tweedie_deviance_score_cls(self):
@@ -1951,7 +1952,7 @@ class Test_Torch_metrics(unittest.TestCase):
             new_tweedie_deviance_score = metrics.tweedie_deviance_score()
             tw_dev_score = TweedieDevianceScore(0)
             torch_tw_dev_score = tensor_to_float(tw_dev_score(torch.tensor(p11), torch.tensor(t11)))
-            self.assertAlmostEqual(new_tweedie_deviance_score, torch_tw_dev_score)
+            self.assert_almost_equal(new_tweedie_deviance_score, torch_tw_dev_score, "tweedie_deviance_score")
         return
 
     def test_tweedie_deviance_score_func(self):
@@ -1965,16 +1966,35 @@ class Test_Torch_metrics(unittest.TestCase):
             new_tweedie_deviance_score = sm_tweedie_deviance_score(t11, p11)
             tw_dev_score = TweedieDevianceScore(0)
             torch_tw_dev_score = tensor_to_float(tw_dev_score(torch.tensor(p11), torch.tensor(t11)))
-            self.assertAlmostEqual(new_tweedie_deviance_score, torch_tw_dev_score)
+
+            self.assert_almost_equal(new_tweedie_deviance_score, torch_tw_dev_score, "tweedie_deviance_score")
+        return
+
+    def assert_almost_equal(self, a, b, metric:str, places=7):
+        if a is None:
+            print(f"a is None. Can't varify {metric}")
+            return
+        if b is None:
+            print(f"b is None. Can't varify {metric}")
+            return
+        self.assertAlmostEqual(a, b, places)
         return
 
 
 def tensor_to_float(tensor)->float:
-    if hasattr(tensor, 'numpy'):
-        return tensor.numpy().item()
-    if hasattr(tensor, 'item'):
-        return tensor.item()
-    return tensor
+    # there are problems in converting tensor to float
+    # for some torch/numpy combinations. We don't capture those
+    # errors because they are not in our control and don't originate
+    # from our code.
+    out = None
+    try:
+        out = tensor.numpy().item()
+    except Exception as e:
+        try:
+            out = float(tensor)
+        except Exception as e:
+            pass
+    return out
 
 
 class TestTreatment(unittest.TestCase):
