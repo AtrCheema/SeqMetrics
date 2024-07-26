@@ -23,7 +23,7 @@ setup(
     author_email='ather_abbas786@yahoo.com',
 
     classifiers=[
-        'Development Status :: 5 - Stable',
+        "Development Status :: 5 - Production/Stable",
 
         'Natural Language :: English',
 
@@ -42,16 +42,12 @@ setup(
         'Programming Language :: Python :: 3.11',
         'Programming Language :: Python :: 3.12',
 
-        'License :: OSI Approved :: GNU GPL',
-
-        'Topic :: Scientific/Engineering',
-        'Topic :: Machine Learning',
-        'Topic :: Artificial Intelligence',
-        'Topic :: Data Analysis',
-        'Topic :: Data Science',
-        'Topic :: Data Visualization',
-        'Topic :: Statistics',
-        'Topic :: Modeling',
+        "Topic :: Scientific/Engineering :: Artificial Intelligence",
+        "Topic :: Education",
+        "Topic :: Scientific/Engineering :: Information Analysis",
+        "Topic :: Scientific/Engineering :: Hydrology",
+        "Topic :: Scientific/Engineering :: Visualization",
+        "Topic :: Utilities",
     ],
 
     packages=['SeqMetrics'],
