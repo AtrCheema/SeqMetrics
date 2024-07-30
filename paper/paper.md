@@ -26,7 +26,7 @@ bibliography: paper.bib
 ---
 
 # Summary
-Current Python infrastructure lacks a robust, unified and simplified library for
+Current Python infrastructure lacks a robust, unified, and simplified library for
 error and performance metrics calculations. The SeqMetrics application responds 
 to this critical need, providing a robust toolkit for evaluating regression and 
 classification models with a comprehensive suite of performance metrics suitable 
@@ -52,16 +52,16 @@ lacks a unified library encompassing performance metrics across diverse fields
 for one-dimensional numerical data. 
 Existing Python libraries for performance evaluation offer only a limited number of metrics. 
 For instance, the metrics sub-module from Keras [@chollet2015keras] contains only 24 metrics, 
-while scikit-learn's [@pedregosa2011scikit] metrics module covers 45 metrics. Torchmetrics library, [@detlefsen2022torchmetrics] 
-offers a comprehensive list of over 100 metrics from diverse fields. However, it provides only 48 which are intended
+while scikit-learn's [@pedregosa2011scikit] metrics module covers 45 metrics. The TorchMetrics library [@detlefsen2022torchmetrics]
+offers a comprehensive list of over 100 metrics from diverse fields. However, it provides only 48 that are intended
 for 1-dimensional numerical data. Morevoer, the library's module-based API requires understanding of Object Oriented Programming
 and its simpler functional API does not cover all metrics.
 There are also some subject-specific
-libraries. These include NeuralHydrology [@Kratzert2022], hydroeval [@hydroeval2021] and HydroErr [@wade2018hydroerr],
+libraries. These include NeuralHydrology [@Kratzert2022], hydroeval [@hydroeval2021], and HydroErr [@wade2018hydroerr],
 which address the needs of hydrology and water sciences. However, these resources
 lack more general sets of metrics, which the experts in these domains often require. 
 Another limitation of these otherwise valuable libraries is their wide range of dependencies. 
-For example, torchmetrics depends on Pytorch [@paszke2019pytorch], which itself depends on several other libraries. This 
+For example, TorchMetrics depends on PyTorch [@paszke2019pytorch], which itself depends on several other libraries. This 
 can lead to dependency conflicts due to version constraints, complicating the maintenance 
 of multiple libraries within a single Python environment [@Wang2020].
 Addressing this gap is imperative to provide 
@@ -89,11 +89,11 @@ data, there are classification metrics including accuracy, precision, recall, F1
 score, and the area under the ROC curve, among others. 
 From a programming perspective, the SeqMetrics library employs a modular architecture, 
 offering functional and class-based APIs for smooth integration across diverse 
-coding environments. The class-based API consists of ‘RegressionMetrics’ and 
-‘ClassificationMetrics’ classes (\autoref{fig1}a), which provide users with a structured
+coding environments. The class-based API consists of `RegressionMetrics` and
+`ClassificationMetrics` classes (\autoref{fig1}a), which provide users with a structured
 approach for model evaluation. The user has to first initialize these classes by 
 providing the data and then all the performance metrics are available from the 
-respect instances of the classes. Conversely, the functional API offers a more 
+respective instances of the classes. Conversely, the functional API offers a more
 simplified approach to access these metrics without initializing the classes 
 initially (\autoref{fig1}b). All the functions which calculate performance metrics
 receive two arrays as obligatory input arguments and return a scalar value 
@@ -109,8 +109,8 @@ scientific community.
 # Graphical User Interface
 The SeqMetrics GUI offers a user-friendly and intuitive 
 platform for seamless error calculation. This interface is built and deployed using 
-streamlit at https://seqmetrics.streamlit.app . There are two ways of providing input 
-in this web-based GUI. The first method consists of 
+streamlit at [https://seqmetrics.streamlit.app](https://seqmetrics.streamlit.app).
+There are two ways of providing input in this web-based GUI. The first method consists of
 providing the input data arrays by copying and pasting the true and predicted 
 arrays (\autoref{fig2}). Another way is by importing CSV or Excel files into the
 interface (\autoref{fig3}). This streamlines the process of entering true and predicted
