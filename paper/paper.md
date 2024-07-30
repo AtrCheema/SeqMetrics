@@ -26,7 +26,7 @@ bibliography: paper.bib
 ---
 
 # Summary
-Current Python infrastructure lacks a robust, unified and simplified library for
+Current Python infrastructure lacks a robust, unified, and simplified library for
 error and performance metrics calculations. The SeqMetrics application responds 
 to this critical need, providing a robust toolkit for evaluating regression and 
 classification models with a comprehensive suite of performance metrics suitable 
@@ -53,11 +53,11 @@ for one-dimensional numerical data.
 Existing Python libraries for performance evaluation offer only a limited number of metrics. 
 For instance, the metrics sub-module from Keras [@chollet2015keras] contains only 24 metrics, 
 while scikit-learn's [@pedregosa2011scikit] metrics module covers 45 metrics. The TorchMetrics library [@detlefsen2022torchmetrics]
-offers a comprehensive list of over 100 metrics from diverse fields. However, it provides only 48 which are intended
+offers a comprehensive list of over 100 metrics from diverse fields. However, it provides only 48 that are intended
 for 1-dimensional numerical data. Morevoer, the library's module-based API requires understanding of Object Oriented Programming
 and its simpler functional API does not cover all metrics.
 There are also some subject-specific
-libraries. These include NeuralHydrology [@Kratzert2022], hydroeval [@hydroeval2021] and HydroErr [@wade2018hydroerr],
+libraries. These include NeuralHydrology [@Kratzert2022], hydroeval [@hydroeval2021], and HydroErr [@wade2018hydroerr],
 which address the needs of hydrology and water sciences. However, these resources
 lack more general sets of metrics, which the experts in these domains often require. 
 Another limitation of these otherwise valuable libraries is their wide range of dependencies. 
