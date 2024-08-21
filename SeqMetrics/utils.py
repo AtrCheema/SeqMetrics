@@ -548,6 +548,9 @@ METRIC_TYPES = {
     "legates_coeff_eff": "max",
     "relative_error": "min",
     "manhattan_distance": "min",
+    "log_nse": "max",
+    "norm_nse": "max",
+    "coeff_of_persistence": "max",
 }
 
 

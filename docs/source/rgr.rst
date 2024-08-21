@@ -88,6 +88,7 @@ metrics.
 .. autofunction:: SeqMetrics.norm_ae
 .. autofunction:: SeqMetrics.norm_ape
 .. autofunction:: SeqMetrics.log_prob
+.. autofunction:: SeqMetrics.log_nse
 .. autofunction:: SeqMetrics.rmdspe
 .. autofunction:: SeqMetrics.rse
 .. autofunction:: SeqMetrics.rrse
@@ -128,6 +129,8 @@ metrics.
 .. autofunction:: SeqMetrics.mape_for_peaks
 .. autofunction:: SeqMetrics.legates_coeff_eff
 .. autofunction:: SeqMetrics.manhattan_distance
+.. autofunction:: SeqMetrics.norm_nse
+.. autofunction:: SeqMetrics.coeff_of_persistence   
 
 
 .. autofunction:: SeqMetrics.calculate_hydro_metrics

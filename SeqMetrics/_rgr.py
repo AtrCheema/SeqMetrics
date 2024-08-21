@@ -761,16 +761,23 @@ class RegressionMetrics(Metrics):
     def kge(self):
         """
         Kling-Gupta Efficiency following `Gupta_ et al. 2009 <https://doi.org/10.1016/j.jhydrol.2009.08.003>`_.
+        This error considers `correlation`, `variability` and `mean` difference/error.
 
         .. math::
             \\text{KGE} = 1 - \\sqrt{(r - 1)^2 + (\\alpha - 1)^2 + (\\beta - 1)^2}
         .. math::
-            \\r = \\frac{\\sum_{i=1}^{N} ( \\text{true}_i - \\bar{\\text{true}} ) ( \\text{predicted}_i - \\bar{\\text{predicted}} )}{\\sqrt{\\sum_{i=1}^{N} ( \\text{true}_i - \\bar{\\text{true}} )^2} \\sqrt{\\sum_{i=1}^{N} ( \\text{predicted}_i - \\bar{\\text{predicted}} )^2}}
-        .. math::
             \\alpha = \\frac{\\sigma_{\\text{predicted}}}{\\sigma_{\\text{true}}}
         .. math::
-            \\beta = \\frac{\\mu_{\\text{predicted}}}{\\mu_{\\text{true}}}
+            \\beta = \\frac{\\mu_{\\text{predicted}}}{\\mu_{\\text{true}}}            
+            
+        In this equation, alpha accounts for the variability (standard deviation), beta accounts for 
+        the mean difference and r accounts for the correlation between the true and predicted values.
+        This equation can also be written as belowS            
+            
+        .. math::
+            \\text{KGE} = \\frac{\\sum_{i=1}^{N} ( \\text{true}_i - \\bar{\\text{true}} ) ( \\text{predicted}_i - \\bar{\\text{predicted}} )}{\\sqrt{\\sum_{i=1}^{N} ( \\text{true}_i - \\bar{\\text{true}} )^2} \\sqrt{\\sum_{i=1}^{N} ( \\text{predicted}_i - \\bar{\\text{predicted}} )^2}}
 
+            
         Examples
         ---------
         >>> import numpy as np
@@ -1045,7 +1052,7 @@ class RegressionMetrics(Metrics):
     def mase(self, seasonality: int = 1):
         """
         Mean Absolute Scaled Error. Baseline (benchmark) is computed with naive
-        forecasting (shifted by @seasonality) modified after `this <https://gist.github.com/bshishov/5dc237f59f019b26145648e2124ca1c9>`_. It is the
+        forecasting (shifted by seasonality) modified after `this <https://gist.github.com/bshishov/5dc237f59f019b26145648e2124ca1c9>`_. It is the
         ratio of MAE of used model and MAE of naive forecast.
 
         .. math::
@@ -1604,6 +1611,8 @@ class RegressionMetrics(Metrics):
         .. math::
             \\text{NSE} = 1 - \\frac{\\sum_{i=1}^{N} (predicted_i - true_i)^2}{\\sum_{i=1}^{N} (true_i - \\bar{true})^2}
 
+        where the bar above predicted and true indicates the mean of the array.            
+            
         References
         ----------
         - Moriasi, D. N., Gitau, M. W., Pai, N., & Daggupati, P. (2015). Hydrologic and water quality models:
@@ -1721,24 +1730,30 @@ class RegressionMetrics(Metrics):
         """
         return nse_bound(true=self.true, predicted=self.predicted, treat_arrays=False)
 
-    # def log_nse(self, epsilon=0.0) -> float:
-    #     """
-    #     log Nash-Sutcliffe model efficiency
-    #
-    #     .. math::
-    #         NSE = 1-\\frac{\\sum_{i=1}^{N}(log(e_{i})-log(s_{i}))^2}{\\sum_{i=1}^{N}(log(e_{i})-log(\\bar{e})^2}-1)*-1
-    #
-    #         Examples
-    #     ---------
-    #     >>> import numpy as np
-    #     >>> from SeqMetrics import RegressionMetrics
-    #     >>> t = np.random.random(10)
-    #     >>> p = np.random.random(10)
-    #     >>> metrics= RegressionMetrics(t, p)
-    #     >>> metrics.log_nse()
-    #
-    #     """
-    #     return log_nse(true=self.true, predicted=self.predicted, epsilon=epsilon, treat_arrays=False)
+    def log_nse(
+            self, 
+            epsilon:float=0.0,
+            log_base:str = 'e'
+            ) -> float:
+        """
+        `log transformed Nash-Sutcliffe Efficiency <https://doi.org/10.1002/2016WR019605>`_.
+        It is especially useful for capturing prediction performance for the lowest flows 
+        due to the logarithmic transform.
+            
+        .. math::
+            NSE = 1-\\frac{\\sum_{i=1}^{N}(log(e_{i})-log(s_{i}))^2}{\\sum_{i=1}^{N}(log(e_{i})-log(\\bar{e})^2}-1)*-1
+    
+            Examples
+        ---------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> t = np.random.random(10)
+        >>> p = np.random.random(10)
+        >>> metrics= RegressionMetrics(t, p)
+        >>> metrics.log_nse()
+    
+        """
+        return log_nse(true=self.true, predicted=self.predicted, epsilon=epsilon, log_base=log_base, treat_arrays=False)
 
     def log_prob(self) -> float:
         """
@@ -1955,6 +1970,8 @@ class RegressionMetrics(Metrics):
         .. math ::
             R^2 = \\left( \\frac{\\sum_{i=1}^{N} \\left( \\frac{true_i - \\bar{true}}{\\sigma_{true}} \\cdot \\frac{predicted_i - \\bar{predicted}}{\\sigma_{predicted}} \\right)}{N - 1} \\right)^2
 
+        where the bar above predicted and true indicates the mean of the array.
+            
         .. _explains:
             https://data.library.virginia.edu/is-r-squared-useless/
 
@@ -2700,6 +2717,8 @@ def r2(true, predicted, treat_arrays: bool = True,
     .. math ::
         R^2 = \\left( \\frac{\\sum_{i=1}^{N} \\left( \\frac{true_i - \\bar{true}}{\\sigma_{true}} \\cdot \\frac{predicted_i - \\bar{predicted}}{\\sigma_{predicted}} \\right)}{N - 1} \\right)^2
 
+    where the bar above predicted and true indicates the mean of the array.
+
     Parameters
     ----------
     true :
@@ -2726,7 +2745,9 @@ def r2(true, predicted, treat_arrays: bool = True,
     return float(r ** 2)
 
 
-def nse(true, predicted, treat_arrays: bool = True,
+def nse(true, 
+        predicted, 
+        treat_arrays: bool = True,
         **treat_arrays_kws) -> float:
     """Nash-Sutcliff Efficiency.
 
@@ -2741,6 +2762,9 @@ def nse(true, predicted, treat_arrays: bool = True,
 
     .. math::
         \\text{NSE} = 1 - \\frac{\\sum_{i=1}^{N} (predicted_i - true_i)^2}{\\sum_{i=1}^{N} (true_i - \\bar{true})^2}
+
+    where the bar above predicted and true indicates the mean of the array.
+        
     Parameters
     ----------
     true :
@@ -2762,7 +2786,7 @@ def nse(true, predicted, treat_arrays: bool = True,
     true, predicted = maybe_treat_arrays(treat_arrays, true, predicted, 'regression', **treat_arrays_kws)
 
     _nse = 1 - sum((predicted - true) ** 2) / sum((true - np.mean(true)) ** 2)
-    return float(_nse)
+    return float(_nse.item())
 
 
 def nse_alpha(true, predicted, treat_arrays: bool = True,
@@ -2797,7 +2821,7 @@ def nse_alpha(true, predicted, treat_arrays: bool = True,
     >>> nse_alpha(t, p)
     """
     true, predicted = maybe_treat_arrays(treat_arrays, true, predicted, 'regression', **treat_arrays_kws)
-    return float(np.std(predicted) / np.std(true))
+    return float(np.std(predicted) / np.std(true).item())
 
 
 def nse_beta(true, predicted, treat_arrays: bool = True,
@@ -2833,7 +2857,7 @@ def nse_beta(true, predicted, treat_arrays: bool = True,
 
     """
     true, predicted = maybe_treat_arrays(treat_arrays, true, predicted, 'regression', **treat_arrays_kws)
-    return float((np.mean(predicted) - np.mean(true)) / np.std(true))
+    return float((np.mean(predicted) - np.mean(true)) / np.std(true).item())
 
 
 def nse_mod(true, predicted, treat_arrays: bool = True,
@@ -3039,15 +3063,23 @@ def kge(true,
         **treat_arrays_kws):
     """
     Kling-Gupta Efficiency following `Gupta_ et al. 2009 <https://doi.org/10.1016/j.jhydrol.2009.08.003>`_.
+    This error considers `correlation`, `variability` and `mean` difference/error.
 
     .. math::
         \\text{KGE} = 1 - \\sqrt{(r - 1)^2 + (\\alpha - 1)^2 + (\\beta - 1)^2}
-    .. math::
-        \\r = \\frac{\\sum_{i=1}^{N} ( \\text{true}_i - \\bar{\\text{true}} ) ( \\text{predicted}_i - \\bar{\\text{predicted}} )}{\\sqrt{\\sum_{i=1}^{N} ( \\text{true}_i - \\bar{\\text{true}} )^2} \\sqrt{\\sum_{i=1}^{N} ( \\text{predicted}_i - \\bar{\\text{predicted}} )^2}}
+
     .. math::
         \\alpha = \\frac{\\sigma_{\\text{predicted}}}{\\sigma_{\\text{true}}}
     .. math::
-        \\beta = \\frac{\\mu_{\\text{predicted}}}{\\mu_{\\text{true}}}
+        \\beta = \\frac{\\mu_{\\text{predicted}}}{\\mu_{\\text{true}}}        
+        
+    In this equation, alpha accounts for the variability (standard deviation), beta accounts for 
+    the mean difference and r accounts for the correlation between the true and predicted values.
+    This equation can also be written as belowS        
+        
+    .. math::
+        \\text{KGE} = \\frac{\\sum_{i=1}^{N} ( \\text{true}_i - \\bar{\\text{true}} ) ( \\text{predicted}_i - \\bar{\\text{predicted}} )}{\\sqrt{\\sum_{i=1}^{N} ( \\text{true}_i - \\bar{\\text{true}} )^2} \\sqrt{\\sum_{i=1}^{N} ( \\text{predicted}_i - \\bar{\\text{predicted}} )^2}}
+
 
     output:
         If return_all is True, it returns a numpy array of shape (4, ) containing
@@ -3078,9 +3110,9 @@ def kge(true,
     >>> kge(t, p)
     """
     true, predicted = maybe_treat_arrays(treat_arrays, true, predicted, 'regression', **treat_arrays_kws)
-    cc = np.corrcoef(true, predicted)[0, 1]
-    alpha = np.std(predicted) / np.std(true)
-    beta = np.sum(predicted) / np.sum(true)
+    cc = np.corrcoef(true, predicted)[0, 1]   # correlation
+    alpha = np.std(predicted) / np.std(true)  # variability
+    beta = np.sum(predicted) / np.sum(true)   # mean
     return post_process_kge(cc, alpha, beta, return_all)
 
 
@@ -3116,7 +3148,7 @@ def kge_bound(true, predicted, treat_arrays: bool = True,
     kge_ = kge(true, predicted, return_all=True, treat_arrays=False)[0, :]
     kge_c2m_ = kge_ / (2 - kge_)
 
-    return float(kge_c2m_)
+    return float(kge_c2m_.item())
 
 
 def kge_mod(true, predicted, treat_arrays: bool = True, return_all=False,
@@ -3325,37 +3357,64 @@ def spearmann_corr(
 #     return float(numerator / (denominator1 * denominator2))
 
 
-# def log_nse(true, predicted, treat_arrays: bool = True, epsilon=0.0,
-#             **treat_arrays_kws) -> float:
-#     """
-#     log Nash-Sutcliffe model efficiency
-#
-#     .. math::
-#         NSE = 1-\\frac{\\sum_{i=1}^{N}(log(e_{i})-log(s_{i}))^2}{\\sum_{i=1}^{N}(log(e_{i})-log(\\bar{e})^2}-1)*-1
-#
-#     Parameters
-#     ----------
-#     true :
-#          true/observed/actual/target values. It must be a numpy array,
-#          or pandas series/DataFrame or a list.
-#     predicted :
-#          simulated values
-#     treat_arrays :
-#         process the true and predicted arrays using maybe_treat_arrays function
-#     epsilon :
-#
-#         Examples
-#     ---------
-#     >>> import numpy as np
-#     >>> from SeqMetrics import log_nse
-#     >>> t = np.random.random(10)
-#     >>> p = np.random.random(10)
-#     >>> log_nse(t, p)
-#
-#     """
-#     true, predicted = maybe_treat_arrays(treat_arrays, true, predicted, 'regression', **treat_arrays_kws)
-#     s, o = predicted + epsilon, true + epsilon  # todo, check why s is here
-#     return float(1 - sum((np.log(o) - np.log(o)) ** 2) / sum((np.log(o) - np.mean(np.log(o))) ** 2))
+def log_nse(true, 
+            predicted, 
+            treat_arrays: bool = True, 
+            epsilon:float=0.0,
+            log_base:str='e',
+            **treat_arrays_kws) -> float:
+    """
+    `log transformed Nash-Sutcliffe Efficiency <https://doi.org/10.1002/2016WR019605>`_.
+
+    It is especially useful for capturing prediction performance for the lowest flows 
+    due to the logarithmic transform.
+
+    .. math::
+        NSE = 1-\\frac{\\sum_{i=1}^{N}(log(e_{i})-log(s_{i}))^2}{\\sum_{i=1}^{N}(log(e_{i})-log(\\bar{e})^2}-1)*-1
+
+    Parameters
+    ----------
+    true :
+         true/observed/actual/target values. It must be a numpy array,
+         or pandas series/DataFrame or a list.
+    predicted :
+         simulated values
+    treat_arrays :
+        process the true and predicted arrays using maybe_treat_arrays function
+    epsilon :
+        A small value to be added to true and predicted values to avoid log(0)
+
+    References
+    ----------
+    Pushpalatha, R.; Perrin, C.; le Moine, N. and Andréassian V. (2012). "A
+    review of efficiency criteria suitable for evaluating low-flow
+    simulations". Journal of Hydrology. 420-421, 171-182.
+    doi:10.1016/j.jhydrol.2011.11.055    
+
+    https://doi.org/10.1029/2012WR012005
+
+    Examples
+    ---------
+    >>> import numpy as np
+    >>> from SeqMetrics import log_nse
+    >>> t = np.random.random(10)
+    >>> p = np.random.random(10)
+    >>> log_nse(t, p)
+
+    """
+    true, predicted = maybe_treat_arrays(treat_arrays, true, predicted, 'regression', **treat_arrays_kws)
+
+    if log_base == 'e':
+        func = np.log
+    elif log_base == '10':
+        func = np.log10
+    elif log_base == '2':
+        func = np.log2
+    else:
+        raise ValueError('log_base must be e, 10 or 2')
+
+    true, predicted = func(true + epsilon), func(predicted + epsilon)
+    return nse(true, predicted, treat_arrays=False)
 
 
 def corr_coeff(true, predicted, treat_arrays: bool = True,
@@ -3784,7 +3843,7 @@ def irmse(true, predicted, treat_arrays: bool = True,
 def mase(true, predicted, treat_arrays: bool = True, seasonality: int = 1, **treat_arrays_kws):
     """
     Mean Absolute Scaled Error. Baseline (benchmark) is computed with naive
-    forecasting (shifted by @seasonality) modified after `this <https://gist.github.com/bshishov/5dc237f59f019b26145648e2124ca1c9>`_. It is the
+    forecasting (shifted by seasonality) modified after `this <https://gist.github.com/bshishov/5dc237f59f019b26145648e2124ca1c9>`_. It is the
     ratio of MAE of used model and MAE of naive forecast.
 
     .. math::
@@ -5098,7 +5157,7 @@ def kgeprime_bound(true, predicted, treat_arrays: bool = True,
     kgeprime_ = kge_mod(true, predicted, return_all=True, treat_arrays=False)[0, :]
     kgeprime_c2m_ = kgeprime_ / (2 - kgeprime_)
 
-    return float(kgeprime_c2m_)
+    return float(kgeprime_c2m_.item())
 
 
 def kgenp_bound(true, predicted, treat_arrays: bool = True,
@@ -5132,7 +5191,7 @@ def kgenp_bound(true, predicted, treat_arrays: bool = True,
     kgenp_ = kge_np(return_all=True, true=true, predicted=predicted, treat_arrays=False)[0, :]
     kgenp_c2m_ = kgenp_ / (2 - kgenp_)
 
-    return float(kgenp_c2m_)
+    return float(kgenp_c2m_.item())
 
 
 def kl_sym(true, predicted, treat_arrays: bool = True,
@@ -5979,6 +6038,32 @@ def norm_euclid_distance(true, predicted, treat_arrays: bool = True,
     return float(np.linalg.norm(a - b))
 
 
+def norm_nse(
+        true,
+        predicted, 
+        treat_arrays: bool = True,
+        **treat_arrays_kws
+        ) -> float:
+    """
+    `Normalized Nash-Sutcliffe Efficiency <https://doi.org/10.1029/2021WR030138>`_. 
+    It ranges from 0 to 1. A value of 1 indicates perfect fit.
+
+        Parameters
+    ----------
+    true :
+         true/observed/actual/target values. It must be a numpy array,
+         or pandas series/DataFrame or a list.
+    predicted :
+         simulated values
+    treat_arrays :
+        process the true and predicted arrays using maybe_treat_arrays function
+    
+    """
+    true, predicted = maybe_treat_arrays(treat_arrays, true, predicted, 'regression', **treat_arrays_kws)
+    nse_ = nse(true, predicted, treat_arrays=False)
+    return 1 / (2 - nse_)
+
+
 def nrmse_range(true, predicted, treat_arrays: bool = True,
                 **treat_arrays_kws) -> float:
     """Range Normalized Root Mean Squared Error.
@@ -6093,7 +6178,8 @@ def nrmse_mean(true, predicted, treat_arrays: bool = True,
 
 def norm_ae(true, predicted, treat_arrays: bool = True,
             **treat_arrays_kws) -> float:
-    """ `Normalized Absolute Error <https://doi.org/10.1016/j.apor.2024.104042>`_
+    """ 
+    `Normalized Absolute Error <https://doi.org/10.1016/j.apor.2024.104042>`_
 
     .. math::
         norm\\_ae = \\sqrt{\\frac{\\sum_{i=1}^{n} (error_i - MAE)^2}{n - 1}}
@@ -7279,7 +7365,7 @@ def log_cosh_error(
 
     # Calculation of Log-Cosh Error
     error = np.log(np.cosh(predicted - true))
-    return float(np.mean(error))
+    return float(np.mean(error).item())
 
 def minkowski_distance(
         true, predicted, order =1, treat_arrays: bool = True, **treat_arrays_kws
@@ -7418,7 +7504,7 @@ def mre(
 
     true, predicted = maybe_treat_arrays(treat_arrays, true, predicted, 'regression', **treat_arrays_kws)
     re = _relative_error(true, predicted, benchmark)
-    return float(np.mean(re))
+    return float(np.mean(re).item())
 
 
 # def peak_flow_ratio(
@@ -7583,7 +7669,103 @@ def manhattan_distance(
     """
     true, predicted = maybe_treat_arrays(treat_arrays, true, predicted, 'regression', **treat_arrays_kws)
 
-    return float(np.sum(np.abs(true - predicted)))
+    return float(np.sum(np.abs(true - predicted)).item())
+
+
+def coeff_of_persistence(
+        true,
+        predicted,
+        lag: int = 1,
+        treat_arrays: bool = True,
+        **treat_arrays_kws
+) -> float:
+    """
+    Coefficient of Persistence. Varies between -inf to 1. The higher the better.
+
+    Parameters
+    ----------
+    true :
+        True/observed/actual/target values. It must be a numpy array,
+        pandas series/DataFrame, or a list.
+    predicted :
+        Predicted values, same format as 'true'.
+    lag :
+        The lag for the baseline
+    treat_arrays :
+        treat_arrays the true and predicted array
+    
+    References
+    ----------
+    Kitanidis, P. K., & Bras, R. L. (1980). Real-time forecasting with a conceptual 
+        hydrologic model: 2. Applications and results. Water Resources Research, 
+        16(6), 1034-1044.
+    Nossent, J., & Bauwens, W. (2012, April). Application of a normalized 
+        Nash-Sutcliffe efficiency to improve the accuracy of the Sobol'sensitivity 
+        analysis of a hydrological model. In EGU General Assembly Conference 
+        Abstracts (p. 237).    
+
+
+    Examples
+    ---------
+    >>> import numpy as np
+    >>> from SeqMetrics import manhattan_distance
+    >>> t = np.random.random(100)
+    >>> p = np.random.random(100)
+    >>> coeff_of_persistence(t, p)
+
+    """
+
+    true, predicted = maybe_treat_arrays(treat_arrays, true, predicted, 'regression', **treat_arrays_kws)
+
+    baseline = np.roll(true, lag)
+
+    true, predicted, baseline = true[lag:], predicted[lag:], baseline[lag:]
+
+    numerator = np.sum(np.abs(np.subtract(true, predicted)) ** 2.0) / len(true)
+    denominator = np.sum(np.abs(np.subtract(true, baseline)) ** 2.0) / len(true)   
+    return 1.0 - numerator/denominator
+
+
+def reciprocal_nse(
+        true,
+        predicted,
+        treat_arrays: bool = True,
+        **treat_arrays_kws
+)->float:
+    """
+    The reciprocal NSE focuses the error metric on low flows `Pushpalatha et al., 2012 <https://doi.org/10.1016/j.jhydrol.2011.11.055>`_
+    by comparing the reciprocals of the observed and modelled
+    flows. Formula taken from `Clark et al., 2024 <https://doi.org/10.5194/hess-28-1191-2024>`_
+    """
+    true, predicted = maybe_treat_arrays(treat_arrays, true, predicted, 'regression', **treat_arrays_kws)
+
+    recip_pred = 1.0 / (predicted+1.0)
+    recip_true = 1.0 / (true+1.0)
+    recip_true_mean = 1.0 / (np.mean(true)+1.0)
+
+    numerator = sum((recip_pred - recip_true) ** 2) 
+    denominator = sum((true - recip_true_mean) ** 2)
+    _nse = 1 -  numerator / denominator
+    return float(_nse.item())
+
+
+def coeff_of_extrapolation():
+    # https://github.com/NOAA-OWP/hydrotools/blob/main/python/metrics/src/hydrotools/metrics/metrics.py#L303
+    raise NotImplementedError
+
+
+def roce():
+    """
+    `KOllat et al., 2012 <https://doi.org/10.1029/2011WR011534>`_
+    """
+    raise NotImplementedError
+
+
+def trmse():
+    # `KOllat et al., 2012 <https://doi.org/10.1029/2011WR011534>`_
+    # Mirirli et al., 2003 https://doi.org/10.1029/WS006p0113
+    # Tang et al., 2006 https://doi.org/10.5194/hess-10-289-2006
+    raise NotImplementedError
 
 
 def drv():

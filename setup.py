@@ -23,7 +23,7 @@ setup(
     author_email='ather_abbas786@yahoo.com',
 
     classifiers=[
-        'Development Status :: 4 - Beta',
+        "Development Status :: 5 - Production/Stable",
 
         'Natural Language :: English',
 
@@ -41,15 +41,22 @@ setup(
         'Programming Language :: Python :: 3.10',
         'Programming Language :: Python :: 3.11',
         'Programming Language :: Python :: 3.12',
+
+        "Topic :: Scientific/Engineering :: Artificial Intelligence",
+        "Topic :: Education",
+        "Topic :: Scientific/Engineering :: Information Analysis",
+        "Topic :: Scientific/Engineering :: Hydrology",
+        "Topic :: Scientific/Engineering :: Visualization",
+        "Topic :: Utilities",
     ],
 
     packages=['SeqMetrics'],
 
     install_requires=[
-        'numpy<=1.26.4, >=1.17',
+        'numpy<=2.0.1, >=1.17',
     ],
     extras_require={
-        'all': ["numpy<=1.26.4, >=1.17",
+        'all': ["numpy<=2.0.1, >=1.17",
                 "scipy<=1.13, >=1.4",
                 "easy_mpl"],
     }

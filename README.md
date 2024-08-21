@@ -1,4 +1,6 @@
 
+# SeqMetrics: a unified library for performance metrics calculation in Python
+
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/d11c4520bf514a3094dc2c13659d0bc5)](https://www.codacy.com/gh/AtrCheema/SeqMetrics/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=AtrCheema/SeqMetrics&amp;utm_campaign=Badge_Grade)
 [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![HitCount](http://hits.dwyl.com/AtrCheema/SeqMetrics.svg)](http://hits.dwyl.com/AtrCheema/SeqMetrics)
@@ -9,6 +11,8 @@
 ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/AtrCheema/SeqMetrics)
 ![GitHub contributors](https://img.shields.io/github/contributors/AtrCheema/SeqMetrics)
 ![GitHub last commit (branch)](https://img.shields.io/github/last-commit/AtrCheema/SeqMetrics/master)
+[![Zenodo](https://zenodo.org/badge/251072512.svg)](https://zenodo.org/doi/10.5281/zenodo.12958901)
+[![DOI](https://joss.theoj.org/papers/10.21105/joss.06450/status.svg)](https://doi.org/10.21105/joss.06450)
 
 The purpose of this repository to collect various classification and regression 
 performance metrics or errors which can be calculated for time-series/sequential/tabular data, 
@@ -39,8 +43,27 @@ or [mape_for_peaks]() while easy_mpl is used for plotting purpose.
 
 ## How to Use
 SeqMetrics provides a uniform API for calculation of both regression and classification metrics.
+It has a functional API and a class based API.
 
-### RegressionMetrics
+### Regression Metrics
+
+The use of the functional API is as straightforward as calling the required function 
+and providing it with true and predicted arrays or array-like objects (lists, tuples, DataFrames, Series, tensors).
+
+```python
+import numpy as np
+from SeqMetrics import nse
+
+true = np.random.random((20, 1))
+pred = np.random.random((20, 1))
+
+nse(true, pred)   # calculate Nash Sutcliff efficiency
+
+```
+
+The method for calling functions is consistent across all 100+ metrics. 
+
+Alternatively, the same outcome can be achieved using a class-based API.
 
 ```python
 import numpy as np
@@ -183,7 +206,7 @@ plot_metrics(er.calculate_all(),  color="Blues")
 | Weighted Mean Absolute Percent Errors | `wmape` |
 | Weighted Absolute Percentage Error | `wape` |
 
-### ClassificationMetrics
+### Classification Metrics
 
 The API is same for performance metrics of classification problem.
 

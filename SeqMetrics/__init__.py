@@ -19,7 +19,7 @@ from ._rgr import kge
 from ._rgr import kge_bound
 from ._rgr import kge_mod
 from ._rgr import kge_np
-# from ._rgr import log_nse todo, find reference for the code
+from ._rgr import log_nse
 from ._rgr import corr_coeff
 from ._rgr import rmse
 from ._rgr import rmsle
@@ -130,6 +130,8 @@ from ._rgr import mape_for_peaks
 from ._rgr import legates_coeff_eff
 # from ._rgr import relative_error
 from ._rgr import  manhattan_distance
+from ._rgr import norm_nse
+from ._rgr import coeff_of_persistence
 
 
 from ._cls import f1_score
