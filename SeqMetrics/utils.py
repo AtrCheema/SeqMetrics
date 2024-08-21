@@ -7,8 +7,6 @@ from collections import OrderedDict
 
 # import scipy
 import numpy as np
-#from scipy.special import xlogy
-#from scipy.stats import skew, kurtosis, variation, gmean
 
 try:
     import plotly.graph_objects as go
