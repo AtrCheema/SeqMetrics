@@ -2,7 +2,7 @@
 import warnings
 import importlib
 from io import StringIO
-from typing import Union, Any
+from typing import Union, Any, List
 
 import numpy as np
 import streamlit as st
@@ -10,8 +10,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 from easy_mpl import regplot, hist, plot
-from ai4water.postprocessing import ProcessPredictions
-from easy_mpl.utils import AddMarginalPlots, to_1d_array
+from easy_mpl.utils import to_1d_array
 
 from SeqMetrics import RegressionMetrics
 from SeqMetrics import ClassificationMetrics
@@ -201,6 +200,316 @@ def process_uploaded_file(uploaded_file):
     return None
 
 
+# def edf_plot(true_values, predicted_values, show=False):
+#
+#     pp = ProcessPredictions('regression', 1, show=False)
+#     fig, ax = plt.subplots(figsize=(8, 6))
+#     output = pp.edf_plot(np.array(true_values), np.array(predicted_values),
+#                          ax=ax, )
+#     output[0].legend_.remove()
+#     output[1].legend_.remove()
+#     output[0].set_xlabel('Absolute Error', fontsize=22)
+#     output[0].set_ylabel('Commulative Probability', fontsize=22)
+#     if show:
+#         plt.show()
+#     return fig
+
+def _to_1darray(array):
+    if isinstance(array, (pd.DataFrame, pd.Series)):
+        array = array.values
+
+    assert len(array) == array.size
+    return array.reshape(-1,)
+
+def edf_plot_(
+        y: np.ndarray,
+        num_points: int = 100,
+        xlabel="Objective Value",
+        marker: str = '-',
+        ax: plt.Axes = None,
+        show:bool = True,
+        **kwargs
+) -> plt.Axes:
+    x = np.linspace(np.min(y), np.max(y), num_points)
+
+    y_values = np.sum(y[:, np.newaxis] <= x, axis=0) / y.size
+
+    y_values = y_values.reshape(-1, )
+
+    if ax is None:
+        _, ax = plt.subplots()
+
+    ax.grid()
+
+    ax_kws = dict(title="Empirical Distribution Function Plot",
+        ylabel="Cumulative Probability",
+        xlabel=xlabel)
+
+    if 'ax_kws' in kwargs:
+        ax_kws.update(kwargs['ax_kws'])
+        kwargs.pop('ax_kws')
+
+    ax = plot(
+        x,
+        y_values,
+        marker,
+        show=False,
+        ax_kws=ax_kws,
+        ax=ax,
+        **kwargs
+    )
+
+    if show:
+        plt.show()
+
+    return ax
+
+
+def edf_plot(
+        true,
+        predicted,
+        for_prediction:bool = True,
+        color=None,
+        ax: plt.Axes = None,
+        pred_axes:plt.Axes = None,
+        marker='-',
+        label = None,
+        prefix='',
+        where=''
+)->Union[plt.Axes, List[plt.Axes]]:
+
+    true = _to_1darray(np.array(true))
+    predicted = _to_1darray(np.array(predicted))
+
+    error = np.abs(true - predicted)
+
+    if color is None:
+        color = ("#005066", "#B3331D")
+    elif not isinstance(color, tuple):
+        color = (color, color)
+    else:
+        assert isinstance(color, tuple), f"{type(color)}"
+    color1, color2 = color
+
+    if label is None:
+        label = ("Absolute Error", "Prediction")
+    elif not isinstance(label, tuple):
+        label = (label, label)
+    else:
+        assert isinstance(label, tuple), f"{type(color)}"
+    label1, label2 = label
+
+    if marker is None:
+        marker = ("-", "-")
+    elif not isinstance(marker, tuple):
+        marker = (marker, marker)
+    else:
+        assert isinstance(marker, tuple), f"{type(marker)}"
+
+    marker1, marker2 = marker
+
+    _plot_kws = dict(
+        color=color1, show=False,
+        label=label1,
+        marker=marker1,
+    )
+
+    ax = edf_plot_(
+        error,
+        ax=ax,
+        **_plot_kws
+    )
+    ax.legend(frameon=False)
+    output = ax
+    if for_prediction:
+        ax.grid(False)
+        ax.set_xlabel(label1, color=color1)
+        #ax.set_xticklabels(ax.get_xticklabels(), color="#005066")
+        ax.set_title('')
+        ax2 = pred_axes or ax.twiny()
+        ax2 = edf_plot_(predicted,
+                       marker=marker2, show=False,
+                       label=label2,
+                       color = color2, ax=ax2)
+        ax2.grid(visible=True, ls='--', color='lightgrey')
+        ax2.set_title('')
+        ax2.set_xlabel(label2, color= color2)
+        #ax.set_xticklabels(ax.get_xticklabels(), color="#B3331D")
+
+        ax2.legend(loc=(0.7, 0.18), frameon=False)
+        output = [output, ax2]
+
+    return output
+
+
+def residual_plot(
+        # train_true,
+        # train_prediction,
+        # test_true,
+        # test_prediction,
+        true,
+        predicted,
+        label='',
+        show: bool = False
+) -> np.ndarray:
+    true = to_1d_array(true)
+    prediction = to_1d_array(predicted)
+
+    fig, axis = plt.subplots(1, 2, sharey="all"
+                             , gridspec_kw={'width_ratios': [2, 1]})
+    y = true.reshape(-1, ) - prediction.reshape(-1, )
+    train_hist_kws = dict(bins=20, linewidth=0.7,
+                          edgecolor="k", grid=False, color="#fe8977",
+                          orientation='horizontal')
+    hist(y, show=False, ax=axis[1], **train_hist_kws)
+    plot(prediction, y, 'o', show=False,
+         ax=axis[0],
+         color="#fe8977",
+         markerfacecolor="#fe8977",
+         markeredgecolor="black", markeredgewidth=0.7,
+         alpha=0.9
+         )
+
+    _hist_kws = dict(bins=40, linewidth=0.7,
+                     edgecolor="k", grid=False,
+                     color="#9acad4",
+                     orientation='horizontal')
+
+    axis[0].set_xlabel(f'Predicted', fontsize=14)
+    axis[0].set_ylabel('Residual', fontsize=14)
+    set_yticklabels(axis[0], 5)
+    axis[0].axhline(0.0, color="black", ls="--")
+    plt.subplots_adjust(wspace=0.15)
+
+    if show:
+        plt.show()
+    return fig
+
+
+def set_ticklabels(
+        ax: plt.Axes,
+        which: str = "x",
+        max_ticks: int = 5,
+        dtype=int,
+        weight="bold",
+        fontsize: int = 12,
+        max_tick_val=None,
+        min_tick_val=None,
+):
+    ticks_ = getattr(ax, f"get_{which}ticks")()
+    ticks = np.array(ticks_)
+    if len(ticks) < 1:
+        warnings.warn(f"can not get {which}ticks {ticks_}")
+        return
+
+    if max_ticks:
+        ticks = np.linspace(min_tick_val or min(ticks), max_tick_val or max(ticks), max_ticks)
+
+    ticks = ticks.astype(dtype)
+
+    getattr(ax, f"set_{which}ticks")(ticks)
+
+    getattr(ax, f"set_{which}ticklabels")(ticks, weight=weight, fontsize=fontsize)
+    return ax
+
+
+def set_xticklabels(
+        ax: plt.Axes,
+        max_ticks: Union[int, Any] = 5,
+        dtype=int,
+        weight="bold",
+        fontsize: Union[int, float] = 12,
+        max_xtick_val=None,
+        min_xtick_val=None,
+):
+    """
+
+    :param ax:
+    :param max_ticks:
+        maximum number of ticks, if not set, all the default ticks will be used
+    :param dtype:
+    :param weight:
+    :param fontsize:
+    :param max_xtick_val:
+        maxikum value of tick
+    :param min_xtick_val:
+    :return:
+    """
+    return set_ticklabels(ax, "x", max_ticks, dtype, weight, fontsize,
+                          max_tick_val=max_xtick_val,
+                          min_tick_val=min_xtick_val)
+
+
+def set_yticklabels(
+        ax: plt.Axes,
+        max_ticks: Union[int, Any] = 5,
+        dtype=int,
+        weight="bold",
+        fontsize: int = 12,
+        max_ytick_val=None,
+        min_ytick_val=None
+):
+    return set_ticklabels(
+        ax, "y", max_ticks, dtype, weight,
+        fontsize=fontsize,
+        max_tick_val=max_ytick_val,
+        min_tick_val=min_ytick_val,
+    )
+
+
+def regression_plot(
+        true,
+        predicted,
+        max_xtick_val=None,
+        max_ytick_val=None,
+        min_xtick_val=None,
+        min_ytick_val=None,
+        max_ticks=5,
+        show=False
+) -> plt.Axes:
+    TRAIN_RIDGE_LINE_KWS = [{'color': '#9acad4', 'lw': 1.0},
+                            {'color': '#9acad4', 'lw': 1.0}]
+    TRAIN_HIST_KWS = [{'color': '#9acad4', 'bins': 50},
+                      {'color': '#9acad4', 'bins': 50}]
+
+    ax = regplot(true, predicted,
+                 marker_size=35,
+                 marker_color="#9acad4",
+                 line_color='k',
+                 fill_color='k',
+                 scatter_kws={'edgecolors': 'black',
+                              'linewidth': 0.7,
+                              'alpha': 0.9,
+                              },
+                 # figsize=(1,1),
+                 show=False
+                 )
+
+    r2 = RegressionMetrics(true, predicted).r2()
+    ax.annotate(f'$R^2$= {round(r2, 2)}',
+                xy=(0.95, 0.30),
+                xycoords='axes fraction',
+                horizontalalignment='right',
+                verticalalignment='top',
+                fontsize=12, weight="bold")
+
+    set_xticklabels(
+        ax,
+        max_xtick_val=max_xtick_val,
+        min_xtick_val=min_xtick_val,
+        max_ticks=max_ticks,
+    )
+    set_yticklabels(
+        ax,
+        max_ytick_val=max_ytick_val,
+        min_ytick_val=min_ytick_val,
+        max_ticks=max_ticks
+    )
+
+    if show:
+        plt.show()
+    return ax
+
 # Set page configuration - this should be the first command
 st.set_page_config(page_title="Metrics Calculator", layout="wide")
 
@@ -349,196 +658,11 @@ if st.button("Calculate"):
             st.markdown(f"**Documentation:** {doc_string}")
             st.write(calc_value)
 
-
-            def set_ticklabels(
-                    ax: plt.Axes,
-                    which: str = "x",
-                    max_ticks: int = 5,
-                    dtype=int,
-                    weight="bold",
-                    fontsize: int = 12,
-                    max_tick_val=None,
-                    min_tick_val=None,
-            ):
-                ticks_ = getattr(ax, f"get_{which}ticks")()
-                ticks = np.array(ticks_)
-                if len(ticks) < 1:
-                    warnings.warn(f"can not get {which}ticks {ticks_}")
-                    return
-
-                if max_ticks:
-                    ticks = np.linspace(min_tick_val or min(ticks), max_tick_val or max(ticks), max_ticks)
-
-                ticks = ticks.astype(dtype)
-
-                getattr(ax, f"set_{which}ticks")(ticks)
-
-                getattr(ax, f"set_{which}ticklabels")(ticks, weight=weight, fontsize=fontsize)
-                return ax
-
-
-            def set_xticklabels(
-                    ax: plt.Axes,
-                    max_ticks: Union[int, Any] = 5,
-                    dtype=int,
-                    weight="bold",
-                    fontsize: Union[int, float] = 12,
-                    max_xtick_val=None,
-                    min_xtick_val=None,
-            ):
-                """
-
-                :param ax:
-                :param max_ticks:
-                    maximum number of ticks, if not set, all the default ticks will be used
-                :param dtype:
-                :param weight:
-                :param fontsize:
-                :param max_xtick_val:
-                    maxikum value of tick
-                :param min_xtick_val:
-                :return:
-                """
-                return set_ticklabels(ax, "x", max_ticks, dtype, weight, fontsize,
-                                      max_tick_val=max_xtick_val,
-                                      min_tick_val=min_xtick_val)
-
-
-            def set_yticklabels(
-                    ax: plt.Axes,
-                    max_ticks: Union[int, Any] = 5,
-                    dtype=int,
-                    weight="bold",
-                    fontsize: int = 12,
-                    max_ytick_val=None,
-                    min_ytick_val=None
-            ):
-                return set_ticklabels(
-                    ax, "y", max_ticks, dtype, weight,
-                    fontsize=fontsize,
-                    max_tick_val=max_ytick_val,
-                    min_tick_val=min_ytick_val,
-                )
-
-
-            def regression_plot(
-                    # train_true,
-                    # train_pred,
-                    # test_true,
-                    # test_pred,
-                    true,
-                    predicted,
-                    max_xtick_val=None,
-                    max_ytick_val=None,
-                    min_xtick_val=None,
-                    min_ytick_val=None,
-                    max_ticks=5,
-                    show=False
-            ) -> plt.Axes:
-                TRAIN_RIDGE_LINE_KWS = [{'color': '#9acad4', 'lw': 1.0},
-                                        {'color': '#9acad4', 'lw': 1.0}]
-                TRAIN_HIST_KWS = [{'color': '#9acad4', 'bins': 50},
-                                  {'color': '#9acad4', 'bins': 50}]
-
-                ax = regplot(true, predicted,
-                             marker_size=35,
-                             marker_color="#9acad4",
-                             line_color='k',
-                             fill_color='k',
-                             scatter_kws={'edgecolors': 'black',
-                                          'linewidth': 0.7,
-                                          'alpha': 0.9,
-                                          },
-                             # figsize=(1,1),
-                             show=False
-                             )
-
-                axHistx, axHisty = AddMarginalPlots(
-                    ax,
-                    ridge=False,
-                    pad=0.25,
-                    size=0.7,
-                    ridge_line_kws=TRAIN_RIDGE_LINE_KWS,
-                    hist_kws=TRAIN_HIST_KWS
-                )(true, predicted)
-
-                r2 = RegressionMetrics(true, predicted).r2()
-                ax.annotate(f'$R^2$= {round(r2, 2)}',
-                            xy=(0.95, 0.30),
-                            xycoords='axes fraction',
-                            horizontalalignment='right',
-                            verticalalignment='top',
-                            fontsize=12, weight="bold")
-
-                set_xticklabels(
-                    ax,
-                    max_xtick_val=max_xtick_val,
-                    min_xtick_val=min_xtick_val,
-                    max_ticks=max_ticks,
-                )
-                set_yticklabels(
-                    ax,
-                    max_ytick_val=max_ytick_val,
-                    min_ytick_val=min_ytick_val,
-                    max_ticks=max_ticks
-                )
-
-                if show:
-                    plt.show()
-                return ax
-
-
             ax = regression_plot(true_values, predicted_values)
 
             st.markdown('<h2 class="heading">Regression Plot</h2>', unsafe_allow_html=True)
 
             st.pyplot(ax.get_figure(), use_container_width=False)
-
-
-            def residual_plot(
-                    # train_true,
-                    # train_prediction,
-                    # test_true,
-                    # test_prediction,
-                    true,
-                    predicted,
-                    label='',
-                    show: bool = False
-            ) -> np.ndarray:
-
-                true = to_1d_array(true)
-                prediction = to_1d_array(predicted)
-
-                fig, axis = plt.subplots(1, 2, sharey="all"
-                                         , gridspec_kw={'width_ratios': [2, 1]})
-                y = true.reshape(-1, ) - prediction.reshape(-1, )
-                train_hist_kws = dict(bins=20, linewidth=0.7,
-                                      edgecolor="k", grid=False, color="#fe8977",
-                                      orientation='horizontal')
-                hist(y, show=False, ax=axis[1], **train_hist_kws)
-                plot(prediction, y, 'o', show=False,
-                     ax=axis[0],
-                     color="#fe8977",
-                     markerfacecolor="#fe8977",
-                     markeredgecolor="black", markeredgewidth=0.7,
-                     alpha=0.9
-                     )
-
-                _hist_kws = dict(bins=40, linewidth=0.7,
-                                 edgecolor="k", grid=False,
-                                 color="#9acad4",
-                                 orientation='horizontal')
-
-                axis[0].set_xlabel(f'Predicted', fontsize=14)
-                axis[0].set_ylabel('Residual', fontsize=14)
-                set_yticklabels(axis[0], 5)
-                axis[0].axhline(0.0, color="black", ls="--")
-                plt.subplots_adjust(wspace=0.15)
-
-                if show:
-                    plt.show()
-                return fig
-
 
             fig = residual_plot(true_values, predicted_values)
 
@@ -546,27 +670,11 @@ if st.button("Calculate"):
 
             st.pyplot(fig, use_container_width=False)
 
-
-            def edf_plot(true_values, predicted_values, show=False):
-
-                pp = ProcessPredictions('regression', 1, show=False)
-                fig, ax = plt.subplots(figsize=(8, 6))
-                output = pp.edf_plot(np.array(true_values), np.array(predicted_values),
-                                     ax=ax, )
-                output[0].legend_.remove()
-                output[1].legend_.remove()
-                output[0].set_xlabel('Absolute Error', fontsize=22)
-                output[0].set_ylabel('Commulative Probability', fontsize=22)
-                if show:
-                    plt.show()
-                return fig
-
-
-            fig = edf_plot(true_values, predicted_values)
+            output = edf_plot(true_values, predicted_values)
 
             st.markdown('<h2 class="heading">EDF Plot</h2>', unsafe_allow_html=True)
 
-            st.pyplot(fig, use_container_width=False)
+            st.pyplot(output[1].get_figure(), use_container_width=False)
 
         elif cls_func_name:
             calc_value, doc_string = calculate_metrics(true_values, predicted_values, cls_func_name, "classification")
