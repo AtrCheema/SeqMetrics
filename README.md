@@ -13,6 +13,7 @@
 ![GitHub last commit (branch)](https://img.shields.io/github/last-commit/AtrCheema/SeqMetrics/master)
 [![Zenodo](https://zenodo.org/badge/251072512.svg)](https://zenodo.org/doi/10.5281/zenodo.12958901)
 [![DOI](https://joss.theoj.org/papers/10.21105/joss.06450/status.svg)](https://doi.org/10.21105/joss.06450)
+[![st badge](https://img.shields.io/badge/MagicPlotter-lightgrey?style=flat-square&logo=streamlit&labelColor=white)](https://seqmetrics.streamlit.app/)
 
 The purpose of this repository to collect various classification and regression 
 performance metrics or errors which can be calculated for time-series/sequential/tabular data, 
