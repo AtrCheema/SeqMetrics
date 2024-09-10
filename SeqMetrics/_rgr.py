@@ -244,6 +244,7 @@ class RegressionMetrics(Metrics):
     def bias(self) -> float:
         """
         Bias as and given by `Gupta1998 et al., 1998 <https://doi.org/10.1029/97WR03495>`_
+        It is also called mean error.
 
         .. math::
             Bias=\\frac{1}{N}\\sum_{i=1}^{N}(e_{i}-s_{i})
@@ -758,25 +759,30 @@ class RegressionMetrics(Metrics):
         return kendall_tau(true=self.true, predicted=self.predicted, return_p=return_p,
                             treat_arrays=False)
 
-    def kge(self):
+    def kge(self, return_all:bool = False):
         """
         Kling-Gupta Efficiency following `Gupta_ et al. 2009 <https://doi.org/10.1016/j.jhydrol.2009.08.003>`_.
         This error considers `correlation`, `variability` and `mean` difference/error.
 
         .. math::
             \\text{KGE} = 1 - \\sqrt{(r - 1)^2 + (\\alpha - 1)^2 + (\\beta - 1)^2}
+
         .. math::
             \\alpha = \\frac{\\sigma_{\\text{predicted}}}{\\sigma_{\\text{true}}}
         .. math::
-            \\beta = \\frac{\\mu_{\\text{predicted}}}{\\mu_{\\text{true}}}            
+            \\beta = \\frac{\\mu_{\\text{predicted}}}{\\mu_{\\text{true}}}        
             
-        In this equation, alpha accounts for the variability (standard deviation), beta accounts for 
+        In this equation, $\alpha$ accounts for the variability (standard deviation), $\beta$ accounts for 
         the mean difference and r accounts for the correlation between the true and predicted values.
-        This equation can also be written as belowS            
-            
+        This equation can also be written as below:
+        
         .. math::
             \\text{KGE} = \\frac{\\sum_{i=1}^{N} ( \\text{true}_i - \\bar{\\text{true}} ) ( \\text{predicted}_i - \\bar{\\text{predicted}} )}{\\sqrt{\\sum_{i=1}^{N} ( \\text{true}_i - \\bar{\\text{true}} )^2} \\sqrt{\\sum_{i=1}^{N} ( \\text{predicted}_i - \\bar{\\text{predicted}} )^2}}
 
+        output
+        -------
+            If return_all is True, it returns a numpy array of shape (4, ) containing
+            kge, $\gamma$, $\alpha$, $\beta$. Otherwise, it returns kge.            
             
         Examples
         ---------
@@ -787,12 +793,17 @@ class RegressionMetrics(Metrics):
         >>> metrics= RegressionMetrics(t, p)
         >>> metrics.kge()
         """
-        return kge(true=self.true, predicted=self.predicted, treat_arrays=False)
+        return kge(true=self.true, predicted=self.predicted, treat_arrays=False, return_all=return_all)
 
     def kge_bound(self) -> float:
         """
-        Bounded Version of the Original Kling-Gupta Efficiency after
-        `Mathevet et al. 2006 <https://iahs.info/uploads/dms/13614.21--211-219-41-MATHEVET.pdf>`_.
+        `Mathevet et al. 2006 <https://iahs.info/uploads/dms/13614.21--211-219-41-MATHEVET.pdf>`_
+        proposed a bounded version of NSE since the original NSE lacks a lower bound 
+        and thus have skewed distribution when calculated for large number of basins. 
+        To avoid its skewed distributions and make it vary between -1 and +1, they proposed
+        a bounder version of the statistic i.e. NSE. The same concept is applied here 
+        to KGE. As per the authors, this bounded version of the statistic makes it 
+        less optimistic for positive values.
 
         .. math::
             \\text{KGE}_{\\text{bound}} = \\frac{\\text{KGE}}{2 - \\text{KGE}}
@@ -808,16 +819,24 @@ class RegressionMetrics(Metrics):
         """
         return kge_bound(true=self.true, predicted=self.predicted, treat_arrays=False)
 
-    def kge_mod(self):
+    def kge_mod(self, return_all:bool = False):
         """
         Modified Kling-Gupta Efficiency after `Kling et al. 2012 <https://doi.org/10.1016/j.jhydrol.2012.01.011>`_.
+        Similar to original KGE, its values varies fro -infinity to 1 with higher the better.
+
+        This version of KGE was introduced to avoid cross-correlation between bias 
+        and variability which happens when the precipitation data is biased. This
+        is done by calculating the variability ($\alpha$) by ${CV}_s/{CV}_o$ instaed of ${\sigma}_s/{\sigma}_o$
+        where CV is the coefficient of variation.
 
         .. math::
-            \\text{KGE}_{\\text{mod}} = 1 - \\sqrt{ \\left( \\frac{\\sum_{i=1}^{n} (true_i - \\bar{true})(predicted_i - \\bar{predicted})}{\\sqrt{\\sum_{i=1}^{n} (true_i - \\bar{true})^2} \\sqrt{\\sum_{i=1}^{n} (predicted_i - \\bar{predicted})^2}} - 1 \\right)^2 +
-            \\left( \\frac{\\frac{\\sigma_{predicted}}{\\bar{predicted}}}{\\frac{\\sigma_{true}}{\\bar{true}}} - 1 \\right)^2 +
-            \\left( \\frac{\\bar{predicted}}{\\bar{true}} - 1 \\right)^2}
+            \\text{KGE`} = 1 - \\sqrt{(r - 1)^2 + (\\alpha - 1)^2 + (\\beta - 1)^2}
 
-
+        output
+        -------
+            If return_all is True, it returns a numpy array of shape (4, ) containing
+            kge, $\gamma$, $\alpha$ and $\beta$. Otherwise, it returns kge.  
+                        
         Examples
         ---------
         >>> import numpy as np
@@ -828,7 +847,7 @@ class RegressionMetrics(Metrics):
         >>> metrics.kge_mod()
 
         """
-        return kge_mod(true=self.true, predicted=self.predicted, treat_arrays=False)
+        return kge_mod(true=self.true, predicted=self.predicted, treat_arrays=False, return_all=return_all)
 
     def kge_np(self):
         """
@@ -1206,7 +1225,7 @@ class RegressionMetrics(Metrics):
                      benchmark=benchmark)
 
     def me(self):
-        """ `Mean error <https://doi.org/10.1016/j.scitotenv.2024.174533>`_
+        """ `Mean error <https://doi.org/10.1016/j.scitotenv.2024.174533>`_ or bias
 
         .. math::
             ME = \\frac{1}{n} \\sum_{i=1}^{n} (\\text{true}_i - \\text{predicted}_i)
@@ -1775,16 +1794,16 @@ class RegressionMetrics(Metrics):
 
     def pbias(self) -> float:
         """
-        Percent Bias.
-        It determines how well the model simulates the average magnitudes for the
+        `Percent bias <https://elibrary.asabe.org/abstract.asp?aid=46548>`_ determines 
+        how well the model simulates the average magnitudes for the
         output response of interest. It can also determine over and under-prediction.
-        It cannot be used (1) for single-event simula-tions to identify differences
+        It cannot be used (1) for single-event simulations to identify differences
         in timing and magnitude of peak flows and the shape of recession curves nor (2)
         to determine how well the model simulates residual variations and/or trends
         for the output response of interest. It can  give a deceiving rating of
         model performance if the model overpredicts as much as it underpredicts,
-        in which case PBIAS will be close to zero even though the model simulation
-        is poor. `[1] <https://elibrary.asabe.org/abstract.asp?aid=46548>`_
+        in which case percent bias will be close to zero even though the model simulation
+        is poor. 
 
         .. math::
             PBIAS = 100 \\times \\frac{\\sum_{i=1}^{N} (\\text{true}_i - \\text{predicted}_i)}{\\sum_{i=1}^{N} \\text{true}_i}
@@ -2257,6 +2276,7 @@ class RegressionMetrics(Metrics):
         >>> metrics= RegressionMetrics(t, p)
         >>> metrics.spearmann_corr()
         """
+        # todo : is there a parameteric version of this as well?
         return spearmann_corr(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def sse(self) -> float:
@@ -2702,8 +2722,12 @@ def post_process_kge(cc, alpha, beta, return_all=False):
         return kge_
 
 
-def r2(true, predicted, treat_arrays: bool = True,
-       **treat_arrays_kws) -> float:
+def r2(
+        true, 
+        predicted, 
+        treat_arrays: bool = True,
+       **treat_arrays_kws
+       ) -> float:
     """
     R2 is a statistical measure of how well the regression line approximates the actual data.
     Quantifies the percent of variation in the response that the 'model'
@@ -3073,9 +3097,9 @@ def kge(true,
     .. math::
         \\beta = \\frac{\\mu_{\\text{predicted}}}{\\mu_{\\text{true}}}        
         
-    In this equation, alpha accounts for the variability (standard deviation), beta accounts for 
+    In this equation, $\alpha$ accounts for the variability (standard deviation), $\beta$ accounts for 
     the mean difference and r accounts for the correlation between the true and predicted values.
-    This equation can also be written as belowS        
+    This equation can also be written as below:
         
     .. math::
         \\text{KGE} = \\frac{\\sum_{i=1}^{N} ( \\text{true}_i - \\bar{\\text{true}} ) ( \\text{predicted}_i - \\bar{\\text{predicted}} )}{\\sqrt{\\sum_{i=1}^{N} ( \\text{true}_i - \\bar{\\text{true}} )^2} \\sqrt{\\sum_{i=1}^{N} ( \\text{predicted}_i - \\bar{\\text{predicted}} )^2}}
@@ -3083,12 +3107,7 @@ def kge(true,
 
     output:
         If return_all is True, it returns a numpy array of shape (4, ) containing
-        kge, cc, alpha, beta. Otherwise, it returns kge.
-
-        kge: Kling-Gupta Efficiency
-        cc: correlation
-        alpha: ratio of the standard deviation
-        beta: ratio of the mean
+        kge, $\gamma$, $\alpha$, $\beta$. Otherwise, it returns kge.
 
     Parameters
     ----------
@@ -3116,15 +3135,22 @@ def kge(true,
     return post_process_kge(cc, alpha, beta, return_all)
 
 
-def kge_bound(true, predicted, treat_arrays: bool = True,
-              **treat_arrays_kws) -> float:
+def kge_bound(
+        true, 
+        predicted, 
+        treat_arrays: bool = True,
+        **treat_arrays_kws) -> float:
     """
-    Bounded Version of the Original Kling-Gupta Efficiency after
-    `Mathevet et al. 2006 <https://iahs.info/uploads/dms/13614.21--211-219-41-MATHEVET.pdf>`_.
+    `Mathevet et al. 2006 <https://iahs.info/uploads/dms/13614.21--211-219-41-MATHEVET.pdf>`_
+    proposed a bounded version of NSE since the original NSE lacks a lower bound 
+    and thus have skewed distribution when calculated for large number of basins. 
+    To avoid its skewed distributions and make it vary between -1 and +1, they proposed
+    a bounder version of the statistic i.e. NSE. The same concept is applied here 
+    to KGE. As per the authors, this bounded version of the statistic makes it 
+    less optimistic for positive values.
 
     .. math::
         \\text{KGE}_{\\text{bound}} = \\frac{\\text{KGE}}{2 - \\text{KGE}}
-
 
     Parameters
     ----------
@@ -3151,15 +3177,24 @@ def kge_bound(true, predicted, treat_arrays: bool = True,
     return float(kge_c2m_.item())
 
 
-def kge_mod(true, predicted, treat_arrays: bool = True, return_all=False,
-            **treat_arrays_kws):
+def kge_mod(
+        true, 
+        predicted, 
+        treat_arrays: bool = True,
+        return_all=False,
+        **treat_arrays_kws
+        ):
     """
     Modified Kling-Gupta Efficiency after `Kling et al. 2012 <https://doi.org/10.1016/j.jhydrol.2012.01.011>`_.
+    Similar to original KGE, its values varies fro -infinity to 1 with higher the better.
 
-    .. math::
-        \\text{KGE}_{\\text{mod}} = 1 - \\sqrt{ \\left( \\frac{\\sum_{i=1}^{n} (true_i - \\bar{true})(predicted_i - \\bar{predicted})}{\\sqrt{\\sum_{i=1}^{n} (true_i - \\bar{true})^2} \\sqrt{\\sum_{i=1}^{n} (predicted_i - \\bar{predicted})^2}} - 1 \\right)^2 +
-        \\left( \\frac{\\frac{\\sigma_{predicted}}{\\bar{predicted}}}{\\frac{\\sigma_{true}}{\\bar{true}}} - 1 \\right)^2 +
-        \\left( \\frac{\\bar{predicted}}{\\bar{true}} - 1 \\right)^2}
+    This version of KGE was introduced to avoid cross-correlation between bias 
+    and variability which happens when the precipitation data is biased. This
+    is done by calculating the variability ($\alpha$) by ${CV}_s/{CV}_o$ instaed of ${\sigma}_s/{\sigma}_o$
+    where CV is the coefficient of variation.
+
+        .. math::
+            \\text{KGE`} = 1 - \\sqrt{(r - 1)^2 + (\\alpha - 1)^2 + (\\beta - 1)^2}
 
     Parameters
     ----------
@@ -3172,6 +3207,10 @@ def kge_mod(true, predicted, treat_arrays: bool = True, return_all=False,
         process the true and predicted arrays using maybe_treat_arrays function
     return_all:
 
+    output:
+        If return_all is True, it returns a numpy array of shape (4, ) containing
+        kge, $\gamma$, $\alpha$ and $\beta$. Otherwise, it returns kge.   
+    
     Examples
     ---------
     >>> import numpy as np
@@ -3206,15 +3245,19 @@ def kge_np(
     """
     Non-parametric Kling-Gupta Efficiency after `Pool et al. 2018 <https://doi.org/10.1080/02626667.2018.1552002>`_.
 
+    This differs from original KGE by using non-parameteric components of KGE i.e. $\alpha$ and $\gamma$ / cc.
+    The variability ($\alpha$) non-parametrized by using the FDCs of the true and predicted values. The FDCs are
+    normalized to remove the volume information.
+
+    .. math::
+        \\text{KGE}_{\\text{np}} = 1 - \\sqrt{(cc - 1)^2 + (\\alpha - 1)^2 + (\\beta - 1)^2}
     .. math::
         cc = \\rho(\\text{true}, \\text{predicted})
     .. math::
         \\alpha = 1 - 0.5 \\sum_{i=1}^{n} \\left| \\frac{\\text{sorted(predicted}_i\\text{)}}{\\text{mean(predicted)} \\cdot n} - \\frac{\\text{sorted(true}_i\\text{)}}{\\text{mean(true)} \\cdot n} \\right|
     .. math::
         \\beta = \\frac{\\text{mean(predicted)}}{\\text{mean(true)}}
-    .. math::
-        \\text{KGE}_{\\text{np}} = 1 - \\sqrt{(cc - 1)^2 + (\\alpha - 1)^2 + (\\beta - 1)^2}
-
+        
     Parameters
     ----------
     true :
@@ -3226,12 +3269,9 @@ def kge_np(
         process the true and predicted arrays using maybe_treat_arrays function
     return_all :
 
-    output
-    ------
-        kge: Kling-Gupta Efficiency
-        cc: correlation
-        alpha: ratio of the standard deviation
-        beta: ratio of the mean
+    output:
+        If return_all is True, it returns a numpy array of shape (4, ) containing
+        kge, $cc$, $\alpha$ and $\beta$. Otherwise, it returns kge.   
 
     Examples
     ---------
@@ -3609,16 +3649,16 @@ def nrmse(true, predicted, treat_arrays: bool = True,
 def pbias(true, predicted, treat_arrays: bool = True,
           **treat_arrays_kws) -> float:
     """
-    Percent Bias.
-    It determines how well the model simulates the average magnitudes for the
+    `Percent bias <https://elibrary.asabe.org/abstract.asp?aid=46548>`_ determines 
+    how well the model simulates the average magnitudes for the
     output response of interest. It can also determine over and under-prediction.
-    It cannot be used (1) for single-event simula-tions to identify differences
+    It cannot be used (1) for single-event simulations to identify differences
     in timing and magnitude of peak flows and the shape of recession curves nor (2)
     to determine how well the model simulates residual variations and/or trends
     for the output response of interest. It can  give a deceiving rating of
     model performance if the model overpredicts as much as it underpredicts,
-    in which case PBIAS will be close to zero even though the model simulation
-    is poor. `[1] <https://elibrary.asabe.org/abstract.asp?aid=46548>`_
+    in which case percent bias will be close to zero even though the model simulation
+    is poor. 
 
     .. math::
         PBIAS = 100 \\times \\frac{\\sum_{i=1}^{N} (\\text{true}_i - \\text{predicted}_i)}{\\sum_{i=1}^{N} \\text{true}_i}
@@ -3649,6 +3689,7 @@ def bias(true, predicted, treat_arrays: bool = True,
          **treat_arrays_kws) -> float:
     """
     Bias as and given by Gupta1998_ et al., 1998 in Table 1
+    It is also called mean error.
 
     .. math::
         Bias=\\frac{1}{N}\\sum_{i=1}^{N}(e_{i}-s_{i})
@@ -4578,8 +4619,11 @@ def cosine_similarity(true, predicted, treat_arrays: bool = True,
                  (np.linalg.norm(true) * np.linalg.norm(predicted)))
 
 
-def decomposed_mse(true, predicted, treat_arrays: bool = True,
-                   **treat_arrays_kws) -> float:
+def decomposed_mse(
+        true, 
+        predicted, 
+        treat_arrays: bool = True,
+        **treat_arrays_kws) -> float:
     """
     Decomposed MSE developed by `Kobayashi and Salam (2000) <https://doi.org/10.2134/agronj2000.922345x>`_ Equation 24
 
@@ -4629,8 +4673,12 @@ def decomposed_mse(true, predicted, treat_arrays: bool = True,
     return float(decomposed_mse_)
 
 
-def euclid_distance(true, predicted, treat_arrays: bool = True,
-                    **treat_arrays_kws) -> float:
+def euclid_distance(
+        true, 
+        predicted, 
+        treat_arrays: bool = True,
+        **treat_arrays_kws
+        ) -> float:
     """ `Euclidian distance <https://scikit-learn.org/stable/modules/generated/sklearn.metrics.pairwise.euclidean_distances.html>`_
     taken from `this book <https://doi.org/10.1016/B978-0-12-088735-4.50006-7`_.
 
@@ -5638,7 +5686,8 @@ def mdrae(true, predicted, treat_arrays: bool = True, benchmark: np.ndarray = No
 
 def me(true, predicted, treat_arrays: bool = True,
        **treat_arrays_kws):
-    """ `Mean error <https://doi.org/10.1016/j.scitotenv.2024.174533>`_
+    """ 
+    `Mean error <https://doi.org/10.1016/j.scitotenv.2024.174533>`_ or bias.
 
     .. math::
         ME = \\frac{1}{n} \\sum_{i=1}^{n} (\\text{true}_i - \\text{predicted}_i)
