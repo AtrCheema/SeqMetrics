@@ -100,6 +100,7 @@ metrics.
 .. autofunction:: SeqMetrics.rsr
 .. autofunction:: SeqMetrics.rmsse
 .. autofunction:: SeqMetrics.sa
+.. autofunction:: SeqMetrics.sc
 .. autofunction:: SeqMetrics.se
 .. autofunction:: SeqMetrics.smape
 .. autofunction:: SeqMetrics.smdape

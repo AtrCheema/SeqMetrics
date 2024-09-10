@@ -141,23 +141,17 @@ class RegressionMetrics(Metrics):
 
     def agreement_index(self) -> float:
         """
-        Agreement Index (d) developed by Willmott_, 1981.
+        Agreement Index (d) developed by `Willmott, 1981 <https://doi.org/10.1080/02723646.1981.10642213>`_.
 
         It detects additive and pro-portional differences in the observed and
-        simulated means and vari-ances Moriasi_ et al., 2015. It is overly sensitive
+        simulated means and variances (Moriasi_ et al., 2015 <https://web.ics.purdue.edu/~mgitau/pdf/Moriasi%20et%20al%202015.pdf>`_). It is overly sensitive
         to extreme values due to the squared differences. It can also be used
-        as a substitute for R2 to identify the degree to which model predic-tions
+        as a substitute for R2 to identify the degree to which model predictions
         are error-free.
 
         .. math::
             d = 1 - \\frac{\\sum_{i=1}^{N}(e_{i} - s_{i})^2}{\\sum_{i=1}^{N}(\\left | s_{i} - \\bar{e}
-             \\right | + \\left | e_{i} - \\bar{e} \\right |)^2}
-
-        .. _Willmott:
-            https://doi.org/10.1080/02723646.1981.10642213
-
-        .. _Moriasi:
-            https://doi.org/10.13031/trans.58.10715
+             \\right | + \\left | e_{i} - \\bar{e} \\right |)^2}           
 
         Examples
         ---------
@@ -772,7 +766,7 @@ class RegressionMetrics(Metrics):
         .. math::
             \\beta = \\frac{\\mu_{\\text{predicted}}}{\\mu_{\\text{true}}}        
             
-        In this equation, $\alpha$ accounts for the variability (standard deviation), $\beta$ accounts for 
+        In this equation, :math:`\alpha` accounts for the variability (standard deviation), :math:`\beta` accounts for 
         the mean difference and r accounts for the correlation between the true and predicted values.
         This equation can also be written as below:
         
@@ -782,7 +776,7 @@ class RegressionMetrics(Metrics):
         output
         -------
             If return_all is True, it returns a numpy array of shape (4, ) containing
-            kge, $\gamma$, $\alpha$, $\beta$. Otherwise, it returns kge.            
+            kge, :math:`\gamma`, :math:`\alpha`, :math:`\beta`. Otherwise, it returns kge.            
             
         Examples
         ---------
@@ -826,7 +820,7 @@ class RegressionMetrics(Metrics):
 
         This version of KGE was introduced to avoid cross-correlation between bias 
         and variability which happens when the precipitation data is biased. This
-        is done by calculating the variability ($\alpha$) by ${CV}_s/{CV}_o$ instaed of ${\sigma}_s/{\sigma}_o$
+        is done by calculating the variability (:math:`\alpha`) by :math:`{CV}_s/{CV}_o` instaed of :math:`{\sigma}_s/{\sigma}_o`
         where CV is the coefficient of variation.
 
         .. math::
@@ -835,7 +829,7 @@ class RegressionMetrics(Metrics):
         output
         -------
             If return_all is True, it returns a numpy array of shape (4, ) containing
-            kge, $\gamma$, $\alpha$ and $\beta$. Otherwise, it returns kge.  
+            kge, :math:`\gamma`, :math:`\alpha` and :math:`\beta`. Otherwise, it returns kge.  
                         
         Examples
         ---------
@@ -1257,13 +1251,11 @@ class RegressionMetrics(Metrics):
         References
         ----------
 
-        - `Willmott, C. J., & Matsuura, K. (2006). On the use of dimensioned measures of error to evaluate the performance
-            of spatial interpolators. International Journal of Geographical Information Science, 20(1), 89-102.
-            <https://doi.org/10.1080/1365881050028697>`_
+        - `Willmott, C. J., & Matsuura, K. (2006). On the use of dimensioned measures of error to evaluate the performance of spatial interpolators. International Journal of Geographical Information Science, 20(1), 89-102. <https://doi.org/10.1080/1365881050028697>`_
 
-        - `Valipour, M. (2015). Retracted: Comparative Evaluation of Radiation-Based Methods for Estimation of Potential
-            Evapotranspiration. Journal of Hydrologic Engineering, 20(5), 04014068.
-            <https://dx.doi.org/10.1061/(ASCE)HE.1943-5584.0001066>`_
+        - `Valipour, M. (2015). Retracted: Comparative Evaluation of Radiation-Based Methods for Estimation of Potential Evapotranspiration. Journal of Hydrologic Engineering, 20(5), 04014068. <https://dx.doi.org/10.1061/(ASCE)HE.1943-5584.0001066>`_
+
+        -     -  `Despotovic, M., Nedic, V., Despotovic, D., & Cvetanovic, S. (2015). Review and statistical analysis of different global solar radiation sunshine models. Renewable and Sustainable Energy Reviews, 52, 1869-1880. <https://doi.org/10.1016/j.rser.2015.08.035>`_
 
         Examples
         ---------
@@ -1277,7 +1269,7 @@ class RegressionMetrics(Metrics):
         return mean_bias_error(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def mean_var(self) -> float:
-        """Mean variance
+        """Mean variance, adopted from `HydroErr <https://github.com/BYU-Hydroinformatics/HydroErr/blob/master/HydroErr/HydroErr.py#L6072>`_
 
         .. math::
             \\text{mean_var} = \\text{Var} \\left( \\log(1 + \\text{true}) - \\log(1 + \\text{predicted}) \\right)
@@ -1389,12 +1381,18 @@ class RegressionMetrics(Metrics):
         """
         return mle(true=self.true, predicted=self.predicted, treat_arrays=False)
 
-    def mod_agreement_index(self, j=1) -> float:
-        """ `Modified agreement of index <https://search.r-project.org/CRAN/refmans/hydroGOF/html/md.html>`_.
-        j: int, when j==1, this is same as agreement_index. Higher j means more impact of outliers.
+    def mod_agreement_index(self, j:int=1) -> float:
+        """ 
+        `Modified agreement of index <https://search.r-project.org/CRAN/refmans/hydroGOF/html/md.html>`_.
+        It varies between 0 and 1 where 1 indicates perfect match between the observed and predicted values.
 
         .. math::
             MAI = 1 - \\frac{\\sum_{i=1}^{n} \\left| \\text{predicted}_i - \\text{true}_i \\right|^j}{\\sum_{i=1}^{n} \\left( \\left| \\text{predicted}_i - \\overline{\\text{true}} \\right| + \\left| \\text{true}_i - \\overline{\\text{true}} \\right| \\right)^j}
+
+        Parameters
+        ----------
+        j : int, default 1
+            when j is 2, this is same as agreement_index. Higher j means more impact of outliers.
 
         Examples
         ---------
@@ -1502,12 +1500,13 @@ class RegressionMetrics(Metrics):
                                     treat_arrays=False)
 
     def nrmse_range(self) -> float:
-        """Range Normalized Root Mean Squared Error.
+        """
+        Range Normalized Root Mean Squared Error after `Pontius et al., 2008 <https://link.springer.com/article/10.1007/s10651-007-0043-y>`_
+
         RMSE normalized by true values. This allows comparison between data sets
         with different scales. It is more sensitive to outliers.
 
-        Reference: `Pontius et al., 2008 <https://link.springer.com/article/10.1007/s10651-007-0043-y>`_
-
+        Reference: 
         .. math::
             \\text{NRMSE} = \\frac{\\sqrt{\\frac{1}{n} \\sum_{i=1}^{n} (\\text{predicted}_i - \\text{true}_i)^2}}{\\max(\\text{true}) - \\min(\\text{true})}
 
@@ -1917,8 +1916,9 @@ class RegressionMetrics(Metrics):
         return rae(true=self.true, treat_arrays=False, predicted=self.predicted)
 
     def ref_agreement_index(self) -> float:
-        """`Refined Index of Agreement <https://www.researchgate.net/profile/Scott-Robeson/publication/235961403_A_refined_index_of_model_performance/links/5a6114254585158bca49f8e4/A-refined-index-of-model-performance.pdf>`_
-        . From -1 to 1. Larger the better.
+        """
+        Refined Index of Agreement after after `Willmott et al., 2012 <https://doi.org/10.1002/joc.2419>`_. 
+        It varies from -1 to 1. Larger the better.         
 
         .. math::
             a = \\sum_{i=1}^{n} \\left| \\text{predicted}_i - \\text{true}_i \\right|
@@ -2070,11 +2070,16 @@ class RegressionMetrics(Metrics):
 
     def rsr(self) -> float:
         """
-        ratio of the root mean square error to the standard deviation of measured data `(RSR) <https://elibrary.asabe.org/abstract.asp?aid=23153>`_,
+        It is MSE normalized by standard deviation of true values. 
+        Following `Moriasi et al., 2007. <https://swat.tamu.edu/media/1312/moriasimodeleval.pdf>`_.
 
-        It incorporates the benefits of error index statistics andincludes a
+        It incorporates the benefits of error index statistics and includes a
         scaling/normalization factor, so that the resulting statistic and reported
-        values can apply to various constitu-ents.
+        values can apply to various constituents. It ranges from 0 to infinity, with
+        0-0.5 indicating very good model performance, 0.5-0.8 indicating good model
+        performance. 
+
+        Standard deviation is calculated using np.ntd(true, ddof=1) to match the results of `this implementation <https://rdrr.io/cran/hydroGOF/man/rsr.html>`_.
 
         .. math::
             \\text{RSR} = \\frac{\\sqrt{\\frac{1}{n} \\sum_{i=1}^{n} (\\text{true}_i - \\text{predicted}_i)^2}}{\\sqrt{\\frac{1}{n-1} \\sum_{i=1}^{n} (\\text{true}_i - \\bar{\\text{true}})^2}}
@@ -2091,7 +2096,10 @@ class RegressionMetrics(Metrics):
         return rsr(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def rmsse(self) -> float:
-        """ Root Mean Squared Scaled Error
+        """
+        Root Mean Squared Scaled Error after `Muhaimin et al., 2021 <https://doi.org/10.1109/Confluence51648.2021.9376880>`_
+        and `Zhou T, 2023 <https://doi.org/10.1109/ICAIBD57115.2023.10206380>`_.
+        It is also considered similar to MASE.        
 
         .. math::
             \\text{RMSSE} = \\sqrt{\\frac{1}{n} \\sum_{i=1}^{n} \\left( \\frac{\\left| \\text{true}_i - \\text{predicted}_i \\right|}{\\frac{1}{n-s} \\sum_{j=s+1}^{n} \\left| \\text{true}_j - \\text{true}_{j-s} \\right|} \\right)^2}
@@ -2108,10 +2116,11 @@ class RegressionMetrics(Metrics):
         return rmsse(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def sa(self) -> float:
-        """Spectral angle. From -pi/2 to pi/2. Closer to 0 is better.
-        It measures angle between two vectors in hyperspace indicating
-        how well the shape of two arrays match instead of their magnitude.
-        Reference: Robila and Gershman, 2005.
+        """
+        Spectral angle `Keshava N, 2004 <https://doi.org/10.1109/TGRS.2004.830549>`_. 
+        It is arccosine of the dot product of true and predicted arrays.
+        It varies from -pi/2 to pi/2. Closer to 0 is better. It measures angle between two vectors 
+        in hyperspace indicating how well the shape of two arrays match instead of their magnitude.
 
         .. math::
             SA = \\arccos \\left( \\frac{\\sum_{i=1}^{n} (\\text{true}_i \\cdot \\text{predicted}_i)}{\\sqrt{\\sum_{i=1}^{n} (\\text{true}_i)^2} \\cdot \\sqrt{\\sum_{i=1}^{n} (\\text{predicted}_i)^2}} \\right)
@@ -2128,8 +2137,10 @@ class RegressionMetrics(Metrics):
         return sa(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def sc(self) -> float:
-        """Spectral correlation.
-        It varies from -pi/2 to pi/2. Closer to 0 is better.
+        """
+        Spectral correlation ater `Robila and Gershman, 2005 <https://ieeexplore.ieee.org/abstract/document/1509878>`_..
+        It varies from -pi/2 to pi/2. Closer to 0 is better. It measures the angle 
+        between the two vectors in hyperspace and highlights how well the shape of the two series match.
 
         .. math::
             sc = \\arccos \\left( \\frac{ \\sum_{i=1}^{n} (t_i - \\bar{t}) \\cdot (p_i - \\bar{p}) }{ \\sqrt{\\sum_{i=1}^{n} (t_i - \\bar{t})^2} \\cdot \\sqrt{\\sum_{i=1}^{n} (p_i - \\bar{p})^2} } \\right)
@@ -2221,15 +2232,15 @@ class RegressionMetrics(Metrics):
 
     def skill_score_murphy(self) -> float:
         """
-        Adopted from `here <https://github.com/PeterRochford/SkillMetrics/blob/278b2f58c7d73566f25f10c9c16a15dc204f5869/skill_metrics/skill_score_murphy.py>`_ .
+        Skill score after `Murphy, 1988 <https://doi.org/10.1175/1520-0493(1988)116%3C2417:SSBOTM%3E2.0.CO;2>`_.
+        Adopted from `SkillMetrics <https://github.com/PeterRochford/SkillMetrics/blob/278b2f58c7d73566f25f10c9c16a15dc204f5869/skill_metrics/skill_score_murphy.py>`_ .
         Calculate non-dimensional skill score (SS) between two variables using
         definition of Murphy (1988) using the formula:
 
         .. math::
             SS = 1 - RMSE^2/SDEV^2
 
-        .. math::
-            SDEV is the standard deviation of the true values
+        where SDEV is the standard deviation of the true values
 
         .. math::
             SDEV^2 = sum_(n=1)^N [r_n - mean(r)]^2/(N-1)
@@ -2240,11 +2251,7 @@ class RegressionMetrics(Metrics):
         score denotes that the forecast of interest is worse than the referencing forecast. Consequently, a value of
         zero denotes that both forecasts perform equally [MLAir, 2020].
 
-        References
-        ---------
-            `Allan H. Murphy, 1988: Skill Scores Based on the Mean Square Error
-            and Their Relationships to the Correlation Coefficient. Mon. Wea.
-            Rev., 116, 2417-2424 <doi: http//dx.doi.org/10.1175/1520-0493(1988)<2417:SSBOTM>2.0.CO;2>`_.
+
 
         Examples
         ---------
@@ -2364,13 +2371,12 @@ class RegressionMetrics(Metrics):
 
     def volume_error(self) -> float:
         """
-        Returns the Volume Error (Ve).
+        Returns the Volume Error (Ve) after `Reynolds, 2017 <https://doi.org/10.1016/j.jhydrol.2017.05.012>`_.
         It is an indicator of the agreement between the averages of the simulated
         and observed runoff (i.e. long-term water balance).
-        used in `Reynolds <https://doi.org/10.1016/j.jhydrol.2017.05.012>`_ paper:
 
         .. math::
-            \\text{volume_error}= Sum(self.predicted- true)/sum(self.predicted)
+            \\text{volume_error}= Sum(predicted- true)/sum(predicted)
 
         Examples
         ---------
@@ -3097,7 +3103,7 @@ def kge(true,
     .. math::
         \\beta = \\frac{\\mu_{\\text{predicted}}}{\\mu_{\\text{true}}}        
         
-    In this equation, $\alpha$ accounts for the variability (standard deviation), $\beta$ accounts for 
+    In this equation, :math:`\alpha` accounts for the variability (standard deviation), :math:`\beta` accounts for 
     the mean difference and r accounts for the correlation between the true and predicted values.
     This equation can also be written as below:
         
@@ -3107,7 +3113,7 @@ def kge(true,
 
     output:
         If return_all is True, it returns a numpy array of shape (4, ) containing
-        kge, $\gamma$, $\alpha$, $\beta$. Otherwise, it returns kge.
+        kge, :math:`\gamma`, :math:`\alpha`, :math:`\beta`. Otherwise, it returns kge.
 
     Parameters
     ----------
@@ -3190,7 +3196,7 @@ def kge_mod(
 
     This version of KGE was introduced to avoid cross-correlation between bias 
     and variability which happens when the precipitation data is biased. This
-    is done by calculating the variability ($\alpha$) by ${CV}_s/{CV}_o$ instaed of ${\sigma}_s/{\sigma}_o$
+    is done by calculating the variability (:math:`\alpha`) by :math:`{CV}_s/{CV}_o` instaed of :math:`{\sigma}_s/{\sigma}_o`
     where CV is the coefficient of variation.
 
         .. math::
@@ -3209,7 +3215,7 @@ def kge_mod(
 
     output:
         If return_all is True, it returns a numpy array of shape (4, ) containing
-        kge, $\gamma$, $\alpha$ and $\beta$. Otherwise, it returns kge.   
+        kge, :math:`\gamma`, :math:`\alpha` and :math:`\beta`. Otherwise, it returns kge.   
     
     Examples
     ---------
@@ -3245,8 +3251,8 @@ def kge_np(
     """
     Non-parametric Kling-Gupta Efficiency after `Pool et al. 2018 <https://doi.org/10.1080/02626667.2018.1552002>`_.
 
-    This differs from original KGE by using non-parameteric components of KGE i.e. $\alpha$ and $\gamma$ / cc.
-    The variability ($\alpha$) non-parametrized by using the FDCs of the true and predicted values. The FDCs are
+    This differs from original KGE by using non-parameteric components of KGE i.e. :math:`\alpha` and :math:`\gamma` / cc.
+    The variability (:math:`\alpha`) non-parametrized by using the FDCs of the true and predicted values. The FDCs are
     normalized to remove the volume information.
 
     .. math::
@@ -3271,7 +3277,7 @@ def kge_np(
 
     output:
         If return_all is True, it returns a numpy array of shape (4, ) containing
-        kge, $cc$, $\alpha$ and $\beta$. Otherwise, it returns kge.   
+        kge, :math:`cc`, :math:`\alpha` and :math:`\beta`. Otherwise, it returns kge.   
 
     Examples
     ---------
@@ -4030,8 +4036,9 @@ def covariance(
 def brier_score(true, predicted, treat_arrays: bool = True,
                 **treat_arrays_kws) -> float:
     """
-    Adopted from SkillMetrics_
-    Calculates the Brier score (BS), a measure of the mean-square error of
+    Adopted from `SkillMetrics <https://github.com/PeterRochford/SkillMetrics/blob/master/skill_metrics/brier_score.py>`_
+    This function calculates the `Brier score (BS)` <https://viterbi-web.usc.edu/~shaddin/teaching/cs699fa17/docs/Brier50.pdf>`_, 
+    which is a measure of the mean-square error of
     probability forecasts for a dichotomous (two-category) event, such as
     the occurrence/non-occurrence of precipitation. The score is calculated
     using the formula:
@@ -4042,7 +4049,7 @@ def brier_score(true, predicted, treat_arrays: bool = True,
     where f is the forecast probabilities, o is the observed probabilities
     (0 or 1), and N is the total number of values in f & o. Note that f & o
     must have the same number of values, and those values must be in the
-    range_ [0,1].
+    `range [0,1] <https://data.library.virginia.edu/a-brief-on-brier-scores/>`_.
 
     Returns
     --------
@@ -4051,16 +4058,10 @@ def brier_score(true, predicted, treat_arrays: bool = True,
 
     References
     ---------
-    `Glenn W. Brier, 1950: Verification of forecasts expressed in terms
-    of probabilities. Mon. We. Rev., 78, 1-23.
-    D. S. Wilks, 1995: Statistical Methods in the Atmospheric Sciences.
-    Cambridge Press. 547 pp <https://viterbi-web.usc.edu/~shaddin/teaching/cs699fa17/docs/Brier50.pdf>`_
-
-    .. _SkillMetrics:
-        https://github.com/PeterRochford/SkillMetrics/blob/master/skill_metrics/brier_score.py
-
-    .. _range:
-        https://data.library.virginia.edu/a-brief-on-brier-scores/
+    `D. S. Wilks, 1995: Statistical Methods in the Atmospheric Sciences.
+    Cambridge Press. 547 pp <https://doi.org/10.1016/C2017-0-03921-6>`_
+     
+        
     Parameters
     ----------
     true :
@@ -4365,27 +4366,24 @@ def acc(
     return float(np.dot(a, b / c))
 
 
-def agreement_index(true, predicted, treat_arrays: bool = True,
-                    **treat_arrays_kws) -> float:
+def agreement_index(
+        true, 
+        predicted, 
+        treat_arrays: bool = True,
+        **treat_arrays_kws
+        ) -> float:
     """
-    Agreement Index (d) developed by Willmott_, 1981.
+    Agreement Index (d) developed by `Willmott, 1981 <https://doi.org/10.1080/02723646.1981.10642213>`_.
 
     It detects additive and pro-portional differences in the observed and
-    simulated means and vari-ances Moriasi_ et al., 2015. It is overly sensitive
-    to extreme values due to the squared `differences <https://www.tandfonline.com/doi/abs/10.2747/0272-3646.26.6.467>`_.
-    It can also be used
-    as a substitute for R2 to identify the degree to which model predic-tions
-    are error-free. Its value varies between 0 and 1 with 1 being the best.
+    simulated means and variances (Moriasi_ et al., 2015 <https://doi.org/10.13031/trans.58.10715>`_). It is overly sensitive
+    to extreme values due to the squared differences. It can also be used
+    as a substitute for R2 to identify the degree to which model predictions
+    are error-free.
 
     .. math::
         d = 1 - \\frac{\\sum_{i=1}^{N}(e_{i} - s_{i})^2}{\\sum_{i=1}^{N}(\\left | s_{i} - \\bar{e}
-         \\right | + \\left | e_{i} - \\bar{e} \\right |)^2}
-
-    .. _Willmott:
-        https://doi.org/10.1080/02723646.1981.10642213
-
-    .. _Moriasi:
-        https://doi.org/10.13031/trans.58.10715
+            \\right | + \\left | e_{i} - \\bar{e} \\right |)^2}   
 
     Parameters
     ----------
@@ -4406,8 +4404,11 @@ def agreement_index(true, predicted, treat_arrays: bool = True,
     >>> agreement_index(t, p)
     """
     true, predicted = maybe_treat_arrays(treat_arrays, true, predicted, 'regression', **treat_arrays_kws)
-    agreement_index_ = 1 - (np.sum((true - predicted) ** 2)) / (np.sum(
-        (np.abs(predicted - np.mean(true)) + np.abs(true - np.mean(true))) ** 2))
+
+    b = np.abs(predicted - np.mean(true))
+    c = np.abs(true - np.mean(true))
+    e = (b + c) ** 2
+    agreement_index_ = 1 - (np.sum((true - predicted) ** 2)) / (np.sum(e))
     return float(agreement_index_)
 
 def legates_coeff_eff(true, predicted, treat_arrays: bool = True,
@@ -5026,8 +5027,12 @@ def _hydro_metrics() -> list:
         'nse', 'nse_alpha', 'nse_beta', 'nse_mod', 'nse_bound']
 
 
-def calculate_hydro_metrics(true, predicted, treat_arrays: bool = True,
-                            **treat_arrays_kws) -> dict:
+def calculate_hydro_metrics(
+        true, 
+        predicted, 
+        treat_arrays: bool = True,
+        **treat_arrays_kws
+        ) -> dict:
     """
     Calculates the following performance metrics related to hydrology.
         - fdc_flv
@@ -5732,15 +5737,11 @@ def mean_bias_error(true, predicted, treat_arrays: bool = True,
     References
     ----------
 
-    - `Willmott, C. J., & Matsuura, K. (2006). On the use of dimensioned measures of error to evaluate the performance
-        of spatial interpolators. International Journal of Geographical Information Science, 20(1), 89-102.
-        <https://doi.org/10.1080/1365881050028697>`_
+    - `Willmott, C. J., & Matsuura, K. (2006). On the use of dimensioned measures of error to evaluate the performance of spatial interpolators. International Journal of Geographical Information Science, 20(1), 89-102. <https://doi.org/10.1080/1365881050028697>`_
 
-    - `Valipour, M. (2015). Retracted: Comparative Evaluation of Radiation-Based Methods for Estimation of Potential
-        Evapotranspiration. Journal of Hydrologic Engineering, 20(5), 04014068.
-        <https://dx.doi.org/10.1061/(ASCE)HE.1943-5584.0001066>`_
+    - `Valipour, M. (2015). Retracted: Comparative Evaluation of Radiation-Based Methods for Estimation of Potential Evapotranspiration. Journal of Hydrologic Engineering, 20(5), 04014068. <https://dx.doi.org/10.1061/(ASCE)HE.1943-5584.0001066>`_
 
-    -  `<https://doi.org/10.1016/j.rser.2015.08.035>`_
+    -  `Despotovic, M., Nedic, V., Despotovic, D., & Cvetanovic, S. (2015). Review and statistical analysis of different global solar radiation sunshine models. Renewable and Sustainable Energy Reviews, 52, 1869-1880. <https://doi.org/10.1016/j.rser.2015.08.035>`_
 
     Parameters
     ----------
@@ -5764,9 +5765,14 @@ def mean_bias_error(true, predicted, treat_arrays: bool = True,
     return float(np.sum(true - predicted) / len(true))
 
 
-def mean_var(true, predicted, treat_arrays: bool = True,
-             **treat_arrays_kws) -> float:
-    """Mean variance
+def mean_var(
+        true, 
+        predicted, 
+        treat_arrays: bool = True,
+        **treat_arrays_kws
+        ) -> float:
+    """
+    Mean variance, adopted from `HydroErr <https://github.com/BYU-Hydroinformatics/HydroErr/blob/master/HydroErr/HydroErr.py#L6072>`_
 
     .. math::
         \\text{mean_var} = \\text{Var} \\left( \\log(1 + \\text{true}) - \\log(1 + \\text{predicted}) \\right)
@@ -5955,10 +5961,14 @@ def mle(true, predicted, treat_arrays=True,
     return float(np.mean(log1p(predicted) - log1p(true)))
 
 
-def mod_agreement_index(true, predicted, treat_arrays: bool = True, j=1,
-                        **treat_arrays_kws) -> float:
+def mod_agreement_index(
+        true, 
+        predicted, 
+        treat_arrays: bool = True, 
+        j:int=1,
+        **treat_arrays_kws) -> float:
     """ `Modified agreement of index <https://search.r-project.org/CRAN/refmans/hydroGOF/html/md.html>`_.
-    j: int, when j==1, this is same as agreement_index. Higher j means more impact of outliers.
+    It varies between 0 and 1 where 1 indicates perfect match between the observed and predicted values.
 
     .. math::
         MAI = 1 - \\frac{\\sum_{i=1}^{n} \\left| \\text{predicted}_i - \\text{true}_i \\right|^j}{\\sum_{i=1}^{n} \\left( \\left| \\text{predicted}_i - \\overline{\\text{true}} \\right| + \\left| \\text{true}_i - \\overline{\\text{true}} \\right| \\right)^j}
@@ -5972,7 +5982,8 @@ def mod_agreement_index(true, predicted, treat_arrays: bool = True, j=1,
          simulated values
     treat_arrays :
         process the true and predicted arrays using maybe_treat_arrays function
-    j:
+    j : int, default 1
+        when j is 2, this is same as agreement_index. Higher j means more impact of outliers.
 
     Examples
     ---------
@@ -6113,13 +6124,17 @@ def norm_nse(
     return 1 / (2 - nse_)
 
 
-def nrmse_range(true, predicted, treat_arrays: bool = True,
-                **treat_arrays_kws) -> float:
-    """Range Normalized Root Mean Squared Error.
+def nrmse_range(
+        true, 
+        predicted, 
+        treat_arrays: bool = True,
+        **treat_arrays_kws
+        ) -> float:
+    """
+    Range Normalized Root Mean Squared Error after `Pontius et al., 2008 <https://link.springer.com/article/10.1007/s10651-007-0043-y>`_
+
     RMSE normalized by true values. This allows comparison between data sets
     with different scales. It is more sensitive to outliers.
-
-    Reference: `Pontius et al., 2008 <https://link.springer.com/article/10.1007/s10651-007-0043-y>`_
 
     .. math::
         \\text{NRMSE} = \\frac{\\sqrt{\\frac{1}{n} \\sum_{i=1}^{n} (\\text{predicted}_i - \\text{true}_i)^2}}{\\max(\\text{true}) - \\min(\\text{true})}
@@ -6412,9 +6427,14 @@ def rae(true, predicted, treat_arrays: bool = True,
     return float(np.sum(_ae(true, predicted)) / (np.sum(np.abs(true - np.mean(true))) + EPS))
 
 
-def ref_agreement_index(true, predicted, treat_arrays: bool = True,
-                        **treat_arrays_kws) -> float:
-    """Refined Index of Agreement. From -1 to 1. Larger the better.
+def ref_agreement_index(
+        true, predicted, 
+        treat_arrays: bool = True,
+        **treat_arrays_kws
+        ) -> float:
+    """
+    Refined Index of Agreement after after `Willmott et al., 2012 <https://doi.org/10.1002/joc.2419>`_. 
+    It varies from -1 to 1. Larger the better. 
 
     .. math::
         a = \\sum_{i=1}^{n} \\left| \\text{predicted}_i - \\text{true}_i \\right|
@@ -6429,14 +6449,13 @@ def ref_agreement_index(true, predicted, treat_arrays: bool = True,
         \\frac{b}{a} - 1 & \\text{if } a > b
         \\end{cases}
 
-    Refrence: `Willmott et al., 2012 <https://www.researchgate.net/profile/Scott-Robeson/publication/235961403_A_refined_index_of_model_performance/links/5a6114254585158bca49f8e4/A-refined-index-of-model-performance.pdf>`_
     Parameters
     ----------
     true :
-         true/observed/actual/target values. It must be a numpy array,
-         or pandas series/DataFrame or a list.
+        true/observed/actual/target values. It must be a numpy array,
+        or pandas series/DataFrame or a list.
     predicted :
-         simulated values
+        simulated values
     treat_arrays :
         process the true and predicted arrays using maybe_treat_arrays function
 
@@ -6564,13 +6583,13 @@ def rsr(
     It is MSE normalized by standard deviation of true values. 
     Following `Moriasi et al., 2007. <https://swat.tamu.edu/media/1312/moriasimodeleval.pdf>`_.
 
-    It incorporates the benefits of error index statistics andincludes a
+    It incorporates the benefits of error index statistics and includes a
     scaling/normalization factor, so that the resulting statistic and reported
-    values can apply to various constitu-ents. It ranges from 0 to infinity, with
+    values can apply to various constituents. It ranges from 0 to infinity, with
     0-0.5 indicating very good model performance, 0.5-0.8 indicating good model
     performance. 
 
-    Standard deviation is calculated using np.ntd(true, ddof=1) to match the results of `this <https://rdrr.io/cran/hydroGOF/man/rsr.html>`_.
+    Standard deviation is calculated using np.ntd(true, ddof=1) to match the results of `this implementation <https://rdrr.io/cran/hydroGOF/man/rsr.html>`_.
 
     .. math::
         \\text{RSR} = \\frac{\\sqrt{\\frac{1}{n} \\sum_{i=1}^{n} (\\text{true}_i - \\text{predicted}_i)^2}}{\\sqrt{\\frac{1}{n-1} \\sum_{i=1}^{n} (\\text{true}_i - \\bar{\\text{true}})^2}}
@@ -6597,9 +6616,17 @@ def rsr(
     return float(rmse(predicted=predicted, true=true, treat_arrays=False) / np.std(true, ddof=1))
 
 
-def rmsse(true, predicted, treat_arrays: bool = True, seasonality: int = 1,
-          **treat_arrays_kws) -> float:
-    """ Root Mean Squared Scaled Error
+def rmsse(
+        true, 
+        predicted, 
+        treat_arrays: bool = True, 
+        seasonality: int = 1,
+        **treat_arrays_kws
+        ) -> float:
+    """ 
+    Root Mean Squared Scaled Error after `Muhaimin et al., 2021 <https://doi.org/10.1109/Confluence51648.2021.9376880>`_
+    and `Zhou T, 2023 <https://doi.org/10.1109/ICAIBD57115.2023.10206380>`_.
+    It is also considered similar to MASE.
 
     .. math::
         \\text{RMSSE} = \\sqrt{\\frac{1}{n} \\sum_{i=1}^{n} \\left( \\frac{\\left| \\text{true}_i - \\text{predicted}_i \\right|}{\\frac{1}{n-s} \\sum_{j=s+1}^{n} \\left| \\text{true}_j - \\text{true}_{j-s} \\right|} \\right)^2}
@@ -6623,18 +6650,24 @@ def rmsse(true, predicted, treat_arrays: bool = True, seasonality: int = 1,
     >>> p = np.random.random(10)
     >>> rmsse(t, p)
     """
+    # todo : check equation from the reference, do they really match?
     true, predicted = maybe_treat_arrays(treat_arrays, true, predicted, 'regression', **treat_arrays_kws)
     error = true - predicted
     q = np.abs(error) / mae(true[seasonality:], _naive_prognose(true, seasonality), treat_arrays=False)
     return float(np.sqrt(np.mean(np.square(q))))
 
 
-def sa(true, predicted, treat_arrays: bool = True,
-       **treat_arrays_kws) -> float:
-    """Spectral angle. From -pi/2 to pi/2. Closer to 0 is better.
-    It measures angle between two vectors in hyperspace indicating
-    how well the shape of two arrays match instead of their magnitude.
-    Reference: `Robila and Gershman, 2005 <https://ieeexplore.ieee.org/abstract/document/1509878>`_.
+def sa(
+        true, 
+        predicted, 
+        treat_arrays: bool = True,
+       **treat_arrays_kws
+       ) -> float:
+    """
+    Spectral angle `Keshava N, 2004 <https://doi.org/10.1109/TGRS.2004.830549>`_. 
+    It is arccosine of the dot product of true and predicted arrays.
+    It varies from -pi/2 to pi/2. Closer to 0 is better. It measures angle between two vectors 
+    in hyperspace indicating how well the shape of two arrays match instead of their magnitude.
 
     .. math::
         SA = \\arccos \\left( \\frac{\\sum_{i=1}^{n} (\\text{true}_i \\cdot \\text{predicted}_i)}{\\sqrt{\\sum_{i=1}^{n} (\\text{true}_i)^2} \\cdot \\sqrt{\\sum_{i=1}^{n} (\\text{predicted}_i)^2}} \\right)
@@ -6663,10 +6696,16 @@ def sa(true, predicted, treat_arrays: bool = True,
     return float(np.arccos(a / b))
 
 
-def sc(true, predicted, treat_arrays: bool = True,
-       **treat_arrays_kws) -> float:
-    """Spectral correlation.
-    It varies from -pi/2 to pi/2. Closer to 0 is better.
+def sc(
+        true, 
+        predicted, 
+        treat_arrays: bool = True,
+       **treat_arrays_kws
+       ) -> float:
+    """
+    Spectral correlation ater `Robila and Gershman, 2005 <https://ieeexplore.ieee.org/abstract/document/1509878>`_..
+    It varies from -pi/2 to pi/2. Closer to 0 is better. It measures the angle 
+    between the two vectors in hyperspace and highlights how well the shape of the two series match.
 
     .. math::
         sc = \\arccos \\left( \\frac{ \\sum_{i=1}^{n} (t_i - \\bar{t}) \\cdot (p_i - \\bar{p}) }{ \\sqrt{\\sum_{i=1}^{n} (t_i - \\bar{t})^2} \\cdot \\sqrt{\\sum_{i=1}^{n} (p_i - \\bar{p})^2} } \\right)
@@ -6831,18 +6870,22 @@ def sid(true, predicted, treat_arrays: bool = True,
     return float(np.dot(first, second1 - second2))
 
 
-def skill_score_murphy(true, predicted, treat_arrays: bool = True,
-                       **treat_arrays_kws) -> float:
+def skill_score_murphy(
+        true, 
+        predicted, 
+        treat_arrays: bool = True,
+        **treat_arrays_kws
+        ) -> float:
     """
-    Adopted from here_ .
+    Skill score after `Murphy, 1988 <https://doi.org/10.1175/1520-0493(1988)116%3C2417:SSBOTM%3E2.0.CO;2>`_.
+    Adopted from `SkillMetrics <https://github.com/PeterRochford/SkillMetrics/blob/278b2f58c7d73566f25f10c9c16a15dc204f5869/skill_metrics/skill_score_murphy.py>`_ .
     Calculate non-dimensional skill score (SS) between two variables using
     definition of Murphy (1988) using the formula:
 
     .. math::
         SS = 1 - RMSE^2/SDEV^2
 
-    .. math::
-        SDEV is the standard deviation of the true values
+    where SDEV is the standard deviation of the true values
 
     .. math::
         SDEV^2 = sum_(n=1)^N [r_n - mean(r)]^2/(N-1)
@@ -6853,19 +6896,6 @@ def skill_score_murphy(true, predicted, treat_arrays: bool = True,
     score denotes that the forecast of interest is worse than the referencing forecast. Consequently, a value of
     zero denotes that both forecasts perform equally [MLAir, 2020].
 
-    Returns:
-        flaot
-
-    References
-    ---------
-        `Allan H. Murphy, 1988: Skill Scores Based on the Mean Square Error
-        and Their Relationships to the Correlation Coefficient. Mon. Wea.
-        Rev., 116, 2417-2424
-        <doi: http//dx.doi.org/10.1175/1520-0493(1988)<2417:SSBOTM>2.0.CO;2>`_.
-
-    .. _here:
-        https://github.com/PeterRochford/SkillMetrics/blob/278b2f58c7d73566f25f10c9c16a15dc204f5869/skill_metrics/skill_score_murphy.py
-
     Parameters
     ----------
     true :
@@ -6875,6 +6905,9 @@ def skill_score_murphy(true, predicted, treat_arrays: bool = True,
          simulated values
     treat_arrays :
         process the true and predicted arrays using maybe_treat_arrays function
+        
+    Returns:
+        flaot
 
     Examples
     ---------
@@ -6999,16 +7032,19 @@ def ve(true, predicted, treat_arrays: bool = True,
     return float(1 - (a / b))
 
 
-def volume_error(true, predicted, treat_arrays: bool = True,
-                 **treat_arrays_kws) -> float:
+def volume_error(
+        true, 
+        predicted, 
+        treat_arrays: bool = True,
+        **treat_arrays_kws
+        ) -> float:
     """
-    Returns the Volume Error (Ve).
+    Returns the Volume Error (Ve) after `Reynolds, 2017 <https://doi.org/10.1016/j.jhydrol.2017.05.012>`_.
     It is an indicator of the agreement between the averages of the simulated
     and observed runoff (i.e. long-term water balance).
-    used in `Reynolds <https://doi.org/10.1016/j.jhydrol.2017.05.012>`_ paper:
 
     .. math::
-        \\text{volume_error}= Sum(self.predicted- true)/sum(self.predicted)
+        \\text{volume_error}= Sum(predicted- true)/sum(predicted)
 
     Parameters
     ----------
