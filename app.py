@@ -716,7 +716,7 @@ if st.button("Calculate"):
             calc_value, doc_string = calculate_metrics(true_values, predicted_values, reg_func_name, "regression")
             st.subheader(f"{regression_metric}")
             st.markdown(f"**Documentation:** {doc_string}")
-            st.write(calc_value)
+            st.header(round(calc_value,4))
 
             ax = regression_plot(true_values, predicted_values)
 
@@ -740,7 +740,7 @@ if st.button("Calculate"):
             calc_value, doc_string = calculate_metrics(true_values, predicted_values, cls_func_name, "classification")
             st.subheader(f"{classification_metric}")
             st.markdown(f"**Documentation:** {doc_string}")
-            st.write(calc_value)
+            st.header(calc_value)
 
             fig = confusion_matrix(true_values, predicted_values)
 
