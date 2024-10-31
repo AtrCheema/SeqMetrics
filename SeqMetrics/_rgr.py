@@ -538,7 +538,7 @@ class RegressionMetrics(Metrics):
 
     def fdc_fhv(self, h: float = 0.02) -> float:
         """
-        modified `Kratzert2018 <https://github.com/kratzert/ealstm_regional_modeling/blob/64a446e9012ecd601e0a9680246d3bbf3f002f6d/papercode/metrics.py#L190>`_
+        modified after `Kratzert2018 <https://github.com/kratzert/ealstm_regional_modeling/blob/64a446e9012ecd601e0a9680246d3bbf3f002f6d/papercode/metrics.py#L190>`_
         code. Peak flow bias of the flow duration curve (Yilmaz 2008).
         used in `kratzert et al., 2019 <https://hess.copernicus.org/articles/23/5089/2019/hess-23-5089-2019.html>`_.
 
@@ -766,7 +766,7 @@ class RegressionMetrics(Metrics):
         .. math::
             \\beta = \\frac{\\mu_{\\text{predicted}}}{\\mu_{\\text{true}}}        
             
-        In this equation, :math:`\alpha` accounts for the variability (standard deviation), :math:`\beta` accounts for 
+        In this equation, :math:`\\alpha` accounts for the variability (standard deviation), :math:`\\beta` accounts for 
         the mean difference and r accounts for the correlation between the true and predicted values.
         This equation can also be written as below:
         
@@ -776,7 +776,7 @@ class RegressionMetrics(Metrics):
         output
         -------
             If return_all is True, it returns a numpy array of shape (4, ) containing
-            kge, :math:`\gamma`, :math:`\alpha`, :math:`\beta`. Otherwise, it returns kge.            
+            kge, :math:`\\gamma`, :math:`\\alpha`, :math:`\\beta`. Otherwise, it returns kge.            
             
         Examples
         ---------
@@ -843,7 +843,7 @@ class RegressionMetrics(Metrics):
         """
         return kge_mod(true=self.true, predicted=self.predicted, treat_arrays=False, return_all=return_all)
 
-    def kge_np(self):
+    def kge_np(self, return_all:bool = False)-> Union[float, np.ndarray]:
         """
         Non-parametric Kling-Gupta Efficiency after `Pool et al. 2018 <https://doi.org/10.1080/02626667.2018.1552002>`_.
 
@@ -870,7 +870,7 @@ class RegressionMetrics(Metrics):
         >>> metrics.kge_np()
 
         """
-        return kge_np(true=self.true, predicted=self.predicted, treat_arrays=False)
+        return kge_np(true=self.true, predicted=self.predicted, return_all=return_all, treat_arrays=False)
 
     def kgeprime_bound(self) -> float:
         """
@@ -2723,7 +2723,7 @@ class RegressionMetrics(Metrics):
 def post_process_kge(cc, alpha, beta, return_all=False):
     kge_ = float(1 - np.sqrt((cc - 1) ** 2 + (alpha - 1) ** 2 + (beta - 1) ** 2))
     if return_all:
-        return np.vstack((kge_, cc, alpha, beta))
+        return np.array([kge_, cc, alpha, beta])
     else:
         return kge_
 
@@ -3086,34 +3086,34 @@ def adjusted_r2(true, predicted, treat_arrays: bool = True,
     return float(adj_r)
 
 
-def kge(true,
+def kge(
+        true,
         predicted,
         treat_arrays: bool = True,
         return_all=False,
         **treat_arrays_kws):
     """
-    Kling-Gupta Efficiency following `Gupta_ et al. 2009 <https://doi.org/10.1016/j.jhydrol.2009.08.003>`_.
-    This error considers `correlation`, `variability` and `mean` difference/error.
+    Kling-Gupta Efficiency following Eq. 9 in `Gupta et al. 2009 <https://doi.org/10.1016/j.jhydrol.2009.08.003>`_.
+    This error considers `correlation` (:math:`\gamma`), `variability (:math:`\\alpha`)` and `bias` (:math:`\\beta`).
 
     .. math::
-        \\text{KGE} = 1 - \\sqrt{(r - 1)^2 + (\\alpha - 1)^2 + (\\beta - 1)^2}
+        \\text{KGE} = 1 - ED
+    
+    .. math::
+        ED = \\sqrt{(r - 1)^2 + (\\alpha - 1)^2 + (\\beta - 1)^2}
 
     .. math::
         \\alpha = \\frac{\\sigma_{\\text{predicted}}}{\\sigma_{\\text{true}}}
     .. math::
         \\beta = \\frac{\\mu_{\\text{predicted}}}{\\mu_{\\text{true}}}        
         
-    In this equation, :math:`\alpha` accounts for the variability (standard deviation), :math:`\beta` accounts for 
-    the mean difference and r accounts for the correlation between the true and predicted values.
+    In above equations, ED is also considered as Euclidean distance,  :math:`\\alpha` 
+    accounts for the variability (standard deviation), :math:`\\beta` accounts for 
+    the mean difference and :math:`\gamma` accounts for the correlation between the true and predicted values.
     This equation can also be written as below:
         
     .. math::
         \\text{KGE} = \\frac{\\sum_{i=1}^{N} ( \\text{true}_i - \\bar{\\text{true}} ) ( \\text{predicted}_i - \\bar{\\text{predicted}} )}{\\sqrt{\\sum_{i=1}^{N} ( \\text{true}_i - \\bar{\\text{true}} )^2} \\sqrt{\\sum_{i=1}^{N} ( \\text{predicted}_i - \\bar{\\text{predicted}} )^2}}
-
-
-    output:
-        If return_all is True, it returns a numpy array of shape (4, ) containing
-        kge, :math:`\gamma`, :math:`\alpha`, :math:`\beta`. Otherwise, it returns kge.
 
     Parameters
     ----------
@@ -3126,6 +3126,11 @@ def kge(true,
         process the true and predicted arrays using maybe_treat_arrays function
     return_all:
 
+    Returns
+    -------
+        If return_all is True, it returns a numpy array of shape (4, ) containing
+        kge, :math:`\\gamma`, :math:`\\alpha`, :math:`\\beta`. Otherwise, it returns kge.    
+    
     Examples
     ---------
     >>> import numpy as np
@@ -3145,7 +3150,8 @@ def kge_bound(
         true, 
         predicted, 
         treat_arrays: bool = True,
-        **treat_arrays_kws) -> float:
+        **treat_arrays_kws
+        ) -> float:
     """
     `Mathevet et al. 2006 <https://iahs.info/uploads/dms/13614.21--211-219-41-MATHEVET.pdf>`_
     proposed a bounded version of NSE since the original NSE lacks a lower bound 
@@ -3177,7 +3183,7 @@ def kge_bound(
     >>> kge_bound(t, p)
     """
     true, predicted = maybe_treat_arrays(treat_arrays, true, predicted, 'regression', **treat_arrays_kws)
-    kge_ = kge(true, predicted, return_all=True, treat_arrays=False)[0, :]
+    kge_ = kge(true, predicted, return_all=True, treat_arrays=False)[0]
     kge_c2m_ = kge_ / (2 - kge_)
 
     return float(kge_c2m_.item())
@@ -3247,7 +3253,8 @@ def kge_np(
         predicted,
         treat_arrays: bool = True,
         return_all=False,
-        **treat_arrays_kws):
+        **treat_arrays_kws
+        ):
     """
     Non-parametric Kling-Gupta Efficiency after `Pool et al. 2018 <https://doi.org/10.1080/02626667.2018.1552002>`_.
 
@@ -3403,12 +3410,14 @@ def spearmann_corr(
 #     return float(numerator / (denominator1 * denominator2))
 
 
-def log_nse(true, 
-            predicted, 
-            treat_arrays: bool = True, 
-            epsilon:float=0.0,
-            log_base:str='e',
-            **treat_arrays_kws) -> float:
+def log_nse(
+        true, 
+        predicted, 
+        treat_arrays: bool = True, 
+        epsilon:float=0.0,
+        log_base:str='e',
+        **treat_arrays_kws
+        ) -> float:
     """
     `log transformed Nash-Sutcliffe Efficiency <https://doi.org/10.1002/2016WR019605>`_.
 
@@ -3498,8 +3507,13 @@ def corr_coeff(true, predicted, treat_arrays: bool = True,
     return float(correlation_coefficient)
 
 
-def rmse(true, predicted, treat_arrays: bool = True, weights=None,
-         **treat_arrays_kws) -> float:
+def rmse(
+        true, 
+        predicted, 
+        treat_arrays: bool = True, 
+        weights=None,
+        **treat_arrays_kws
+        ) -> float:
     """ `Root mean squared error <https://scikit-learn.org/stable/modules/generated/sklearn.metrics.root_mean_squared_error.html>`_
 
     .. math::
@@ -3529,8 +3543,12 @@ def rmse(true, predicted, treat_arrays: bool = True, weights=None,
     return sqrt(np.average((true - predicted) ** 2, axis=0, weights=weights))
 
 
-def rmsle(true, predicted, treat_arrays: bool = True,
-          **treat_arrays_kws) -> float:
+def rmsle(
+        true, 
+        predicted, 
+        treat_arrays: bool = True,
+        **treat_arrays_kws
+        ) -> float:
     """Root mean square log error.
 
     This error is less sensitive to `outliers <https://stats.stackexchange.com/q/56658/314919>`_ .
@@ -3575,8 +3593,8 @@ def mape(
         true, 
         predicted, 
         treat_arrays: bool = True,
-         **treat_arrays_kws
-         ) -> float:
+        **treat_arrays_kws
+        ) -> float:
     """ Mean Absolute Percentage Error.
     The MAPE is often used when the quantity to predict is known to remain
     way above zero_. It is useful when the size or size of a prediction variable
@@ -3623,8 +3641,12 @@ def mape(
     return float(np.mean(np.abs((true - predicted) / true)) * 100)
 
 
-def nrmse(true, predicted, treat_arrays: bool = True,
-          **treat_arrays_kws) -> float:
+def nrmse(
+        true, 
+        predicted, 
+        treat_arrays: bool = True,
+        **treat_arrays_kws
+        ) -> float:
     """ `Normalized Root Mean Squared Error <https://www.sciencedirect.com/science/article/pii/S0957417411003289>`_
 
     .. math::
@@ -3652,8 +3674,12 @@ def nrmse(true, predicted, treat_arrays: bool = True,
     return float(rmse(true, predicted, treat_arrays=False) / (np.max(true) - np.min(true)))
 
 
-def pbias(true, predicted, treat_arrays: bool = True,
-          **treat_arrays_kws) -> float:
+def pbias(
+        true, 
+        predicted, 
+        treat_arrays: bool = True,
+        **treat_arrays_kws
+        ) -> float:
     """
     `Percent bias <https://elibrary.asabe.org/abstract.asp?aid=46548>`_ determines 
     how well the model simulates the average magnitudes for the
@@ -3691,14 +3717,18 @@ def pbias(true, predicted, treat_arrays: bool = True,
     return float(100.0 * sum(true - predicted) / sum(true))
 
 
-def bias(true, predicted, treat_arrays: bool = True,
-         **treat_arrays_kws) -> float:
+def bias(
+        true, 
+        predicted, 
+        treat_arrays: bool = True,
+        **treat_arrays_kws
+        ) -> float:
     """
     Bias as and given by Gupta1998_ et al., 1998 in Table 1
     It is also called mean error.
 
     .. math::
-        Bias=\\frac{1}{N}\\sum_{i=1}^{N}(e_{i}-s_{i})
+        Bias=\\frac{1}{N}\\sum_{i=1}^{N}(True_{i}-Predicted_{i})
 
     .. _Gupta1998:
         https://doi.org/10.1029/97WR03495
@@ -3706,7 +3736,7 @@ def bias(true, predicted, treat_arrays: bool = True,
     Parameters
     ----------
     true :
-         true/observed/actual/target values. It must be a numpy array,
+         true/observed/actual/measured/target values. It must be a numpy array,
          or pandas series/DataFrame or a list.
     predicted :
          simulated values
@@ -3720,6 +3750,9 @@ def bias(true, predicted, treat_arrays: bool = True,
     >>> t = np.random.random(10)
     >>> p = np.random.random(10)
     >>> bias(t, p)
+    ...
+    >>> bias([1.1, 2.2, 3.3], [11.1, 12.2, 13.3])
+     -10.0
     """
     true, predicted = maybe_treat_arrays(treat_arrays, true, predicted, 'regression', **treat_arrays_kws)
     bias_ = np.nansum(true - predicted) / len(true)
@@ -4680,15 +4713,16 @@ def euclid_distance(
         treat_arrays: bool = True,
         **treat_arrays_kws
         ) -> float:
-    """ `Euclidian distance <https://scikit-learn.org/stable/modules/generated/sklearn.metrics.pairwise.euclidean_distances.html>`_
-    taken from `this book <https://doi.org/10.1016/B978-0-12-088735-4.50006-7`_.
+    """ 
+    `Euclidian distance <https://scikit-learn.org/stable/modules/generated/sklearn.metrics.pairwise.euclidean_distances.html>`_
+    taken from `Elementary DIfferential Geometry by Barret O'Neil <https://doi.org/10.1016/B978-0-12-088735-4.50006-7>`_.
 
     .. math::
         D = \\sqrt{\\sum_{i=1}^{n} (\\text{true}_i - \\text{predicted}_i)^2}
     Parameters
     ----------
     true :
-         true/observed/actual/target values. It must be a numpy array,
+         true/observed/actual/measured/target values. It must be a numpy array,
          or pandas series/DataFrame or a list.
     predicted :
          simulated values
@@ -5207,7 +5241,7 @@ def kgeprime_bound(true, predicted, treat_arrays: bool = True,
 
     """
     true, predicted = maybe_treat_arrays(treat_arrays, true, predicted, 'regression', **treat_arrays_kws)
-    kgeprime_ = kge_mod(true, predicted, return_all=True, treat_arrays=False)[0, :]
+    kgeprime_ = kge_mod(true, predicted, return_all=True, treat_arrays=False)[0]
     kgeprime_c2m_ = kgeprime_ / (2 - kgeprime_)
 
     return float(kgeprime_c2m_.item())
@@ -5241,7 +5275,7 @@ def kgenp_bound(true, predicted, treat_arrays: bool = True,
 
     """
     true, predicted = maybe_treat_arrays(treat_arrays, true, predicted, 'regression', **treat_arrays_kws)
-    kgenp_ = kge_np(return_all=True, true=true, predicted=predicted, treat_arrays=False)[0, :]
+    kgenp_ = kge_np(return_all=True, true=true, predicted=predicted, treat_arrays=False)[0]
     kgenp_c2m_ = kgenp_ / (2 - kgenp_)
 
     return float(kgenp_c2m_.item())
@@ -7841,15 +7875,25 @@ def coeff_of_extrapolation():
 
 def roce():
     """
-    `KOllat et al., 2012 <https://doi.org/10.1029/2011WR011534>`_
+    Runoff coefficient percent error after equation 3 in `Kollat et al., 2012 <https://doi.org/10.1029/2011WR011534>`_
     """
     raise NotImplementedError
 
 
 def trmse():
-    # `KOllat et al., 2012 <https://doi.org/10.1029/2011WR011534>`_
-    # Mirirli et al., 2003 https://doi.org/10.1029/WS006p0113
-    # Tang et al., 2006 https://doi.org/10.5194/hess-10-289-2006
+    """
+    The Box-Cox transformed root mean squared error (TRMSE) is a metric that
+    emphasizes low flows using box-cox transformation (`Kollat et al., 2012 <https://doi.org/10.1029/2011WR011534>`_, 
+    `Mirirli et al., 2003 <https://doi.org/10.1029/WS006p0113>`_,  `Tang et al., 2006 https://doi.org/10.5194/hess-10-289-2006>`_).
+    # https://github.com/CUG-hydro/VICResOpt/blob/76558f2f1aab9ab199d9cd461e7afdcb20048b15/src/OptCalib/indices.py#L20
+    """
+    raise NotImplementedError
+
+
+def fdc_slope():
+    """
+    The slope of the flow duration curve (FDC) after `Kollat et al., 2012 <https://doi.org/10.1029/2011WR011534>`_ .
+    """
     raise NotImplementedError
 
 
@@ -7857,37 +7901,46 @@ def drv():
     # https://rstudio-pubs-static.s3.amazonaws.com/433152_56d00c1e29724829bad5fc4fd8c8ebff.html
     raise NotImplementedError
 
+
 def gini():
     # https://github.com/benhamner/Metrics/blob/master/MATLAB/metrics/gini.m
     raise NotImplementedError
+
 
 def log_likelihood():
     # https://github.com/benhamner/Metrics/blob/master/Python/ml_metrics/elementwise.py#L202
     raise NotImplementedError
 
+
 def cross_entropy():
     # https://datascience.stackexchange.com/q/20296
     raise NotImplementedError
+
 
 def vaf():
     # https://www.dcsc.tudelft.nl/~jwvanwingerden/lti/doc/html/vaf.html
     raise NotImplementedError
 
+
 def resid_std_error():
     # https://www.statology.org/residual-standard-error-r/
     raise NotImplementedError
+
 
 def eff_coeff():
     # https://doi.org/10.1016/j.csite.2022.101797
     raise NotImplementedError
 
+
 def overall_index():
     # https://doi.org/10.1016/j.csite.2022.101797
     raise NotImplementedError
 
+
 def resid_mass_coeff():
     # https://doi.org/10.1016/j.csite.2022.101797
     raise NotImplementedError
+
 
 def log_euclid_dist():
     #
