@@ -123,10 +123,13 @@ class RegressionMetrics(Metrics):
         return acc(true=self.true, predicted=self.predicted, treat_arrays=False)
 
     def adjusted_r2(self) -> float:
-        """Adjusted R squared.
+        """
+        Adjusted R squared also known as Ezekiel estimate <https://www.glmj.org/archives/MLRV_2007_33_1.pdf>`_.
 
         .. math::
             \\text{Adjusted } R^2 = 1 - \\left( \\frac{(1 - R^2) \\cdot (n - 1)}{n - k - 1} \\right)
+        
+        where n = number of observations and k = 1.
 
         Examples
         ---------
@@ -338,6 +341,8 @@ class RegressionMetrics(Metrics):
         .. math::
             r = \\frac{\\sum ^n _{i=1}(e_i - \\bar{e})(s_i - \\bar{s})}{\\sqrt{\\sum ^n _{i=1}(e_i - \\bar{e})^2}
              \\sqrt{\\sum ^n _{i=1}(s_i - \\bar{s})^2}}
+        
+        Where n is length of true/predicted arrays, e is true and s is predicted.
 
         Examples
         ---------
@@ -353,9 +358,14 @@ class RegressionMetrics(Metrics):
 
     def covariance(self) -> float:
         """
-        `Covariance <https://scikit-learn.org/stable/api/sklearn.covariance.html>`_
-            .. math::
-            Covariance = \\frac{1}{N} \\sum_{i=1}^{N}((e_{i} - \\bar{e}) * (s_{i} - \\bar{s}))
+        `Covariance as defined in Eq. 3 at mathworld <https://mathworld.wolfram.com/Covariance.html>`_
+        A positive covariance means that the means of true and predicted values
+        increase or decrease together.
+
+        .. math::
+            Covariance = \\frac{1}{N} \\sum_{i=1}^{N}((true_{i} - \\bar{true}) * (predicted_{i} - \\bar{predicted}))
+
+        The bar represents the mean of the array.
 
         Examples
         ---------
@@ -767,12 +777,14 @@ class RegressionMetrics(Metrics):
             \\beta = \\frac{\\mu_{\\text{predicted}}}{\\mu_{\\text{true}}}        
             
         In this equation, :math:`\\alpha` accounts for the variability (standard deviation), :math:`\\beta` accounts for 
-        the mean difference and r accounts for the correlation between the true and predicted values.
+        the mean difference/bias and r accounts for the correlation between the true and predicted values.
         This equation can also be written as below:
         
         .. math::
             \\text{KGE} = \\frac{\\sum_{i=1}^{N} ( \\text{true}_i - \\bar{\\text{true}} ) ( \\text{predicted}_i - \\bar{\\text{predicted}} )}{\\sqrt{\\sum_{i=1}^{N} ( \\text{true}_i - \\bar{\\text{true}} )^2} \\sqrt{\\sum_{i=1}^{N} ( \\text{predicted}_i - \\bar{\\text{predicted}} )^2}}
 
+        Please note that bias (:math:`\\beta`) is not same as :py:func:`SeqMetrics.bias` method.
+    
         output
         -------
             If return_all is True, it returns a numpy array of shape (4, ) containing
@@ -820,7 +832,7 @@ class RegressionMetrics(Metrics):
 
         This version of KGE was introduced to avoid cross-correlation between bias 
         and variability which happens when the precipitation data is biased. This
-        is done by calculating the variability (:math:`\alpha`) by :math:`{CV}_s/{CV}_o` instaed of :math:`{\sigma}_s/{\sigma}_o`
+        is done by calculating the variability (:math:`\\alpha`) by :math:`{CV}_s/{CV}_o` instaed of :math:`{\sigma}_s/{\sigma}_o`
         where CV is the coefficient of variation.
 
         .. math::
@@ -829,7 +841,7 @@ class RegressionMetrics(Metrics):
         output
         -------
             If return_all is True, it returns a numpy array of shape (4, ) containing
-            kge, :math:`\gamma`, :math:`\alpha` and :math:`\beta`. Otherwise, it returns kge.  
+            kge, :math:`\gamma`, :math:`\\alpha` and :math:`\\beta`. Otherwise, it returns kge.  
                         
         Examples
         ---------
@@ -3056,11 +3068,14 @@ def r2_score(true, predicted, treat_arrays: bool = True, weights=None,
 
 def adjusted_r2(true, predicted, treat_arrays: bool = True,
                 **treat_arrays_kws) -> float:
-    """`Adjusted R squared <https://people.duke.edu/~rnau/rsquared.html>`_.
+    """
+    Adjusted R squared also known as Ezekiel estimate <https://www.glmj.org/archives/MLRV_2007_33_1.pdf>`_.
 
     .. math::
         \\text{Adjusted } R^2 = 1 - \\left( \\frac{(1 - R^2) \\cdot (n - 1)}{n - k - 1} \\right)
 
+    where n = number of observations and k = 1.
+        
     Parameters
     ----------
     true :
@@ -3090,11 +3105,11 @@ def kge(
         true,
         predicted,
         treat_arrays: bool = True,
-        return_all=False,
+        return_all:bool = False,
         **treat_arrays_kws):
     """
     Kling-Gupta Efficiency following Eq. 9 in `Gupta et al. 2009 <https://doi.org/10.1016/j.jhydrol.2009.08.003>`_.
-    This error considers `correlation` (:math:`\gamma`), `variability (:math:`\\alpha`)` and `bias` (:math:`\\beta`).
+    This error considers `correlation` (:math:`\\gamma`), `variability (:math:`\\alpha`)` and `bias` (:math:`\\beta`).
 
     .. math::
         \\text{KGE} = 1 - ED
@@ -3115,6 +3130,8 @@ def kge(
     .. math::
         \\text{KGE} = \\frac{\\sum_{i=1}^{N} ( \\text{true}_i - \\bar{\\text{true}} ) ( \\text{predicted}_i - \\bar{\\text{predicted}} )}{\\sqrt{\\sum_{i=1}^{N} ( \\text{true}_i - \\bar{\\text{true}} )^2} \\sqrt{\\sum_{i=1}^{N} ( \\text{predicted}_i - \\bar{\\text{predicted}} )^2}}
 
+    Please note that bias (:math:`\\beta`) is not same as :py:func:`SeqMetrics.bias` method.        
+        
     Parameters
     ----------
     true :
@@ -3128,8 +3145,7 @@ def kge(
 
     Returns
     -------
-        If return_all is True, it returns a numpy array of shape (4, ) containing
-        kge, :math:`\\gamma`, :math:`\\alpha`, :math:`\\beta`. Otherwise, it returns kge.    
+        If return_all is True, it returns a numpy array of shape (4, ) containing kge, :math:`\\gamma`, :math:`\\alpha`, :math:`\\beta`. Otherwise, it returns kge.    
     
     Examples
     ---------
@@ -3202,7 +3218,7 @@ def kge_mod(
 
     This version of KGE was introduced to avoid cross-correlation between bias 
     and variability which happens when the precipitation data is biased. This
-    is done by calculating the variability (:math:`\alpha`) by :math:`{CV}_s/{CV}_o` instaed of :math:`{\sigma}_s/{\sigma}_o`
+    is done by calculating the variability (:math:`\\alpha`) by :math:`{CV}_s/{CV}_o` instaed of :math:`{\sigma}_s/{\sigma}_o`
     where CV is the coefficient of variation.
 
         .. math::
@@ -3219,9 +3235,10 @@ def kge_mod(
         process the true and predicted arrays using maybe_treat_arrays function
     return_all:
 
-    output:
+    Returns
+    -------
         If return_all is True, it returns a numpy array of shape (4, ) containing
-        kge, :math:`\gamma`, :math:`\alpha` and :math:`\beta`. Otherwise, it returns kge.   
+        kge, :math:`\gamma`, :math:`\\alpha` and :math:`\\beta`. Otherwise, it returns kge.   
     
     Examples
     ---------
@@ -3258,8 +3275,8 @@ def kge_np(
     """
     Non-parametric Kling-Gupta Efficiency after `Pool et al. 2018 <https://doi.org/10.1080/02626667.2018.1552002>`_.
 
-    This differs from original KGE by using non-parameteric components of KGE i.e. :math:`\alpha` and :math:`\gamma` / cc.
-    The variability (:math:`\alpha`) non-parametrized by using the FDCs of the true and predicted values. The FDCs are
+    This differs from original KGE by using non-parameteric components of KGE i.e. :math:`\\alpha` and :math:`\gamma` / cc.
+    The variability (:math:`\\alpha`) non-parametrized by using the FDCs of the true and predicted values. The FDCs are
     normalized to remove the volume information.
 
     .. math::
@@ -3274,7 +3291,7 @@ def kge_np(
     Parameters
     ----------
     true :
-         true/observed/actual/target values. It must be a numpy array,
+         true/observed/actual/measured/target values. It must be a numpy array,
          or pandas series/DataFrame or a list.
     predicted :
          simulated values
@@ -3282,9 +3299,10 @@ def kge_np(
         process the true and predicted arrays using maybe_treat_arrays function
     return_all :
 
-    output:
+    Returns
+    -------
         If return_all is True, it returns a numpy array of shape (4, ) containing
-        kge, :math:`cc`, :math:`\alpha` and :math:`\beta`. Otherwise, it returns kge.   
+        kge, :math:`cc`, :math:`\\alpha` and :math:`\\beta`. Otherwise, it returns kge.   
 
     Examples
     ---------
@@ -3482,6 +3500,8 @@ def corr_coeff(true, predicted, treat_arrays: bool = True,
     .. math::
         r = \\frac{\\sum ^n _{i=1}(e_i - \\bar{e})(s_i - \\bar{s})}{\\sqrt{\\sum ^n _{i=1}(e_i - \\bar{e})^2}
          \\sqrt{\\sum ^n _{i=1}(s_i - \\bar{s})^2}}
+
+    Where n is length of true/predicted arrays, e is true and s is predicted.
 
     Parameters
     ----------
@@ -4036,10 +4056,14 @@ def covariance(
         **treat_arrays_kws
         ) -> float:
     """
-    `Covariance <https://scikit-learn.org/stable/api/sklearn.covariance.html>`_
+    `Covariance as defined in Eq. 3 at mathworld <https://mathworld.wolfram.com/Covariance.html>`_
+    A positive covariance means that the means of true and predicted values
+    increase or decrease together.
 
     .. math::
-        Covariance = \\frac{1}{N} \\sum_{i=1}^{N}((e_{i} - \\bar{e}) * (s_{i} - \\bar{s}))
+        Covariance = \\frac{1}{N} \\sum_{i=1}^{N}((true_{i} - \\bar{true}) * (predicted_{i} - \\bar{predicted}))
+
+    The bar represents the mean of the array.
 
     Parameters
     ----------
@@ -5900,8 +5924,12 @@ def mean_gamma_deviance(true, predicted, treat_arrays: bool = True, weights=None
     return _mean_tweedie_deviance(true, predicted, weights=weights, power=2)
 
 
-def median_abs_error(true, predicted, treat_arrays: bool = True,
-                     **treat_arrays_kws) -> float:
+def median_abs_error(
+        true, 
+        predicted, 
+        treat_arrays: bool = True,
+        **treat_arrays_kws
+        ) -> float:
     """
     median absolute error
 
@@ -6839,8 +6867,11 @@ def smape(true, predicted, treat_arrays: bool = True,
     return float(100 / len(true) * _temp)
 
 
-def smdape(true, predicted, treat_arrays: bool = True,
-           **treat_arrays_kws) -> float:
+def smdape(
+        true, 
+        predicted, 
+        treat_arrays: bool = True,
+        **treat_arrays_kws) -> float:
     """
     Symmetric Median Absolute Percentage Error
     Note: result is NOT multiplied by 100
@@ -7034,8 +7065,11 @@ def umbrae(
     return mbrae(true, predicted, False, benchmark) / (1 - mbrae(true, predicted, False, benchmark))
 
 
-def ve(true, predicted, treat_arrays: bool = True,
-       **treat_arrays_kws) -> float:
+def ve(true, 
+       predicted, 
+       treat_arrays: bool = True,
+       **treat_arrays_kws
+       ) -> float:
     """
     `Volumetric efficiency <https://agupubs.onlinelibrary.wiley.com/doi/full/10.1029/2007WR006415>`_. Ranges from 0 to 1. Smaller the better.
 
@@ -7136,14 +7170,17 @@ def wape(
     >>> p = np.random.random(10)
     >>> wape(t, p)
 
-
     """
     true, predicted = maybe_treat_arrays(treat_arrays, true, predicted, 'regression', **treat_arrays_kws)
     return float(np.sum(_ae(true, predicted) / np.sum(true)))
 
 
-def watt_m(true, predicted, treat_arrays: bool = True,
-           **treat_arrays_kws) -> float:
+def watt_m(
+        true, 
+        predicted, 
+        treat_arrays: bool = True,
+        **treat_arrays_kws
+        ) -> float:
     """
     `Watterson's M. <https://rmets.onlinelibrary.wiley.com/doi/abs/10.1002/(SICI)1097-0088(199604)16:4%3C379::AID-JOC18%3E3.0.CO;2-U>`_
 
@@ -7183,7 +7220,6 @@ def wmape(
 
     .. math::
         \\text{WMAPE} = \\frac{\\sum_{i=1}^{n} \\left| \\text{true}_i - \\text{predicted}_i \\right|}{\\sum_{i=1}^{n} \\text{true}_i}
-
 
     Parameters
     ----------
@@ -7225,9 +7261,14 @@ def wmape(
     return float(ft_wmape_forecast)
 
 
-def norm_ape(true, predicted, treat_arrays: bool = True,
-             **treat_arrays_kws) -> float:
-    """ Normalized Absolute Percentage Error
+def norm_ape(
+        true, 
+        predicted, 
+        treat_arrays: bool = True,
+        **treat_arrays_kws
+        ) -> float:
+    """ 
+    Normalized Absolute Percentage Error
 
     .. math::
         \\text{norm_APE} = \\sqrt{ \\frac{1}{n-1} \\sum_{i=1}^{n} \\left( \\left| \\frac{\\text{true}_i - \\text{predicted}_i}{\\text{true}_i} \\right| - \\frac{1}{n} \\sum_{j=1}^{n} \\left| \\frac{\\text{true}_j - \\text{predicted}_j}{\\text{true}_j} \\right| \\right)^2 }
@@ -7318,8 +7359,12 @@ def variability_ratio(true, predicted, treat_arrays: bool = True,
     true, predicted = maybe_treat_arrays(treat_arrays, true, predicted, 'regression', **treat_arrays_kws)
     return float(1 - abs((np.std(predicted) / np.mean(predicted)) / (np.std(true) / np.mean(true)) - 1))
 
+
 def concordance_corr_coef(
-        true, predicted, treat_arrays: bool = True, **treat_arrays_kws
+        true, 
+        predicted, 
+        treat_arrays: bool = True, 
+        **treat_arrays_kws
 ) -> float:
     """
     `Concordance Correlation Coefficient (CCC) <https://en.wikipedia.org/wiki/Concordance_correlation_coefficient>`_
@@ -7368,8 +7413,12 @@ def concordance_corr_coef(
 
     return float(ccc)
 
+
 def critical_success_index(
-        true, predicted,treat_arrays: bool = True, threshold=0.5, **treat_arrays_kws
+        true, 
+        predicted,treat_arrays: bool = True, 
+        threshold=0.5, 
+        **treat_arrays_kws
 )->float:
     """
     `Critical Success Index (CSI) <https://doi.org/10.1016/j.heliyon.2024.e26371>`_
@@ -7410,8 +7459,12 @@ def critical_success_index(
     csi = TP / float(TP + FN + FP) if (TP + FN + FP) > 0 else 0
     return float(csi)
 
+
 def kl_divergence(
-        true, predicted, treat_arrays: bool = True, **treat_arrays_kws
+        true, 
+        predicted, 
+        treat_arrays: bool = True, 
+        **treat_arrays_kws
 )->float:
     """
     `Kullback-Leibler Divergence <https://doi.org/10.1016/j.imu.2024.101510>`_
@@ -7486,6 +7539,7 @@ def log_cosh_error(
     error = np.log(np.cosh(predicted - true))
     return float(np.mean(error).item())
 
+
 def minkowski_distance(
         true, predicted, order =1, treat_arrays: bool = True, **treat_arrays_kws
 )->float:
@@ -7524,6 +7578,7 @@ def minkowski_distance(
 
     # Calculation of Minkowski Distance
     return float(np.sum(np.abs(true - predicted) ** order) ** (1 / order))
+
 
 def tweedie_deviance_score(
         true, predicted, power=0, treat_arrays: bool = True, **treat_arrays_kws
