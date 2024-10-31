@@ -9,7 +9,7 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 
-from easy_mpl import regplot, hist, plot
+from easy_mpl import regplot, hist, plot, imshow
 from easy_mpl.utils import to_1d_array
 
 from SeqMetrics import RegressionMetrics
@@ -273,7 +273,12 @@ def edf_plot(
         ax: plt.Axes = None,
         pred_axes:plt.Axes = None,
         marker='-',
-        label = None,
+        label=None,
+        x_max_ticks=5,
+        y_max_ticks=5,
+        x1_max_ticks=5,
+        line_color_error="#005066",
+        line_color_pred="#B3331D",
         prefix='',
         where=''
 )->Union[plt.Axes, List[plt.Axes]]:
@@ -284,7 +289,7 @@ def edf_plot(
     error = np.abs(true - predicted)
 
     if color is None:
-        color = ("#005066", "#B3331D")
+        color = (line_color_error, line_color_pred)
     elif not isinstance(color, tuple):
         color = (color, color)
     else:
@@ -324,6 +329,8 @@ def edf_plot(
     if for_prediction:
         ax.grid(False)
         ax.set_xlabel(label1, color=color1)
+        set_xticklabels(ax, x_max_ticks)
+        set_yticklabels(ax, y_max_ticks)
         #ax.set_xticklabels(ax.get_xticklabels(), color="#005066")
         ax.set_title('')
         ax2 = pred_axes or ax.twiny()
@@ -334,6 +341,7 @@ def edf_plot(
         ax2.grid(visible=True, ls='--', color='lightgrey')
         ax2.set_title('')
         ax2.set_xlabel(label2, color= color2)
+        set_xticklabels(ax2, x1_max_ticks)
         #ax.set_xticklabels(ax.get_xticklabels(), color="#B3331D")
 
         ax2.legend(loc=(0.7, 0.18), frameon=False)
@@ -350,6 +358,15 @@ def residual_plot(
         true,
         predicted,
         label='',
+        max_ticks=5,
+        marker_size=5,
+        marker_color="#9acad4",
+        marker_edge_color='black',
+        line_color='k',
+        hist_bins=20,
+        hist_linewidth=0.7,
+        hist_edgecolor='k',
+        hist_color="#9acad4",
         show: bool = False
 ) -> np.ndarray:
     true = to_1d_array(true)
@@ -358,27 +375,26 @@ def residual_plot(
     fig, axis = plt.subplots(1, 2, sharey="all"
                              , gridspec_kw={'width_ratios': [2, 1]})
     y = true.reshape(-1, ) - prediction.reshape(-1, )
-    train_hist_kws = dict(bins=20, linewidth=0.7,
-                          edgecolor="k", grid=False, color="#fe8977",
+    train_hist_kws = dict(bins=hist_bins, linewidth=hist_linewidth,
+                          edgecolor=hist_edgecolor, grid=False, color=hist_color,
                           orientation='horizontal')
     hist(y, show=False, ax=axis[1], **train_hist_kws)
     plot(prediction, y, 'o', show=False,
          ax=axis[0],
-         color="#fe8977",
-         markerfacecolor="#fe8977",
-         markeredgecolor="black", markeredgewidth=0.7,
+         color=line_color,
+         markerfacecolor=marker_color, markersize=marker_size,
+         markeredgecolor=marker_edge_color, markeredgewidth=0.7,
          alpha=0.9
          )
 
-    _hist_kws = dict(bins=40, linewidth=0.7,
-                     edgecolor="k", grid=False,
-                     color="#9acad4",
+    _hist_kws = dict(bins=hist_bins, linewidth=hist_linewidth,
+                        edgecolor=hist_edgecolor, grid=False, color=hist_color,
                      orientation='horizontal')
 
     axis[0].set_xlabel(f'Predicted', fontsize=14)
     axis[0].set_ylabel('Residual', fontsize=14)
-    set_yticklabels(axis[0], 5)
-    axis[0].axhline(0.0, color="black", ls="--")
+    set_yticklabels(axis[0], max_ticks)
+    axis[0].axhline(0.0, color=line_color, ls="--")
     plt.subplots_adjust(wspace=0.15)
 
     if show:
@@ -465,6 +481,11 @@ def regression_plot(
         min_xtick_val=None,
         min_ytick_val=None,
         max_ticks=5,
+        marker_size=35,
+        marker_color="#9acad4",
+        marker_edge_color='black',
+        line_color='k',
+        fill_color='k',
         show=False
 ) -> plt.Axes:
     TRAIN_RIDGE_LINE_KWS = [{'color': '#9acad4', 'lw': 1.0},
@@ -473,11 +494,11 @@ def regression_plot(
                       {'color': '#9acad4', 'bins': 50}]
 
     ax = regplot(true, predicted,
-                 marker_size=35,
-                 marker_color="#9acad4",
-                 line_color='k',
-                 fill_color='k',
-                 scatter_kws={'edgecolors': 'black',
+                 marker_size=marker_size,
+                 marker_color=marker_color,
+                 line_color=line_color,
+                 fill_color=fill_color,
+                 scatter_kws={'edgecolors': marker_edge_color,
                               'linewidth': 0.7,
                               'alpha': 0.9,
                               },
@@ -492,6 +513,7 @@ def regression_plot(
                 horizontalalignment='right',
                 verticalalignment='top',
                 fontsize=12, weight="bold")
+
 
     set_xticklabels(
         ax,
@@ -509,6 +531,35 @@ def regression_plot(
     if show:
         plt.show()
     return ax
+
+def confusion_matrix(
+        true,
+        predicted,
+        prefix=None,
+        cmap="Blues",
+        **kwargs):
+
+    fig, ax = plt.subplots()
+
+    cm = ClassificationMetrics(
+        true,
+        predicted,
+        ).confusion_matrix()
+
+    kws = {
+        'annotate': True,
+        'colorbar': True,
+        'cmap': cmap,
+        'ax_kws': {'xlabel': "Predicted Label",
+                   'ylabel': "True Label"},
+        'show': False,
+        'annotate_kws': {'fontsize': 14, "fmt": '%.f', 'ha':"left"}
+    }
+
+    kws.update(kwargs)
+
+    outs = imshow(cm, ax=ax,  **kws)
+    return fig
 
 # Set page configuration - this should be the first command
 st.set_page_config(page_title="Metrics Calculator", layout="wide")
@@ -572,6 +623,15 @@ st.markdown('<p class="subtitle">Effortlessly calculate a variety of metrics for
 
 col1, col2 = st.columns(2)
 
+def process_input(inp:str)->List[float]:
+    if "," in inp:
+        inp = [float(val) for val in inp.split(',')]
+    elif "\n" in inp:
+        inp = [float(val) for val in inp.split('\n')]
+    else:
+        inp = [float(val) for val in inp.split(' ')]
+    return inp
+
 with col1:
     st.markdown('<div class="upload-label">Provide the observed/true data by either typing/pasting or by uploading a file:</div>', unsafe_allow_html=True)
     true_values = st.text_area("True Values", placeholder="Type the observed/true data as comma or space separated. You can copy from Excel, text or any other file", height=100, key="true")
@@ -604,7 +664,7 @@ with col2:
 if st.button("Calculate"):
     error = False  # Flag to indicate if there's an error
     if uploaded_true:
-        #process true values
+        # process true values
         df_true = process_uploaded_file(uploaded_true)
 
         # Convert all column names to strings
@@ -656,7 +716,7 @@ if st.button("Calculate"):
             calc_value, doc_string = calculate_metrics(true_values, predicted_values, reg_func_name, "regression")
             st.subheader(f"{regression_metric}")
             st.markdown(f"**Documentation:** {doc_string}")
-            st.write(calc_value)
+            st.header(round(calc_value,4))
 
             ax = regression_plot(true_values, predicted_values)
 
@@ -680,4 +740,10 @@ if st.button("Calculate"):
             calc_value, doc_string = calculate_metrics(true_values, predicted_values, cls_func_name, "classification")
             st.subheader(f"{classification_metric}")
             st.markdown(f"**Documentation:** {doc_string}")
-            st.write(calc_value)
+            st.header(calc_value)
+
+            fig = confusion_matrix(true_values, predicted_values)
+
+            st.markdown('<h2 class="heading">Confusion Matrix</h2>', unsafe_allow_html=True)
+
+            st.pyplot(fig, use_container_width=False)
