@@ -18,7 +18,7 @@ sys.path.insert(0, os.path.abspath('../..'))
 # -- Project information -----------------------------------------------------
 
 project = 'SeqMetrics'
-copyright = '2022, Ather Abbas'
+copyright = '2024, Ather Abbas'
 author = 'Ather Abbas'
 
 # The full version, including alpha/beta/rc tags
@@ -62,6 +62,27 @@ intersphinx_mapping = {
     'python': ('https://docs.python.org/{.major}'.format(
         sys.version_info), None),
     'numpy': ('https://docs.scipy.org/doc/numpy/', None),
+}
+
+
+sphinx_gallery_conf = {
+    'backreferences_dir': 'gen_modules/backreferences',
+    #'doc_module': ('sphinx_gallery', 'numpy'),
+    'reference_url': {
+        'sphinx_gallery': None,
+    },
+    'examples_dirs': os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'examples'),
+    'gallery_dirs': 'auto_examples',
+    'compress_images': ('images', 'thumbnails'),
+    'filename_pattern': '',
+
+    'show_memory': True,
+    # capture raw HTML or, if not present, __repr__ of last expression in
+    # each code block
+    'capture_repr': ('_repr_html_', '__repr__'),
+    'matplotlib_animations': True,
+    'image_srcset': ["2x"],
+
 }
 
 # -- Options for HTML output -------------------------------------------------
