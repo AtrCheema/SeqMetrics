@@ -13,3 +13,5 @@ Utils
 
 .. image:: imgs/reg2.png
     :align: right
+
+.. autofunction:: SeqMetrics.utils.treat_arrays

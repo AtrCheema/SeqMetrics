@@ -147,3 +147,9 @@ Class-Based API
 
    .. automethod:: __init__
 
+
+Examples
+==================
+.. toctree::
+   :maxdepth: 2
+   auto_examples/index

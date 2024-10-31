@@ -186,7 +186,8 @@ class RegressionMetrics(Metrics):
         return aic(true=self.true, predicted=self.predicted, treat_arrays=False, p=p)
 
     def aitchison(self, center='mean') -> float:
-        """Aitchison distance. used in `Zhang et al., 2020 <https://doi.org/10.5194/hess-24-2505-2020>`_
+        """
+        Aitchison distance as used in `Zhang et al., 2020 <https://doi.org/10.5194/hess-24-2505-2020>`_.
 
         .. math::
             d_{\\text{Aitchison}} = \\sqrt{\\sum_{i=1}^{n} \\left( \\log(\\text{true}_i) - \\text{center}(\\log(\\text{true})) - \\left(\\log(\\text{predicted}_i) - \\text{center}(\\log(\\text{predicted}))\\right) \\right)^2}
@@ -288,8 +289,9 @@ class RegressionMetrics(Metrics):
 
     def brier_score(self) -> float:
         """
-        Adopted from SkillMetrics_
-        Calculates the Brier score (BS), a measure of the mean-square error of
+        Adopted from `SkillMetrics <https://github.com/PeterRochford/SkillMetrics/blob/master/skill_metrics/brier_score.py>`_
+        This function calculates the `Brier score (BS) <https://viterbi-web.usc.edu/~shaddin/teaching/cs699fa17/docs/Brier50.pdf>`_, 
+        which is a measure of the mean-square error of
         probability forecasts for a dichotomous (two-category) event, such as
         the occurrence/non-occurrence of precipitation. The score is calculated
         using the formula:
@@ -380,8 +382,8 @@ class RegressionMetrics(Metrics):
 
     def cronbach_alpha(self) -> float:
         """
-        It is a measure of internal consitency of data. See ucla and stackoverflow_
-        pages for more info.
+        It is a measure of internal consitency of data following Cheung and Yip, 2005 `<https://doi.org/10.1016/B0-12-369398-5/00396-0>`_. 
+        See ucla_ and stackoverflow_ pages for more info.
 
         .. math::
             alpha = \\frac{N}{N - 1} \\left(1 - \\frac{\\sum_{i=1}^{N} \\sigma^2_{i}}{\\sigma^2_{\\text{total}}}\\right)
@@ -548,9 +550,10 @@ class RegressionMetrics(Metrics):
 
     def fdc_fhv(self, h: float = 0.02) -> float:
         """
-        modified after `Kratzert2018 <https://github.com/kratzert/ealstm_regional_modeling/blob/64a446e9012ecd601e0a9680246d3bbf3f002f6d/papercode/metrics.py#L190>`_
-        code. Peak flow bias of the flow duration curve (Yilmaz 2008).
-        used in `kratzert et al., 2019 <https://hess.copernicus.org/articles/23/5089/2019/hess-23-5089-2019.html>`_.
+        Peak flow bias of the flow duration curve `(Yilmaz 2008) <doi:10.1029/2007WR006716>`_
+        as used in `kratzert et al., 2019 <https://hess.copernicus.org/articles/23/5089/2019/hess-23-5089-2019.html>`_.
+        Code modified `Kratzert2018 <https://github.com/kratzert/ealstm_regional_modeling/blob/64a446e9012ecd601e0a9680246d3bbf3f002f6d/papercode/metrics.py#L190>`_
+        code. 
 
 
         .. math::
@@ -1076,15 +1079,13 @@ class RegressionMetrics(Metrics):
 
     def mase(self, seasonality: int = 1):
         """
-        Mean Absolute Scaled Error. Baseline (benchmark) is computed with naive
+        Mean Absolute Scaled Error following `Hyndman et al., 2006 <http://datascienceassn.org/sites/default/files/Another%20Look%20at%20Measures%20of%20Forecast%20Accuracy.pdf>`_. 
+        Baseline (benchmark) is computed with naive
         forecasting (shifted by seasonality) modified after `this <https://gist.github.com/bshishov/5dc237f59f019b26145648e2124ca1c9>`_. It is the
         ratio of MAE of used model and MAE of naive forecast.
 
         .. math::
             \\text{MASE} = \\frac{\\frac{1}{n} \\sum_{i=1}^{n} \\left| \\text{true}_i - \\text{predicted}_i \\right|}{\\frac{1}{n-s} \\sum_{i=s+1}^{n} \\left| \\text{true}_i - \\text{true}_{i-s} \\right|}
-
-        Hyndman, R. J. (2006). Another look at forecast-accuracy metrics for intermittent demand.
-        Foresight: The International Journal of Applied Forecasting, 4(4), 43-46.
 
         Examples
         ---------
@@ -1685,6 +1686,7 @@ class RegressionMetrics(Metrics):
         """
         Beta decomposition of NSE. `Gupta et al. 2009 <https://doi.org/10.1029/97WR03495>`_
         used in `kratzert et al., 2019 <https://hess.copernicus.org/articles/23/5089/2019/hess-23-5089-2019.html>`_.
+
         .. math::
             \\text{NSE}_{\\text{beta}} = \\frac{\\mu_{\\text{predicted}} - \\mu_{\\text{true}}}{\\sigma_{\\text{true}}}
 
@@ -2875,10 +2877,6 @@ def nse_beta(true, predicted, treat_arrays: bool = True,
     .. math::
         \\text{NSE}_{\\text{beta}} = \\frac{\\mu_{\\text{predicted}} - \\mu_{\\text{true}}}{\\sigma_{\\text{true}}}
 
-    Returns
-    -------
-    float
-        Beta decomposition of the NSE
     Parameters
     ----------
     true :
@@ -2888,6 +2886,11 @@ def nse_beta(true, predicted, treat_arrays: bool = True,
          simulated values
     treat_arrays :
         process the true and predicted arrays using maybe_treat_arrays function
+
+    Returns
+    -------
+    float
+        Beta decomposition of the NSE
 
     Examples
     ---------
@@ -2902,13 +2905,16 @@ def nse_beta(true, predicted, treat_arrays: bool = True,
     return float((np.mean(predicted) - np.mean(true)) / np.std(true).item())
 
 
-def nse_mod(true, predicted, treat_arrays: bool = True,
-            j=1,
-            **treat_arrays_kws
-            ) -> float:
+def nse_mod(
+        true, 
+        predicted, 
+        treat_arrays: bool = True,
+        j=1,
+        **treat_arrays_kws
+        ) -> float:
     """
     Gives less weightage to outliers if j=1 and if j>1 then it gives more
-    weightage to outliers. Reference: `Krause_ et al., 2005 <https://adgeo.copernicus.org/articles/5/89/2005/adgeo-5-89-2005.html>`_.
+    weightage to outliers following `Krause_ et al., 2005 <https://adgeo.copernicus.org/articles/5/89/2005/adgeo-5-89-2005.html>`_.
 
     .. math::
         \\text{NSE}_{\\text{mod}} = 1 - \\frac{\\sum_{i=1}^{N} \\left| \\text{predicted}_i - \\text{true}_i \\right|^j}{\\sum_{i=1}^{N} \\left| \\text{true}_i - \\bar{\text{true}} \\right|^j}
@@ -2939,10 +2945,12 @@ def nse_mod(true, predicted, treat_arrays: bool = True,
     return float(1 - (np.sum(a) / np.sum(b)))
 
 
-def nse_rel(true, predicted,
-            treat_arrays: bool = True,
-            **treat_arrays_kws
-            ) -> float:
+def nse_rel(
+        true, 
+        predicted,
+        treat_arrays: bool = True,
+        **treat_arrays_kws
+        ) -> float:
     """
     `Relative Nash-Sutcliff Efficiency <https://doi.org/10.5194/adgeo-5-89-2005>`_.
 
@@ -3069,7 +3077,7 @@ def r2_score(true, predicted, treat_arrays: bool = True, weights=None,
 def adjusted_r2(true, predicted, treat_arrays: bool = True,
                 **treat_arrays_kws) -> float:
     """
-    Adjusted R squared also known as Ezekiel estimate <https://www.glmj.org/archives/MLRV_2007_33_1.pdf>`_.
+    Adjusted R squared also known as `Ezekiel estimate <https://www.glmj.org/archives/MLRV_2007_33_1.pdf>`_.
 
     .. math::
         \\text{Adjusted } R^2 = 1 - \\left( \\frac{(1 - R^2) \\cdot (n - 1)}{n - k - 1} \\right)
@@ -3109,7 +3117,7 @@ def kge(
         **treat_arrays_kws):
     """
     Kling-Gupta Efficiency following Eq. 9 in `Gupta et al. 2009 <https://doi.org/10.1016/j.jhydrol.2009.08.003>`_.
-    This error considers `correlation` (:math:`\\gamma`), `variability (:math:`\\alpha`)` and `bias` (:math:`\\beta`).
+    This error considers `correlation` (:math:`\\gamma`), `variability (:math:`\\alpha`) and `bias` (:math:`\\beta`).
 
     .. math::
         \\text{KGE} = 1 - ED
@@ -3130,7 +3138,7 @@ def kge(
     .. math::
         \\text{KGE} = \\frac{\\sum_{i=1}^{N} ( \\text{true}_i - \\bar{\\text{true}} ) ( \\text{predicted}_i - \\bar{\\text{predicted}} )}{\\sqrt{\\sum_{i=1}^{N} ( \\text{true}_i - \\bar{\\text{true}} )^2} \\sqrt{\\sum_{i=1}^{N} ( \\text{predicted}_i - \\bar{\\text{predicted}} )^2}}
 
-    Please note that bias (:math:`\\beta`) is not same as :py:func:`SeqMetrics.bias` method.        
+    Please note that bias (:math:`\\beta`) term above is not same as in :py:func:`SeqMetrics.bias` method.        
         
     Parameters
     ----------
@@ -3154,6 +3162,7 @@ def kge(
     >>> t = np.random.random(10)
     >>> p = np.random.random(10)
     >>> kge(t, p)
+    >>> kge, gamma, alpha, beta = kge(t, p, return_all=True)
     """
     true, predicted = maybe_treat_arrays(treat_arrays, true, predicted, 'regression', **treat_arrays_kws)
     cc = np.corrcoef(true, predicted)[0, 1]   # correlation
@@ -3237,8 +3246,7 @@ def kge_mod(
 
     Returns
     -------
-        If return_all is True, it returns a numpy array of shape (4, ) containing
-        kge, :math:`\gamma`, :math:`\\alpha` and :math:`\\beta`. Otherwise, it returns kge.   
+        If return_all is True, it returns a numpy array of shape (4, ) containing kge, :math:`\gamma`, :math:`\\alpha` and :math:`\\beta`. Otherwise, it returns kge.   
     
     Examples
     ---------
@@ -3301,8 +3309,7 @@ def kge_np(
 
     Returns
     -------
-        If return_all is True, it returns a numpy array of shape (4, ) containing
-        kge, :math:`cc`, :math:`\\alpha` and :math:`\\beta`. Otherwise, it returns kge.   
+        If return_all is True, it returns a numpy array of shape (4, ) containing kge, :math:`cc`, :math:`\\alpha` and :math:`\\beta`. Otherwise, it returns kge.   
 
     Examples
     ---------
@@ -3942,19 +3949,13 @@ def irmse(true, predicted, treat_arrays: bool = True,
 
 def mase(true, predicted, treat_arrays: bool = True, seasonality: int = 1, **treat_arrays_kws):
     """
-    Mean Absolute Scaled Error. Baseline (benchmark) is computed with naive
+    Mean Absolute Scaled Error following `Hyndman et al., 2006 <http://datascienceassn.org/sites/default/files/Another%20Look%20at%20Measures%20of%20Forecast%20Accuracy.pdf>`_. 
+    Baseline (benchmark) is computed with naive
     forecasting (shifted by seasonality) modified after `this <https://gist.github.com/bshishov/5dc237f59f019b26145648e2124ca1c9>`_. It is the
     ratio of MAE of used model and MAE of naive forecast.
 
     .. math::
         \\text{MASE} = \\frac{\\frac{1}{n} \\sum_{i=1}^{n} \\left| \\text{true}_i - \\text{predicted}_i \\right|}{\\frac{1}{n-s} \\sum_{i=s+1}^{n} \\left| \\text{true}_i - \\text{true}_{i-s} \\right|}
-
-
-    References
-    ----------
-
-    `Hyndman, R. J. (2006). Another look at forecast-accuracy metrics for intermittent demand.
-    Foresight: The International Journal of Applied Forecasting, 4(4), 43-46. <http://datascienceassn.org/sites/default/files/Another%20Look%20at%20Measures%20of%20Forecast%20Accuracy.pdf>`_
 
     Parameters
     ----------
@@ -4090,11 +4091,14 @@ def covariance(
     return float(covariance_)
 
 
-def brier_score(true, predicted, treat_arrays: bool = True,
-                **treat_arrays_kws) -> float:
+def brier_score(
+        true, 
+        predicted, 
+        treat_arrays: bool = True,
+        **treat_arrays_kws) -> float:
     """
     Adopted from `SkillMetrics <https://github.com/PeterRochford/SkillMetrics/blob/master/skill_metrics/brier_score.py>`_
-    This function calculates the `Brier score (BS)` <https://viterbi-web.usc.edu/~shaddin/teaching/cs699fa17/docs/Brier50.pdf>`_, 
+    This function calculates the `Brier score (BS) <https://viterbi-web.usc.edu/~shaddin/teaching/cs699fa17/docs/Brier50.pdf>`_, 
     which is a measure of the mean-square error of
     probability forecasts for a dichotomous (two-category) event, such as
     the occurrence/non-occurrence of precipitation. The score is calculated
@@ -4313,15 +4317,11 @@ def amemiya_adj_r2(true, predicted, treat_arrays: bool = True,
 
 def aitchison(true, predicted, treat_arrays: bool = True, center='mean',
               **treat_arrays_kws) -> float:
-    """Aitchison distance. used in Zhang_ et al., 2020
+    """
+    Aitchison distance as used in `Zhang et al., 2020 <https://doi.org/10.5194/hess-24-2505-2020>`_.
 
     .. math::
         d_{\\text{Aitchison}} = \\sqrt{\\sum_{i=1}^{n} \\left( \\log(\\text{true}_i) - \\text{center}(\\log(\\text{true})) - \\left(\\log(\\text{predicted}_i) - \\text{center}(\\log(\\text{predicted}))\\right) \\right)^2}
-
-    .. _Zhang:
-        https://doi.org/10.5194/hess-24-2505-2020
-    
-    https://doi.org/10.1007/bf00891269 
 
     Parameters
     ----------
@@ -4548,16 +4548,18 @@ def aic(
     return float(n * np.log(rss / n) + 2 * p)
 
 
-def cronbach_alpha(true, predicted, treat_arrays: bool = True,
-                   **treat_arrays_kws) -> float:
+def cronbach_alpha(
+        true, 
+        predicted, 
+        treat_arrays: bool = True,
+        **treat_arrays_kws
+        ) -> float:
     """
-    It is a measure of internal consitency of data. See ucla_ and stackoverflow_
-    pages for more info.
+    It is a measure of internal consitency of data following Cheung and Yip, 2005 `<https://doi.org/10.1016/B0-12-369398-5/00396-0>`_. 
+    See ucla_ and stackoverflow_ pages for more info.
 
     .. math::
         alpha = \\frac{N}{N - 1} \\left(1 - \\frac{\\sum_{i=1}^{N} \\sigma^2_{i}}{\\sigma^2_{\\text{total}}}\\right)
-
-    https://doi.org/10.1016/B0-12-369398-5/00396-0
 
     .. _ucla:
         https://stats.idre.ucla.edu/spss/faq/what-does-cronbachs-alpha-mean/
@@ -4849,12 +4851,17 @@ def expanded_uncertainty(true, predicted, treat_arrays: bool = True, cov_fact=1.
     return float(cov_fact * np.sqrt(sd ** 2 + rmse(true, predicted, treat_arrays=False) ** 2))
 
 
-def fdc_fhv(true, predicted, treat_arrays: bool = True, h: float = 0.02,
-            **treat_arrays_kws) -> float:
+def fdc_fhv(
+        true, 
+        predicted, 
+        treat_arrays: bool = True, 
+        h: float = 0.02,
+        **treat_arrays_kws) -> float:
     """
-    modified `Kratzert2018 <https://github.com/kratzert/ealstm_regional_modeling/blob/64a446e9012ecd601e0a9680246d3bbf3f002f6d/papercode/metrics.py#L190>`_
-    code. Peak flow bias of the flow duration curve `(Yilmaz 2008) <doi:10.1029/2007WR006716>`_
-    used in `kratzert et al., 2019 <https://hess.copernicus.org/articles/23/5089/2019/hess-23-5089-2019.html>`_.
+    Peak flow bias of the flow duration curve `(Yilmaz 2008) <doi:10.1029/2007WR006716>`_
+    as used in `kratzert et al., 2019 <https://hess.copernicus.org/articles/23/5089/2019/hess-23-5089-2019.html>`_.
+    Code modified `Kratzert2018 <https://github.com/kratzert/ealstm_regional_modeling/blob/64a446e9012ecd601e0a9680246d3bbf3f002f6d/papercode/metrics.py#L190>`_
+    code. 
 
     .. math::
          FHV = \\frac{\\sum_{i=1}^{k} (predicted_i - true_i)}{\\sum_{i=1}^{k} true_i} \\times 100
@@ -4868,7 +4875,7 @@ def fdc_fhv(true, predicted, treat_arrays: bool = True, h: float = 0.02,
          or pandas series/DataFrame or a list.
     predicted :
          simulated values
-    treat_arrays :
+    treat_arrays : bool
         process the true and predicted arrays using maybe_treat_arrays function
 
     Returns

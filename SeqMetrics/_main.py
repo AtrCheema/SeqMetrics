@@ -74,7 +74,7 @@ class Metrics(object):
         Parameters
         -----------
             true : array like,
-                ture/observed/actual/target values. This can be anything
+                ture/observed/actual/measured/target values. This can be anything
                 which can be converted to numpy array.
             predicted : array like,
                 predicted/simulated values. This can be anything

@@ -610,7 +610,7 @@ def maybe_treat_arrays(
 
     if preprocess:
         predicted = _assert_1darray(predicted, metric_type)
-        true = _assert_1darray(true, metric_type)
+        true = _assert_1darray(true, metric_type)       
         assert len(predicted) == len(true), """
         lengths of provided arrays mismatch, predicted array: {}, true array: {}
         """.format(len(predicted), len(true))
@@ -631,6 +631,9 @@ def treat_arrays(
         remove_neg=None,
         replace_inf=None
 ):
+    """
+    processes the true and predicted arrays.
+    """
     sim_copy = np.copy(predicted)
     obs_copy = np.copy(true)
 
@@ -649,11 +652,19 @@ def maybe_remove_nan(sim_copy, obs_copy):
 
     data = np.array([sim_copy.flatten(), obs_copy.flatten()])
     data = np.transpose(data)
-    if data.dtype.kind not in {'U', 'S'}:
+    if data.dtype.kind not in {'U', 'S'}:       
+
+        if np.all(np.isnan(data[:, 0])):  # if all values are nan in predicted array
+            raise ValueError("All values in predicted array are NaN")
+
+        if np.all(np.isnan(data[:, 1])):  # if all values are nan in observed array
+            raise ValueError("All values in observed array are NaN")
+
         data = data[~np.isnan(data).any(1)]  # TODO check NaNs in an array containing strings
     sim_copy, obs_copy = data[:, 0], data[:, 1]
 
     return sim_copy, obs_copy
+
 
 def maybe_remove_inf(sim_copy, obs_copy):
 

@@ -29,6 +29,23 @@ er = RegressionMetrics(t, p)
 all_errors = er.calculate_all()
 
 
+class TestRegressionMetrics(unittest.TestCase):
+
+    def test_treat_arrays(self):
+
+        a = [1,2,2]
+        b = [np.nan, np.nan, np.nan]
+
+        # raise error
+        #RegressionMetrics(a,b).mse()
+        self.assertRaises(ValueError, RegressionMetrics, a, b)
+
+        # raise error
+        #RegressionMetrics(b, a).mse()
+        self.assertRaises(ValueError, RegressionMetrics, b, a)
+        return 
+
+
 class TestPlot(unittest.TestCase):
 
     def test_radial_pots(self):
