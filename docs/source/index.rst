@@ -21,6 +21,14 @@ Welcome to SeqMetrics's documentation!
    cls
    utils
 
+Exaamples
+=========
+.. toctree::
+   :maxdepth: 3
+   :caption: Exaamples:
+
+   auto_examples/index
+
 
 Indices and tables
 ==================

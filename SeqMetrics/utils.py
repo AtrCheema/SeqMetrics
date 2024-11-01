@@ -626,13 +626,34 @@ def treat_arrays(
         predicted,
         remove_nan: bool = True,
         remove_inf: bool = True,
-        replace_nan=None,
-        remove_zero=None,
-        remove_neg=None,
-        replace_inf=None
+        replace_nan: Union[int, float] = None,
+        remove_zero = None,
+        remove_neg = None,
+        replace_inf: Union[int, float] = None
 ):
     """
     processes the true and predicted arrays.
+
+    parameters
+    ----------
+    true: array_like
+        array of true/actual/measured/observed values
+    predicted: array_like
+        array of predicted/simulated/calculated values
+    remove_nan: bool, default True
+        if True, remove the NaN values from (both) the arrays
+    remove_inf: bool, default True
+        if True, remove the infinite values from (both) the arrays
+    replace_nan: float, default None
+        if provided, replace the NaN values with this value in both arrays.
+        If given, ``remove_nan`` will have no effect.
+    remove_zero: bool, default None
+        if True, remove the zero values from (both) the arrays
+    remove_neg: bool, default None
+        if True, remove the negative values from (both) the arrays
+    replace_inf: float, default None
+        if provided, replace the infinite values with this value in both arrays.
+        If given, ``remove_inf`` will have no effect.
     """
     sim_copy = np.copy(predicted)
     obs_copy = np.copy(true)

@@ -146,10 +146,3 @@ Class-Based API
    :show-inheritance:
 
    .. automethod:: __init__
-
-
-Examples
-==================
-.. toctree::
-   :maxdepth: 2
-   auto_examples/index

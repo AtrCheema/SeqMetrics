@@ -572,7 +572,7 @@ class RegressionMetrics(Metrics):
 
     def fdc_flv(self, low_flow: float = 0.3) -> float:
         """
-        bias of the bottom 30 % low flows. modified Kratzert_ code
+        bias of the bottom 30 % low flows as 
         used in `kratzert et al., 2019 <https://hess.copernicus.org/articles/23/5089/2019/hess-23-5089-2019.html>`_.
 
         .. math::
@@ -1253,7 +1253,7 @@ class RegressionMetrics(Metrics):
         Mean Bias Error
         It represents overall bias error or systematic error. It shows average interpolation bias; i.e. average over-
         or underestimation. [1][2].This indicator expresses a tendency of model to underestimate (negative value)
-        or overestimate (positive value) global radiation, while the MBE values closest to zero are desirable.
+        or overestimate (positive value) global radiation, while the mean bias error values closest to zero are desirable.
         The drawback of this test is that it does not show the correct performance when the model presents
         overestimated and underestimated values at the same time, since overestimation and underestimation
         values cancel each other.
@@ -3148,8 +3148,11 @@ def kge(
     predicted :
          simulated values
     treat_arrays :
-        process the true and predicted arrays using maybe_treat_arrays function
+        process the true and predicted arrays using :py:func:`SeqMetrics.utils.treat_arrays` function
     return_all:
+        If True, it returns a numpy array of shape (4, ) containing kge, :math:`\\gamma`, :math:`\\alpha`, :math:`\\beta`. Otherwise, it returns kge.
+    treat_arrays_kws:
+        Additional keyword arguments to be passed to :py:func:`SeqMetrics.utils.treat_arrays` function.
 
     Returns
     -------
@@ -3198,6 +3201,8 @@ def kge_bound(
          simulated values
     treat_arrays :
         process the true and predicted arrays using maybe_treat_arrays function
+    treat_arrays_kws:
+        Additional keyword arguments to be passed to :py:func:`SeqMetrics.utils.treat_arrays` function.
 
     Examples
     ---------
@@ -3243,6 +3248,8 @@ def kge_mod(
     treat_arrays :
         process the true and predicted arrays using maybe_treat_arrays function
     return_all:
+    treat_arrays_kws:
+        Additional keyword arguments to be passed to :py:func:`SeqMetrics.utils.treat_arrays` function.
 
     Returns
     -------
@@ -3306,6 +3313,8 @@ def kge_np(
     treat_arrays :
         process the true and predicted arrays using maybe_treat_arrays function
     return_all :
+    treat_arrays_kws:
+        Additional keyword arguments to be passed to :py:func:`SeqMetrics.utils.treat_arrays` function.
 
     Returns
     -------
@@ -3353,6 +3362,8 @@ def spearmann_corr(
          simulated values
     treat_arrays :
         process the true and predicted arrays using maybe_treat_arrays function
+    treat_arrays_kws:
+        Additional keyword arguments to be passed to :py:func:`SeqMetrics.utils.treat_arrays` function.
 
     Examples
     ---------
@@ -3463,6 +3474,8 @@ def log_nse(
         process the true and predicted arrays using maybe_treat_arrays function
     epsilon :
         A small value to be added to true and predicted values to avoid log(0)
+    treat_arrays_kws:
+        Additional keyword arguments to be passed to :py:func:`SeqMetrics.utils.treat_arrays` function.
 
     References
     ----------
@@ -3497,8 +3510,12 @@ def log_nse(
     return nse(true, predicted, treat_arrays=False)
 
 
-def corr_coeff(true, predicted, treat_arrays: bool = True,
-               **treat_arrays_kws) -> float:
+def corr_coeff(
+        true, 
+        predicted, 
+        treat_arrays: bool = True,
+        **treat_arrays_kws
+        ) -> float:
     """
     `Pearson correlation coefficient <https://royalsocietypublishing.org/doi/abs/10.1098/rsta.1895.0010>`_.
     It measures linear correlatin between true and predicted arrays.
@@ -3519,6 +3536,8 @@ def corr_coeff(true, predicted, treat_arrays: bool = True,
          simulated values
     treat_arrays :
         process the true and predicted arrays using maybe_treat_arrays function
+    treat_arrays_kws:
+        Additional keyword arguments to be passed to :py:func:`SeqMetrics.utils.treat_arrays` function.
 
     Examples
     ---------
@@ -3541,7 +3560,8 @@ def rmse(
         weights=None,
         **treat_arrays_kws
         ) -> float:
-    """ `Root mean squared error <https://scikit-learn.org/stable/modules/generated/sklearn.metrics.root_mean_squared_error.html>`_
+    """ 
+    `Root mean squared error <https://scikit-learn.org/stable/modules/generated/sklearn.metrics.root_mean_squared_error.html>`_
 
     .. math::
         \\text{RMSE} = \\sqrt{\\frac{\\sum_{i=1}^{n} w_i (\\text{true}_i - \\text{predicted}_i)^2}{\\sum_{i=1}^{n} w_i}}
@@ -3556,6 +3576,8 @@ def rmse(
     treat_arrays :
         process the true and predicted arrays using maybe_treat_arrays function
     weights:
+    treat_arrays_kws:
+        Additional keyword arguments to be passed to :py:func:`SeqMetrics.utils.treat_arrays` function.
 
     Examples
     ---------
@@ -3655,6 +3677,8 @@ def mape(
          simulated values
     treat_arrays :
         process the true and predicted arrays using maybe_treat_arrays function
+    treat_arrays_kws:
+        Additional keyword arguments to be passed to :py:func:`SeqMetrics.utils.treat_arrays` function.
 
     Examples
     ---------
@@ -3688,6 +3712,8 @@ def nrmse(
          simulated values
     treat_arrays :
         process the true and predicted arrays using maybe_treat_arrays function
+    treat_arrays_kws:
+        Additional keyword arguments to be passed to :py:func:`SeqMetrics.utils.treat_arrays` function.
 
     Examples
     ---------
@@ -3731,6 +3757,8 @@ def pbias(
          simulated values
     treat_arrays :
         process the true and predicted arrays using maybe_treat_arrays function
+    treat_arrays_kws:
+        Additional keyword arguments to be passed to :py:func:`SeqMetrics.utils.treat_arrays` function.
 
     Examples
     ---------
@@ -3769,7 +3797,9 @@ def bias(
          simulated values
     treat_arrays :
         process the true and predicted arrays using maybe_treat_arrays function
-
+    treat_arrays_kws:
+        Additional keyword arguments to be passed to :py:func:`SeqMetrics.utils.treat_arrays` function.
+        
     Examples
     ---------
     >>> import numpy as np
@@ -4433,7 +4463,7 @@ def agreement_index(
     Agreement Index (d) developed by `Willmott, 1981 <https://doi.org/10.1080/02723646.1981.10642213>`_.
 
     It detects additive and pro-portional differences in the observed and
-    simulated means and variances (Moriasi_ et al., 2015 <https://doi.org/10.13031/trans.58.10715>`_). It is overly sensitive
+    simulated means and variances (`Moriasi et al., 2015 <https://doi.org/10.13031/trans.58.10715>`_). It is overly sensitive
     to extreme values due to the squared differences. It can also be used
     as a substitute for R2 to identify the degree to which model predictions
     are error-free.
@@ -4593,10 +4623,14 @@ def cronbach_alpha(
     return float(nitems / (nitems - 1.) * (1 - itemvars.sum() / tscores.var(ddof=1)))
 
 
-def centered_rms_dev(true, predicted, treat_arrays: bool = True,
-                     **treat_arrays_kws) -> float:
+def centered_rms_dev(
+        true, 
+        predicted, 
+        treat_arrays: bool = True,
+        **treat_arrays_kws
+        ) -> float:
     """
-    `Modified after SkillMetrics <https://doi.org/10.1016/B0-12-227410-5/00612-8>`_.
+    Modified after `SkillMetrics <https://doi.org/10.1016/B0-12-227410-5/00612-8>`_.
     Calculates the centered root-mean-square (RMS) difference between true and predicted
     using the formula:
     (E')^2 = sum_(n=1)^N [(p_n - mean(p))(r_n - mean(r))]^2/N
@@ -4911,7 +4945,7 @@ def fdc_fhv(
 def fdc_flv(true, predicted, treat_arrays: bool = True, low_flow: float = 0.3,
             **treat_arrays_kws) -> float:
     """
-    bias of the bottom 30 % low flows. modified Kratzert_ code
+    bias of the bottom 30 % low flows as
     used in `kratzert et al., 2019 <https://hess.copernicus.org/articles/23/5089/2019/hess-23-5089-2019.html>`_.
 
     .. math::
@@ -5785,13 +5819,17 @@ def me(true, predicted, treat_arrays: bool = True,
     return float(np.mean(error))
 
 
-def mean_bias_error(true, predicted, treat_arrays: bool = True,
-                    **treat_arrays_kws) -> float:
+def mean_bias_error(
+        true, 
+        predicted, 
+        treat_arrays: bool = True,
+        **treat_arrays_kws
+        ) -> float:
     """
     Mean Bias Error
     It represents overall bias error or systematic error. It shows average interpolation bias; i.e. average over-
     or underestimation. [1][2].This indicator expresses a tendency of model to underestimate (negative value)
-    or overestimate (positive value) global radiation, while the MBE values closest to zero are desirable.
+    or overestimate (positive value) global radiation, while the mean bias error values closest to zero are desirable.
     The drawback of this test is that it does not show the correct performance when the model presents
     overestimated and underestimated values at the same time, since overestimation and underestimation
     values cancel each `other <https://doi.org/10.1016/j.rser.2015.08.035>`_.
@@ -5864,8 +5902,13 @@ def mean_var(
     return float(np.var(log1p(true) - log1p(predicted)))
 
 
-def mean_poisson_deviance(true, predicted, treat_arrays: bool = True, weights=None,
-                          **treat_arrays_kws) -> float:
+def mean_poisson_deviance(
+        true, 
+        predicted, 
+        treat_arrays: bool = True, 
+        weights=None,
+        **treat_arrays_kws
+        ) -> float:
     """
     mean poisson deviance
 

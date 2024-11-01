@@ -45,9 +45,13 @@ extensions = [
 'sphinx_toggleprompt',
 'sphinx_copybutton',
 "sphinx-prompt",
+'sphinx_gallery.gen_gallery',
 ]
 
 toggleprompt_offset_right  = 30
+
+# specify the master doc, otherwise the build at read the docs fails
+master_doc = 'index'
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
