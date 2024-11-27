@@ -2,7 +2,7 @@ __all__ = ['Metrics']
 
 import json
 import numpy as np
-from typing import Union
+from typing import Union, List, Dict
 
 from .utils import features
 from .utils import maybe_treat_arrays
@@ -21,6 +21,7 @@ from .utils import maybe_treat_arrays
 # 95th percentile: https://doi.org/10.1016/j.solener.2014.10.016
 # Friedman test: https://doi.org/10.1016/j.solener.2014.10.016
 # https://arjun-sarkar786.medium.com/implementation-of-all-loss-functions-deep-learning-in-numpy-tensorflow-and-pytorch-e20e72626ebd
+# Ritter and Munoz-Carpena (2013) https://doi.org/10.1016/j.jhydrol.2012.12.004
 
 EPS = 1e-10  # epsilon
 
@@ -198,8 +199,52 @@ class Metrics(object):
             they are {len(self.true)} and {len(self.predicted)}""")
         return
 
-    def calculate_all(self, statistics=False, verbose=False, write=False, name=None) -> dict:
-        """ calculates errors using all available methods except brier_score..
+    def calculate(
+            self,
+            metric: Union[str, List[str]],
+    )->Dict[str, float]:
+        """
+        Calculates the error using the given metric.
+
+        Parameters
+        ----------
+        metric : str or list of str
+            name of the metric/metrics to calculate.
+
+        Returns
+        -------
+        dict
+            calculated error.
+
+        Examples
+        --------
+        >>> import numpy as np
+        >>> from SeqMetrics import RegressionMetrics
+        >>> true = np.random.random(100)
+        >>> predicted = np.random.random(100)
+        >>> metrics = RegressionMetrics(true, predicted)
+        >>> metrics.calculate('mse')
+        >>> metrics.calculate(['mse', 'rmse'])
+        """
+        if isinstance(metric, str):
+            metric = [metric]
+        
+        assert all([m in self.all_methods + ['mse'] for m in metric]), f"Invalid metric name. Available metrics are {self.all_methods}"
+
+        errors = {}
+        for m in metric:
+            errors[m] = getattr(self, m)()
+
+        return errors
+
+    def calculate_all(
+            self, 
+            statistics:bool = False, 
+            verbose:bool = False, 
+            write:bool = False, 
+            name=None) -> dict:
+        """ 
+        calculates errors using all available methods except brier_score..
         write: bool, if True, will write the calculated errors in file.
         name: str, if not None, then must be path of the file in which to write.
 
@@ -413,8 +458,6 @@ class Metrics(object):
     def composite_metrics(self):
         pass
 
-
     def mse(self, weights=None) -> float:
         """ mean square error """
         return float(np.average((self.true - self.predicted) ** 2, axis=0, weights=weights))
-

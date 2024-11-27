@@ -1,7 +1,7 @@
 import os
 import warnings
 import itertools
-from typing import Union
+from typing import Union, List
 from types import FunctionType
 from collections import OrderedDict
 
@@ -266,7 +266,12 @@ def listParentMethods(cls):
         listMethods(c).union(listParentMethods(c)) for c in cls.__bases__))
 
 
-def list_subclass_methods(cls, is_narrow, ignore_underscore=True, additional_ignores=None):
+def list_subclass_methods(
+        cls, 
+        is_narrow:bool, 
+        ignore_underscore:bool = True, 
+        additional_ignores=None
+        )->List[str]:
     """Finds all methods of a child class"""
     methods = listMethods(cls)
 
@@ -280,7 +285,7 @@ def list_subclass_methods(cls, is_narrow, ignore_underscore=True, additional_ign
     if ignore_underscore:
         methods = set(cls for cls in methods if not cls.startswith('_'))
 
-    return methods
+    return list(methods)
 
 
 def features(data: Union[np.ndarray, list],

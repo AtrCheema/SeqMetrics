@@ -145,7 +145,9 @@ not_metrics = ['calculate_all',
                "scale_dependent_metrics",
                "composite_metrics",
                "relative_metrics",
-               "percentage_metrics"]
+               "percentage_metrics",
+               "calculate"
+               ]
 
 random_state = np.random.RandomState(seed=313)
 
@@ -198,6 +200,17 @@ class TestGroupedMetrics(unittest.TestCase):
 
         return
 
+    def test_calculate(self):
+        single_errors = metrics.calculate('mse')
+        assert len(single_errors) == 1
+        assert 'mse' in single_errors
+
+        double_errors = metrics.calculate(['mse', 'rmse'])
+        assert len(double_errors) == 2
+        assert all([isinstance(val, float) for val in double_errors.values()])
+
+        return
+    
     def test_hydro_metrics(self):
         hydr_metrics = metrics.calculate_hydro_metrics()
         assert len(hydr_metrics) == len(metrics._hydro_metrics())

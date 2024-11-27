@@ -169,7 +169,13 @@ class RegressionMetrics(Metrics):
 
     def aic(self, p=1) -> float:
         """
-        `Akaike_ Information Criterion <https://doi.org/10.1007/978-1-4612-1694-0_15>`_. Modifying from this `source <https://github.com/UBC-MDS/RegscorePy/blob/master/RegscorePy/aic.py>`_
+        It estimates relative quality of a model for a given input. By comparing AIC for differnt models,
+        we can identify the model which best explains the data. Theoretically, it penlizes
+        those models with more parameters thereby reducing overfitting/model complexity.
+        When comparing multiple models, the one with the lowest value is generally preferred.
+        When sample size is small, then AIC can be biased.
+        `Akaike_ Information Criterion <https://doi.org/10.1007/978-1-4612-1694-0_15>`_. 
+        Modifying from this `source <https://github.com/UBC-MDS/RegscorePy/blob/master/RegscorePy/aic.py>`_
 
         .. math::
             AIC = n \\cdot \\ln\\left(\\frac{\\sum_{i=1}^{n} (\\text{true}_i - \\text{predicted}_i)^2}{n}\\right) + 2p
@@ -336,15 +342,15 @@ class RegressionMetrics(Metrics):
 
     def corr_coeff(self) -> float:
         """
-        `Pearson correlation coefficient <https://royalsocietypublishing.org/doi/abs/10.1098/rsta.1895.0010>`_.
+        Pearson correlation coefficient as proposed by `Pearson, 1895 <https://royalsocietypublishing.org/doi/abs/10.1098/rsta.1895.0010>`_.
         It measures linear correlatin between true and predicted arrays.
-        It is sensitive to outliers.
+        It is sensitive to outliers. The following equation is taken after `Jiang et al., 2022 <https://doi.org/10.5194/essd-15-621-2023>`_ .
 
         .. math::
-            r = \\frac{\\sum ^n _{i=1}(e_i - \\bar{e})(s_i - \\bar{s})}{\\sqrt{\\sum ^n _{i=1}(e_i - \\bar{e})^2}
-             \\sqrt{\\sum ^n _{i=1}(s_i - \\bar{s})^2}}
-        
-        Where n is length of true/predicted arrays, e is true and s is predicted.
+            r = \\frac{\\sum ^n _{i=1}(predicted_i - \\bar{predicted})(s_i - \\bar{observed})}{\\sqrt{\\sum ^n _{i=1}(predicted_i - \\bar{predicted})^2}
+            \\sqrt{\\sum ^n _{i=1}(true_i - \\bar{true})^2}}
+
+        Where n is length of true/predicted arrays.
 
         Examples
         ---------
@@ -768,8 +774,12 @@ class RegressionMetrics(Metrics):
 
     def kge(self, return_all:bool = False):
         """
-        Kling-Gupta Efficiency following `Gupta_ et al. 2009 <https://doi.org/10.1016/j.jhydrol.2009.08.003>`_.
-        This error considers `correlation`, `variability` and `mean` difference/error.
+        Kling-Gupta Efficiency following `Gupta et al. 2009 <https://doi.org/10.1016/j.jhydrol.2009.08.003>`_.
+        This error considers correlation (r), variability (:math:`\\alpha`) and mean difference/error 
+        which is also called bias (:math:`\\beta`). KGE values varies from -infinity to 1 with 
+        higher the better. KGE values above -0.41 means the simulted/predicted 
+        (by the model) is better  than the mean of the observed data 
+        (`Knoben et al, 2019 <https://doi.org/10.5194/hess-23-4323-2019>`_).
 
         .. math::
             \\text{KGE} = 1 - \\sqrt{(r - 1)^2 + (\\alpha - 1)^2 + (\\beta - 1)^2}
@@ -778,20 +788,24 @@ class RegressionMetrics(Metrics):
             \\alpha = \\frac{\\sigma_{\\text{predicted}}}{\\sigma_{\\text{true}}}
         .. math::
             \\beta = \\frac{\\mu_{\\text{predicted}}}{\\mu_{\\text{true}}}        
-            
-        In this equation, :math:`\\alpha` accounts for the variability (standard deviation), :math:`\\beta` accounts for 
-        the mean difference/bias and r accounts for the correlation between the true and predicted values.
-        This equation can also be written as below:
+
+        Please note that bias (:math:`\\beta`) is not same as :py:func:`SeqMetrics.bias` method.
+        The term :math:`\\sqrt{(r - 1)^2 + (\\alpha - 1)^2 + (\\beta - 1)^2}` is also called
+        euclidean distance which means KGE can also be defined as below
+
+        .. math::
+            \\text{KGE} = 1 - ED        
+        
+        Another form of KGE equation is below:
         
         .. math::
             \\text{KGE} = \\frac{\\sum_{i=1}^{N} ( \\text{true}_i - \\bar{\\text{true}} ) ( \\text{predicted}_i - \\bar{\\text{predicted}} )}{\\sqrt{\\sum_{i=1}^{N} ( \\text{true}_i - \\bar{\\text{true}} )^2} \\sqrt{\\sum_{i=1}^{N} ( \\text{predicted}_i - \\bar{\\text{predicted}} )^2}}
 
-        Please note that bias (:math:`\\beta`) is not same as :py:func:`SeqMetrics.bias` method.
-    
         output
         -------
-            If return_all is True, it returns a numpy array of shape (4, ) containing
-            kge, :math:`\\gamma`, :math:`\\alpha`, :math:`\\beta`. Otherwise, it returns kge.            
+            If ``return_all`` is True, it returns a numpy array of shape (4, ) containing
+            kge, correlation (r), variability (:math:`\\alpha`) and bias (:math:`\\beta`). 
+            Otherwise, it returns kge score.            
             
         Examples
         ---------
@@ -801,6 +815,7 @@ class RegressionMetrics(Metrics):
         >>> p = np.random.random(10)
         >>> metrics= RegressionMetrics(t, p)
         >>> metrics.kge()
+        >>> kge, corr, var, bias = metrics.kge(return_all=True)
         """
         return kge(true=self.true, predicted=self.predicted, treat_arrays=False, return_all=return_all)
 
@@ -1636,8 +1651,8 @@ class RegressionMetrics(Metrics):
         of concern. But cannot help identify model bias and cannot be used to identify
         differences in timing and magnitude of peak flows and shape of recession curves;
         in other words, it cannot be used for single-event simulations. It is sensitive
-        to extreme values due to the squared differ-ences `[1] <https://elibrary.asabe.org/abstract.asp?aid=46548>`_. To make it less sensitive
-        to outliers, `[2] <https://dx.doi.org/10.5194/adgeo-5-89-2005>`_ proposed log and relative nse.
+        to extreme values due to the squared differ-ences `(Modirasi et al., 2015) <https://elibrary.asabe.org/abstract.asp?aid=46548>`_. To make it less sensitive
+        to outliers, `(Krause et al., 2005) <https://dx.doi.org/10.5194/adgeo-5-89-2005>`_ proposed log and relative nse.
 
         .. math::
             \\text{NSE} = 1 - \\frac{\\sum_{i=1}^{N} (predicted_i - true_i)^2}{\\sum_{i=1}^{N} (true_i - \\bar{true})^2}
@@ -2801,8 +2816,8 @@ def nse(true,
     of concern. But cannot help identify model bias and cannot be used to identify
     differences in timing and magnitude of peak flows and shape of recession curves;
     in other words, it cannot be used for single-event simulations. It is sensitive
-    to extreme values due to the squared differ-ences `[1] <https://elibrary.asabe.org/abstract.asp?aid=46548>`_. To make it less sensitive
-    to outliers, `[2] <https://dx.doi.org/10.5194/adgeo-5-89-2005>`_ proposed log and relative nse.
+    to extreme values due to the squared differences `Moriasi et a., 2015 <https://elibrary.asabe.org/abstract.asp?aid=46548>`_. To make it less sensitive
+    to outliers, `Krause et al., 2005 <https://dx.doi.org/10.5194/adgeo-5-89-2005>`_ proposed log and relative nse.
 
     .. math::
         \\text{NSE} = 1 - \\frac{\\sum_{i=1}^{N} (predicted_i - true_i)^2}{\\sum_{i=1}^{N} (true_i - \\bar{true})^2}
@@ -3116,30 +3131,33 @@ def kge(
         return_all:bool = False,
         **treat_arrays_kws):
     """
-    Kling-Gupta Efficiency following Eq. 9 in `Gupta et al. 2009 <https://doi.org/10.1016/j.jhydrol.2009.08.003>`_.
-    This error considers `correlation` (:math:`\\gamma`), `variability (:math:`\\alpha`) and `bias` (:math:`\\beta`).
+    Kling-Gupta Efficiency following `Gupta et al. 2009 <https://doi.org/10.1016/j.jhydrol.2009.08.003>`_.
+    This error considers correlation (r), variability (:math:`\\alpha`) and mean difference/error 
+    which is also called bias (:math:`\\beta`). KGE values varies from -infinity to 1 with 
+    higher the better. KGE values above -0.41 means the simulted/predicted 
+    (by the model) is better  than the mean of the observed data 
+    (`Knoben et al, 2019 <https://doi.org/10.5194/hess-23-4323-2019>`_).
 
     .. math::
-        \\text{KGE} = 1 - ED
-    
-    .. math::
-        ED = \\sqrt{(r - 1)^2 + (\\alpha - 1)^2 + (\\beta - 1)^2}
+        \\text{KGE} = 1 - \\sqrt{(r - 1)^2 + (\\alpha - 1)^2 + (\\beta - 1)^2}
 
     .. math::
         \\alpha = \\frac{\\sigma_{\\text{predicted}}}{\\sigma_{\\text{true}}}
     .. math::
         \\beta = \\frac{\\mu_{\\text{predicted}}}{\\mu_{\\text{true}}}        
-        
-    In above equations, ED is also considered as Euclidean distance,  :math:`\\alpha` 
-    accounts for the variability (standard deviation), :math:`\\beta` accounts for 
-    the mean difference and :math:`\gamma` accounts for the correlation between the true and predicted values.
-    This equation can also be written as below:
-        
+
+    Please note that bias (:math:`\\beta`) is not same as :py:func:`SeqMetrics.bias` method.
+    The term :math:`\\sqrt{(r - 1)^2 + (\\alpha - 1)^2 + (\\beta - 1)^2}` is also called
+    euclidean distance which means KGE can also be defined as below
+
+    .. math::
+        \\text{KGE} = 1 - ED        
+    
+    Another form of KGE equation is below:
+    
     .. math::
         \\text{KGE} = \\frac{\\sum_{i=1}^{N} ( \\text{true}_i - \\bar{\\text{true}} ) ( \\text{predicted}_i - \\bar{\\text{predicted}} )}{\\sqrt{\\sum_{i=1}^{N} ( \\text{true}_i - \\bar{\\text{true}} )^2} \\sqrt{\\sum_{i=1}^{N} ( \\text{predicted}_i - \\bar{\\text{predicted}} )^2}}
-
-    Please note that bias (:math:`\\beta`) term above is not same as in :py:func:`SeqMetrics.bias` method.        
-        
+   
     Parameters
     ----------
     true :
@@ -3156,7 +3174,7 @@ def kge(
 
     Returns
     -------
-        If return_all is True, it returns a numpy array of shape (4, ) containing kge, :math:`\\gamma`, :math:`\\alpha`, :math:`\\beta`. Otherwise, it returns kge.    
+        If return_all is True, it returns a numpy array of shape (4, ) containing kge, correlation (r), variability (:math:`\\alpha`) and bias (:math:`\\beta`). Otherwise, it returns kge score.    
     
     Examples
     ---------
@@ -3165,7 +3183,7 @@ def kge(
     >>> t = np.random.random(10)
     >>> p = np.random.random(10)
     >>> kge(t, p)
-    >>> kge, gamma, alpha, beta = kge(t, p, return_all=True)
+    >>> kge, corr, var, bias = kge(t, p, return_all=True)
     """
     true, predicted = maybe_treat_arrays(treat_arrays, true, predicted, 'regression', **treat_arrays_kws)
     cc = np.corrcoef(true, predicted)[0, 1]   # correlation
@@ -3403,7 +3421,7 @@ def spearmann_corr(
 #     This is a nonparametric metric and assesses how well the relationship
 #     between the true and predicted data can be described using a monotonic
 #     function.
-#
+#       https://rdrr.io/cran/hydroGOF/man/rSpearman.html
 #     .. _coefficient:
 #         https://hess.copernicus.org/articles/24/2505/2020/hess-24-2505-2020.pdf
 #
@@ -3517,15 +3535,15 @@ def corr_coeff(
         **treat_arrays_kws
         ) -> float:
     """
-    `Pearson correlation coefficient <https://royalsocietypublishing.org/doi/abs/10.1098/rsta.1895.0010>`_.
+    Pearson correlation coefficient as proposed by `Pearson, 1895 <https://royalsocietypublishing.org/doi/abs/10.1098/rsta.1895.0010>`_.
     It measures linear correlatin between true and predicted arrays.
-    It is sensitive to outliers.
+    It is sensitive to outliers. The following equation is taken after `Jiang et al., 2022 <https://doi.org/10.5194/essd-15-621-2023>`_ .
 
     .. math::
-        r = \\frac{\\sum ^n _{i=1}(e_i - \\bar{e})(s_i - \\bar{s})}{\\sqrt{\\sum ^n _{i=1}(e_i - \\bar{e})^2}
-         \\sqrt{\\sum ^n _{i=1}(s_i - \\bar{s})^2}}
+        r = \\frac{\\sum ^n _{i=1}(predicted_i - \\bar{predicted})(s_i - \\bar{observed})}{\\sqrt{\\sum ^n _{i=1}(predicted_i - \\bar{predicted})^2}
+         \\sqrt{\\sum ^n _{i=1}(true_i - \\bar{true})^2}}
 
-    Where n is length of true/predicted arrays, e is true and s is predicted.
+    Where n is length of true/predicted arrays.
 
     Parameters
     ----------
@@ -3624,6 +3642,8 @@ def rmsle(
          simulated values
     treat_arrays :
         process the true and predicted arrays using maybe_treat_arrays function
+    treat_arrays_kws:
+        Additional keyword arguments to be passed to :py:func:`SeqMetrics.utils.treat_arrays` function.
 
     Examples
     ---------
@@ -3816,8 +3836,12 @@ def bias(
     return float(bias_)
 
 
-def mae(true, predicted, treat_arrays: bool = True,
-        **treat_arrays_kws) -> float:
+def mae(
+        true, 
+        predicted, 
+        treat_arrays: bool = True,
+        **treat_arrays_kws
+        ) -> float:
     """ `Mean Absolute Error <https://scikit-learn.org/stable/modules/generated/sklearn.metrics.mean_absolute_error.html>`_.
     It is less sensitive to outliers as compared to mse/rmse.
 
@@ -3833,6 +3857,8 @@ def mae(true, predicted, treat_arrays: bool = True,
          simulated values
     treat_arrays :
         process the true and predicted arrays using maybe_treat_arrays function
+    treat_arrays_kws:
+        Additional keyword arguments to be passed to :py:func:`SeqMetrics.utils.treat_arrays` function.
 
     Examples
     ---------
@@ -3877,8 +3903,12 @@ def mae(true, predicted, treat_arrays: bool = True,
 #     return float(_apb)
 
 
-def gmae(true, predicted, treat_arrays: bool = True,
-         **treat_arrays_kws) -> float:
+def gmae(
+        true, 
+        predicted, 
+        treat_arrays: bool = True,
+        **treat_arrays_kws
+        ) -> float:
     """ `Geometric Mean Absolute Error <https://doi.org/10.1016/j.isprsjprs.2024.04.015>`_
 
     .. math::
@@ -3894,6 +3924,8 @@ def gmae(true, predicted, treat_arrays: bool = True,
          simulated values
     treat_arrays :
         process the true and predicted arrays using maybe_treat_arrays function
+    treat_arrays_kws:
+        Additional keyword arguments to be passed to :py:func:`SeqMetrics.utils.treat_arrays` function.
 
     Examples
     ---------
@@ -3908,8 +3940,11 @@ def gmae(true, predicted, treat_arrays: bool = True,
     return _geometric_mean(np.abs(error))
 
 
-def inrse(true, predicted, treat_arrays: bool = True,
-          **treat_arrays_kws) -> float:
+def inrse(
+        true, 
+        predicted, 
+        treat_arrays: bool = True,
+        **treat_arrays_kws) -> float:
     """ `Integral Normalized Root Squared Error <https://doi.org/10.1016/j.engappai.2023.107559>`_
 
     .. math::
@@ -3924,6 +3959,8 @@ def inrse(true, predicted, treat_arrays: bool = True,
          simulated values
     treat_arrays :
         process the true and predicted arrays using maybe_treat_arrays function
+    treat_arrays_kws:
+        Additional keyword arguments to be passed to :py:func:`SeqMetrics.utils.treat_arrays` function.
 
     Examples
     ---------
@@ -3939,8 +3976,11 @@ def inrse(true, predicted, treat_arrays: bool = True,
     return float(np.sqrt(np.sum(np.square(error)) / np.sum(np.square(true - np.mean(true)))))
 
 
-def irmse(true, predicted, treat_arrays: bool = True,
-          **treat_arrays_kws) -> float:
+def irmse(
+        true, predicted, 
+        treat_arrays: bool = True,
+        **treat_arrays_kws
+        ) -> float:
     """ `Inertial RMSE <https://link.springer.com/article/10.1007/s11069-008-9299-2>`_.
     RMSE divided by standard deviation of the gradient of true.
 
@@ -3956,6 +3996,8 @@ def irmse(true, predicted, treat_arrays: bool = True,
          simulated values
     treat_arrays :
         process the true and predicted arrays using maybe_treat_arrays function
+    treat_arrays_kws:
+        Additional keyword arguments to be passed to :py:func:`SeqMetrics.utils.treat_arrays` function.
 
     Examples
     ---------
@@ -3977,7 +4019,12 @@ def irmse(true, predicted, treat_arrays: bool = True,
     return float(rmse(true, predicted, treat_arrays=False) / obs_grad_std)
 
 
-def mase(true, predicted, treat_arrays: bool = True, seasonality: int = 1, **treat_arrays_kws):
+def mase(
+        true, 
+        predicted, 
+        treat_arrays: bool = True, 
+        seasonality: int = 1, 
+        **treat_arrays_kws):
     """
     Mean Absolute Scaled Error following `Hyndman et al., 2006 <http://datascienceassn.org/sites/default/files/Another%20Look%20at%20Measures%20of%20Forecast%20Accuracy.pdf>`_. 
     Baseline (benchmark) is computed with naive
@@ -3998,6 +4045,8 @@ def mase(true, predicted, treat_arrays: bool = True, seasonality: int = 1, **tre
         process the true and predicted arrays using maybe_treat_arrays function
         process the true and predicted arrays using maybe_treat_arrays function
     seasonality:
+    treat_arrays_kws:
+        Additional keyword arguments to be passed to :py:func:`SeqMetrics.utils.treat_arrays` function.
 
     Examples
     ---------
@@ -4030,6 +4079,8 @@ def mare(true, predicted, treat_arrays: bool = True, **treat_arrays_kws) -> floa
          simulated values
     treat_arrays :
         process the true and predicted arrays using maybe_treat_arrays function
+    treat_arrays_kws:
+        Additional keyword arguments to be passed to :py:func:`SeqMetrics.utils.treat_arrays` function.
 
     Examples
     ---------
@@ -4061,6 +4112,8 @@ def msle(true, predicted, treat_arrays=True, weights=None, **treat_arrays_kws) -
     treat_arrays :
         process the true and predicted arrays using maybe_treat_arrays function
     weights:
+    treat_arrays_kws:
+        Additional keyword arguments to be passed to :py:func:`SeqMetrics.utils.treat_arrays` function.
 
     Examples
     ---------
@@ -4105,6 +4158,8 @@ def covariance(
          simulated values
     treat_arrays :
         process the true and predicted arrays using maybe_treat_arrays function
+    treat_arrays_kws:
+        Additional keyword arguments to be passed to :py:func:`SeqMetrics.utils.treat_arrays` function.
 
     Examples
     ---------
@@ -4162,6 +4217,8 @@ def brier_score(
          simulated values
     treat_arrays :
         process the true and predicted arrays using maybe_treat_arrays function
+    treat_arrays_kws:
+        Additional keyword arguments to be passed to :py:func:`SeqMetrics.utils.treat_arrays` function.
 
     Examples
     ---------
@@ -4224,6 +4281,8 @@ def bic(
     treat_arrays :
         process the true and predicted arrays using maybe_treat_arrays function
     p:
+    treat_arrays_kws:
+        Additional keyword arguments to be passed to :py:func:`SeqMetrics.utils.treat_arrays` function.
 
     Examples
     ---------
@@ -4267,6 +4326,8 @@ def sse(true, predicted, treat_arrays: bool = True,
          simulated values
     treat_arrays :
         process the true and predicted arrays using maybe_treat_arrays function
+    treat_arrays_kws:
+        Additional keyword arguments to be passed to :py:func:`SeqMetrics.utils.treat_arrays` function.
 
     Examples
     ---------
@@ -4329,6 +4390,9 @@ def amemiya_adj_r2(true, predicted, treat_arrays: bool = True,
          simulated values
     treat_arrays :
         process the true and predicted arrays using maybe_treat_arrays function
+    treat_arrays_kws:
+        Additional keyword arguments to be passed to :py:func:`SeqMetrics.utils.treat_arrays` function.
+        
     Examples
     ---------
     >>> import numpy as np
@@ -4363,6 +4427,9 @@ def aitchison(true, predicted, treat_arrays: bool = True, center='mean',
     treat_arrays :
         process the true and predicted arrays using maybe_treat_arrays function
     center:
+    treat_arrays_kws:
+        Additional keyword arguments to be passed to :py:func:`SeqMetrics.utils.treat_arrays` function.
+
 
     Examples
     ---------
@@ -4437,6 +4504,8 @@ def acc(
          simulated values
     treat_arrays :
         process the true and predicted arrays using maybe_treat_arrays function
+    treat_arrays_kws:
+        Additional keyword arguments to be passed to :py:func:`SeqMetrics.utils.treat_arrays` function.
 
     Examples
     ---------
@@ -4481,6 +4550,8 @@ def agreement_index(
          simulated values
     treat_arrays :
         process the true and predicted arrays using maybe_treat_arrays function
+    treat_arrays_kws:
+        Additional keyword arguments to be passed to :py:func:`SeqMetrics.utils.treat_arrays` function.
 
     Examples
     ---------
@@ -4518,6 +4589,8 @@ def legates_coeff_eff(true, predicted, treat_arrays: bool = True,
          simulated values
     treat_arrays :
         process the true and predicted arrays using maybe_treat_arrays function
+    treat_arrays_kws:
+        Additional keyword arguments to be passed to :py:func:`SeqMetrics.utils.treat_arrays` function.
 
     Examples
     ---------
@@ -4535,10 +4608,16 @@ def legates_coeff_eff(true, predicted, treat_arrays: bool = True,
 def aic(
         true, 
         predicted, 
-        treat_arrays: bool = True, p=1,
+        treat_arrays: bool = True, 
+        p:int=1,
         **treat_arrays_kws
         ) -> float:
     """
+    It estimates relative quality of a model for a given input. By comparing AIC for differnt models,
+    we can identify the model which best explains the data. Theoretically, it penlizes
+    those models with more parameters thereby reducing overfitting/model complexity.
+    When comparing multiple models, the one with the lowest value is generally preferred.
+    When sample size is small, then AIC can be biased.    
     Akaike_ Information Criterion. Modifying from this sourcee_
 
     .. math::
@@ -4558,7 +4637,11 @@ def aic(
          simulated values
     treat_arrays :
         process the true and predicted arrays using maybe_treat_arrays function
-    p:
+    p : int
+        number of parameters in the model
+
+    treat_arrays_kws:
+        Additional keyword arguments to be passed to :py:func:`SeqMetrics.utils.treat_arrays` function.
 
     Examples
     ---------
@@ -4585,7 +4668,8 @@ def cronbach_alpha(
         **treat_arrays_kws
         ) -> float:
     """
-    It is a measure of internal consitency of data following Cheung and Yip, 2005 `<https://doi.org/10.1016/B0-12-369398-5/00396-0>`_. 
+    It is a measure of internal consitency of data following 
+    `Cheung and Yip, 2005 <https://doi.org/10.1016/B0-12-369398-5/00396-0>`_. 
     See ucla_ and stackoverflow_ pages for more info.
 
     .. math::
@@ -4606,6 +4690,8 @@ def cronbach_alpha(
          simulated values
     treat_arrays :
         process the true and predicted arrays using maybe_treat_arrays function
+    treat_arrays_kws:
+        Additional keyword arguments to be passed to :py:func:`SeqMetrics.utils.treat_arrays` function.
 
     Examples
     ---------
@@ -4652,6 +4738,8 @@ def centered_rms_dev(
          simulated values
     treat_arrays :
         process the true and predicted arrays using maybe_treat_arrays function
+    treat_arrays_kws:
+        Additional keyword arguments to be passed to :py:func:`SeqMetrics.utils.treat_arrays` function.
 
     Examples
     ---------
@@ -6012,10 +6100,15 @@ def median_abs_error(
     return float(np.median(np.abs(predicted - true), axis=0))
 
 
-def med_seq_error(true, predicted, treat_arrays: bool = True,
-                  **treat_arrays_kws) -> float:
-    """ `Median Squared Error <https://www.sciencedirect.com/science/article/pii/S2468227620301757>`_
-    Same as mse, but it takes median which reduces the impact of outliers.
+def med_seq_error(
+        true, 
+        predicted, 
+        treat_arrays: bool = True,
+        **treat_arrays_kws
+        ) -> float:
+    """ 
+    `Median Squared Error <https://www.sciencedirect.com/science/article/pii/S2468227620301757>`_
+    It is same as mse, but it takes median which reduces the impact of outliers.
 
     .. math::
         \\text{MedSE} = \\text{median} \\left( (\\text{predicted}_i - \\text{true}_i)^2 \\right)
@@ -6043,9 +6136,14 @@ def med_seq_error(true, predicted, treat_arrays: bool = True,
     return float(np.median((predicted - true) ** 2))
 
 
-def mle(true, predicted, treat_arrays=True,
-        **treat_arrays_kws) -> float:
-    """ `Mean log error <https://doi.org/10.1038/s41598-023-29871-8>`_
+def mle(
+        true, 
+        predicted, 
+        treat_arrays=True,
+        **treat_arrays_kws
+        ) -> float:
+    """ 
+    `Mean log error <https://doi.org/10.1038/s41598-023-29871-8>`_
 
     .. math::
         \\text{MLE} = \\frac{1}{n} \\sum_{i=1}^{n} \\left( \\log(1 + \\text{predicted}_i) - \\log(1 + \\text{true}_i) \\right)
@@ -7904,7 +8002,8 @@ def coeff_of_persistence(
         **treat_arrays_kws
 ) -> float:
     """
-    Coefficient of Persistence. Varies between -inf to 1. The higher the better.
+    Coefficient of Persistence as introducted by `Kitanidis and Bras <https://doi.org/10.1029/WR016i006p01025>`_ . 
+    Varies between -inf to 1. The higher the better.
 
     Parameters
     ----------
@@ -7918,15 +8017,7 @@ def coeff_of_persistence(
     treat_arrays :
         treat_arrays the true and predicted array
     
-    References
-    ----------
-    Kitanidis, P. K., & Bras, R. L. (1980). Real-time forecasting with a conceptual 
-        hydrologic model: 2. Applications and results. Water Resources Research, 
-        16(6), 1034-1044.
-    Nossent, J., & Bauwens, W. (2012, April). Application of a normalized 
-        Nash-Sutcliffe efficiency to improve the accuracy of the Sobol'sensitivity 
-        analysis of a hydrological model. In EGU General Assembly Conference 
-        Abstracts (p. 237).    
+    https://rdrr.io/cran/hydroGOF/man/cp.html  
 
 
     Examples
@@ -8049,4 +8140,67 @@ def resid_mass_coeff():
 
 def log_euclid_dist():
     #
+    raise NotImplementedError
+
+def relative_bias(
+        true,
+        predicted,
+        treat_arrays: bool = True,
+        **treat_arrays_kws        
+):
+    """
+    The following equation is taken after `Jiang et al., 2022 <https://doi.org/10.5194/essd-15-621-2023>`_ .
+    # https://github.com/Ouranosinc/xclim/blob/4198e8bcc9d21dd6a89b5c93cf58972a69b87758/xclim/sdba/measures.py#L183
+    """
+    raise NotImplementedError
+
+def ppmc(
+        true,
+        predicted,
+        treat_arrays: bool = True,
+        **treat_arrays_kws
+):
+    """
+    pearson product moment correlation 
+    https://github.com/flowmatters/veneer-py/blob/86bb9beb2d57f07e95a89d1f7bc410166a791118/veneer/stats.py#L135
+    """
+    raise NotImplementedError
+
+def weighted_nse():
+    """
+    weighted NSE
+    """
+    raise NotImplementedError
+
+def weighted_seasonal_nse():
+    """
+    weighted seasonal NSE
+    """
+    raise NotImplementedError
+
+def unbiased_rmse():
+    """
+    unbiased RMSE
+    """
+    raise NotImplementedError
+
+def kge_lf():
+    """
+    Kling-Gupta Efficiency for low flows developed by `Pizarro and Jorquera, 2024 <https://doi.org/10.1016/j.jhydrol.2024.131071>`_
+    """
+    raise NotImplementedError
+
+def high_flow_bias():
+    """
+    High flow bias
+    """
+    raise NotImplementedError
+
+
+def annual_peak_flow_bias():
+    """
+    Annual peak flow bias as proposed by `Mizukami et al. (2019) <https://doi.org/10.5194/hess-23-2601-2019>`_ .
+    Its values vary from 0 to infinity with 0 being the best. Higher values
+    indicate larger difference in peaks.
+    """
     raise NotImplementedError
