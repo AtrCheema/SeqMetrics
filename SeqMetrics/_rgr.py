@@ -772,7 +772,10 @@ class RegressionMetrics(Metrics):
         return kendall_tau(true=self.true, predicted=self.predicted, return_p=return_p,
                             treat_arrays=False)
 
-    def kge(self, return_all:bool = False):
+    def kge(
+            self, 
+            return_all:bool = False
+            ) -> Union[float, np.ndarray]:
         """
         Kling-Gupta Efficiency following `Gupta et al. 2009 <https://doi.org/10.1016/j.jhydrol.2009.08.003>`_.
         This error considers correlation (r), variability (:math:`\\alpha`) and mean difference/error 
@@ -790,6 +793,7 @@ class RegressionMetrics(Metrics):
             \\beta = \\frac{\\mu_{\\text{predicted}}}{\\mu_{\\text{true}}}        
 
         Please note that bias (:math:`\\beta`) is not same as :py:func:`SeqMetrics.bias` method.
+
         The term :math:`\\sqrt{(r - 1)^2 + (\\alpha - 1)^2 + (\\beta - 1)^2}` is also called
         euclidean distance which means KGE can also be defined as below
 
@@ -876,6 +880,11 @@ class RegressionMetrics(Metrics):
     def kge_np(self, return_all:bool = False)-> Union[float, np.ndarray]:
         """
         Non-parametric Kling-Gupta Efficiency after `Pool et al. 2018 <https://doi.org/10.1080/02626667.2018.1552002>`_.
+
+        This differs from original KGE by using non-parameteric components of KGE i.e. :math:`\\alpha` and :math:`\gamma` / cc.
+        The variability (:math:`\\alpha`) is non-parametrized by using the FDCs of the true and predicted values. The FDCs are
+        normalized to remove the volume information. It also differs from normal kge by using the Spearman's rank correlation
+        instead of Pearson's correlation coefficient.
 
         .. math::
             cc = \\rho(\\text{true}, \\text{predicted})
@@ -3129,7 +3138,8 @@ def kge(
         predicted,
         treat_arrays: bool = True,
         return_all:bool = False,
-        **treat_arrays_kws):
+        **treat_arrays_kws
+        ) -> Union[float, np.ndarray]:
     """
     Kling-Gupta Efficiency following `Gupta et al. 2009 <https://doi.org/10.1016/j.jhydrol.2009.08.003>`_.
     This error considers correlation (r), variability (:math:`\\alpha`) and mean difference/error 
@@ -3243,7 +3253,7 @@ def kge_mod(
         treat_arrays: bool = True,
         return_all=False,
         **treat_arrays_kws
-        ):
+        )-> Union[float, np.ndarray]:
     """
     Modified Kling-Gupta Efficiency after `Kling et al. 2012 <https://doi.org/10.1016/j.jhydrol.2012.01.011>`_.
     Similar to original KGE, its values varies fro -infinity to 1 with higher the better.
@@ -3304,13 +3314,14 @@ def kge_np(
         treat_arrays: bool = True,
         return_all=False,
         **treat_arrays_kws
-        ):
+        )-> Union[float, np.ndarray]:
     """
     Non-parametric Kling-Gupta Efficiency after `Pool et al. 2018 <https://doi.org/10.1080/02626667.2018.1552002>`_.
 
     This differs from original KGE by using non-parameteric components of KGE i.e. :math:`\\alpha` and :math:`\gamma` / cc.
-    The variability (:math:`\\alpha`) non-parametrized by using the FDCs of the true and predicted values. The FDCs are
-    normalized to remove the volume information.
+    The variability (:math:`\\alpha`) is non-parametrized by using the FDCs of the true and predicted values. The FDCs are
+    normalized to remove the volume information. It also differs from normal kge by using the Spearman's rank correlation
+    instead of Pearson's correlation coefficient.
 
     .. math::
         \\text{KGE}_{\\text{np}} = 1 - \\sqrt{(cc - 1)^2 + (\\alpha - 1)^2 + (\\beta - 1)^2}
@@ -6720,15 +6731,16 @@ def rel_agreement_index(true, predicted, treat_arrays: bool = True,
 
 
 def relative_rmse(
-        true, predicted, treat_arrays: bool = True,
-                  **treat_arrays_kws) -> float:
+        true, 
+        predicted, 
+        treat_arrays: bool = True,
+        **treat_arrays_kws
+        ) -> float:
     """
     `Relative Root Mean Squared Error <https://search.r-project.org/CRAN/refmans/metrica/html/RRMSE.html>`_. It normalizes teh rmse by mean of true values.
 
     .. math::
         RRMSE=\\frac{\\sqrt{\\frac{1}{N}\\sum_{i=1}^{N}(e_{i}-s_{i})^2}}{\\bar{e}}
-
-
 
     Parameters
     ----------
@@ -6753,8 +6765,12 @@ def relative_rmse(
     return float(rrmse)
 
 
-def rmspe(true, predicted, treat_arrays: bool = True,
-          **treat_arrays_kws) -> float:
+def rmspe(
+        true, 
+        predicted, 
+        treat_arrays: bool = True,
+        **treat_arrays_kws
+        ) -> float:
     """
     `Root Mean Square Percentage Error <https://stackoverflow.com/a/53166790/5982232>`_.
 
@@ -7049,9 +7065,14 @@ def smdape(
     return float(np.median(2.0 * _ae(predicted=predicted, true=true) / ((np.abs(true) + np.abs(predicted)) + EPS)))
 
 
-def sid(true, predicted, treat_arrays: bool = True,
-        **treat_arrays_kws) -> float:
-    """Spectral Information Divergence.
+def sid(
+        true, 
+        predicted, 
+        treat_arrays: bool = True,
+        **treat_arrays_kws
+        ) -> float:
+    """
+    Spectral Information Divergence.
     From -pi/2 to pi/2. Closer to 0 is better.
 
     .. math::
@@ -7445,8 +7466,13 @@ def norm_ape(
                     len(true) - 1)))
 
 
-def mse(true, predicted, treat_arrays: bool = True, weights=None,
-        **treat_arrays_kws) -> float:
+def mse(
+        true, 
+        predicted, 
+        treat_arrays: bool = True, 
+        weights=None,
+        **treat_arrays_kws
+        ) -> float:
     """
     `Mean Square Error <https://scikit-learn.org/stable/modules/generated/sklearn.metrics.mean_squared_error.html>`_
 
@@ -8064,83 +8090,453 @@ def reciprocal_nse(
     return float(_nse.item())
 
 
-def coeff_of_extrapolation():
+def coeff_of_extrapolation(
+        true,
+        predicted,
+        log_transform: bool = False,
+        treat_arrays: bool = True,
+        **treat_arrays_kws
+)->float:
+    """
+
+    Parameters
+    ----------
+    true :
+         true/observed/actual/target values. It must be a numpy array,
+         or pandas series/DataFrame or a list.
+    predicted :
+         array of simulated/modeled/predicted/estimated values. It must also
+         be array like and have same length as true.
+    log_scale : bool
+        If True, the values will be log transformed before calculating the coefficient 
+        of extrapolation.
+    treat_arrays :
+        process the true and predicted arrays using :py:func:`SeqMetrics.utils.treat_arrays` 
+        function
+    treat_arrays_kws:
+        Additional keyword arguments to be passed to :py:func:`SeqMetrics.utils.treat_arrays` 
+        function.
+    """
     # https://github.com/NOAA-OWP/hydrotools/blob/main/python/metrics/src/hydrotools/metrics/metrics.py#L303
+
+    true, predicted = maybe_treat_arrays(treat_arrays, true, predicted, 'regression', **treat_arrays_kws)
+
+    if log_transform:
+        true = np.log(true)
+        predicted = np.log(predicted)
+    
+    slope = np.diff(true)[:-1]
+    base = true[2:] + slope
     raise NotImplementedError
 
 
-def roce():
+def roce(
+        true,
+        predicted,
+        treat_arrays: bool = True,
+        **treat_arrays_kws
+):
     """
     Runoff coefficient percent error after equation 3 in `Kollat et al., 2012 <https://doi.org/10.1029/2011WR011534>`_
+
+    Parameters
+    ----------
+    true :
+         true/observed/actual/target values. It must be a numpy array,
+         or pandas series/DataFrame or a list.
+    predicted :
+         array of simulated/modeled/predicted/estimated values. It must also
+         be array like and have same length as true.
+    treat_arrays :
+        process the true and predicted arrays using :py:func:`SeqMetrics.utils.treat_arrays` 
+        function
+    treat_arrays_kws:
+        Additional keyword arguments to be passed to :py:func:`SeqMetrics.utils.treat_arrays` 
+        function.    
     """
     raise NotImplementedError
 
 
-def trmse():
+def trmse(
+        true,
+        predicted,
+        treat_arrays: bool = True,
+        **treat_arrays_kws        
+):
     """
     The Box-Cox transformed root mean squared error (TRMSE) is a metric that
     emphasizes low flows using box-cox transformation (`Kollat et al., 2012 <https://doi.org/10.1029/2011WR011534>`_, 
     `Mirirli et al., 2003 <https://doi.org/10.1029/WS006p0113>`_,  `Tang et al., 2006 https://doi.org/10.5194/hess-10-289-2006>`_).
     # https://github.com/CUG-hydro/VICResOpt/blob/76558f2f1aab9ab199d9cd461e7afdcb20048b15/src/OptCalib/indices.py#L20
+
+
+    Parameters
+    ----------
+    true :
+        a pandas Series of true/observed/actual/target values with DateTimeIndex.
+    predicted :
+        a pandas Series of simulated/modeled/predicted/estimated with DateTimeIndex. 
+        It must also have same length as true.
+    treat_arrays :
+        process the true and predicted arrays using :py:func:`SeqMetrics.utils.treat_arrays` 
+        function
+    treat_arrays_kws:
+        Additional keyword arguments to be passed to :py:func:`SeqMetrics.utils.treat_arrays` 
+        function.
+    
+    Returns
+    -------
+    float    
     """
     raise NotImplementedError
 
 
-def fdc_slope():
+def fdc_slope(
+        true,
+        predicted,
+        treat_arrays: bool = True,
+        **treat_arrays_kws        
+):
     """
     The slope of the flow duration curve (FDC) after `Kollat et al., 2012 <https://doi.org/10.1029/2011WR011534>`_ .
+
+
+    Parameters
+    ----------
+    true :
+        a pandas Series of true/observed/actual/target values with DateTimeIndex.
+    predicted :
+        a pandas Series of simulated/modeled/predicted/estimated with DateTimeIndex. 
+        It must also have same length as true.
+    treat_arrays :
+        process the true and predicted arrays using :py:func:`SeqMetrics.utils.treat_arrays` 
+        function
+    treat_arrays_kws:
+        Additional keyword arguments to be passed to :py:func:`SeqMetrics.utils.treat_arrays` 
+        function.
+    
+    Returns
+    -------
+    float    
     """
     raise NotImplementedError
 
 
-def drv():
+def drv(
+        true,
+        predicted,
+        treat_arrays: bool = True,
+        **treat_arrays_kws        
+):
     # https://rstudio-pubs-static.s3.amazonaws.com/433152_56d00c1e29724829bad5fc4fd8c8ebff.html
+    """
+
+
+    Parameters
+    ----------
+    true :
+        a pandas Series of true/observed/actual/target values with DateTimeIndex.
+    predicted :
+        a pandas Series of simulated/modeled/predicted/estimated with DateTimeIndex. 
+        It must also have same length as true.
+    treat_arrays :
+        process the true and predicted arrays using :py:func:`SeqMetrics.utils.treat_arrays` 
+        function
+    treat_arrays_kws:
+        Additional keyword arguments to be passed to :py:func:`SeqMetrics.utils.treat_arrays` 
+        function.
+    
+    Returns
+    -------
+    float
+
+    """
     raise NotImplementedError
 
 
-def gini():
+def gini(
+        true,
+        predicted,
+        treat_arrays: bool = True,
+        **treat_arrays_kws        
+):
     # https://github.com/benhamner/Metrics/blob/master/MATLAB/metrics/gini.m
+    """
+
+
+    Parameters
+    ----------
+    true :
+        a pandas Series of true/observed/actual/target values with DateTimeIndex.
+    predicted :
+        a pandas Series of simulated/modeled/predicted/estimated with DateTimeIndex. 
+        It must also have same length as true.
+    treat_arrays :
+        process the true and predicted arrays using :py:func:`SeqMetrics.utils.treat_arrays` 
+        function
+    treat_arrays_kws:
+        Additional keyword arguments to be passed to :py:func:`SeqMetrics.utils.treat_arrays` 
+        function.
+    
+    Returns
+    -------
+    float
+
+    """
     raise NotImplementedError
 
 
-def log_likelihood():
+def log_likelihood(
+        true,
+        predicted,
+        treat_arrays: bool = True,
+        **treat_arrays_kws        
+):
     # https://github.com/benhamner/Metrics/blob/master/Python/ml_metrics/elementwise.py#L202
+    """
+
+    Parameters
+    ----------
+    true :
+        a pandas Series of true/observed/actual/target values with DateTimeIndex.
+    predicted :
+        a pandas Series of simulated/modeled/predicted/estimated with DateTimeIndex. 
+        It must also have same length as true.
+    treat_arrays :
+        process the true and predicted arrays using :py:func:`SeqMetrics.utils.treat_arrays` 
+        function
+    treat_arrays_kws:
+        Additional keyword arguments to be passed to :py:func:`SeqMetrics.utils.treat_arrays` 
+        function.
+    
+    Returns
+    -------
+    float
+
+    """
     raise NotImplementedError
 
 
-def cross_entropy():
+def cross_entropy(
+        true,
+        predicted,
+        treat_arrays: bool = True,
+        **treat_arrays_kws        
+):
     # https://datascience.stackexchange.com/q/20296
+    """
+
+
+    Parameters
+    ----------
+    true :
+        a pandas Series of true/observed/actual/target values with DateTimeIndex.
+    predicted :
+        a pandas Series of simulated/modeled/predicted/estimated with DateTimeIndex. 
+        It must also have same length as true.
+    treat_arrays :
+        process the true and predicted arrays using :py:func:`SeqMetrics.utils.treat_arrays` 
+        function
+    treat_arrays_kws:
+        Additional keyword arguments to be passed to :py:func:`SeqMetrics.utils.treat_arrays` 
+        function.
+    
+    Returns
+    -------
+    float
+
+    """
     raise NotImplementedError
 
 
-def vaf():
+def vaf(
+        true,
+        predicted,
+        treat_arrays: bool = True,
+        **treat_arrays_kws        
+):
     # https://www.dcsc.tudelft.nl/~jwvanwingerden/lti/doc/html/vaf.html
+    """
+
+
+    Parameters
+    ----------
+    true :
+        a pandas Series of true/observed/actual/target values with DateTimeIndex.
+    predicted :
+        a pandas Series of simulated/modeled/predicted/estimated with DateTimeIndex. 
+        It must also have same length as true.
+    treat_arrays :
+        process the true and predicted arrays using :py:func:`SeqMetrics.utils.treat_arrays` 
+        function
+    treat_arrays_kws:
+        Additional keyword arguments to be passed to :py:func:`SeqMetrics.utils.treat_arrays` 
+        function.
+    
+    Returns
+    -------
+    float
+
+    """
     raise NotImplementedError
 
 
-def resid_std_error():
+def resid_std_error(
+        true,
+        predicted,
+        treat_arrays: bool = True,
+        **treat_arrays_kws        
+):
     # https://www.statology.org/residual-standard-error-r/
+    """
+
+
+    Parameters
+    ----------
+    true :
+        a pandas Series of true/observed/actual/target values with DateTimeIndex.
+    predicted :
+        a pandas Series of simulated/modeled/predicted/estimated with DateTimeIndex. 
+        It must also have same length as true.
+    treat_arrays :
+        process the true and predicted arrays using :py:func:`SeqMetrics.utils.treat_arrays` 
+        function
+    treat_arrays_kws:
+        Additional keyword arguments to be passed to :py:func:`SeqMetrics.utils.treat_arrays` 
+        function.
+    
+    Returns
+    -------
+    float
+
+    """
     raise NotImplementedError
 
 
-def eff_coeff():
+def eff_coeff(
+        true,
+        predicted,
+        treat_arrays: bool = True,
+        **treat_arrays_kws        
+):
     # https://doi.org/10.1016/j.csite.2022.101797
+    """
+
+
+    Parameters
+    ----------
+    true :
+        a pandas Series of true/observed/actual/target values with DateTimeIndex.
+    predicted :
+        a pandas Series of simulated/modeled/predicted/estimated with DateTimeIndex. 
+        It must also have same length as true.
+    treat_arrays :
+        process the true and predicted arrays using :py:func:`SeqMetrics.utils.treat_arrays` 
+        function
+    treat_arrays_kws:
+        Additional keyword arguments to be passed to :py:func:`SeqMetrics.utils.treat_arrays` 
+        function.
+    
+    Returns
+    -------
+    float
+
+    """
     raise NotImplementedError
 
 
-def overall_index():
+def overall_index(
+        true,
+        predicted,
+        treat_arrays: bool = True,
+        **treat_arrays_kws        
+):
     # https://doi.org/10.1016/j.csite.2022.101797
+    """
+
+
+    Parameters
+    ----------
+    true :
+        a pandas Series of true/observed/actual/target values with DateTimeIndex.
+    predicted :
+        a pandas Series of simulated/modeled/predicted/estimated with DateTimeIndex. 
+        It must also have same length as true.
+    treat_arrays :
+        process the true and predicted arrays using :py:func:`SeqMetrics.utils.treat_arrays` 
+        function
+    treat_arrays_kws:
+        Additional keyword arguments to be passed to :py:func:`SeqMetrics.utils.treat_arrays` 
+        function.
+    
+    Returns
+    -------
+    float
+
+    """
     raise NotImplementedError
 
 
-def resid_mass_coeff():
+def resid_mass_coeff(
+        true,
+        predicted,
+        treat_arrays: bool = True,
+        **treat_arrays_kws        
+):
     # https://doi.org/10.1016/j.csite.2022.101797
+    """
+
+    Parameters
+    ----------
+    true :
+        a pandas Series of true/observed/actual/target values with DateTimeIndex.
+    predicted :
+        a pandas Series of simulated/modeled/predicted/estimated with DateTimeIndex. 
+        It must also have same length as true.
+    treat_arrays :
+        process the true and predicted arrays using :py:func:`SeqMetrics.utils.treat_arrays` 
+        function
+    treat_arrays_kws:
+        Additional keyword arguments to be passed to :py:func:`SeqMetrics.utils.treat_arrays` 
+        function.
+    
+    Returns
+    -------
+    float
+    
+    """
     raise NotImplementedError
 
 
-def log_euclid_dist():
-    #
+def log_euclid_dist(
+        true,
+        predicted,
+        treat_arrays: bool = True,
+        **treat_arrays_kws        
+):
+    """
+
+    Parameters
+    ----------
+    true :
+        a pandas Series of true/observed/actual/target values with DateTimeIndex.
+    predicted :
+        a pandas Series of simulated/modeled/predicted/estimated with DateTimeIndex. 
+        It must also have same length as true.
+    treat_arrays :
+        process the true and predicted arrays using :py:func:`SeqMetrics.utils.treat_arrays` 
+        function
+    treat_arrays_kws:
+        Additional keyword arguments to be passed to :py:func:`SeqMetrics.utils.treat_arrays` 
+        function.
+    
+    Returns
+    -------
+    float
+    
+    """
     raise NotImplementedError
+
 
 def relative_bias(
         true,
@@ -8151,8 +8547,28 @@ def relative_bias(
     """
     The following equation is taken after `Jiang et al., 2022 <https://doi.org/10.5194/essd-15-621-2023>`_ .
     # https://github.com/Ouranosinc/xclim/blob/4198e8bcc9d21dd6a89b5c93cf58972a69b87758/xclim/sdba/measures.py#L183
+
+    Parameters
+    ----------
+    true :
+        a pandas Series of true/observed/actual/target values with DateTimeIndex.
+    predicted :
+        a pandas Series of simulated/modeled/predicted/estimated with DateTimeIndex. 
+        It must also have same length as true.
+    treat_arrays :
+        process the true and predicted arrays using :py:func:`SeqMetrics.utils.treat_arrays` 
+        function
+    treat_arrays_kws:
+        Additional keyword arguments to be passed to :py:func:`SeqMetrics.utils.treat_arrays` 
+        function.
+    
+    Returns
+    -------
+    float
+
     """
     raise NotImplementedError
+
 
 def ppmc(
         true,
@@ -8163,44 +8579,264 @@ def ppmc(
     """
     pearson product moment correlation 
     https://github.com/flowmatters/veneer-py/blob/86bb9beb2d57f07e95a89d1f7bc410166a791118/veneer/stats.py#L135
+
+    Parameters
+    ----------
+    true :
+        a pandas Series of true/observed/actual/target values with DateTimeIndex.
+    predicted :
+        a pandas Series of simulated/modeled/predicted/estimated with DateTimeIndex. 
+        It must also have same length as true.
+    treat_arrays :
+        process the true and predicted arrays using :py:func:`SeqMetrics.utils.treat_arrays` 
+        function
+    treat_arrays_kws:
+        Additional keyword arguments to be passed to :py:func:`SeqMetrics.utils.treat_arrays` 
+        function.
+    
+    Returns
+    -------
+    float
+
     """
     raise NotImplementedError
 
-def weighted_nse():
+
+def weighted_nse(
+        true,
+        predicted,
+        treat_arrays: bool = True,
+        **treat_arrays_kws        
+):
     """
-    weighted NSE
+    weighted Nash-Sutcliffe efficiency between ``true`` and ``predicted`` arrays
+    as proposed by `Hundecha and Bardossy (2004) <https://doi.org/10.1016/j.jhydrol.2004.01.002>`_ 
+    to provide more focus on peaks.
+
+    Parameters
+    ----------
+    true :
+        a pandas Series of true/observed/actual/target values with DateTimeIndex.
+    predicted :
+        a pandas Series of simulated/modeled/predicted/estimated with DateTimeIndex. 
+        It must also have same length as true.
+    treat_arrays :
+        process the true and predicted arrays using :py:func:`SeqMetrics.utils.treat_arrays` 
+        function
+    treat_arrays_kws:
+        Additional keyword arguments to be passed to :py:func:`SeqMetrics.utils.treat_arrays` 
+        function.
+    
+    Returns
+    -------
+    float
+
     """
     raise NotImplementedError
 
-def weighted_seasonal_nse():
+
+def weighted_seasonal_nse(
+        true,
+        predicted,
+        treat_arrays: bool = True,
+        **treat_arrays_kws        
+):
     """
-    weighted seasonal NSE
+    It was proposed by `Zambrano-Bigiarini and Bellin (2012) <https://meetingorganizer.copernicus.org/EGU2012/EGU2012-11549-1.pdf>`_ .
+
+    Parameters
+    ----------
+    true :
+        a pandas Series of true/observed/actual/target values with DateTimeIndex.
+    predicted :
+        a pandas Series of simulated/modeled/predicted/estimated with DateTimeIndex. 
+        It must also have same length as true.
+    treat_arrays :
+        process the true and predicted arrays using :py:func:`SeqMetrics.utils.treat_arrays` 
+        function
+    treat_arrays_kws:
+        Additional keyword arguments to be passed to :py:func:`SeqMetrics.utils.treat_arrays` 
+        function.
+    
+    Returns
+    -------
+    float
+
     """
     raise NotImplementedError
 
-def unbiased_rmse():
+
+def unbiased_rmse(
+        true,
+        predicted,
+        treat_arrays: bool = True,
+        **treat_arrays_kws        
+):
     """
     unbiased RMSE
+
+    Parameters
+    ----------
+    true :
+        a pandas Series of true/observed/actual/target values with DateTimeIndex.
+    predicted :
+        a pandas Series of simulated/modeled/predicted/estimated with DateTimeIndex. 
+        It must also have same length as true.
+    treat_arrays :
+        process the true and predicted arrays using :py:func:`SeqMetrics.utils.treat_arrays` 
+        function
+    treat_arrays_kws:
+        Additional keyword arguments to be passed to :py:func:`SeqMetrics.utils.treat_arrays` 
+        function.
+    
+    Returns
+    -------
+    float
+
     """
     raise NotImplementedError
 
-def kge_lf():
+
+def kge_lf(
+        true,
+        predicted,
+        treat_arrays: bool = True,
+        **treat_arrays_kws        
+):
     """
-    Kling-Gupta Efficiency for low flows developed by `Pizarro and Jorquera, 2024 <https://doi.org/10.1016/j.jhydrol.2024.131071>`_
+    Kling-Gupta Efficiency for low flows developed by `Pizarro and Jorquera, 2024 <https://doi.org/10.1016/j.jhydrol.2024.131071>`_ 
+    or `Gracia et al., 2017 <https://doi.org/10.1080/02626667.2017.1308511>`_ ?
+
+    Parameters
+    ----------
+    true :
+        a pandas Series of true/observed/actual/target values with DateTimeIndex.
+    predicted :
+        a pandas Series of simulated/modeled/predicted/estimated with DateTimeIndex. 
+        It must also have same length as true.
+    treat_arrays :
+        process the true and predicted arrays using :py:func:`SeqMetrics.utils.treat_arrays` 
+        function
+    treat_arrays_kws:
+        Additional keyword arguments to be passed to :py:func:`SeqMetrics.utils.treat_arrays` 
+        function.
+    
+    Returns
+    -------
+    float
+
     """
     raise NotImplementedError
 
-def high_flow_bias():
+
+def peak_bias(
+        true,
+        predicted,
+        treat_arrays: bool = True,
+        **treat_arrays_kws
+):
     """
-    High flow bias
+    It is also known as high flow bias. Its values range from 0 to inf with 0 
+    being the best/ideal value.
+
+    Parameters
+    ----------
+    true :
+        a pandas Series of true/observed/actual/target values with DateTimeIndex.
+    predicted :
+        a pandas Series of simulated/modeled/predicted/estimated with DateTimeIndex. 
+        It must also have same length as true.
+    treat_arrays :
+        process the true and predicted arrays using :py:func:`SeqMetrics.utils.treat_arrays` 
+        function
+    treat_arrays_kws:
+        Additional keyword arguments to be passed to :py:func:`SeqMetrics.utils.treat_arrays` 
+        function.
+    
+    Returns
+    -------
+    float
+
+    Examples
+    ---------
+    >>> import numpy as np
+    >>> from SeqMetrics import peak_bias
+    
     """
     raise NotImplementedError
 
 
-def annual_peak_flow_bias():
+def annual_peak_flow_bias(
+        true,
+        predicted,
+        treat_arrays: bool = True,
+        **treat_arrays_kws
+)->float:
     """
-    Annual peak flow bias as proposed by `Mizukami et al. (2019) <https://doi.org/10.5194/hess-23-2601-2019>`_ .
-    Its values vary from 0 to infinity with 0 being the best. Higher values
-    indicate larger difference in peaks.
+    Annual peak flow bias as proposed by `Mizukami et al. (2019) <https://doi.org/10.5194/hess-23-2601-2019>`_ 
+    to provide more focus on peaks. Subsequently a model which reduces annual 
+    peak flow bias will produce best peak estimates. Its values vary from 0 to 
+    infinity with 0 being the best. Higher values indicate larger difference in
+    peaks. 
+
+    .. math::
+        APFB = \\sqrt{ [mu_s / mu_o] - 1]^2}
+
+    where mu is mean of annual peak flow series.
+
+    Parameters
+    ----------
+    true :
+        a pandas Series of true/observed/actual/target values with DateTimeIndex.
+    predicted :
+        a pandas Series of simulated/modeled/predicted/estimated with DateTimeIndex. 
+        It must also have same length as true.
+    treat_arrays :
+        process the true and predicted arrays using :py:func:`SeqMetrics.utils.treat_arrays` 
+        function
+    treat_arrays_kws:
+        Additional keyword arguments to be passed to :py:func:`SeqMetrics.utils.treat_arrays` 
+        function.
+    
+    Returns
+    -------
+    float
+        
+    Notes
+    -----
+    This metric requires pandas library. The index/timesteps of true and predicted 
+    arrays must exactly align with each other.
+        
+    Examples
+    ---------
+    >>> import numpy as np
+    >>> from SeqMetrics import annual_peak_flow_bias
+    >>> t = pd.Series(random_state.random(100), index=pd.date_range('1/1/2000', periods=100))
+    >>> p = pd.Series(random_state.random(100), index=pd.date_range('1/1/2000', periods=100))
+    >>> score = annual_peak_flow_bias(t, p)
+
     """
-    raise NotImplementedError
+
+    try:
+        import pandas as pd
+    except (ModuleNotFoundError, ImportError):
+        raise NotImplementedError("This metric requires pandas library.")
+
+    assert isinstance(true, (pd.Series, pd.DataFrame)), "true must be a pandas Series or DataFrame."
+    assert isinstance(predicted, (pd.Series, pd.DataFrame)), "predicted must be a pandas Series or DataFrame."
+
+    if isinstance(true, pd.DataFrame):
+        assert true.shape[1] == 1, "true must be a single column DataFrame."
+        true = true.squeeze()
+
+    if isinstance(predicted, pd.DataFrame):
+        assert predicted.shape[1] == 1, "predicted must be a single column DataFrame."
+        predicted = predicted.squeeze()
+
+    if not predicted.index.equals(true.index):
+        raise ValueError("Simulated and observed data must have the same dates!")
+
+    # Grouping data by year and calculating the maximum (peak flow)
+    sim_max = predicted.groupby(predicted.index.year).max()
+    obs_max = true.groupby(true.index.year).max()    
+    return float(np.sqrt(((sim_max / obs_max - 1) ** 2).mean()))

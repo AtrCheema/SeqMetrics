@@ -9,6 +9,7 @@ site.addsitedir(seqmet_dir)
 
 import scipy
 import numpy as np
+import pandas as pd
 
 from scipy.spatial.distance import cityblock
 from scipy.stats import pearsonr, kendalltau, spearmanr
@@ -135,6 +136,8 @@ from SeqMetrics import spearmann_corr
 from SeqMetrics import r2
 from SeqMetrics import manhattan_distance
 from SeqMetrics import coeff_of_persistence
+
+from SeqMetrics._rgr import annual_peak_flow_bias
 
 from SeqMetrics.utils import maybe_treat_arrays
 
@@ -1842,6 +1845,17 @@ class test_errors(unittest.TestCase):
     def test_coeff_of_persistence(self):
         # https://github.com/NOAA-OWP/hydrotools/blob/main/python/metrics/src/hydrotools/metrics/metrics.py#L231
         new_coeff_of_persistence = coeff_of_persistence(t11, p11)
+        return
+
+    def test_annual_peak_flow_bias(self):
+
+        df = pd.DataFrame({'observed': t11, 'simulated': p11},
+                          index=pd.date_range('1/1/2011', periods=100))
+
+        anpfb = annual_peak_flow_bias(df['observed'], df['simulated'])
+
+        assert isinstance(anpfb, float)
+
         return
 
 
