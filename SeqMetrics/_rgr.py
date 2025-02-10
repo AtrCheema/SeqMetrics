@@ -854,8 +854,9 @@ class RegressionMetrics(Metrics):
 
         This version of KGE was introduced to avoid cross-correlation between bias 
         and variability which happens when the precipitation data is biased. This
-        is done by calculating the variability (:math:`\\alpha`) by :math:`{CV}_s/{CV}_o` instaed of :math:`{\sigma}_s/{\sigma}_o`
-        where CV is the coefficient of variation.
+        is done by calculating the variability (:math:`\\alpha`) by :math:`{CV}_s/{CV}_o` 
+        instaed of :math:`{\sigma}_s/{\sigma}_o` where CV is the coefficient of variation which 
+        is defined as the ratio of the standard deviation to the mean (:math:`{\sigma}/{\mu}`).
 
         .. math::
             \\text{KGE`} = 1 - \\sqrt{(r - 1)^2 + (\\alpha - 1)^2 + (\\beta - 1)^2}
@@ -3261,7 +3262,7 @@ def kge_mod(
     This version of KGE was introduced to avoid cross-correlation between bias 
     and variability which happens when the precipitation data is biased. This
     is done by calculating the variability (:math:`\\alpha`) by :math:`{CV}_s/{CV}_o` instaed of :math:`{\sigma}_s/{\sigma}_o`
-    where CV is the coefficient of variation.
+    where CV is the coefficient of variation which is defined as the ratio of the standard deviation to the mean (:math:`{\sigma}/{\mu}`).
 
         .. math::
             \\text{KGE`} = 1 - \\sqrt{(r - 1)^2 + (\\alpha - 1)^2 + (\\beta - 1)^2}
@@ -3269,8 +3270,9 @@ def kge_mod(
     Parameters
     ----------
     true :
-         true/observed/actual/target values. It must be a numpy array,
-         or pandas series/DataFrame or a list.
+        true/observed/actual/target values. It must be a :obj:`numpy.array`,
+        or :obj:`pandas.DataFrame` or :obj:`pandas.Series` or a python :obj:`list`
+        or any object which has :obj:`__len__` method.
     predicted :
          simulated values
     treat_arrays :
@@ -3299,9 +3301,11 @@ def kge_mod(
     r = np.sum((predicted - sim_mean) * (true - obs_mean), axis=0, dtype=np.float64) / \
         np.sqrt(np.sum((predicted - sim_mean) ** 2, axis=0, dtype=np.float64) *
                 np.sum((true - obs_mean) ** 2, dtype=np.float64))
+
     # calculate error in spread of flow gamma (avoiding cross correlation with bias by dividing by the mean)
     gamma = (np.std(predicted, axis=0, dtype=np.float64) / sim_mean) / \
             (np.std(true, dtype=np.float64) / obs_mean)
+
     # calculate error in volume beta (bias of mean discharge)
     beta = np.mean(predicted, axis=0, dtype=np.float64) / np.mean(true, axis=0, dtype=np.float64)
     # calculate the modified Kling-Gupta Efficiency KGE'
@@ -8835,6 +8839,8 @@ def annual_peak_flow_bias(
 
     if not predicted.index.equals(true.index):
         raise ValueError("Simulated and observed data must have the same dates!")
+
+    # should return np.nan when the data is less than 1 year
 
     # Grouping data by year and calculating the maximum (peak flow)
     sim_max = predicted.groupby(predicted.index.year).max()
