@@ -11,3 +11,7 @@ Metrics
    :show-inheritance:
 
    .. automethod:: __init__
+
+
+.. autofunction:: SeqMetrics.calculate
+.. autofunction:: SeqMetrics.calculate_all
