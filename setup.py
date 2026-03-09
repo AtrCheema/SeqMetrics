@@ -11,7 +11,7 @@ if os.path.exists(fpath):
 setup(
     name='SeqMetrics',
 
-    version="2.0.0",
+    version="2.0.1",
 
     description='SeqMetrics: a unified library for performance metrics calculation in Python',
     long_description=long_desc,

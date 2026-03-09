@@ -229,7 +229,9 @@ class Metrics(object):
         if isinstance(metric, str):
             metric = [metric]
         
-        assert all([m in self.all_methods + ['mse'] for m in metric]), f"Invalid metric name. Available metrics are {self.all_methods}"
+        if not all([m in self.all_methods + ['mse'] for m in metric]):
+            invalid_metrics = [m for m in metric if m not in self.all_methods + ['mse']]
+            raise ValueError(f"Invalid metrics {invalid_metrics}. \nAvailable metrics are {self.all_methods}")
 
         errors = {}
         for m in metric:

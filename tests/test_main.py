@@ -16,6 +16,12 @@ class Test(unittest.TestCase):
         RegressionMetrics(t,p, np_errstate={"invalid": "ignore"}).rmsle()
         return
 
+    def test_raise_value_error(self):
+        t = [1,2,3]
+        p = [1, 2, 0.0]
+        with self.assertRaises(ValueError):
+            RegressionMetrics(t,p).calculate(metric="invalid_metric")
+
 
 if __name__ == "__main__":
     unittest.main()
