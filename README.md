@@ -289,7 +289,7 @@ of classification.
 
 ## Web App
 The SeqMetrics library is available from the webapp which is deployed
-used stream [https://seqmetrics.streamlit.app/](https://seqmetrics.streamlit.app/)
+at [https://environmentalai.io/](https://www.environmentalai.io/softwares/metrics_calculator/)
 
 You can also launch the app locally if you do not wish to use the web-based app. 
 Make sure you follow the below steps

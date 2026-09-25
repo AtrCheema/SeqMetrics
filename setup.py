@@ -20,7 +20,7 @@ setup(
     url='https://github.com/AtrCheema/SeqMetrics',
 
     author='Ather Abbas',
-    author_email='ather_abbas786@yahoo.com',
+    author_email='ather.abbas.cheema@gmail.com',
 
     classifiers=[
         "Development Status :: 5 - Production/Stable",
@@ -41,6 +41,7 @@ setup(
         'Programming Language :: Python :: 3.10',
         'Programming Language :: Python :: 3.11',
         'Programming Language :: Python :: 3.12',
+        'Programming Language :: Python :: 3.13',
 
         "Topic :: Scientific/Engineering :: Artificial Intelligence",
         "Topic :: Education",
@@ -53,11 +54,11 @@ setup(
     packages=['SeqMetrics'],
 
     install_requires=[
-        'numpy<=2.0.1, >=1.17',
+        'numpy<=2.5.3, >=1.17',
     ],
     extras_require={
-        'all': ["numpy<=2.0.1, >=1.17",
-                "scipy<=1.13, >=1.4",
+        'all': ["numpy<2.6, >=1.17",
+                "scipy<=1.18.1, >=1.4",
                 "easy_mpl"],
     }
 )
